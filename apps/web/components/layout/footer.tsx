@@ -28,7 +28,7 @@ export function Footer() {
           <FooterColumn title="Company" links={publicCompanyLinks} />
           <div>
             <FooterColumn title="Legal" links={legalLinks.map(({ title, href }) => ({ name: title, href }))} />
-            <a className="mt-5 inline-block text-sm text-blue-200 hover:text-white" href="mailto:hola@akademate.com">hola@akademate.com</a>
+            <a className="mt-5 inline-block text-sm text-blue-200 hover:text-white" href="mailto:info@akademate.com">info@akademate.com</a>
           </div>
         </div>
 

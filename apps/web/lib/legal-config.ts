@@ -30,7 +30,7 @@ export const legalCompany = {
   ),
   privacyContact: pending(
     'Privacy contact',
-    'Dedicated channel pending validation. In the meantime, enquiries may be sent to hola@akademate.com.'
+    'Dedicated channel pending validation. In the meantime, enquiries may be sent to info@akademate.com.'
   ),
 } as const
 

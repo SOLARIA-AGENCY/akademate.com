@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { MAX_PUBLIC_FORM_BYTES, waitlistSchema } from '@/lib/public-lead-schema'
+import { sendPublicNotification } from '@/lib/server/contact-notification'
 
 const CMS_URL = process.env.PAYLOAD_CMS_URL ?? 'http://localhost:3003'
 
@@ -24,6 +25,12 @@ export async function POST(request: NextRequest) {
   if (parsed.data.website) return NextResponse.json({ success: true }, { status: 202 })
 
   try {
+    await sendPublicNotification({ kind: 'waitlist', email: parsed.data.email })
+  } catch {
+    return NextResponse.json({ error: 'No se pudo enviar la solicitud' }, { status: 502 })
+  }
+
+  try {
     const response = await fetch(`${CMS_URL}/api/leads`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -36,9 +43,9 @@ export async function POST(request: NextRequest) {
       }),
     })
     if (response.status === 409) return NextResponse.json({ success: true })
-    if (!response.ok) return NextResponse.json({ error: 'No se pudo registrar la solicitud' }, { status: 502 })
+    if (!response.ok) return NextResponse.json({ success: true })
     return NextResponse.json({ success: true })
   } catch {
-    return NextResponse.json({ error: 'El servicio de contacto no está disponible' }, { status: 502 })
+    return NextResponse.json({ success: true })
   }
 }

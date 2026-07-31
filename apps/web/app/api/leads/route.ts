@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { MAX_PUBLIC_FORM_BYTES, publicLeadSchema } from '@/lib/public-lead-schema'
+import { sendPublicNotification } from '@/lib/server/contact-notification'
 
 const CMS_URL = process.env.PAYLOAD_CMS_URL ?? 'http://localhost:3003'
 
@@ -32,6 +33,24 @@ export async function POST(request: NextRequest) {
   const { website: _honeypot, subject, privacy_policy_accepted, ...lead } = parsed.data
 
   try {
+    await sendPublicNotification({
+      kind: 'contact',
+      firstName: lead.first_name,
+      lastName: lead.last_name,
+      email: lead.email,
+      phone: lead.phone,
+      subject,
+      message: lead.message,
+      utm: lead.utm,
+    })
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'No se pudo enviar la solicitud' },
+      { status: 502 }
+    )
+  }
+
+  try {
     const response = await fetch(`${CMS_URL}/api/leads`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -44,17 +63,9 @@ export async function POST(request: NextRequest) {
       }),
     })
     const data = await response.json().catch(() => ({}))
-    if (!response.ok) {
-      return NextResponse.json(
-        { success: false, error: 'No se pudo registrar la solicitud' },
-        { status: response.status >= 400 && response.status < 500 ? response.status : 502 }
-      )
-    }
+    if (!response.ok) return NextResponse.json({ success: true })
     return NextResponse.json({ success: true, data })
   } catch {
-    return NextResponse.json(
-      { success: false, error: 'El servicio de contacto no está disponible' },
-      { status: 502 }
-    )
+    return NextResponse.json({ success: true })
   }
 }
