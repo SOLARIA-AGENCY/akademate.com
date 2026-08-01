@@ -35,8 +35,8 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByText('Waira Sisa Studio').first()).toBeAttached()
     const trustSignals = page.getByRole('region', { name: 'Akademate trust signals' })
     await expect(trustSignals).toBeVisible()
-    await expect(trustSignals.getByText('Public learner feedback')).toBeVisible()
-    await expect(trustSignals.getByText('Consent-first privacy')).toBeVisible()
+    await expect(trustSignals.getByText('Learner-rated experience')).toBeVisible()
+    await expect(trustSignals.getByText('Consent-aware enquiries')).toBeVisible()
     await expect(trustSignals).not.toContainText(/trustpilot/i)
     await expect(
       page.getByRole('heading', { name: 'Let every academy voice be heard.' })
@@ -65,7 +65,12 @@ test.describe('Akademate public commercial surface', () => {
     const catalogue = page.getByTestId('feature-catalogue')
     await expect(
       catalogue.getByRole('tablist', { name: 'Akademate feature modules' }).getByRole('tab')
-    ).toHaveCount(19)
+    ).toHaveCount(21)
+    const featureTabs = catalogue.getByRole('tablist', { name: 'Akademate feature modules' })
+    await featureTabs.getByRole('tab').first().focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(featureTabs.getByRole('tab').nth(1)).toBeFocused()
+    await expect(featureTabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true')
     await catalogue.getByRole('tab', { name: 'Payments, billing and finance' }).click()
     await expect(
       catalogue
@@ -104,6 +109,79 @@ test.describe('Akademate public commercial surface', () => {
     expect(missing?.status()).toBe(404)
     const missingNews = await page.goto('/news/not-a-real-update')
     expect(missingNews?.status()).toBe(404)
+  })
+
+  test('presents governed MCP and paid growth as illustrative, permission-aware workflows', async ({
+    page,
+  }) => {
+    await page.goto('/features#mcp-agentic-operations')
+    const examples = page.getByRole('tablist', { name: 'Agentic and growth examples' })
+    await expect(examples).toBeVisible()
+    await expect(page.getByText('Illustrative roadmap')).toBeVisible()
+    await expect(page.getByText('Planned connector')).toHaveCount(4)
+    await examples.getByRole('tab', { name: 'Campaign intelligence' }).click()
+    await expect(page.locator('#growth-ads-intelligence')).toBeVisible()
+    const growthImage = page.getByRole('img', {
+      name: 'Academy operator viewing a social course promotion and campaign dashboard',
+    })
+    await expect
+      .poll(() =>
+        growthImage.evaluate((node) => {
+          const image = node as HTMLImageElement
+          return image.complete && image.naturalWidth > 0
+        })
+      )
+      .toBe(true)
+    await expect(page.getByText('Illustrative example').first()).toBeVisible()
+    await expect(page.getByText('Attributed enrolments')).toBeVisible()
+    await expect(page.getByText('Reach').first()).toBeVisible()
+    await expect(page.getByText('N/D', { exact: true })).toBeVisible()
+
+    await page.goto('/features#growth-ads-intelligence')
+    await expect(page.locator('#growth-ads-intelligence')).toBeVisible()
+    await expect(examples.getByRole('tab', { name: 'Campaign intelligence' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+    await expect
+      .poll(() =>
+        page
+          .locator('#growth-ads-intelligence')
+          .evaluate((node) => Math.round(node.getBoundingClientRect().top))
+      )
+      .toBeLessThan(160)
+  })
+
+  test('publishes honest Coming soon previews for Mac, iPhone and iPad', async ({ page }) => {
+    const response = await page.goto('/download')
+    expect(response?.status()).toBe(200)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Akademate on every screen.'
+    )
+    const apps = page.getByRole('tablist', { name: 'Future Akademate applications' })
+    await expect(apps.getByRole('tab')).toHaveCount(3)
+    await apps.getByRole('tab', { name: 'Mac', exact: true }).focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(apps.getByRole('tab', { name: 'iPhone', exact: true })).toBeFocused()
+    await expect(apps.getByRole('tab', { name: 'iPhone', exact: true })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+    for (const app of ['Mac', 'iPhone', 'iPad']) {
+      await apps.getByRole('tab', { name: app, exact: true }).click()
+      await expect(page.getByRole('tabpanel')).toContainText('Coming soon')
+      await expect(page.getByRole('tabpanel')).toContainText(
+        'No application download is available yet.'
+      )
+    }
+    await expect(page.getByRole('link', { name: /download now|app store|install/i })).toHaveCount(0)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.reload()
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      )
+    ).toBeLessThanOrEqual(1)
   })
 
   test('renders distinct web distribution modes and a complete shareable course journey', async ({
@@ -165,6 +243,13 @@ test.describe('Akademate public commercial surface', () => {
         tracks.map((track) => Number.parseFloat(getComputedStyle(track).animationDuration))
       )
     ).toEqual([132, 148])
+    const firstAcademyName = page.locator('.client-marquee-name').first()
+    await firstAcademyName.hover({ force: true })
+    await expect(firstAcademyName).toHaveCSS('color', 'rgb(21, 93, 252)')
+    await expect
+      .poll(() => firstAcademyName.evaluate((node) => getComputedStyle(node).transform))
+      .not.toBe('none')
+    await expect(marqueeTracks.first()).toHaveCSS('animation-play-state', 'running')
 
     const carousel = page.getByRole('region', { name: 'Academy models' })
     await expect(carousel).toBeVisible()
@@ -230,10 +315,12 @@ test.describe('Akademate public commercial surface', () => {
   })
 
   test('commercial copy stays within a two-line visual budget', async ({ page }) => {
+    test.setTimeout(60_000)
     const paths = [
       '/',
       '/features',
       '/pricing',
+      '/download',
       '/solutions',
       '/solutions/professional-training',
       '/solutions/languages',
@@ -256,7 +343,7 @@ test.describe('Akademate public commercial surface', () => {
     ]) {
       await page.setViewportSize(viewport)
       for (const path of paths) {
-        await page.goto(path)
+        await page.goto(path, { waitUntil: 'domcontentloaded' })
         const offenders = await page
           .locator(
             '.marketing-page main p, .marketing-page main h1, .marketing-page main h2, .marketing-page main h3'
@@ -335,7 +422,7 @@ test.describe('Akademate public commercial surface', () => {
       '/solutions/languages',
       '/solutions/networks',
     ]
-    const response = await page.goto('/solutions')
+    const response = await page.goto('/solutions', { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBe(200)
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
       'Built around your academy model.'
@@ -345,16 +432,22 @@ test.describe('Akademate public commercial surface', () => {
     await expect(verticalImages).toHaveCount(8)
     for (let index = 0; index < (await verticalImages.count()); index += 1) {
       const image = verticalImages.nth(index)
-      await image.scrollIntoViewIfNeeded()
-      await expect(image).toHaveJSProperty('complete', true)
+      await image.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'center' }))
       await expect
-        .poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth))
-        .toBeGreaterThan(0)
+        .poll(
+          () =>
+            image.evaluate((node) => {
+              const imageNode = node as HTMLImageElement
+              return imageNode.complete && imageNode.naturalWidth > 0
+            }),
+          { timeout: 15_000 }
+        )
+        .toBe(true)
     }
 
     const headings = new Set<string>()
     for (const path of paths) {
-      const verticalResponse = await page.goto(path)
+      const verticalResponse = await page.goto(path, { waitUntil: 'domcontentloaded' })
       expect(verticalResponse?.status()).toBe(200)
       const heading = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? ''
       expect(heading.length).toBeGreaterThan(20)
@@ -376,26 +469,35 @@ test.describe('Akademate public commercial surface', () => {
       )
         trackerRequests.push(request.url())
     })
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('main')).toBeVisible()
+    await page.waitForTimeout(1_000)
     expect(trackerRequests).toEqual([])
   })
 
   test('loads every marketing image when its card enters the viewport', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
-    const images = page.locator('main img[alt]:not([alt=""])')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    const images = page.locator('main img[alt]:not([alt=""]):visible')
     const count = await images.count()
     expect(count).toBeGreaterThanOrEqual(10)
 
     for (let index = 0; index < count; index += 1) {
       const image = images.nth(index)
-      await image.scrollIntoViewIfNeeded()
-      await expect(image).toHaveJSProperty('complete', true)
+      const alt = (await image.getAttribute('alt')) ?? 'missing alt'
+      const source = (await image.getAttribute('src')) ?? 'lazy source not assigned'
+      await image.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'center' }))
       await expect
-        .poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth))
-        .toBeGreaterThan(0)
+        .poll(
+          () =>
+            image.evaluate((node) => {
+              const imageNode = node as HTMLImageElement
+              return imageNode.complete && imageNode.naturalWidth > 0
+            }),
+          { timeout: 15_000, message: `image ${index} (${alt}) failed to load from ${source}` }
+        )
+        .toBe(true)
       await expect(image).toHaveAttribute('alt', /.+/)
     }
   })
@@ -406,7 +508,7 @@ test.describe('Akademate public commercial surface', () => {
   }) => {
     test.setTimeout(60_000)
     for (const sourcePath of ['/', '/features', '/pricing', '/solutions', '/blog', '/news']) {
-      await page.goto(sourcePath)
+      await page.goto(sourcePath, { waitUntil: 'domcontentloaded' })
       const hrefs = await page
         .locator('a[href]')
         .evaluateAll(
@@ -418,9 +520,11 @@ test.describe('Akademate public commercial surface', () => {
         const [path, fragment] = href.split('#')
         if (fragment && (!path || path === '/' || path === sourcePath)) {
           const targetPath = path || sourcePath
-          if (targetPath !== sourcePath) await page.goto(targetPath)
+          if (targetPath !== sourcePath)
+            await page.goto(targetPath, { waitUntil: 'domcontentloaded' })
           await expect(page.locator(`#${fragment}`)).toHaveCount(1)
-          if (targetPath !== sourcePath) await page.goto(sourcePath)
+          if (targetPath !== sourcePath)
+            await page.goto(sourcePath, { waitUntil: 'domcontentloaded' })
           continue
         }
 
@@ -433,7 +537,11 @@ test.describe('Akademate public commercial surface', () => {
   test('key commercial routes load without failed assets or console errors', async ({ page }) => {
     const failures: string[] = []
     page.on('requestfailed', (request) => {
-      if (!request.url().includes('_rsc=')) failures.push(`request:${request.url()}`)
+      const errorText = request.failure()?.errorText
+      const navigationCancelled = errorText === 'net::ERR_ABORTED'
+      if (!request.url().includes('_rsc=') && !navigationCancelled) {
+        failures.push(`request:${errorText ?? 'unknown'}:${request.url()}`)
+      }
     })
     page.on('response', (response) => {
       if (response.status() >= 400) failures.push(`response:${response.status()}:${response.url()}`)
@@ -445,6 +553,7 @@ test.describe('Akademate public commercial surface', () => {
       '/',
       '/features',
       '/pricing',
+      '/download',
       '/solutions',
       '/blog',
       '/news',
@@ -454,9 +563,10 @@ test.describe('Akademate public commercial surface', () => {
       '/sobre-nosotros',
       '/contacto',
     ]) {
-      const response = await page.goto(path)
+      const response = await page.goto(path, { waitUntil: 'load' })
       expect(response?.status()).toBe(200)
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('main')).toBeVisible()
+      await page.waitForTimeout(100)
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth
       )

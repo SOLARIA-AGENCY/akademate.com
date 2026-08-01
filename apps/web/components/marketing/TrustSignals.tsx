@@ -4,24 +4,24 @@ import { ArrowUpRight, Building2, Layers3, ShieldCheck, Star } from 'lucide-reac
 const trustSignals = [
   {
     icon: Star,
-    label: 'Public learner feedback',
-    detail: 'Five-star reviews presented by CEP Formación',
+    label: 'Learner-rated experience',
+    detail: 'See public feedback from a live Akademate academy',
     href: 'https://cepformacion.akademate.com/',
   },
   {
     icon: ShieldCheck,
-    label: 'Consent-first privacy',
-    detail: 'No analytics or marketing before permission',
+    label: 'Consent-aware enquiries',
+    detail: 'Clear privacy choices before people share their details',
   },
   {
     icon: Building2,
-    label: 'Every teaching model',
-    detail: 'In-person, online and hybrid operations',
+    label: 'Built for every classroom',
+    detail: 'One flow for in-person, online and hybrid delivery',
   },
   {
     icon: Layers3,
-    label: 'One operating foundation',
-    detail: 'Growth, campus, people and finance',
+    label: 'Configure your operating stack',
+    detail: 'Activate the modules, roles and integrations you need',
   },
 ] as const
 

@@ -38,6 +38,19 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['meta', 'googleads'],
   },
   {
+    title: 'Campaign intelligence',
+    audiences: ['Growth', 'Leadership'],
+    signal: 'Illustrative',
+    signalLabel: 'provider and CRM signals',
+    previewTitle: 'Campaign dashboard',
+    previewRows: [
+      { label: 'Paid sources', value: 'Meta · Google' },
+      { label: 'Metric freshness', value: 'Visible' },
+      { label: 'Attribution model', value: 'Configurable' },
+    ],
+    connectors: ['meta', 'googleads'],
+  },
+  {
     title: 'Reservations and admissions',
     audiences: ['Admissions', 'Learners'],
     signal: '42',
@@ -231,6 +244,19 @@ export const featureModuleDetails: ModuleDetail[] = [
       { label: 'Access scope', value: 'Permission-aware' },
     ],
     connectors: ['openai'],
+  },
+  {
+    title: 'AI workspace and MCP',
+    audiences: ['Optional for every role', 'IT'],
+    signal: 'Scoped',
+    signalLabel: 'tenant and role context',
+    previewTitle: 'MCP workspace',
+    previewRows: [
+      { label: 'Read action', value: 'Summarise' },
+      { label: 'Draft action', value: 'Review first' },
+      { label: 'Write action', value: 'Approval required' },
+    ],
+    connectors: ['openai', 'claude', 'gemini'],
   },
   {
     title: 'Security and governance',

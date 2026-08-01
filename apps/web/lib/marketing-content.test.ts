@@ -2,6 +2,13 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import {
+  agenticControls,
+  agenticProviders,
+  campaignFunnel,
+  campaignMetrics,
+} from '@/lib/agentic-growth-content'
+import { appDownloadOptions } from '@/lib/app-download-content'
 import { blogPosts, insightPosts, newsPosts } from '@/lib/blog-posts'
 import { featureModuleDetails } from '@/lib/feature-module-details'
 import { integrationBrands, integrationPillarBrands } from '@/lib/integration-brands'
@@ -58,15 +65,19 @@ describe('public marketing architecture', () => {
     const styles = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
     expect(styles).toMatch(/client-marquee 132s linear infinite/)
     expect(styles).toMatch(/animation-duration: 148s/)
+    expect(styles).toMatch(/\.client-marquee-name:hover[\s\S]*color: #155dfc/)
+    expect(styles).toMatch(/\.client-marquee-name:hover[\s\S]*transform: scale\(1\.045\)/)
+    expect(styles).not.toMatch(/client-marquee-track:hover[\s\S]*animation-play-state:\s*paused/)
   })
 
   it('describes the expanded operating platform without making AI the sales moat', () => {
-    expect(featureGroups).toHaveLength(19)
+    expect(featureGroups).toHaveLength(21)
     expect(featureGroups.every((group) => group.features.length >= 5)).toBe(true)
     expect(featureGroups.map((group) => group.title)).toEqual(
       expect.arrayContaining([
         'Website, catalogue and embeds',
         'Growth, Ads and CRM',
+        'Campaign intelligence',
         'Reservations and admissions',
         'Offers, runs and capacity',
         'Academic operations',
@@ -77,6 +88,7 @@ describe('public marketing architecture', () => {
         'HR and workforce',
         'Library, inventory and facilities',
         'Sports and seasonal operations',
+        'AI workspace and MCP',
         'Security and governance',
         'APIs, webhooks and deployment',
       ])
@@ -106,6 +118,72 @@ describe('public marketing architecture', () => {
         'AI-assisted operations',
       ])
     )
+  })
+
+  it('keeps agentic and campaign expansion claim-safe and structurally explicit', () => {
+    expect(agenticProviders).toHaveLength(4)
+    expect(agenticProviders.map((provider) => provider.label)).toEqual([
+      'ChatGPT',
+      'Claude',
+      'Grok',
+      'Gemini',
+    ])
+    expect(agenticProviders.every((provider) => provider.status === 'Planned connector')).toBe(true)
+    expect(agenticControls).toHaveLength(3)
+    expect(agenticControls.map((control) => control.action)).toEqual([
+      'No approval needed',
+      'Review before send',
+      'Approval required',
+    ])
+    expect(campaignMetrics.map((metric) => metric.label)).toEqual(
+      expect.arrayContaining([
+        'Impressions',
+        'Reach',
+        'CTR',
+        'Spend',
+        'Leads',
+        'Attributed enrolments',
+      ])
+    )
+    expect(campaignMetrics.find((metric) => metric.label === 'Reach')?.value).toBe('N/D')
+    expect(campaignFunnel.map((step) => step.label)).toEqual([
+      'Campaign',
+      'Landing',
+      'Lead',
+      'Application',
+      'Enrolment',
+    ])
+
+    const showcase = readFileSync(
+      new URL('../components/marketing/AgenticGrowthShowcase.tsx', import.meta.url),
+      'utf8'
+    )
+    expect(showcase).toContain('tenant-scoped')
+    expect(agenticControls.some((control) => control.action === 'Approval required')).toBe(true)
+    expect(showcase).toContain('Illustrative example')
+    expect(showcase).not.toMatch(/autonomous|guaranteed ROI|real-time|all agents supported/i)
+  })
+
+  it('publishes only honest Coming soon application previews', () => {
+    expect(appDownloadOptions.map((option) => option.label)).toEqual(['Mac', 'iPhone', 'iPad'])
+    expect(appDownloadOptions.every((option) => option.status === 'Coming soon')).toBe(true)
+    for (const option of appDownloadOptions) {
+      expect(existsSync(new URL(`../public${option.image}`, import.meta.url))).toBe(true)
+    }
+    expect(
+      existsSync(
+        new URL('../public/images/download/akademate-apps-device-family-v1.jpg', import.meta.url)
+      )
+    ).toBe(true)
+
+    const download = readFileSync(new URL('../app/download/page.tsx', import.meta.url), 'utf8')
+    const showcase = readFileSync(
+      new URL('../components/marketing/AppDownloadShowcase.tsx', import.meta.url),
+      'utf8'
+    )
+    expect(`${download}${showcase}`).toMatch(/Coming soon/)
+    expect(showcase).toContain('No application download is available yet')
+    expect(`${download}${showcase}`).not.toMatch(/App Store|Download now|Install now/)
   })
 
   it('makes connected role experiences and multi-site setup first-class product stories', () => {
@@ -375,7 +453,8 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/TrustSignals.tsx', import.meta.url),
       'utf8'
     )
-    expect(trustSignals).toContain('Public learner feedback')
+    expect(trustSignals).toContain('Learner-rated experience')
+    expect(trustSignals).toContain('Consent-aware enquiries')
     expect(trustSignals).toContain('https://cepformacion.akademate.com/')
     expect(trustSignals).not.toMatch(/trustpilot|g2 crowd|capterra/i)
   })
@@ -431,10 +510,12 @@ describe('public marketing architecture', () => {
       '/pricing',
       '/blog',
       '/news',
+      '/download',
       '/sobre-nosotros',
     ])
     expect(publicNavigation.find((item) => item.href === '/blog')?.name).toBe('Blog')
     expect(publicNavigation.find((item) => item.href === '/news')?.name).toBe('News')
+    expect(publicNavigation.find((item) => item.href === '/download')?.name).toBe('Download')
     expect(publicCompanyLinks.find((item) => item.href === '/blog')?.name).toBe('Blog')
     expect(publicCompanyLinks.find((item) => item.href === '/news')?.name).toBe('News')
   })

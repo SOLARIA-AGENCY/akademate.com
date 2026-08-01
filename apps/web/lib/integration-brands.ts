@@ -139,6 +139,18 @@ export const integrationBrands = {
     status: 'Roadmap',
   },
   openai: { label: 'OpenAI', asset: '/brands/openai.svg', color: '#111827', status: 'Roadmap' },
+  claude: {
+    label: 'Claude / Anthropic',
+    asset: '/brands/claude.svg',
+    color: '#D97757',
+    status: 'Roadmap',
+  },
+  gemini: {
+    label: 'Gemini / Google',
+    asset: '/brands/gemini.svg',
+    color: '#4285F4',
+    status: 'Roadmap',
+  },
   okta: { label: 'Okta', asset: '/brands/okta.svg', color: '#007DC1', status: 'Roadmap' },
   auth0: { label: 'Auth0', asset: '/brands/auth0.svg', color: '#EB5424', status: 'Roadmap' },
   zapier: {

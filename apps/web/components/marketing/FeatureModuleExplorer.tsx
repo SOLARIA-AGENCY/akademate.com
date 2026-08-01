@@ -1,16 +1,24 @@
 'use client'
 
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { featureModuleDetailByTitle } from '@/lib/feature-module-details'
 import { featureGroups } from '@/lib/marketing-content'
 
 export function FeatureModuleExplorer() {
   const [activeTitle, setActiveTitle] = useState<string>(featureGroups[0]?.title ?? '')
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
   const group = featureGroups.find((item) => item.title === activeTitle) ?? featureGroups[0]
   const detail = group ? featureModuleDetailByTitle[group.title] : undefined
   if (!group || !detail) return null
+
+  const selectFeature = (title: string, focus = false) => {
+    setActiveTitle(title)
+    if (!focus) return
+    const index = featureGroups.findIndex((item) => item.title === title)
+    tabRefs.current[index]?.focus()
+  }
 
   return (
     <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
@@ -39,11 +47,41 @@ export function FeatureModuleExplorer() {
               return (
                 <button
                   key={item.title}
+                  ref={(node) => {
+                    tabRefs.current[index] = node
+                  }}
+                  id={`feature-tab-${slugify(item.title)}`}
                   type="button"
                   role="tab"
                   aria-selected={selected}
-                  aria-controls={`feature-panel-${slugify(item.title)}`}
-                  onClick={() => setActiveTitle(item.title)}
+                  aria-controls="feature-panel"
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => selectFeature(item.title)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                      event.preventDefault()
+                      selectFeature(
+                        featureGroups[(index + 1) % featureGroups.length]?.title ?? group.title,
+                        true
+                      )
+                    }
+                    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                      event.preventDefault()
+                      selectFeature(
+                        featureGroups[(index - 1 + featureGroups.length) % featureGroups.length]
+                          ?.title ?? group.title,
+                        true
+                      )
+                    }
+                    if (event.key === 'Home') {
+                      event.preventDefault()
+                      selectFeature(featureGroups[0]?.title ?? group.title, true)
+                    }
+                    if (event.key === 'End') {
+                      event.preventDefault()
+                      selectFeature(featureGroups.at(-1)?.title ?? group.title, true)
+                    }
+                  }}
                   className={`flex w-[260px] shrink-0 items-center gap-4 rounded-xl px-4 py-3 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:w-full ${selected ? 'bg-[#071633] text-white' : 'text-slate-700 hover:bg-blue-50'}`}
                 >
                   <span
@@ -59,7 +97,8 @@ export function FeatureModuleExplorer() {
 
           <article
             role="tabpanel"
-            id={`feature-panel-${slugify(group.title)}`}
+            id="feature-panel"
+            aria-labelledby={`feature-tab-${slugify(group.title)}`}
             className="p-6 sm:p-9 lg:p-12"
             key={group.title}
           >

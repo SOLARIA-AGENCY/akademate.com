@@ -15,11 +15,11 @@ The currently paused thread goal cannot be replaced through the goal API while u
 
 ## Solution Registry
 
-| Approach | Central idea | Correctness | Maintainability | Scalability | Simplicity | Pragmatism |
-|---|---|---:|---:|---:|---:|---:|
-| A. Feature catalogue expansion | Add every capability to the existing sections and retain the current visual composition. | 7 | 7 | 7 | 8 | 7 |
-| B. Product-journey system | Centralize a product capability model, rebuild Home around real product previews and let Features provide the complete module map. | 9 | 9 | 9 | 7 | 9 |
-| C. Vertical microsites first | Build separate pages for each academy type and defer the shared product narrative. | 7 | 6 | 8 | 5 | 6 |
+| Approach                       | Central idea                                                                                                                       | Correctness | Maintainability | Scalability | Simplicity | Pragmatism |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ----------: | --------------: | ----------: | ---------: | ---------: |
+| A. Feature catalogue expansion | Add every capability to the existing sections and retain the current visual composition.                                           |           7 |               7 |           7 |          8 |          7 |
+| B. Product-journey system      | Centralize a product capability model, rebuild Home around real product previews and let Features provide the complete module map. |           9 |               9 |           9 |          7 |          9 |
+| C. Vertical microsites first   | Build separate pages for each academy type and defer the shared product narrative.                                                 |           7 |               6 |           8 |          5 |          6 |
 
 Selected: **B. Product-journey system**.
 
@@ -54,7 +54,7 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 ### Features
 
 - [x] Replace repetitive feature list with grouped platform architecture.
-- [x] Add an interactive catalogue for all 19 modules with users, capabilities, metrics and workflow previews.
+- [x] Add an interactive catalogue for all 21 modules with users, capabilities, metrics and workflow previews.
 - [x] Centralize provider and payment-method logos with explicit availability states and local assets.
 - [x] Add Web and commerce, Finance and accounting, HR and workforce, Library and assets.
 - [x] Add complete LMS, gradebook, chat, certificates and communications detail.
@@ -155,3 +155,35 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 - [ ] Push.
 - [ ] Public deploy.
 - [ ] Served-artifact verification.
+
+## Agentic growth extension
+
+The two additional product cases are governed by the detailed addendum in
+[`docs/plans/2026-08-01-agentic-growth-expansion.md`](./2026-08-01-agentic-growth-expansion.md)
+and the executable prompt in
+[`docs/prompts/2026-08-01-agentic-growth-expansion-prompt.md`](../prompts/2026-08-01-agentic-growth-expansion-prompt.md).
+
+- [ ] MCP gateway separated from all CEP defaults and resolved by SaaS tenant.
+- [ ] Read-only, draft and mutable tools have explicit scopes and approval gates.
+- [ ] MCP connections, tool calls, approvals and audit events have tenant-scoped contracts.
+- [ ] Meta Ads snapshots use tenant-owned credentials, idempotency and freshness metadata.
+- [ ] Google Ads is a separate adapter, not an alias or logo-only integration.
+- [ ] Campaign metrics reconcile to leads, applications, enrolments and attendance with unresolved states preserved.
+- [ ] Growth dashboard distinguishes provider metrics from Akademate-confirmed outcomes.
+- [ ] Automations preview and request approval; no budget or publication mutation in the first phase.
+- [ ] Home and Features show both workflows with illustrative labels and no unsupported provider claims.
+- [ ] Adversarial tests cover cross-tenant access, revocation, approval, replay, attribution and zero denominators.
+
+## Native app public preview
+
+The public preview is governed by
+[`docs/plans/2026-08-01-native-apps-public-preview.md`](./2026-08-01-native-apps-public-preview.md)
+and its implementation prompt in
+[`docs/prompts/2026-08-01-native-apps-public-preview-prompt.md`](../prompts/2026-08-01-native-apps-public-preview-prompt.md).
+
+- [x] Home and Features include a reusable Mac, iPhone and iPad preview.
+- [x] `/download` has distinct device views and generated Akademate product imagery.
+- [x] Every native option is labelled `Coming soon` and exposes no fake install or store link.
+- [x] The device registry, navigation and footer links are centralized.
+- [x] Desktop/mobile tests cover routes, tabs, copy budget, images and overflow.
+- [ ] Signed native binaries, notarisation and App Store distribution remain future product work.

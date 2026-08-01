@@ -220,8 +220,16 @@ html {
   animation-duration: 148s;
 }
 
-.client-marquee-track:hover {
-  animation-play-state: paused;
+.client-marquee-name {
+  transform-origin: center;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.client-marquee-name:hover {
+  color: #155dfc;
+  transform: scale(1.045);
 }
 
 .solution-carousel-track {

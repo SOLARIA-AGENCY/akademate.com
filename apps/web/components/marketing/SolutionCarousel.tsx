@@ -119,6 +119,7 @@ export function SolutionCarousel() {
                   src={vertical.image}
                   alt={canonical ? vertical.imageAlt : ''}
                   fill
+                  loading={canonical ? 'eager' : 'lazy'}
                   sizes="(max-width: 640px) 82vw, 390px"
                   className="object-cover"
                 />

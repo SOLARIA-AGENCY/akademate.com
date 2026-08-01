@@ -18,6 +18,8 @@ import {
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
+import { AgenticGrowthShowcase } from '@/components/marketing/AgenticGrowthShowcase'
+import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { FeatureModuleExplorer } from '@/components/marketing/FeatureModuleExplorer'
@@ -181,6 +183,10 @@ export default function FeaturesPage() {
             </p>
           </div>
         </section>
+
+        <AgenticGrowthShowcase />
+
+        <AppDownloadShowcase compact />
 
         <FeatureModuleExplorer />
 

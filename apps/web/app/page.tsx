@@ -14,6 +14,8 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
+import { AgenticGrowthShowcase } from '@/components/marketing/AgenticGrowthShowcase'
+import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { ClientMarquee } from '@/components/marketing/ClientMarquee'
@@ -59,7 +61,7 @@ export default function HomePage() {
       <Header />
       <main id="content">
         <section className="product-texture relative overflow-hidden bg-[#06142f] text-white">
-          <div className="mx-auto grid min-h-[calc(100dvh-73px)] max-w-[1440px] items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[.78fr_1.22fr] lg:px-8 lg:py-16">
+          <div className="mx-auto grid min-h-[min(760px,calc(100dvh-73px))] max-w-[1440px] items-center gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[.78fr_1.22fr] lg:px-8 lg:py-10">
             <div className="max-w-[650px]">
               <p className="hero-item text-sm font-semibold text-blue-200">
                 Built for in-person, online and hybrid academies
@@ -91,6 +93,8 @@ export default function HomePage() {
         <TrustSignals />
 
         <ConnectedExperiences />
+
+        <AgenticGrowthShowcase />
 
         <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
@@ -259,6 +263,8 @@ export default function HomePage() {
         </section>
 
         <CustomerVoices />
+
+        <AppDownloadShowcase compact />
 
         <section id="solutions" className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">

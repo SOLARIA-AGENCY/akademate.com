@@ -430,6 +430,18 @@ export const featureGroups = [
     ],
   },
   {
+    title: 'Campaign intelligence',
+    eyebrow: 'Understand paid growth',
+    description: 'Connect campaign signals to attributed enrolment.',
+    features: [
+      'Meta Ads and Google Ads sources',
+      'Impressions, reach, clicks and CTR',
+      'Spend, leads and applications',
+      'Configured attribution windows',
+      'Approval-based growth rules',
+    ],
+  },
+  {
     title: 'Reservations and admissions',
     eyebrow: 'Convert demand',
     description: 'Shape every route from enquiry to confirmed place.',
@@ -607,6 +619,18 @@ export const featureGroups = [
       'Human review points',
       'Configurable providers',
       'AI transparency controls',
+    ],
+  },
+  {
+    title: 'AI workspace and MCP',
+    eyebrow: 'Connect approved clients',
+    description: 'Prepare academy work inside each person’s permission scope.',
+    features: [
+      'Tenant-scoped MCP tools',
+      'Read, draft and confirm modes',
+      'Compatible client options',
+      'Human confirmation for consequences',
+      'Auditable tool activity',
     ],
   },
   {

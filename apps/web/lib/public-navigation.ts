@@ -4,6 +4,7 @@ export const publicNavigation = [
   { name: 'Pricing', href: '/pricing' },
   { name: 'Blog', href: '/blog' },
   { name: 'News', href: '/news' },
+  { name: 'Download', href: '/download' },
   { name: 'Company', href: '/sobre-nosotros' },
 ] as const
 
@@ -11,6 +12,7 @@ export const publicCompanyLinks = [
   { name: 'Company', href: '/sobre-nosotros' },
   { name: 'Blog', href: '/blog' },
   { name: 'News', href: '/news' },
+  { name: 'Download', href: '/download' },
   { name: 'Contact', href: '/contacto' },
 ] as const
 

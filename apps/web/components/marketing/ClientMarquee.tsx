@@ -24,7 +24,7 @@ export function ClientMarquee() {
               {[...row, ...row].map((name, index) => (
                 <span
                   key={`${name}-${index}`}
-                  className="flex shrink-0 items-center gap-5 whitespace-nowrap text-lg font-semibold text-slate-400 sm:text-xl"
+                  className="client-marquee-name flex shrink-0 items-center gap-5 whitespace-nowrap text-lg font-semibold text-slate-400 sm:text-xl"
                 >
                   {name}
                   <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
