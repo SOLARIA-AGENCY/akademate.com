@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const config = {
   output: 'standalone',
+  outputFileTracingRoot: path.resolve(__dirname, '../..'),
   reactStrictMode: true,
 
   // Transpile workspace packages that ship TypeScript source

@@ -5,5 +5,26 @@
     "accessibility": "verified-static",
     "states": "partial",
     "evidence": "docs/design/AKADEMATE_NEXT_UI_AUDIT.md#pilot-re-audit-campus-dashboard"
+  },
+  "apps/campus/app/progress/page.tsx": {
+    "desktop": "verified-synthetic",
+    "mobile": "verified-synthetic",
+    "accessibility": "verified-static",
+    "states": "partial",
+    "evidence": "docs/design/AKADEMATE_NEXT_CAMPUS_WORKSPACE_BATCH_2026-08-01.md"
+  },
+  "apps/campus/app/asistencia/page.tsx": {
+    "desktop": "verified-synthetic",
+    "mobile": "verified-synthetic",
+    "accessibility": "verified-static",
+    "states": "verified-synthetic",
+    "evidence": "docs/design/AKADEMATE_NEXT_CAMPUS_WORKSPACE_BATCH_2026-08-01.md"
+  },
+  "apps/campus/app/certificates/page.tsx": {
+    "desktop": "verified-synthetic",
+    "mobile": "verified-synthetic",
+    "accessibility": "verified-static",
+    "states": "partial",
+    "evidence": "docs/design/AKADEMATE_NEXT_CAMPUS_WORKSPACE_BATCH_2026-08-01.md"
   }
 }

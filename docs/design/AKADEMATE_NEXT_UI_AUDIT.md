@@ -11,7 +11,7 @@ Evidence boundary: deterministic source inventory and local Campus build; authen
   `payload` 4; `portal` 4; and public `web` 13.
 - 84 local primitive files remain across tenant-admin, admin-client, portal and web.
 - The page layer contains 668 local primitive imports and 166 hardcoded colour utilities.
-- Only two pages currently import the shared `@akademate/ui` authority.
+- Five pages currently import the shared `@akademate/ui` authority, up from two.
 - Five sidebar source files remain across admin-client and tenant-admin.
 
 Authoritative inventory: [akademate-next-ui-inventory.json](./akademate-next-ui-inventory.json).
@@ -59,9 +59,9 @@ The selected approach establishes tokens, primitives and composed workspace patt
 - [x] Add shared Button, Badge, Card, Progress and Skeleton primitives.
 - [x] Add shared WorkspaceShell, navigation, PageHeader, MetricCard and EmptyState patterns.
 - [x] Migrate Campus dashboard to shared workspace/primitives.
+- [x] Migrate Campus progress, attendance and certificates to the shared workspace.
 - [x] Verify Campus desktop/mobile with synthetic authorized state; no overflow, console or request errors.
 - [ ] Verify Campus against an isolated real authenticated runtime.
-- [ ] Migrate Campus progress, attendance and certificates.
 - [ ] Audit and migrate tenant-admin dashboard/navigation.
 - [ ] Audit and migrate student/staff/course/course-run record views.
 - [ ] Audit and migrate tables, filters, forms, dialogs and empty/error/loading states.
@@ -73,10 +73,10 @@ The selected approach establishes tokens, primitives and composed workspace patt
 
 | Evidence                                      | Verified | Total | Progress |
 | --------------------------------------------- | -------: | ----: | -------: |
-| Desktop                                       |        1 |   237 |     0.4% |
-| Mobile                                        |        1 |   237 |     0.4% |
-| Accessibility                                 |        1 |   237 |     0.4% |
-| Loading, empty, error and long-content states |        0 |   237 |       0% |
+| Desktop                                       |        4 |   237 |     1.7% |
+| Mobile                                        |        4 |   237 |     1.7% |
+| Accessibility                                 |        4 |   237 |     1.7% |
+| Loading, empty, error and long-content states |        1 |   237 |     0.4% |
 
 `verified-synthetic` means the route was inspected using a controlled local state. It does not
 prove real authentication, persisted data, sockets, external integrations or a deployed artifact.
