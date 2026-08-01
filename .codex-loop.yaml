@@ -11,6 +11,8 @@ checks:
       command: node scripts/verify-akademate-next-isolation.mjs
     - name: next-mcp-runtime-boundary
       command: corepack pnpm --filter @akademate/mcp-server test && corepack pnpm --filter @akademate/mcp-server build
+    - name: next-ui-inventory
+      command: node --test scripts/__tests__/akademate-next-ui-inventory.test.mjs && corepack pnpm audit:ui
     - name: learning-membership-access
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
     - name: next-runtime-collection-boundary

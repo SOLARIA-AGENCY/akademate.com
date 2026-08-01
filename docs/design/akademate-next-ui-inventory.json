@@ -1,0 +1,3627 @@
+{
+  "schemaVersion": 1,
+  "totalPages": 237,
+  "totalLayouts": 17,
+  "totalLocalPrimitiveFiles": 84,
+  "totalSharedUiConsumers": 2,
+  "totalSidebarFiles": 5,
+  "pageSignals": {
+    "sharedUiPages": 2,
+    "localPrimitiveImports": 668,
+    "hardcodedColorTokens": 166
+  },
+  "auditProgress": {
+    "desktopVerified": 1,
+    "mobileVerified": 1,
+    "accessibilityVerified": 1,
+    "statesVerified": 0
+  },
+  "apps": {
+    "admin-client": {
+      "pages": 27,
+      "layouts": 2,
+      "localPrimitiveFiles": 15,
+      "sharedUiConsumers": 0,
+      "sidebarFiles": 2
+    },
+    "campus": {
+      "pages": 11,
+      "layouts": 1,
+      "localPrimitiveFiles": 0,
+      "sharedUiConsumers": 1,
+      "sidebarFiles": 0
+    },
+    "ops": {
+      "pages": 10,
+      "layouts": 1,
+      "localPrimitiveFiles": 0,
+      "sharedUiConsumers": 0,
+      "sidebarFiles": 0
+    },
+    "payload": {
+      "pages": 4,
+      "layouts": 2,
+      "localPrimitiveFiles": 0,
+      "sharedUiConsumers": 0,
+      "sidebarFiles": 0
+    },
+    "portal": {
+      "pages": 4,
+      "layouts": 1,
+      "localPrimitiveFiles": 3,
+      "sharedUiConsumers": 0,
+      "sidebarFiles": 0
+    },
+    "tenant-admin": {
+      "pages": 168,
+      "layouts": 9,
+      "localPrimitiveFiles": 63,
+      "sharedUiConsumers": 0,
+      "sidebarFiles": 3
+    },
+    "web": {
+      "pages": 13,
+      "layouts": 1,
+      "localPrimitiveFiles": 3,
+      "sharedUiConsumers": 1,
+      "sidebarFiles": 0
+    }
+  },
+  "pages": [
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/analytics/page.tsx",
+      "route": "/dashboard/analytics",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/analytics/retencion/page.tsx",
+      "route": "/dashboard/analytics/retencion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/api-keys/page.tsx",
+      "route": "/dashboard/api-keys",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/api/page.tsx",
+      "route": "/dashboard/api",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/auditoria/page.tsx",
+      "route": "/dashboard/auditoria",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/billing/page.tsx",
+      "route": "/dashboard/billing",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/configuracion/page.tsx",
+      "route": "/dashboard/configuracion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/equipo/page.tsx",
+      "route": "/dashboard/equipo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 1,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/estado/page.tsx",
+      "route": "/dashboard/estado",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/facturacion/page.tsx",
+      "route": "/dashboard/facturacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/finanzas/gastos/page.tsx",
+      "route": "/dashboard/finanzas/gastos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/finanzas/ingresos/page.tsx",
+      "route": "/dashboard/finanzas/ingresos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/finanzas/page.tsx",
+      "route": "/dashboard/finanzas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/impersonar/page.tsx",
+      "route": "/dashboard/impersonar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/media/page.tsx",
+      "route": "/dashboard/media",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/page.tsx",
+      "route": "/dashboard",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/perfil/page.tsx",
+      "route": "/dashboard/perfil",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 1,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/roadmap/page.tsx",
+      "route": "/dashboard/roadmap",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/soporte/page.tsx",
+      "route": "/dashboard/soporte",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/support/page.tsx",
+      "route": "/dashboard/support",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/suscripciones/page.tsx",
+      "route": "/dashboard/suscripciones",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/tenants/[id]/page.tsx",
+      "route": "/dashboard/tenants/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/tenants/create/page.tsx",
+      "route": "/dashboard/tenants/create",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/dashboard/tenants/page.tsx",
+      "route": "/dashboard/tenants",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/login/page.tsx",
+      "route": "/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "admin-client",
+      "file": "apps/admin-client/app/settings/page.tsx",
+      "route": "/settings",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/asistencia/page.tsx",
+      "route": "/asistencia",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/assignment/[slug]/page.tsx",
+      "route": "/assignment/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/certificates/page.tsx",
+      "route": "/certificates",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/course/[slug]/page.tsx",
+      "route": "/course/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/cursos/[enrollmentId]/lecciones/[lessonId]/page.tsx",
+      "route": "/cursos/[enrollmentId]/lecciones/[lessonId]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/cursos/[enrollmentId]/page.tsx",
+      "route": "/cursos/[enrollmentId]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/dashboard/page.tsx",
+      "route": "/dashboard",
+      "sharedUiImport": true,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "verified-synthetic",
+        "mobile": "verified-synthetic",
+        "accessibility": "verified-static",
+        "states": "partial",
+        "evidence": "docs/design/AKADEMATE_NEXT_UI_AUDIT.md#pilot-re-audit-campus-dashboard"
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/lesson/[slug]/page.tsx",
+      "route": "/lesson/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/login/page.tsx",
+      "route": "/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "campus",
+      "file": "apps/campus/app/progress/page.tsx",
+      "route": "/progress",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/alerts/page.tsx",
+      "route": "/alerts",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/api-health/page.tsx",
+      "route": "/api-health",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/dashboard/page.tsx",
+      "route": "/dashboard",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/database/page.tsx",
+      "route": "/database",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/jobs/page.tsx",
+      "route": "/jobs",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/logs/page.tsx",
+      "route": "/logs",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/monitoring/page.tsx",
+      "route": "/monitoring",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/services/page.tsx",
+      "route": "/services",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "ops",
+      "file": "apps/ops/app/settings/page.tsx",
+      "route": "/settings",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "payload",
+      "file": "apps/payload/app/(payload)/admin/[[...segments]]/page.tsx",
+      "route": "/admin/[[...segments]]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "payload",
+      "file": "apps/payload/app/(payload)/admin/login/page.tsx",
+      "route": "/admin/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "payload",
+      "file": "apps/payload/app/(payload)/admin/page.tsx",
+      "route": "/admin",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "payload",
+      "file": "apps/payload/app/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "portal",
+      "file": "apps/portal/app/admin/[tenant]/page.tsx",
+      "route": "/admin/[tenant]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "portal",
+      "file": "apps/portal/app/campus/[tenant]/page.tsx",
+      "route": "/campus/[tenant]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "portal",
+      "file": "apps/portal/app/login/page.tsx",
+      "route": "/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "portal",
+      "file": "apps/portal/app/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 1,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/actividad/page.tsx",
+      "route": "/administracion/actividad",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/areas-estudio/page.tsx",
+      "route": "/administracion/areas-estudio",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/historial/page.tsx",
+      "route": "/administracion/historial",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/impersonar/page.tsx",
+      "route": "/administracion/impersonar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/page.tsx",
+      "route": "/administracion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/roles/page.tsx",
+      "route": "/administracion/roles",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/suscripcion/page.tsx",
+      "route": "/administracion/suscripcion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/tipos-estudio/page.tsx",
+      "route": "/administracion/tipos-estudio",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administracion/usuarios/page.tsx",
+      "route": "/administracion/usuarios",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 10,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administrativo/[id]/editar/page.tsx",
+      "route": "/administrativo/[id]/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administrativo/[id]/page.tsx",
+      "route": "/administrativo/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administrativo/nuevo/page.tsx",
+      "route": "/administrativo/nuevo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/administrativo/page.tsx",
+      "route": "/administrativo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/alumnos/[id]/page.tsx",
+      "route": "/alumnos/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/alumnos/nuevo/page.tsx",
+      "route": "/alumnos/nuevo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/alumnos/page.tsx",
+      "route": "/alumnos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/analiticas/page.tsx",
+      "route": "/analiticas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ayuda/page.tsx",
+      "route": "/ayuda",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/calendario-citas/page.tsx",
+      "route": "/calendario-citas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 10,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campanas/[id]/page.tsx",
+      "route": "/campanas/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campanas/page.tsx",
+      "route": "/campanas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 9,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campus-virtual/certificados/page.tsx",
+      "route": "/campus-virtual/certificados",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campus-virtual/contenido/page.tsx",
+      "route": "/campus-virtual/contenido",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campus-virtual/inscripciones/page.tsx",
+      "route": "/campus-virtual/inscripciones",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campus-virtual/page.tsx",
+      "route": "/campus-virtual",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/campus-virtual/progreso/page.tsx",
+      "route": "/campus-virtual/progreso",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos-medio/page.tsx",
+      "route": "/ciclos-medio",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos-superior/page.tsx",
+      "route": "/ciclos-superior",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos/[id]/detalle/page.tsx",
+      "route": "/ciclos/[id]/detalle",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos/[id]/editar/page.tsx",
+      "route": "/ciclos/[id]/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos/[id]/ficha/page.tsx",
+      "route": "/ciclos/[id]/ficha",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 2,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos/[id]/page.tsx",
+      "route": "/ciclos/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 2,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos/nuevo/page.tsx",
+      "route": "/ciclos/nuevo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/ciclos/page.tsx",
+      "route": "/ciclos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 11,
+      "hardcodedColorTokenCount": 3,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/apis/page.tsx",
+      "route": "/configuracion/apis",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 9,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/areas/page.tsx",
+      "route": "/configuracion/areas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/dominios/page.tsx",
+      "route": "/configuracion/dominios",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/flags/page.tsx",
+      "route": "/configuracion/flags",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/gdpr/page.tsx",
+      "route": "/configuracion/gdpr",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/general/page.tsx",
+      "route": "/configuracion/general",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/page.tsx",
+      "route": "/configuracion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/configuracion/personalizacion/page.tsx",
+      "route": "/configuracion/personalizacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/blog/page.tsx",
+      "route": "/contenido/blog",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/faqs/page.tsx",
+      "route": "/contenido/faqs",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/formularios/page.tsx",
+      "route": "/contenido/formularios",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/medios/page.tsx",
+      "route": "/contenido/medios",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/paginas/[slug]/page.tsx",
+      "route": "/contenido/paginas/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/paginas/page.tsx",
+      "route": "/contenido/paginas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/testimonios/page.tsx",
+      "route": "/contenido/testimonios",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/contenido/visitantes/page.tsx",
+      "route": "/contenido/visitantes",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/creatividades/page.tsx",
+      "route": "/creatividades",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/[id]/convocatoria/[convocationId]/page.tsx",
+      "route": "/cursos/[id]/convocatoria/[convocationId]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/[id]/editar/page.tsx",
+      "route": "/cursos/[id]/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 12,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/[id]/ficha/page.tsx",
+      "route": "/cursos/[id]/ficha",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 9,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/[id]/page.tsx",
+      "route": "/cursos/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/convocatorias/page.tsx",
+      "route": "/cursos/convocatorias",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/nuevo/page.tsx",
+      "route": "/cursos/nuevo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 11,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/page.tsx",
+      "route": "/cursos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 9,
+      "hardcodedColorTokenCount": 4,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/dashboard/page.tsx",
+      "route": "/dashboard",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/design-system/page.tsx",
+      "route": "/design-system",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 18,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/diseno/mockup-dashboard/page.tsx",
+      "route": "/diseno/mockup-dashboard",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/estado/page.tsx",
+      "route": "/estado",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/facturacion/page.tsx",
+      "route": "/facturacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/finanzas/cobros-pagos/page.tsx",
+      "route": "/finanzas/cobros-pagos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/finanzas/facturacion/page.tsx",
+      "route": "/finanzas/facturacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/finanzas/informes/page.tsx",
+      "route": "/finanzas/informes",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/finanzas/nominas/page.tsx",
+      "route": "/finanzas/nominas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/finanzas/page.tsx",
+      "route": "/finanzas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/inscripciones/[id]/page.tsx",
+      "route": "/inscripciones/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 9,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/inscripciones/page.tsx",
+      "route": "/inscripciones",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/leads/[id]/page.tsx",
+      "route": "/leads/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/leads/page.tsx",
+      "route": "/leads",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 10,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/lista-espera/page.tsx",
+      "route": "/lista-espera",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/marketing/campanas/page.tsx",
+      "route": "/marketing/campanas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/marketing/creatividades/page.tsx",
+      "route": "/marketing/creatividades",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/marketing/page.tsx",
+      "route": "/marketing",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/matriculas/[id]/editar/page.tsx",
+      "route": "/matriculas/[id]/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/matriculas/[id]/page.tsx",
+      "route": "/matriculas/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/matriculas/page.tsx",
+      "route": "/matriculas",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/perfil/editar/page.tsx",
+      "route": "/perfil/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/perfil/page.tsx",
+      "route": "/perfil",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/personal/[id]/page.tsx",
+      "route": "/personal/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/personal/administrativos/page.tsx",
+      "route": "/personal/administrativos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/personal/page.tsx",
+      "route": "/personal",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/personal/profesores/page.tsx",
+      "route": "/personal/profesores",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/planner/page.tsx",
+      "route": "/planner",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 3,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/profesores/[id]/editar/page.tsx",
+      "route": "/profesores/[id]/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/profesores/[id]/page.tsx",
+      "route": "/profesores/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/profesores/nuevo/page.tsx",
+      "route": "/profesores/nuevo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/profesores/page.tsx",
+      "route": "/profesores",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/programacion/[id]/ficha/page.tsx",
+      "route": "/programacion/[id]/ficha",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 3,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/programacion/[id]/page.tsx",
+      "route": "/programacion/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 9,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/programacion/nueva/page.tsx",
+      "route": "/programacion/nueva",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 8,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/programacion/page.tsx",
+      "route": "/programacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/sedes/[id]/aulas/[aulaId]/page.tsx",
+      "route": "/sedes/[id]/aulas/[aulaId]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/sedes/[id]/detalle/page.tsx",
+      "route": "/sedes/[id]/detalle",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/sedes/[id]/editar/page.tsx",
+      "route": "/sedes/[id]/editar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 9,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/sedes/[id]/page.tsx",
+      "route": "/sedes/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/sedes/nueva/page.tsx",
+      "route": "/sedes/nueva",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/sedes/page.tsx",
+      "route": "/sedes",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/ciclos/[slug]/page.tsx",
+      "route": "/web/ciclos/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/ciclos/medio/page.tsx",
+      "route": "/web/ciclos/medio",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/ciclos/page.tsx",
+      "route": "/web/ciclos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/ciclos/superior/page.tsx",
+      "route": "/web/ciclos/superior",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 2,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/convocatorias/[id]/page.tsx",
+      "route": "/web/convocatorias/[id]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/convocatorias/page.tsx",
+      "route": "/web/convocatorias",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/web/cursos/page.tsx",
+      "route": "/web/cursos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 7,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/assignments/page.tsx",
+      "route": "/assignments",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/auth/accept-invite/page.tsx",
+      "route": "/auth/accept-invite",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/auth/forgot-password/page.tsx",
+      "route": "/auth/forgot-password",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/auth/login/page.tsx",
+      "route": "/auth/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/auth/signup/page.tsx",
+      "route": "/auth/signup",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/activar/page.tsx",
+      "route": "/campus/activar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/cursos/[enrollmentId]/leccion/[lessonId]/page.tsx",
+      "route": "/campus/cursos/[enrollmentId]/leccion/[lessonId]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/cursos/[enrollmentId]/page.tsx",
+      "route": "/campus/cursos/[enrollmentId]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/login/page.tsx",
+      "route": "/campus/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/logros/page.tsx",
+      "route": "/campus/logros",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/page.tsx",
+      "route": "/campus",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/recuperar/page.tsx",
+      "route": "/campus/recuperar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 4,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/campus/restablecer/page.tsx",
+      "route": "/campus/restablecer",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/certificates/page.tsx",
+      "route": "/certificates",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/courses/page.tsx",
+      "route": "/courses",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/enrollments/page.tsx",
+      "route": "/enrollments",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/legal/cookies/page.tsx",
+      "route": "/legal/cookies",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/legal/privacidad/page.tsx",
+      "route": "/legal/privacidad",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/legal/terminos/page.tsx",
+      "route": "/legal/terminos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/login/page.tsx",
+      "route": "/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/reports/page.tsx",
+      "route": "/reports",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/settings/page.tsx",
+      "route": "/settings",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/users/page.tsx",
+      "route": "/users",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(payload)/admin/[[...segments]]/page.tsx",
+      "route": "/admin/[[...segments]]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/agencia-colocacion/page.tsx",
+      "route": "/agencia-colocacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/aproem/page.tsx",
+      "route": "/aproem",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 32,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/blog/[slug]/page.tsx",
+      "route": "/blog/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 6,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/blog/page.tsx",
+      "route": "/blog",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 2,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/colabora/page.tsx",
+      "route": "/colabora",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 12,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/contacto/page.tsx",
+      "route": "/contacto",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/convocatorias/[slug]/page.tsx",
+      "route": "/convocatorias/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/convocatorias/page.tsx",
+      "route": "/convocatorias",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/empleo/page.tsx",
+      "route": "/empleo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/faq/page.tsx",
+      "route": "/faq",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/landing/[slug]/page.tsx",
+      "route": "/landing/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/agencia-colocacion/page.tsx",
+      "route": "/p/agencia-colocacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 13,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/areas/[slug]/page.tsx",
+      "route": "/p/areas/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 1,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/ciclos/[slug]/page.tsx",
+      "route": "/p/ciclos/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/ciclos/page.tsx",
+      "route": "/p/ciclos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/contacto/page.tsx",
+      "route": "/p/contacto",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 5,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/convocatorias/[slug]/page.tsx",
+      "route": "/p/convocatorias/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 39,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/convocatorias/page.tsx",
+      "route": "/p/convocatorias",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 1,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/cursos/[slug]/page.tsx",
+      "route": "/p/cursos/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 3,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/cursos/page.tsx",
+      "route": "/p/cursos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/empleo/page.tsx",
+      "route": "/p/empleo",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/formacion/page.tsx",
+      "route": "/p/formacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/legal/cookies/page.tsx",
+      "route": "/p/legal/cookies",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/legal/ia/page.tsx",
+      "route": "/p/legal/ia",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/legal/page.tsx",
+      "route": "/p/legal",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/legal/privacidad/page.tsx",
+      "route": "/p/legal/privacidad",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 6,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/legal/subencargados/page.tsx",
+      "route": "/p/legal/subencargados",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/legal/terminos/page.tsx",
+      "route": "/p/legal/terminos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/profesores/[slug]/page.tsx",
+      "route": "/p/profesores/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/quienes-somos/page.tsx",
+      "route": "/p/quienes-somos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 5,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/p/sedes/[slug]/page.tsx",
+      "route": "/p/sedes/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/quienes-somos/page.tsx",
+      "route": "/quienes-somos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 21,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/shadcn-preview/page.tsx",
+      "route": "/shadcn-preview",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 21,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/site/sedes/[slug]/page.tsx",
+      "route": "/site/sedes/[slug]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(public)/site/sedes/page.tsx",
+      "route": "/site/sedes",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/presentacion/page.tsx",
+      "route": "/presentacion",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/accesos/page.tsx",
+      "route": "/accesos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/blog/page.tsx",
+      "route": "/blog",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/contacto/page.tsx",
+      "route": "/contacto",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/cursos/page.tsx",
+      "route": "/cursos",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/design-system/page.tsx",
+      "route": "/design-system",
+      "sharedUiImport": true,
+      "localPrimitiveImportCount": 3,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/design-system/sandbox/[template]/page.tsx",
+      "route": "/design-system/sandbox/[template]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/design-system/templates/[template]/page.tsx",
+      "route": "/design-system/templates/[template]",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/login/page.tsx",
+      "route": "/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/page.tsx",
+      "route": "/",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/portal/login/page.tsx",
+      "route": "/portal/login",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/registro/completar/page.tsx",
+      "route": "/registro/completar",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/registro/page.tsx",
+      "route": "/registro",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "web",
+      "file": "apps/web/app/sobre-nosotros/page.tsx",
+      "route": "/sobre-nosotros",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    }
+  ]
+}

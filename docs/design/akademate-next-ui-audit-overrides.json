@@ -1,0 +1,9 @@
+{
+  "apps/campus/app/dashboard/page.tsx": {
+    "desktop": "verified-synthetic",
+    "mobile": "verified-synthetic",
+    "accessibility": "verified-static",
+    "states": "partial",
+    "evidence": "docs/design/AKADEMATE_NEXT_UI_AUDIT.md#pilot-re-audit-campus-dashboard"
+  }
+}

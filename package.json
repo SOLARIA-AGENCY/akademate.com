@@ -29,6 +29,8 @@
     "shadcn:tenant:info": "pnpm --dir apps/tenant-admin dlx shadcn@latest info --json",
     "mcp:dfo": "pnpm -C infra/solaria-digital-field--operations/mcp-server start",
     "mcp:context7": "pnpm exec context7-mcp --transport http --port 8793",
+    "audit:ui": "node scripts/audit-akademate-next-ui.mjs --check",
+    "audit:ui:write": "node scripts/audit-akademate-next-ui.mjs --write",
     "office:bootstrap": "bash scripts/office-bootstrap.sh"
   },
   "engines": {
