@@ -1,18 +1,54 @@
 export const operatingJourney = [
-  { step: '01', title: 'Discover', text: 'Turn campaigns, recommendations and course pages into one measurable intake.' },
-  { step: '02', title: 'Reserve', text: 'Offer enquiry, application, instant booking, paid enrolment or a waitlist.' },
-  { step: '03', title: 'Confirm', text: 'Coordinate approval, capacity, documents, consent and place expiry.' },
-  { step: '04', title: 'Pay', text: 'Collect a deposit, one-off payment, subscription, instalment or membership fee.' },
-  { step: '05', title: 'Deliver', text: 'Run sessions, attendance, teaching, communication and the learner campus.' },
-  { step: '06', title: 'Grow', text: 'Connect conversion, participation and finance signals across the organisation.' },
+  {
+    step: '01',
+    title: 'Discover',
+    text: 'Turn campaigns, recommendations and course pages into one measurable intake.',
+  },
+  {
+    step: '02',
+    title: 'Reserve',
+    text: 'Offer enquiry, application, instant booking, paid enrolment or a waitlist.',
+  },
+  {
+    step: '03',
+    title: 'Confirm',
+    text: 'Coordinate approval, capacity, documents, consent and place expiry.',
+  },
+  {
+    step: '04',
+    title: 'Pay',
+    text: 'Collect a deposit, one-off payment, subscription, instalment or membership fee.',
+  },
+  {
+    step: '05',
+    title: 'Deliver',
+    text: 'Run sessions, attendance, teaching, communication and the learner campus.',
+  },
+  {
+    step: '06',
+    title: 'Grow',
+    text: 'Connect conversion, participation and finance signals across the organisation.',
+  },
 ] as const
 
 export const reservationModes = [
   { title: 'Enquiry', text: 'Capture interest and route it to the right team.' },
-  { title: 'Application', text: 'Review eligibility, documents or an assessment before confirming.' },
-  { title: 'Place hold', text: 'Protect capacity for a defined period while requirements are completed.' },
-  { title: 'Instant booking', text: 'Confirm a free or paid place immediately when the rules allow it.' },
-  { title: 'Paid enrolment', text: 'Reserve, collect payment and start onboarding in one journey.' },
+  {
+    title: 'Application',
+    text: 'Review eligibility, documents or an assessment before confirming.',
+  },
+  {
+    title: 'Place hold',
+    text: 'Protect capacity for a defined period while requirements are completed.',
+  },
+  {
+    title: 'Instant booking',
+    text: 'Confirm a free or paid place immediately when the rules allow it.',
+  },
+  {
+    title: 'Paid enrolment',
+    text: 'Reserve, collect payment and start onboarding in one journey.',
+  },
   { title: 'Waitlist', text: 'Keep demand organised and promote the next eligible participant.' },
 ] as const
 
@@ -39,11 +75,131 @@ export const distributionModes = [
   },
 ] as const
 
+export const academyExperiences = [
+  {
+    id: 'operations',
+    label: 'Academy team',
+    eyebrow: 'For directors and centre staff',
+    title: 'Run the whole academy with a clear view of today.',
+    description:
+      'Bring enrolment, schedules, campuses, people, attendance, communication and finance into one operational workspace.',
+    image: '/images/marketing/akademate-operations-experience-v1.jpg',
+    imageAlt:
+      'Academy directors and administrative staff using Akademate to coordinate performance, schedules and learners',
+    capabilities: [
+      'Admissions and records',
+      'Courses and timetables',
+      'Multiple campuses',
+      'Staff and resources',
+      'Finance and reporting',
+    ],
+  },
+  {
+    id: 'teachers',
+    label: 'Teachers',
+    eyebrow: 'For teachers and coaches',
+    title: 'Prepare, teach and support every learner in one place.',
+    description:
+      'Plan courses, run in-person or live online classes, record attendance, share work, grade submissions and continue the conversation privately.',
+    image: '/images/marketing/akademate-teacher-experience-v1.jpg',
+    imageAlt:
+      'Teacher using Akademate for a hybrid class, course preparation, attendance, assignments and grades',
+    capabilities: [
+      'Course workspace',
+      'In-person and live online classes',
+      'Attendance',
+      'Assignments and grades',
+      'Private chat and feedback',
+    ],
+  },
+  {
+    id: 'learners',
+    label: 'Learners',
+    eyebrow: 'For learners and families',
+    title: 'Know what comes next and keep learning moving.',
+    description:
+      'Give every learner a branded virtual campus for classes, resources, assignments, grades, progress, certificates and direct teacher support.',
+    image: '/images/marketing/akademate-learner-experience-v1.jpg',
+    imageAlt:
+      'Learner using the Akademate virtual campus on laptop and mobile alongside an in-person class',
+    capabilities: [
+      'Virtual campus',
+      'Next classes and resources',
+      'Assignments and grades',
+      'Attendance and progress',
+      'Private teacher chat',
+    ],
+  },
+] as const
+
+export const academySetupStages = [
+  {
+    id: 'blueprint',
+    step: '01',
+    title: 'Academy blueprint',
+    description:
+      'Define the operating model, teaching formats, academic calendar and launch priorities.',
+    progress: 12,
+    capabilities: ['Academy model', 'Teaching formats', 'Launch plan'],
+  },
+  {
+    id: 'campuses',
+    step: '02',
+    title: 'Campuses and spaces',
+    description:
+      'Create one or many physical locations, rooms, facilities and an online campus with the right capacity.',
+    progress: 30,
+    capabilities: ['Multiple campuses', 'Rooms and facilities', 'Online campus'],
+  },
+  {
+    id: 'programmes',
+    step: '03',
+    title: 'Programmes and offers',
+    description:
+      'Shape courses, cohorts, classes, memberships, events, schedules and enrolment rules.',
+    progress: 48,
+    capabilities: ['Courses and cohorts', 'Schedules', 'Capacity and pricing'],
+  },
+  {
+    id: 'people',
+    step: '04',
+    title: 'People and access',
+    description:
+      'Bring in centre staff, teachers and learners with role-specific workspaces and responsibilities.',
+    progress: 66,
+    capabilities: ['Teams and roles', 'Teachers', 'Learners and families'],
+  },
+  {
+    id: 'experience',
+    step: '05',
+    title: 'Learning and operations',
+    description:
+      'Connect attendance, campus, communication, payments, reporting and the tools around your academy.',
+    progress: 84,
+    capabilities: ['Campus and chat', 'Payments and finance', 'Integrations'],
+  },
+  {
+    id: 'live',
+    step: '06',
+    title: 'Academy live',
+    description:
+      'Complete the readiness check and reveal a connected academy experience carrying your identity.',
+    progress: 100,
+    capabilities: ['Brand and website', 'Team ready', 'Launch complete'],
+  },
+] as const
+
 export const platformPillars = [
   {
     title: 'Web and commerce',
     text: 'Branded websites, custom domains, embedded modules, course pages, registration and checkout.',
-    capabilities: ['Website and CMS', 'Domain and DNS', 'Embeds', 'Offer pages', 'SEO and social sharing'],
+    capabilities: [
+      'Website and CMS',
+      'Domain and DNS',
+      'Embeds',
+      'Offer pages',
+      'SEO and social sharing',
+    ],
   },
   {
     title: 'Growth and admissions',
@@ -119,7 +275,8 @@ export const verticals = [
   {
     slug: 'professional-training',
     title: 'Professional and regulated training',
-    description: 'Applications, documentation, cohorts, academic calendars, instalments and a connected learner campus.',
+    description:
+      'Applications, documentation, cohorts, academic calendars, instalments and a connected learner campus.',
     image: '/images/marketing/akademate-in-person-academy.jpg',
     imageAlt: 'Adult vocational learners working with a teacher in a modern training centre',
     capabilities: ['Admissions', 'Cohorts', 'Academic progress'],
@@ -127,7 +284,8 @@ export const verticals = [
   {
     slug: 'wellness',
     title: 'Yoga, pilates and wellness studios',
-    description: 'Recurring classes, room capacity, memberships, session packs and frictionless repeat booking.',
+    description:
+      'Recurring classes, room capacity, memberships, session packs and frictionless repeat booking.',
     image: '/images/marketing/akademate-wellness-studio.jpg',
     imageAlt: 'Yoga studio class coordinated by an instructor using a tablet',
     capabilities: ['Memberships', 'Session packs', 'Recurring classes'],
@@ -135,7 +293,8 @@ export const verticals = [
   {
     slug: 'sports',
     title: 'Sports academies and clubs',
-    description: 'Age groups, guardians, assessments, teams, seasons, attendance, licences and participant development.',
+    description:
+      'Age groups, guardians, assessments, teams, seasons, attendance, licences and participant development.',
     image: '/images/marketing/akademate-sports-campus.jpg',
     imageAlt: 'Children taking part in a professionally organised outdoor sports academy',
     capabilities: ['Guardians', 'Teams', 'Seasons'],
@@ -143,7 +302,8 @@ export const verticals = [
   {
     slug: 'seasonal',
     title: 'Camps and seasonal programmes',
-    description: 'Launch a reservable programme with dates, capacity, deposits, documents and automated reminders.',
+    description:
+      'Launch a reservable programme with dates, capacity, deposits, documents and automated reminders.',
     image: '/images/marketing/seasonal-campus-checkin.jpg',
     imageAlt: 'Summer sports campus with participant check-in and coached activities',
     capabilities: ['Fast launch', 'Deposits', 'Capacity'],
@@ -151,7 +311,8 @@ export const verticals = [
   {
     slug: 'performing-arts',
     title: 'Music, dance and performing arts',
-    description: 'Coordinate teachers, rooms, recurring lessons, attendance, performances and family payments.',
+    description:
+      'Coordinate teachers, rooms, recurring lessons, attendance, performances and family payments.',
     image: '/images/marketing/akademate-performing-arts.jpg',
     imageAlt: 'Dance and music academy operating several classes in a shared studio',
     capabilities: ['Studios', 'Teachers', 'Recurring lessons'],
@@ -159,7 +320,8 @@ export const verticals = [
   {
     slug: 'online-cohorts',
     title: 'Online schools and cohort programmes',
-    description: 'Bring applications, payments, lessons, assignments, chat and progress into one digital operation.',
+    description:
+      'Bring applications, payments, lessons, assignments, chat and progress into one digital operation.',
     image: '/images/marketing/akademate-online-academy.jpg',
     imageAlt: 'Educator delivering a live online lesson from a professional teaching studio',
     capabilities: ['Virtual campus', 'Assignments', 'Community'],
@@ -167,7 +329,8 @@ export const verticals = [
   {
     slug: 'languages',
     title: 'Language academies',
-    description: 'Placement tests, level-based groups, attendance, monthly billing and classroom or online delivery.',
+    description:
+      'Placement tests, level-based groups, attendance, monthly billing and classroom or online delivery.',
     image: '/images/marketing/language-academy.jpg',
     imageAlt: 'Adult learners in a collaborative language academy class',
     capabilities: ['Placement', 'Levels', 'Monthly billing'],
@@ -175,7 +338,8 @@ export const verticals = [
   {
     slug: 'networks',
     title: 'Multi-site groups and franchises',
-    description: 'Shared standards with local catalogues, domains, permissions, capacity and payment responsibility.',
+    description:
+      'Shared standards with local catalogues, domains, permissions, capacity and payment responsibility.',
     image: '/images/marketing/akademate-multisite-network.jpg',
     imageAlt: 'Education group leaders coordinating a multi-location training organisation',
     capabilities: ['Brands', 'Locations', 'Local finance'],
@@ -185,57 +349,130 @@ export const verticals = [
 export const solutionDetails = {
   'professional-training': {
     headline: 'Fill cohorts faster. Deliver every programme with confidence.',
-    promise: 'Bring applications, documentation, schedules, teaching and learner progress into one connected professional training operation.',
-    outcomes: ['Convert more enquiries into qualified applications', 'Keep documentation and approvals moving', 'Give teachers and learners one reliable campus', 'See cohort performance and revenue together'],
-    workflow: ['Capture interest', 'Review eligibility', 'Confirm enrolment', 'Deliver the programme'],
-    modules: ['Admissions CRM', 'Cohorts and timetables', 'Learner campus', 'Payments and reporting'],
+    promise:
+      'Bring applications, documentation, schedules, teaching and learner progress into one connected professional training operation.',
+    outcomes: [
+      'Convert more enquiries into qualified applications',
+      'Keep documentation and approvals moving',
+      'Give teachers and learners one reliable campus',
+      'See cohort performance and revenue together',
+    ],
+    workflow: [
+      'Capture interest',
+      'Review eligibility',
+      'Confirm enrolment',
+      'Deliver the programme',
+    ],
+    modules: [
+      'Admissions CRM',
+      'Cohorts and timetables',
+      'Learner campus',
+      'Payments and reporting',
+    ],
   },
   languages: {
     headline: 'More full classes. Less timetable juggling.',
-    promise: 'Connect placement, levels, recurring schedules, monthly payments and hybrid learning in a language-school experience people love.',
-    outcomes: ['Route learners to the right level', 'Open groups around real demand', 'Automate monthly payment journeys', 'Keep classroom and online progress aligned'],
+    promise:
+      'Connect placement, levels, recurring schedules, monthly payments and hybrid learning in a language-school experience people love.',
+    outcomes: [
+      'Route learners to the right level',
+      'Open groups around real demand',
+      'Automate monthly payment journeys',
+      'Keep classroom and online progress aligned',
+    ],
     workflow: ['Placement', 'Group matching', 'Recurring booking', 'Progress'],
     modules: ['Placement and CRM', 'Levels and groups', 'Recurring billing', 'Hybrid campus'],
   },
   wellness: {
     headline: 'Create a studio experience members keep coming back to.',
-    promise: 'Make classes easy to discover, book and renew while your team stays ahead of rooms, instructors, packs and memberships.',
-    outcomes: ['Make repeat booking effortless', 'Protect room and instructor capacity', 'Grow memberships and session packs', 'Understand attendance and retention'],
+    promise:
+      'Make classes easy to discover, book and renew while your team stays ahead of rooms, instructors, packs and memberships.',
+    outcomes: [
+      'Make repeat booking effortless',
+      'Protect room and instructor capacity',
+      'Grow memberships and session packs',
+      'Understand attendance and retention',
+    ],
     workflow: ['Discover class', 'Book a place', 'Check in', 'Renew membership'],
     modules: ['Class booking', 'Memberships', 'Instructor schedules', 'Retention insight'],
   },
   sports: {
     headline: 'Run the season. Grow every athlete.',
-    promise: 'Coordinate trials, teams, guardians, schedules, facilities, attendance and development from one sports academy platform.',
-    outcomes: ['Turn trials into confirmed places', 'Keep guardians informed', 'Coordinate teams and facilities', 'Track attendance and development'],
+    promise:
+      'Coordinate trials, teams, guardians, schedules, facilities, attendance and development from one sports academy platform.',
+    outcomes: [
+      'Turn trials into confirmed places',
+      'Keep guardians informed',
+      'Coordinate teams and facilities',
+      'Track attendance and development',
+    ],
     workflow: ['Trial', 'Assessment', 'Team placement', 'Season delivery'],
-    modules: ['Trials and assessments', 'Teams and guardians', 'Facilities and schedules', 'Attendance and progress'],
+    modules: [
+      'Trials and assessments',
+      'Teams and guardians',
+      'Facilities and schedules',
+      'Attendance and progress',
+    ],
   },
   seasonal: {
     headline: 'Launch your next camp in days, not weeks.',
-    promise: 'Create a polished programme page, take deposits, manage capacity and keep every family informed from booking to the final day.',
-    outcomes: ['Publish a bookable programme quickly', 'Manage weeks, age groups and capacity', 'Collect deposits and documents', 'Automate arrival information and reminders'],
+    promise:
+      'Create a polished programme page, take deposits, manage capacity and keep every family informed from booking to the final day.',
+    outcomes: [
+      'Publish a bookable programme quickly',
+      'Manage weeks, age groups and capacity',
+      'Collect deposits and documents',
+      'Automate arrival information and reminders',
+    ],
     workflow: ['Publish', 'Reserve', 'Prepare', 'Welcome'],
-    modules: ['Launch pages', 'Capacity and waitlists', 'Deposits and documents', 'Family communication'],
+    modules: [
+      'Launch pages',
+      'Capacity and waitlists',
+      'Deposits and documents',
+      'Family communication',
+    ],
   },
   'performing-arts': {
     headline: 'Keep every class, studio and performance in rhythm.',
-    promise: 'Connect recurring lessons, teachers, rooms, attendance, family payments and performance preparation in one creative operation.',
-    outcomes: ['Simplify recurring enrolment', 'Coordinate studios and teachers', 'Keep families close to progress', 'Plan performances without fragmented lists'],
+    promise:
+      'Connect recurring lessons, teachers, rooms, attendance, family payments and performance preparation in one creative operation.',
+    outcomes: [
+      'Simplify recurring enrolment',
+      'Coordinate studios and teachers',
+      'Keep families close to progress',
+      'Plan performances without fragmented lists',
+    ],
     workflow: ['Choose discipline', 'Join a class', 'Build progress', 'Perform'],
     modules: ['Recurring lessons', 'Studio scheduling', 'Family accounts', 'Events and progress'],
   },
   'online-cohorts': {
     headline: 'Turn every cohort into a learning community.',
-    promise: 'Bring applications, payments, live sessions, content, assignments, conversation and progress into one branded online academy.',
-    outcomes: ['Create a premium enrolment journey', 'Give learners one digital home', 'Help teachers act on progress', 'Keep community active between sessions'],
+    promise:
+      'Bring applications, payments, live sessions, content, assignments, conversation and progress into one branded online academy.',
+    outcomes: [
+      'Create a premium enrolment journey',
+      'Give learners one digital home',
+      'Help teachers act on progress',
+      'Keep community active between sessions',
+    ],
     workflow: ['Apply', 'Onboard', 'Learn together', 'Complete'],
-    modules: ['Cohort admissions', 'Virtual campus', 'Assignments and chat', 'Progress and completion'],
+    modules: [
+      'Cohort admissions',
+      'Virtual campus',
+      'Assignments and chat',
+      'Progress and completion',
+    ],
   },
   networks: {
     headline: 'One brand experience. Every location in control.',
-    promise: 'Scale shared programmes, standards and insight while each location keeps the catalogue, permissions and payment responsibility it needs.',
-    outcomes: ['Launch new locations with shared standards', 'Keep local teams focused on their operation', 'Separate domains and payment responsibility', 'See network performance in one view'],
+    promise:
+      'Scale shared programmes, standards and insight while each location keeps the catalogue, permissions and payment responsibility it needs.',
+    outcomes: [
+      'Launch new locations with shared standards',
+      'Keep local teams focused on their operation',
+      'Separate domains and payment responsibility',
+      'See network performance in one view',
+    ],
     workflow: ['Define standards', 'Configure location', 'Operate locally', 'Learn as a network'],
     modules: ['Brands and domains', 'Location workspaces', 'Scoped finance', 'Network reporting'],
   },
@@ -245,116 +482,249 @@ export const featureGroups = [
   {
     title: 'Website, catalogue and embeds',
     eyebrow: 'Publish anywhere',
-    description: 'Launch a complete academy website, connect your own domain or place live Akademate modules inside the site you already use.',
-    features: ['Automatic Akademate subdomain', 'Custom domains and guided DNS', 'Course and workshop pages', 'Embeddable classes, forms and payments', 'Reviews, testimonials and social sharing'],
+    description:
+      'Launch a complete academy website, connect your own domain or place live Akademate modules inside the site you already use.',
+    features: [
+      'Automatic Akademate subdomain',
+      'Custom domains and guided DNS',
+      'Course and workshop pages',
+      'Embeddable classes, forms and payments',
+      'Reviews, testimonials and social sharing',
+    ],
   },
   {
     title: 'Growth, Ads and CRM',
     eyebrow: 'Build demand',
-    description: 'Connect campaigns, source context, enquiries and follow-up so teams see how interest becomes participation.',
-    features: ['Lead capture and qualification', 'Campaign and UTM attribution', 'Meta Ads and conversion context', 'MCP connector layer', 'Follow-up and enrolment handoff'],
+    description:
+      'Connect campaigns, source context, enquiries and follow-up so teams see how interest becomes participation.',
+    features: [
+      'Lead capture and qualification',
+      'Campaign and UTM attribution',
+      'Meta Ads and conversion context',
+      'MCP connector layer',
+      'Follow-up and enrolment handoff',
+    ],
   },
   {
     title: 'Reservations and admissions',
     eyebrow: 'Convert demand',
-    description: 'Configure the right route into every offer, from a simple enquiry to approval, payment and confirmed enrolment.',
-    features: ['Enquiry and application modes', 'Place holds and expiry', 'Instant and paid booking', 'Waitlists and promotion', 'Documents, consent and approval'],
+    description:
+      'Configure the right route into every offer, from a simple enquiry to approval, payment and confirmed enrolment.',
+    features: [
+      'Enquiry and application modes',
+      'Place holds and expiry',
+      'Instant and paid booking',
+      'Waitlists and promotion',
+      'Documents, consent and approval',
+    ],
   },
   {
     title: 'Offers, runs and capacity',
     eyebrow: 'Shape the offer',
-    description: 'Model what is sold, when it runs, who can access it and which people or resources limit capacity.',
-    features: ['Courses, classes and memberships', 'Runs, cohorts and seasons', 'Sessions and recurrence', 'Capacity and resources', 'Access and eligibility rules'],
+    description:
+      'Model what is sold, when it runs, who can access it and which people or resources limit capacity.',
+    features: [
+      'Courses, classes and memberships',
+      'Runs, cohorts and seasons',
+      'Sessions and recurrence',
+      'Capacity and resources',
+      'Access and eligibility rules',
+    ],
   },
   {
     title: 'Academic operations',
     eyebrow: 'Run the programme',
-    description: 'Plan programmes, cohorts, schedules, rooms and delivery with the operational context kept intact.',
-    features: ['Courses and programmes', 'Cohorts and course runs', 'Schedules and calendars', 'Classrooms and facilities', 'Multi-location planning'],
+    description:
+      'Plan programmes, cohorts, schedules, rooms and delivery with the operational context kept intact.',
+    features: [
+      'Courses and programmes',
+      'Cohorts and course runs',
+      'Schedules and calendars',
+      'Classrooms and facilities',
+      'Multi-location planning',
+    ],
   },
   {
     title: 'Students, members and participants',
     eyebrow: 'One participant record',
-    description: 'Keep identity, enrolment, membership, attendance, documents and progress connected over time.',
-    features: ['Student and participant profiles', 'Enrolments and memberships', 'Guardian relationships', 'Attendance and notes', 'Documents and progress'],
+    description:
+      'Keep identity, enrolment, membership, attendance, documents and progress connected over time.',
+    features: [
+      'Student and participant profiles',
+      'Enrolments and memberships',
+      'Guardian relationships',
+      'Attendance and notes',
+      'Documents and progress',
+    ],
   },
   {
     title: 'Organisation, brands and domains',
     eyebrow: 'Structure the business',
-    description: 'Represent organisations, brands and locations while every public domain resolves the right experience and responsibility.',
-    features: ['Organisation and brand hierarchy', 'Locations and campuses', 'Akademate subdomains', 'Custom domains and themes', 'Scoped catalogues and legal context'],
+    description:
+      'Represent organisations, brands and locations while every public domain resolves the right experience and responsibility.',
+    features: [
+      'Organisation and brand hierarchy',
+      'Locations and campuses',
+      'Akademate subdomains',
+      'Custom domains and themes',
+      'Scoped catalogues and legal context',
+    ],
   },
   {
     title: 'Teaching and staff operations',
     eyebrow: 'Coordinate the team',
-    description: 'Connect teachers, coaches and administrators to the sessions, participants and work they own.',
-    features: ['Teacher and coach registry', 'Staff profiles', 'Assignments and schedules', 'Role-based workspaces', 'Workload and responsibility context'],
+    description:
+      'Connect teachers, coaches and administrators to the sessions, participants and work they own.',
+    features: [
+      'Teacher and coach registry',
+      'Staff profiles',
+      'Assignments and schedules',
+      'Role-based workspaces',
+      'Workload and responsibility context',
+    ],
   },
   {
     title: 'Virtual campus and learning',
     eyebrow: 'Deliver learning',
-    description: 'Give learners and teachers dedicated spaces for content, activities, progress and day-to-day collaboration.',
-    features: ['Learner campus', 'Teacher course workspace', 'Lessons and materials', 'Assignments and assessments', 'Grades, feedback and progress'],
+    description:
+      'Give learners and teachers dedicated spaces for content, activities, progress and day-to-day collaboration.',
+    features: [
+      'Learner campus',
+      'Teacher course workspace',
+      'Lessons and materials',
+      'Assignments and assessments',
+      'Grades, feedback and progress',
+    ],
   },
   {
     title: 'Communication and community',
     eyebrow: 'Keep people aligned',
-    description: 'Turn reservation, payment, teaching and attendance events into timely communication for every role.',
-    features: ['Transactional email journeys', 'Internal teacher and learner chat', 'Operational notifications', 'Reminders and tasks', 'Event-driven automation'],
+    description:
+      'Turn reservation, payment, teaching and attendance events into timely communication for every role.',
+    features: [
+      'Transactional email journeys',
+      'Internal teacher and learner chat',
+      'Operational notifications',
+      'Reminders and tasks',
+      'Event-driven automation',
+    ],
   },
   {
     title: 'Payments, billing and finance',
     eyebrow: 'Connect revenue',
-    description: 'Keep the commercial policy, receiving entity, participant payment and finance status attached to the offer that created them.',
-    features: ['Stripe, PayPal and SEPA adapters', 'Deposits, instalments and subscriptions', 'Memberships and session packs', 'Refund and cancellation policies', 'Reconciliation and finance APIs'],
+    description:
+      'Keep the commercial policy, receiving entity, participant payment and finance status attached to the offer that created them.',
+    features: [
+      'Stripe, PayPal and SEPA adapters',
+      'Deposits, instalments and subscriptions',
+      'Memberships and session packs',
+      'Refund and cancellation policies',
+      'Reconciliation and finance APIs',
+    ],
   },
   {
     title: 'Finance and accounting',
     eyebrow: 'Understand the business',
-    description: 'Bring academy revenue, expenses, accounts and reconciliation into the same operational context as programmes and participants.',
-    features: ['Receivables and payables', 'Ledger and chart of accounts', 'Cost centres and entities', 'Bank feeds and reconciliation', 'Accounting exports and APIs'],
+    description:
+      'Bring academy revenue, expenses, accounts and reconciliation into the same operational context as programmes and participants.',
+    features: [
+      'Receivables and payables',
+      'Ledger and chart of accounts',
+      'Cost centres and entities',
+      'Bank feeds and reconciliation',
+      'Accounting exports and APIs',
+    ],
   },
   {
     title: 'HR and workforce',
     eyebrow: 'Support the team',
-    description: 'Coordinate the people behind delivery with contracts, availability, workload, qualifications and payroll-ready context.',
-    features: ['Contracts and staff records', 'Availability and substitutions', 'Workload and time', 'Leave and qualifications', 'Payroll inputs and teacher payments'],
+    description:
+      'Coordinate the people behind delivery with contracts, availability, workload, qualifications and payroll-ready context.',
+    features: [
+      'Contracts and staff records',
+      'Availability and substitutions',
+      'Workload and time',
+      'Leave and qualifications',
+      'Payroll inputs and teacher payments',
+    ],
   },
   {
     title: 'Library, inventory and facilities',
     eyebrow: 'Manage shared resources',
-    description: 'Keep learning resources, equipment, stock, rooms and facilities available to the programmes and people that need them.',
-    features: ['Library catalogue and lending', 'Digital resource access', 'Equipment and inventory', 'Facilities and maintenance', 'Procurement and suppliers'],
+    description:
+      'Keep learning resources, equipment, stock, rooms and facilities available to the programmes and people that need them.',
+    features: [
+      'Library catalogue and lending',
+      'Digital resource access',
+      'Equipment and inventory',
+      'Facilities and maintenance',
+      'Procurement and suppliers',
+    ],
   },
   {
     title: 'Sports and seasonal operations',
     eyebrow: 'Run teams and seasons',
-    description: 'Support age groups, guardians, trials, teams, licences, seasonal capacity and temporary programmes.',
-    features: ['Teams and categories', 'Seasons and camps', 'Trials and assessments', 'Guardian consent', 'Facilities and equipment context'],
+    description:
+      'Support age groups, guardians, trials, teams, licences, seasonal capacity and temporary programmes.',
+    features: [
+      'Teams and categories',
+      'Seasons and camps',
+      'Trials and assessments',
+      'Guardian consent',
+      'Facilities and equipment context',
+    ],
   },
   {
     title: 'Insight and reporting',
     eyebrow: 'See the operation',
-    description: 'Bring demand, conversion, delivery, participation and finance signals together for better decisions.',
-    features: ['Operational dashboards', 'Conversion and enrolment funnels', 'Academic and attendance insight', 'Finance status and reconciliation', 'Exports and governed reporting'],
+    description:
+      'Bring demand, conversion, delivery, participation and finance signals together for better decisions.',
+    features: [
+      'Operational dashboards',
+      'Conversion and enrolment funnels',
+      'Academic and attendance insight',
+      'Finance status and reconciliation',
+      'Exports and governed reporting',
+    ],
   },
   {
     title: 'AI-assisted workflows',
     eyebrow: 'Optional assistance',
-    description: 'Use contextual assistance for summaries, communications and next actions while people remain responsible for decisions.',
-    features: ['Contextual assistance', 'Permission-aware tools', 'Human review points', 'Configurable providers', 'AI transparency controls'],
+    description:
+      'Use contextual assistance for summaries, communications and next actions while people remain responsible for decisions.',
+    features: [
+      'Contextual assistance',
+      'Permission-aware tools',
+      'Human review points',
+      'Configurable providers',
+      'AI transparency controls',
+    ],
   },
   {
     title: 'Security and governance',
     eyebrow: 'Operate with trust',
-    description: 'Make access boundaries, privacy and accountable technology part of routine operations.',
-    features: ['Tenant and organisation boundaries', 'Role and permission controls', 'Privacy workflows', 'Retention and audit context', 'AI governance information'],
+    description:
+      'Make access boundaries, privacy and accountable technology part of routine operations.',
+    features: [
+      'Tenant and organisation boundaries',
+      'Role and permission controls',
+      'Privacy workflows',
+      'Retention and audit context',
+      'AI governance information',
+    ],
   },
   {
     title: 'APIs, webhooks and deployment',
     eyebrow: 'Fit the technology landscape',
-    description: 'Connect providers and systems through governed interfaces and choose the operating model that fits the organisation.',
-    features: ['API and webhook layer', 'MCP integration layer', 'Payment, email and finance providers', 'Managed cloud service', 'Private cloud or on-premise'],
+    description:
+      'Connect providers and systems through governed interfaces and choose the operating model that fits the organisation.',
+    features: [
+      'API and webhook layer',
+      'MCP integration layer',
+      'Payment, email and finance providers',
+      'Managed cloud service',
+      'Private cloud or on-premise',
+    ],
   },
 ] as const
 
@@ -385,35 +755,76 @@ export const plans = [
   {
     name: 'Launch',
     label: 'Seasonal and cohort-ready',
-    description: 'For camps, events and time-bound programmes that need a polished booking and payment operation without long setup.',
-    features: ['Public offer and booking journey', 'Capacity, waitlist and deadlines', 'Deposits or one-off payments', 'Confirmation and reminder emails', 'Programme closeout and exports'],
+    description:
+      'For camps, events and time-bound programmes that need a polished booking and payment operation without long setup.',
+    features: [
+      'Public offer and booking journey',
+      'Capacity, waitlist and deadlines',
+      'Deposits or one-off payments',
+      'Confirmation and reminder emails',
+      'Programme closeout and exports',
+    ],
     cta: 'Plan a launch',
     subject: 'launch',
   },
   {
     name: 'Business',
     label: 'Managed cloud',
-    description: 'For growing academies that need admissions, operations, campus, communication and finance in one managed service.',
-    features: ['CRM and reservation workflows', 'Academic and participant operations', 'Virtual campus and teaching tools', 'Payments, finance and automation', 'Managed cloud operations'],
+    description:
+      'For growing academies that need admissions, operations, campus, communication and finance in one managed service.',
+    features: [
+      'CRM and reservation workflows',
+      'Academic and participant operations',
+      'Virtual campus and teaching tools',
+      'Payments, finance and automation',
+      'Managed cloud operations',
+    ],
     cta: 'Book a demo',
     subject: 'pricing',
   },
   {
     name: 'Enterprise',
     label: 'Dedicated or on-premise',
-    description: 'For groups and networks that need organisational depth, dedicated infrastructure and an agreed integration programme.',
-    features: ['Multi-brand and multi-location model', 'Custom domains and payment responsibility', 'Dedicated private cloud or on-premise', 'Migration and integration programme', 'Contracted enterprise support'],
+    description:
+      'For groups and networks that need organisational depth, dedicated infrastructure and an agreed integration programme.',
+    features: [
+      'Multi-brand and multi-location model',
+      'Custom domains and payment responsibility',
+      'Dedicated private cloud or on-premise',
+      'Migration and integration programme',
+      'Contracted enterprise support',
+    ],
     cta: 'Talk to Enterprise',
     subject: 'partnership',
   },
 ] as const
 
 export const governanceFrameworks = [
-  { short: 'GDPR', title: 'Privacy operations', text: 'Data boundaries, rights workflows and privacy-aware operations.' },
-  { short: 'EU AI Act', title: 'AI transparency', text: 'Human oversight, clear AI use and accountable operational controls.' },
-  { short: 'ISO 27001', title: 'Security management', text: 'A control-oriented approach to information security governance.' },
-  { short: 'SOC 2', title: 'Trust controls', text: 'Operational thinking around security, availability and confidentiality.' },
-  { short: 'OWASP', title: 'Application security', text: 'Secure engineering practices for modern web applications.' },
+  {
+    short: 'GDPR',
+    title: 'Privacy operations',
+    text: 'Data boundaries, rights workflows and privacy-aware operations.',
+  },
+  {
+    short: 'EU AI Act',
+    title: 'AI transparency',
+    text: 'Human oversight, clear AI use and accountable operational controls.',
+  },
+  {
+    short: 'ISO 27001',
+    title: 'Security management',
+    text: 'A control-oriented approach to information security governance.',
+  },
+  {
+    short: 'SOC 2',
+    title: 'Trust controls',
+    text: 'Operational thinking around security, availability and confidentiality.',
+  },
+  {
+    short: 'OWASP',
+    title: 'Application security',
+    text: 'Secure engineering practices for modern web applications.',
+  },
 ] as const
 
 export const academyTypes = [

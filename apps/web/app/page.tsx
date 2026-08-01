@@ -14,6 +14,9 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { AcademyProof } from '@/components/marketing/AcademyProof'
+import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
+import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
+import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { CourseRegistrationPreview } from '@/components/marketing/CourseRegistrationPreview'
 import { CustomerVoices } from '@/components/marketing/CustomerVoices'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
@@ -22,15 +25,32 @@ import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistri
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { blogPosts } from '@/lib/blog-posts'
-import { distributionModes, operatingJourney, plans, platformPillars, verticals } from '@/lib/marketing-content'
+import { homeIntegrationBrands } from '@/lib/integration-brands'
+import {
+  distributionModes,
+  operatingJourney,
+  plans,
+  platformPillars,
+  verticals,
+} from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
   title: 'The operating system for academies',
-  description: 'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
+  description:
+    'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
   alternates: { canonical: '/' },
 }
 
-const pillarIcons = [Globe2, Megaphone, School, UsersRound, GraduationCap, CircleDollarSign, BookOpenCheck, Network] as const
+const pillarIcons = [
+  Globe2,
+  Megaphone,
+  School,
+  UsersRound,
+  GraduationCap,
+  CircleDollarSign,
+  BookOpenCheck,
+  Network,
+] as const
 
 export default function HomePage() {
   return (
@@ -40,7 +60,9 @@ export default function HomePage() {
         <section className="product-texture relative overflow-hidden bg-[#06142f] text-white">
           <div className="mx-auto grid min-h-[calc(100dvh-73px)] max-w-[1440px] items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[.78fr_1.22fr] lg:px-8 lg:py-16">
             <div className="max-w-[650px]">
-              <p className="hero-item text-sm font-semibold text-blue-200">Built for in-person, online and hybrid academies</p>
+              <p className="hero-item text-sm font-semibold text-blue-200">
+                Built for in-person, online and hybrid academies
+              </p>
               <h1 className="hero-item mt-5 text-[2.8rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.6rem]">
                 The operating system for academies.
               </h1>
@@ -48,8 +70,16 @@ export default function HomePage() {
                 Publish, enrol, teach, collect and grow from one connected platform.
               </p>
               <div className="hero-item mt-8 flex flex-wrap gap-3">
-                <Link href="/contacto?asunto=demo" className="button-primary-light group">Book a demo <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></Link>
-                <Link href="/features" className="button-ghost-light">Explore the platform</Link>
+                <Link href="/contacto?asunto=demo" className="button-primary-light group">
+                  Book a demo{' '}
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
+                </Link>
+                <Link href="/features" className="button-ghost-light">
+                  Explore the platform
+                </Link>
               </div>
             </div>
             <ProductHeroCarousel />
@@ -58,16 +88,100 @@ export default function HomePage() {
 
         <AcademyProof />
 
+        <ConnectedExperiences />
+
+        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-4xl">
+              <p className="text-sm font-semibold text-blue-700">
+                Replace fragmented administration
+              </p>
+              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                One learner journey instead of a maze of disconnected tools.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                Stop copying the same information between forms, spreadsheets, calendars, payment
+                tools and learning platforms. Keep every step connected to one academy record.
+              </p>
+            </div>
+            <ol className="mt-14 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
+              {operatingJourney.map((item) => (
+                <li
+                  key={item.step}
+                  className="journey-step border-b border-blue-200 py-7 sm:px-5 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"
+                >
+                  <span className="text-sm font-semibold text-blue-700">{item.step}</span>
+                  <h3 className="mt-8 text-xl font-semibold tracking-tight">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-4xl">
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                One platform. Every part of the academy.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                Choose the modules your operation needs and keep the experience coherent for teams,
+                teachers, learners and families.
+              </p>
+            </div>
+            <div className="mt-14 grid border-y border-blue-200 md:grid-cols-2 lg:grid-cols-4">
+              {platformPillars.map((pillar, index) => {
+                const Icon = pillarIcons[index] ?? Network
+                return (
+                  <article
+                    key={pillar.title}
+                    className="border-b border-blue-200 py-8 md:px-6 lg:min-h-[330px] lg:border-r"
+                  >
+                    <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
+                    <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
+                    <p className="mt-4 text-sm leading-6 text-slate-600">{pillar.text}</p>
+                    <p className="mt-7 text-sm font-semibold leading-7 text-blue-800">
+                      {pillar.capabilities.join(' · ')}
+                    </p>
+                  </article>
+                )
+              })}
+            </div>
+            <Link
+              href="/features"
+              className="mt-9 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
+            >
+              Explore every module <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
+        <AcademySetupJourney />
+
         <section className="paper-texture px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Your academy website, ready to work.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Start on an Akademate subdomain, connect your domain or bring live modules into the website you already have.</p>
+              <p className="text-sm font-semibold text-blue-700">
+                Your public academy, connected to operations
+              </p>
+              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                Turn discovery into enrolment without rebuilding the journey.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                Launch on an Akademate subdomain, connect your own domain or bring live course,
+                booking and payment modules into the website you already have.
+              </p>
             </div>
-            <div className="scroll-depth mt-12"><WebsiteDistributionPreview /></div>
+            <div className="scroll-depth mt-12">
+              <WebsiteDistributionPreview />
+            </div>
             <div className="mt-12 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
               {distributionModes.map((mode, index) => (
-                <article key={mode.title} className="border-b border-blue-200 py-8 sm:px-6 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0">
+                <article
+                  key={mode.title}
+                  className="border-b border-blue-200 py-8 sm:px-6 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"
+                >
                   <span className="text-sm font-semibold text-blue-700">0{index + 1}</span>
                   <h3 className="mt-7 text-xl font-semibold">{mode.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-slate-600">{mode.text}</p>
@@ -81,113 +195,162 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
               <div>
-                <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">A shareable page for every course.</h2>
+                <p className="text-sm font-semibold text-blue-700">
+                  Built to convert interest into action
+                </p>
+                <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                  A shareable page for every course.
+                </h2>
               </div>
-              <p className="max-w-2xl text-lg leading-8 text-slate-600">Turn a course, workshop, camp or class into a polished destination with schedule, instructor, attendees, reviews, registration and payment.</p>
+              <p className="max-w-2xl text-lg leading-8 text-slate-600">
+                Turn a course, workshop, camp or class into a polished destination with schedule,
+                instructor, attendees, reviews, registration and payment.
+              </p>
             </div>
-            <div className="scroll-depth mt-12"><CourseRegistrationPreview /></div>
+            <div className="scroll-depth mt-12">
+              <CourseRegistrationPreview />
+            </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm font-semibold text-slate-700">
-              {['Shareable URL', 'Social preview', 'Login options', 'Capacity', 'Waitlist', 'Payments', 'Consent'].map((item) => <span key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-blue-700" aria-hidden="true" />{item}</span>)}
-            </div>
-          </div>
-        </section>
-
-        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">From the first click to a thriving programme.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Keep marketing, registration, payment, delivery and growth connected to the same participant journey.</p>
-            </div>
-            <ol className="mt-14 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
-              {operatingJourney.map((item) => (
-                <li key={item.step} className="journey-step border-b border-blue-200 py-7 sm:px-5 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0">
-                  <span className="text-sm font-semibold text-blue-700">{item.step}</span>
-                  <h3 className="mt-8 text-xl font-semibold tracking-tight">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
-                </li>
+              {[
+                'Shareable URL',
+                'Social preview',
+                'Login options',
+                'Capacity',
+                'Waitlist',
+                'Payments',
+                'Consent',
+              ].map((item) => (
+                <span key={item} className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                  {item}
+                </span>
               ))}
-            </ol>
+            </div>
           </div>
         </section>
 
-        <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">One platform. Every part of the academy.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Choose the modules your operation needs and keep the experience coherent for teams, teachers, learners and families.</p>
-            </div>
-            <div className="mt-14 grid border-y border-blue-200 md:grid-cols-2 lg:grid-cols-4">
-              {platformPillars.map((pillar, index) => {
-                const Icon = pillarIcons[index] ?? Network
-                return (
-                  <article key={pillar.title} className="border-b border-blue-200 py-8 md:px-6 lg:min-h-[330px] lg:border-r">
-                    <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
-                    <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">{pillar.text}</p>
-                    <p className="mt-7 text-sm font-semibold leading-7 text-blue-800">{pillar.capabilities.join(' · ')}</p>
-                  </article>
-                )
-              })}
-            </div>
-            <Link href="/features" className="mt-9 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900">Explore every module <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-          </div>
-        </section>
-
-        <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_.9fr] lg:gap-20">
-            <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#071633]">
-              <Image src="/images/marketing/akademate-product-ecosystem-v2.png" alt="Akademate learner campus, public course and academy operations on multiple devices" fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" />
+        <section className="border-y border-blue-200 bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.42fr_.58fr] lg:items-center">
+            <div>
+              <p className="text-sm font-semibold text-blue-700">A connected academy ecosystem</p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
+                Bring the tools around your academy into the same operating flow.
+              </h2>
+              <p className="mt-4 max-w-xl leading-7 text-slate-600">
+                Payments, campaign context, live delivery, domains and automation connect at the
+                point where your team actually uses them.
+              </p>
             </div>
             <div>
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">A better place to teach and learn.</h2>
-              <p className="mt-6 text-lg leading-8 text-slate-600">Give learners a clear campus and teachers the workspace to prepare courses, share resources, review work, communicate and act on progress.</p>
-              <div className="mt-9 grid gap-6 sm:grid-cols-2">
-                <FeatureLine icon={GraduationCap} title="Learner campus" text="Lessons, activities, progress, certificates and the next action." />
-                <FeatureLine icon={BookOpenCheck} title="Teacher workspace" text="Course preparation, submissions, grades, feedback and communication." />
-              </div>
+              <ConnectorLogos ids={homeIntegrationBrands} />
+              <Link
+                href="/features"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
+              >
+                Explore integrations by module <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>
 
         <CustomerVoices />
 
-        <section id="solutions" className="overflow-hidden py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section id="solutions" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Built around your academy model.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Cohorts, classes, memberships, seasons and multi-site networks can share one connected operating foundation.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                Built around your academy model.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                Cohorts, classes, memberships, seasons and multi-site networks can share one
+                connected operating foundation.
+              </p>
             </div>
-          </div>
-          <div className="mx-auto mt-12 flex max-w-[1536px] snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-5 sm:px-6 lg:px-8">
-            {verticals.map((vertical) => (
-              <article key={vertical.slug} className="group w-[84vw] max-w-[430px] shrink-0 snap-start">
-                <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-200"><Image src={vertical.image} alt={vertical.imageAlt} fill sizes="(max-width: 640px) 84vw, 430px" className="object-cover" /></div>
-                <h3 className="mt-6 text-2xl font-semibold tracking-tight">{vertical.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{vertical.description}</p>
-                <Link href={`/solutions/${vertical.slug}`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700">Explore solution <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-              </article>
-            ))}
+            <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-5">
+              {verticals.map((vertical) => (
+                <article
+                  key={vertical.slug}
+                  className="group w-[calc(100vw-3rem)] max-w-[390px] shrink-0 snap-start"
+                >
+                  <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-200">
+                    <Image
+                      src={vertical.image}
+                      alt={vertical.imageAlt}
+                      fill
+                      sizes="(max-width: 640px) calc(100vw - 3rem), 390px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <h3 className="mt-6 text-2xl font-semibold tracking-tight">{vertical.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{vertical.description}</p>
+                  <Link
+                    href={`/solutions/${vertical.slug}`}
+                    className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
+                  >
+                    Explore solution <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
         <section id="pricing" className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Choose the operating scope you need.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Launch one programme, connect a growing academy or create a dedicated platform for a network.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                Choose the operating scope you need.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                Launch one programme, connect a growing academy or create a dedicated platform for a
+                network.
+              </p>
             </div>
             <div className="mt-14 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
               {plans.map((plan, index) => (
-                <article key={plan.name} className={`p-8 sm:p-10 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'} ${index < plans.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}>
-                  <p className={`text-sm font-semibold ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}>{plan.label}</p>
+                <article
+                  key={plan.name}
+                  className={`p-8 sm:p-10 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'} ${index < plans.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}
+                >
+                  <p
+                    className={`text-sm font-semibold ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}
+                  >
+                    {plan.label}
+                  </p>
                   <h3 className="mt-4 text-4xl font-semibold tracking-tight">{plan.name}</h3>
-                  <p className={`mt-5 leading-7 ${index === 1 ? 'text-blue-100/75' : 'text-slate-600'}`}>{plan.description}</p>
-                  <ul className="mt-8 space-y-3">{plan.features.slice(0, 4).map((feature) => <li key={feature} className="flex items-start gap-3 text-sm"><Check className={`mt-0.5 h-4 w-4 shrink-0 ${index === 1 ? 'text-blue-300' : 'text-blue-700'}`} aria-hidden="true" />{feature}</li>)}</ul>
-                  <Link href={`/contacto?asunto=${plan.subject}`} className={index === 1 ? 'button-primary-light mt-9' : 'button-primary-dark mt-9'}>{plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                  <p
+                    className={`mt-5 leading-7 ${index === 1 ? 'text-blue-100/75' : 'text-slate-600'}`}
+                  >
+                    {plan.description}
+                  </p>
+                  <ul className="mt-8 space-y-3">
+                    {plan.features.slice(0, 4).map((feature) => (
+                      <li key={feature} className="flex items-start gap-3 text-sm">
+                        <Check
+                          className={`mt-0.5 h-4 w-4 shrink-0 ${index === 1 ? 'text-blue-300' : 'text-blue-700'}`}
+                          aria-hidden="true"
+                        />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={`/contacto?asunto=${plan.subject}`}
+                    className={
+                      index === 1 ? 'button-primary-light mt-9' : 'button-primary-dark mt-9'
+                    }
+                  >
+                    {plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
                 </article>
               ))}
             </div>
-            <Link href="/pricing" className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900">Compare plans <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            <Link
+              href="/pricing"
+              className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
+            >
+              Compare plans <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
         </section>
 
@@ -195,13 +358,35 @@ export default function HomePage() {
 
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <div className="flex items-end justify-between gap-6"><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Ideas for more connected academies.</h2><Link href="/blog" className="hidden min-h-11 items-center gap-2 font-semibold text-blue-700 sm:inline-flex">Explore the blog <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div>
+            <div className="flex items-end justify-between gap-6">
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+                Ideas for more connected academies.
+              </h2>
+              <Link
+                href="/blog"
+                className="hidden min-h-11 items-center gap-2 font-semibold text-blue-700 sm:inline-flex"
+              >
+                Explore the blog <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
             <div className="mt-12 grid gap-8 lg:grid-cols-2">
               {blogPosts.slice(0, 2).map((post) => (
                 <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
-                  <div className="media-reveal relative aspect-[16/9] overflow-hidden rounded-2xl"><Image src={post.image} alt={post.imageAlt} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" /></div>
-                  <p className="mt-5 text-sm font-semibold text-blue-700">{post.category} · {post.readingTime}</p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight transition-colors group-hover:text-blue-700 sm:text-3xl">{post.title}</h3>
+                  <div className="media-reveal relative aspect-[16/9] overflow-hidden rounded-2xl">
+                    <Image
+                      src={post.image}
+                      alt={post.imageAlt}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <p className="mt-5 text-sm font-semibold text-blue-700">
+                    {post.category} · {post.readingTime}
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight transition-colors group-hover:text-blue-700 sm:text-3xl">
+                    {post.title}
+                  </h3>
                   <p className="mt-3 max-w-2xl leading-7 text-slate-600">{post.excerpt}</p>
                 </Link>
               ))}
@@ -211,18 +396,25 @@ export default function HomePage() {
 
         <section className="px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
           <div className="product-texture mx-auto max-w-7xl overflow-hidden rounded-2xl bg-[#071633] px-6 py-16 text-center text-white sm:px-12 lg:py-24">
-            <Globe2 className="mx-auto h-9 w-9 text-blue-300" strokeWidth={1.75} aria-hidden="true" />
-            <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Build the academy people want to join.</h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100/75">See how Akademate can connect your public experience, daily operation and learning journey.</p>
-            <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            <Globe2
+              className="mx-auto h-9 w-9 text-blue-300"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+              Build the academy people want to join.
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100/75">
+              See how Akademate can connect your public experience, daily operation and learning
+              journey.
+            </p>
+            <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">
+              Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
         </section>
       </main>
       <Footer />
     </div>
   )
-}
-
-function FeatureLine({ icon: Icon, title, text }: { icon: typeof GraduationCap; title: string; text: string }) {
-  return <div><Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" /><h3 className="mt-4 font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{text}</p></div>
 }

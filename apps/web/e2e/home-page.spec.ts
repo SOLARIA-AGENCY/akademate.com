@@ -3,12 +3,36 @@ import { expect, test } from '@playwright/test'
 test.describe('Akademate public commercial surface', () => {
   test('communicates a growth outcome, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('The operating system for academies.')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'The operating system for academies.'
+    )
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
+    await expect(
+      page.getByRole('heading', {
+        name: 'A focused workspace for everyone who makes learning happen.',
+      })
+    ).toBeVisible()
+    await expect(page.getByRole('tablist', { name: 'Akademate experiences' })).toBeVisible()
+    await page.getByRole('tab', { name: 'Teachers' }).click()
+    await expect(page.getByRole('tabpanel', { name: 'Teachers' })).toContainText(
+      'Private chat and feedback'
+    )
+    await expect(
+      page.getByRole('heading', { name: 'Watch your academy take shape.' })
+    ).toBeVisible()
+    await page.getByRole('tab', { name: 'Campuses and spaces' }).click()
+    await expect(page.getByRole('tabpanel', { name: 'Campuses and spaces' })).toContainText(
+      'Multiple campuses'
+    )
+    await expect(page.getByText('30% complete').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'CEP Formación' })).toBeVisible()
     await expect(page.getByText('Built for modern academy models')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Let the people behind every academy speak.' })).toBeVisible()
-    await expect(page.getByText('Public learner review presented by CEP Formación').first()).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Let the people behind every academy speak.' })
+    ).toBeVisible()
+    await expect(
+      page.getByText('Public learner review presented by CEP Formación').first()
+    ).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Launch' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Business', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Enterprise' })).toBeVisible()
@@ -16,17 +40,34 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('heading', { name: 'Payments and finance' })).toBeVisible()
     await expect(page.getByRole('banner').getByRole('link', { name: 'Blog' })).toBeVisible()
     await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Blog' })).toBeVisible()
-    for (const network of ['Instagram', 'X', 'Facebook']) await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
+    for (const network of ['Instagram', 'X', 'Facebook'])
+      await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
   })
 
-  test('publishes a complete feature catalogue, product examples and four substantive articles', async ({ page }) => {
+  test('publishes a complete feature catalogue, product examples and four substantive articles', async ({
+    page,
+  }) => {
     const featuresResponse = await page.goto('/features')
     expect(featuresResponse?.status()).toBe(200)
-    await expect(page.getByTestId('feature-catalogue').locator(':scope > article > h3')).toHaveCount(19)
-    await expect(page.getByRole('heading', { name: 'Reservations and admissions' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'APIs, webhooks and deployment' })).toBeVisible()
-    await expect(page.getByRole('tablist', { name: 'Akademate product examples' })).toBeVisible()
-    await page.getByRole('tab', { name: 'Payments' }).click()
+    const catalogue = page.getByTestId('feature-catalogue')
+    await expect(
+      catalogue.getByRole('tablist', { name: 'Akademate feature modules' }).getByRole('tab')
+    ).toHaveCount(19)
+    await catalogue.getByRole('tab', { name: 'Payments, billing and finance' }).click()
+    await expect(
+      catalogue
+        .getByRole('tabpanel')
+        .getByRole('heading', { name: 'Payments, billing and finance' })
+    ).toBeVisible()
+    await expect(catalogue.getByRole('tabpanel')).toContainText('Stripe')
+    await expect(catalogue.getByRole('tabpanel')).toContainText('PayPal')
+    await expect(catalogue.getByRole('tabpanel')).toContainText('SEPA')
+    await catalogue.getByRole('tab', { name: 'Growth, Ads and CRM' }).click()
+    await expect(catalogue.getByRole('tabpanel')).toContainText('Meta')
+    await expect(catalogue.getByRole('tabpanel')).toContainText('Google Ads')
+    const productExamples = page.getByRole('tablist', { name: 'Akademate product examples' })
+    await expect(productExamples).toBeVisible()
+    await productExamples.getByRole('tab', { name: 'Payments', exact: true }).click()
     await expect(page.getByLabel('Provider')).toHaveValue('Stripe')
     await expect(page.getByLabel('Payment model')).toHaveValue('3 monthly instalments')
 
@@ -52,39 +93,65 @@ test.describe('Akademate public commercial surface', () => {
     await page.keyboard.press('Enter')
     await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Pricing' }).first()).toBeVisible()
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+    )
     expect(overflow).toBeLessThanOrEqual(1)
   })
 
-  test('legal routes and visual governance marks resolve without unsupported claims', async ({ page }) => {
+  test('legal routes and visual governance marks resolve without unsupported claims', async ({
+    page,
+  }) => {
     await page.goto('/')
-    await expect(page.getByText(/principles shaping our privacy, security and responsible AI roadmap/i)).toBeVisible()
+    await expect(
+      page.getByText(/principles shaping our privacy, security and responsible AI roadmap/i)
+    ).toBeVisible()
     await expect(page.getByRole('img', { name: 'GDPR' })).toBeVisible()
     await expect(page.getByRole('img', { name: 'EU Artificial Intelligence Act' })).toBeVisible()
     await expect(page.locator('body')).not.toContainText(/certified by|official seal|approved by/i)
-    for (const path of ['/legal/privacidad', '/legal/terminos', '/legal/cookies', '/legal/subencargados', '/legal/ia']) {
+    for (const path of [
+      '/legal/privacidad',
+      '/legal/terminos',
+      '/legal/cookies',
+      '/legal/subencargados',
+      '/legal/ia',
+    ]) {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
-      await expect(page.getByText(/Working legal information under professional review/i).first()).toBeVisible()
+      await expect(
+        page.getByText(/Working legal information under professional review/i).first()
+      ).toBeVisible()
     }
   })
 
-  test('publishes a customer-type index and a complete page for every vertical', async ({ page }) => {
+  test('publishes a customer-type index and a complete page for every vertical', async ({
+    page,
+  }) => {
     const paths = [
-      '/solutions/professional-training', '/solutions/wellness', '/solutions/sports', '/solutions/seasonal',
-      '/solutions/performing-arts', '/solutions/online-cohorts', '/solutions/languages', '/solutions/networks',
+      '/solutions/professional-training',
+      '/solutions/wellness',
+      '/solutions/sports',
+      '/solutions/seasonal',
+      '/solutions/performing-arts',
+      '/solutions/online-cohorts',
+      '/solutions/languages',
+      '/solutions/networks',
     ]
     const response = await page.goto('/solutions')
     expect(response?.status()).toBe(200)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Your model is unique. Your operating system should fit it.')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Your model is unique. Your operating system should fit it.'
+    )
     await expect(page.locator('main a[href^="/solutions/"]')).toHaveCount(8)
     const verticalImages = page.locator('main img')
     await expect(verticalImages).toHaveCount(8)
-    for (let index = 0; index < await verticalImages.count(); index += 1) {
+    for (let index = 0; index < (await verticalImages.count()); index += 1) {
       const image = verticalImages.nth(index)
       await image.scrollIntoViewIfNeeded()
       await expect(image).toHaveJSProperty('complete', true)
-      await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+      await expect
+        .poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth))
+        .toBeGreaterThan(0)
     }
 
     const headings = new Set<string>()
@@ -94,7 +161,9 @@ test.describe('Akademate public commercial surface', () => {
       const heading = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? ''
       expect(heading.length).toBeGreaterThan(20)
       headings.add(heading)
-      await expect(page.getByRole('tablist', { name: 'Akademate product examples' })).toBeVisible()
+      await expect(page.getByRole('tablist', { name: /Akademate for this/ })).toBeVisible()
+      await page.getByRole('tab').last().click()
+      await expect(page.getByRole('tabpanel').locator('select')).toHaveCount(3)
     }
     expect(headings.size).toBe(paths.length)
   })
@@ -102,7 +171,12 @@ test.describe('Akademate public commercial surface', () => {
   test('does not request third-party analytics or marketing', async ({ page }) => {
     const trackerRequests: string[] = []
     page.on('request', (request) => {
-      if (/google-analytics|googletagmanager|facebook\.net|hotjar|clarity\.ms|segment\.com/i.test(request.url())) trackerRequests.push(request.url())
+      if (
+        /google-analytics|googletagmanager|facebook\.net|hotjar|clarity\.ms|segment\.com/i.test(
+          request.url()
+        )
+      )
+        trackerRequests.push(request.url())
     })
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -121,16 +195,25 @@ test.describe('Akademate public commercial surface', () => {
       const image = images.nth(index)
       await image.scrollIntoViewIfNeeded()
       await expect(image).toHaveJSProperty('complete', true)
-      await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+      await expect
+        .poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth))
+        .toBeGreaterThan(0)
       await expect(image).toHaveAttribute('alt', /.+/)
     }
   })
 
-  test('all internal links on commercial pages resolve without dead routes or fragments', async ({ page, request }) => {
+  test('all internal links on commercial pages resolve without dead routes or fragments', async ({
+    page,
+    request,
+  }) => {
     test.setTimeout(60_000)
     for (const sourcePath of ['/', '/features', '/pricing', '/solutions', '/blog']) {
       await page.goto(sourcePath)
-      const hrefs = await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')).filter(Boolean) as string[])
+      const hrefs = await page
+        .locator('a[href]')
+        .evaluateAll(
+          (links) => links.map((link) => link.getAttribute('href')).filter(Boolean) as string[]
+        )
 
       for (const href of [...new Set(hrefs)]) {
         if (href.startsWith('mailto:') || href.startsWith('http')) continue
@@ -160,11 +243,23 @@ test.describe('Akademate public commercial surface', () => {
     page.on('console', (message) => {
       if (message.type() === 'error') failures.push(`console:${message.text()}`)
     })
-    for (const path of ['/', '/features', '/pricing', '/solutions', '/blog', '/blog/campaign-click-to-confirmed-place', '/blog/akademate-expands-sport-wellness-seasonal', '/sobre-nosotros', '/contacto']) {
+    for (const path of [
+      '/',
+      '/features',
+      '/pricing',
+      '/solutions',
+      '/blog',
+      '/blog/campaign-click-to-confirmed-place',
+      '/blog/akademate-expands-sport-wellness-seasonal',
+      '/sobre-nosotros',
+      '/contacto',
+    ]) {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
       await page.waitForLoadState('networkidle')
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      )
       expect(overflow, `${path} has horizontal overflow`).toBeLessThanOrEqual(1)
     }
     expect(failures).toEqual([])
@@ -174,17 +269,25 @@ test.describe('Akademate public commercial surface', () => {
     let postCount = 0
     await page.route('**/api/leads', async (route) => {
       postCount += 1
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) })
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      })
     })
     await page.goto('/contacto?asunto=demo')
     await page.waitForLoadState('networkidle')
     await page.getByLabel(/Full name/).fill('Ada Lovelace')
     await page.getByLabel(/Email/).fill('ada@example.com')
     await page.getByLabel(/What would you like to discuss/).selectOption('demo')
-    await page.getByLabel(/Tell us about your academy/).fill('We need to connect in-person and online delivery across two locations.')
+    await page
+      .getByLabel(/Tell us about your academy/)
+      .fill('We need to connect in-person and online delivery across two locations.')
     await page.getByRole('button', { name: 'Send request' }).click()
     expect(postCount).toBe(0)
-    await expect(page.getByText('Please accept the privacy policy before sending your request.')).toBeVisible()
+    await expect(
+      page.getByText('Please accept the privacy policy before sending your request.')
+    ).toBeVisible()
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'Send request' }).click()
     await expect(page.getByRole('status')).toContainText('request has been received')

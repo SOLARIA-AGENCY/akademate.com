@@ -40,6 +40,9 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 ### Home
 
 - [x] Product-led hero with three coherent operating moments.
+- [x] Reorder the story around product, people and operational problems before web distribution.
+- [x] Add connected workspaces for academy teams, teachers and learners with dedicated imagery.
+- [x] Add a gamified academy setup journey from blueprint to branded multi-campus launch.
 - [x] Complete website, custom domain and embed distribution section.
 - [x] Shareable workshop/course page preview.
 - [x] Social login, attendee avatars, reviews, capacity and payment preview.
@@ -51,6 +54,8 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 ### Features
 
 - [x] Replace repetitive feature list with grouped platform architecture.
+- [x] Add an interactive catalogue for all 19 modules with users, capabilities, metrics and workflow previews.
+- [x] Centralize provider and payment-method logos with explicit availability states and local assets.
 - [x] Add Web and commerce, Finance and accounting, HR and workforce, Library and assets.
 - [x] Add complete LMS, gradebook, chat, certificates and communications detail.
 - [x] Keep AI-assisted workflows optional and subordinate to operations.
@@ -66,6 +71,8 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 
 - [x] Reuse the capability model for each academy type.
 - [x] Explain website, reservation, payment and learning journey per vertical.
+- [x] Replace the shared generic demo with four tailored product moments for each of eight verticals.
+- [x] Use vertical-specific classes, spaces, people, schedules, forms and payment examples.
 
 ## Product roadmap
 
@@ -143,6 +150,7 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 - [x] Targeted unit and adversarial tests.
 - [x] Typecheck and build.
 - [x] Desktop/mobile visual QA.
+- [x] Mobile internal-clipping audit and long-label variation.
 - [ ] Commit.
 - [ ] Push.
 - [ ] Public deploy.
