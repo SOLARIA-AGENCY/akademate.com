@@ -1,20 +1,8 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import {
-  ArrowRight,
-  BookOpenCheck,
-  Check,
-  CircleDollarSign,
-  Globe2,
-  GraduationCap,
-  Megaphone,
-  Network,
-  School,
-  UsersRound,
-} from 'lucide-react'
-import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
-import { AgenticGrowthShowcase } from '@/components/marketing/AgenticGrowthShowcase'
+import { ArrowRight, Check, Globe2 } from 'lucide-react'
+import { AcademyOperationsStory } from '@/components/marketing/AcademyOperationsStory'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
@@ -22,6 +10,8 @@ import { ClientMarquee } from '@/components/marketing/ClientMarquee'
 import { CourseRegistrationPreview } from '@/components/marketing/CourseRegistrationPreview'
 import { CustomerVoices } from '@/components/marketing/CustomerVoices'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
+import { HomeMcpConnect } from '@/components/marketing/HomeMcpConnect'
+import { PhysicalCampusStory } from '@/components/marketing/PhysicalCampusStory'
 import { ProductHeroCarousel } from '@/components/marketing/ProductHeroCarousel'
 import { SolutionCarousel } from '@/components/marketing/SolutionCarousel'
 import { TrustSignals } from '@/components/marketing/TrustSignals'
@@ -43,17 +33,6 @@ export const metadata: Metadata = {
     'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
   alternates: { canonical: '/' },
 }
-
-const pillarIcons = [
-  Globe2,
-  Megaphone,
-  School,
-  UsersRound,
-  GraduationCap,
-  CircleDollarSign,
-  BookOpenCheck,
-  Network,
-] as const
 
 export default function HomePage() {
   return (
@@ -92,21 +71,19 @@ export default function HomePage() {
         <ClientMarquee />
         <TrustSignals />
 
-        <ConnectedExperiences />
+        <AcademyOperationsStory />
 
-        <AgenticGrowthShowcase />
+        <ConnectedExperiences />
 
         <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold text-blue-700">
-                Replace fragmented administration
-              </p>
+              <p className="text-sm font-semibold text-blue-700">One connected academy operation</p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                One learner journey. No disconnected tools.
+                One connected learner journey.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Replace fragmented tools with one connected academy record.
+                Bring every academy workflow into one connected learner record.
               </p>
             </div>
             <ol className="mt-10 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
@@ -124,7 +101,10 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <section
+          data-testid="visual-platform-pillars"
+          className="bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
@@ -134,17 +114,24 @@ export default function HomePage() {
                 Choose the modules your academy needs. Keep every role connected.
               </p>
             </div>
-            <div className="mt-10 grid border border-blue-200 md:grid-cols-2 lg:grid-cols-4">
-              {platformPillars.map((pillar, index) => {
-                const Icon = pillarIcons[index] ?? Network
-                return (
-                  <article
-                    key={pillar.title}
-                    className="border-b border-blue-200 px-6 py-8 lg:min-h-[330px] lg:border-r"
-                  >
-                    <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
-                    <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">{pillar.text}</p>
+            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {platformPillars.map((pillar) => (
+                <article
+                  key={pillar.title}
+                  className="group overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_14px_40px_rgba(7,22,51,.06)]"
+                >
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <Image
+                      src={pillar.image}
+                      alt={pillar.imageAlt}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-semibold tracking-tight">{pillar.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{pillar.text}</p>
                     <ul className="compact-feature-list">
                       {pillar.capabilities.map((capability) => (
                         <li key={capability}>
@@ -156,9 +143,9 @@ export default function HomePage() {
                         </li>
                       ))}
                     </ul>
-                  </article>
-                )
-              })}
+                  </div>
+                </article>
+              ))}
             </div>
             <Link
               href="/features"
@@ -169,7 +156,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <AcademySetupJourney />
+        <PhysicalCampusStory />
+
+        <HomeMcpConnect />
 
         <section className="paper-texture px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">

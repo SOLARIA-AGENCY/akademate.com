@@ -17,19 +17,30 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('tabpanel', { name: 'Teachers' })).toContainText(
       'Private chat and feedback'
     )
+    const operations = page.getByTestId('academy-operations-story')
     await expect(
-      page.getByRole('heading', { name: 'Watch your academy take shape.' })
+      operations.getByRole('heading', { name: 'Run your academy with clarity.' })
     ).toBeVisible()
-    await page.getByRole('tab', { name: 'Campuses and spaces' }).click()
-    await expect(page.getByRole('tabpanel', { name: 'Campuses and spaces' })).toContainText(
-      'Multiple campuses'
+    await expect(operations.getByText('Active learners')).toBeVisible()
+    await expect(operations.getByText('Academy overview')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Watch your academy take shape.' })).toHaveCount(
+      0
     )
-    const setupJourney = page
-      .getByRole('heading', { name: 'Watch your academy take shape.' })
-      .locator('xpath=ancestor::section[1]')
-    await expect(setupJourney.getByText('Stage 02 of 06')).toBeVisible()
-    await expect(setupJourney.getByRole('img')).toHaveAttribute('src', /academy-stage-02-structure/)
-    await expect(setupJourney).not.toContainText(/% complete/)
+    const platform = page.getByTestId('visual-platform-pillars')
+    await expect(platform.getByRole('article')).toHaveCount(8)
+    await expect(platform.getByRole('img')).toHaveCount(8)
+    const campus = page.getByTestId('connected-campus-story')
+    await expect(campus.getByRole('heading', { name: /Record every arrival/ })).toBeVisible()
+    await expect(campus.getByRole('heading', { name: /live channel/ })).toBeVisible()
+    await expect(campus.getByText('Display status 24/7')).toBeVisible()
+    const mcp = page.getByTestId('home-mcp-connect')
+    await expect(
+      mcp.getByRole('heading', { name: 'Connect your AI agent to Akademate.' })
+    ).toBeVisible()
+    await expect(mcp.getByText('ChatGPT')).toBeVisible()
+    await expect(mcp.getByText('Claude')).toBeVisible()
+    await expect(mcp.getByText('Grok')).toBeVisible()
+    await expect(mcp.getByText('Gemini')).toBeVisible()
     await expect(page.getByText('Academies using Akademate')).toBeVisible()
     await expect(page.getByText('CEP Formación').first()).toBeAttached()
     await expect(page.getByText('Waira Sisa Studio').first()).toBeAttached()
@@ -65,7 +76,7 @@ test.describe('Akademate public commercial surface', () => {
     const catalogue = page.getByTestId('feature-catalogue')
     await expect(
       catalogue.getByRole('tablist', { name: 'Akademate feature modules' }).getByRole('tab')
-    ).toHaveCount(21)
+    ).toHaveCount(23)
     const featureTabs = catalogue.getByRole('tablist', { name: 'Akademate feature modules' })
     await featureTabs.getByRole('tab').first().focus()
     await page.keyboard.press('ArrowDown')
@@ -170,9 +181,7 @@ test.describe('Akademate public commercial surface', () => {
     for (const app of ['Mac', 'iPhone', 'iPad']) {
       await apps.getByRole('tab', { name: app, exact: true }).click()
       await expect(page.getByRole('tabpanel')).toContainText('Coming soon')
-      await expect(page.getByRole('tabpanel')).toContainText(
-        'No application download is available yet.'
-      )
+      await expect(page.getByRole('tabpanel')).toContainText('Applications are coming soon.')
     }
     await expect(page.getByRole('link', { name: /download now|app store|install/i })).toHaveCount(0)
     await page.setViewportSize({ width: 390, height: 844 })

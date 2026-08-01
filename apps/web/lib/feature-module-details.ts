@@ -90,6 +90,19 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['googlecalendar', 'googlemeet'],
   },
   {
+    title: 'Attendance and physical access',
+    audiences: ['Operations', 'Learners'],
+    signal: '92%',
+    signalLabel: 'attendance today',
+    previewTitle: 'Campus arrivals',
+    previewRows: [
+      { label: 'QR check-ins', value: '184' },
+      { label: 'NFC and RFID', value: '63' },
+      { label: 'Exceptions', value: '4 to review' },
+    ],
+    connectors: [],
+  },
+  {
     title: 'Students, members and participants',
     audiences: ['Administration', 'Learners'],
     signal: '1,284',
@@ -153,6 +166,19 @@ export const featureModuleDetails: ModuleDetail[] = [
       { label: 'Payment follow-up', value: 'Scheduled' },
     ],
     connectors: ['whatsapp', 'twilio'],
+  },
+  {
+    title: 'Digital signage',
+    audiences: ['Operations', 'Growth'],
+    signal: '12',
+    signalLabel: 'connected displays',
+    previewTitle: 'Screen network',
+    previewRows: [
+      { label: 'Class calendars', value: '6 live' },
+      { label: 'Announcements', value: '3 scheduled' },
+      { label: 'Display status', value: '12 online' },
+    ],
+    connectors: [],
   },
   {
     title: 'Payments, billing and finance',

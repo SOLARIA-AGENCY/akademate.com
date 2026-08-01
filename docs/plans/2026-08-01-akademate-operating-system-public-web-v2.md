@@ -101,6 +101,16 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 - [ ] Gradebook, rubrics, feedback, progress and transcripts.
 - [ ] Certificates with generation, verification, expiry and revocation.
 - [ ] Internal chat, announcements, notifications and moderated communities.
+- [ ] QR attendance, NFC/RFID identities and validated physical access adapters.
+- [ ] Access events synchronized with sessions, sites and learner records.
+
+### Connected campus and digital signage
+
+- [ ] Screen and player registry scoped by tenant, site and display zone.
+- [ ] Class calendars, room schedules, announcements and course promotions.
+- [ ] Playlists, publishing windows, role-based approvals and emergency overrides.
+- [ ] Device heartbeat, playback status and 24/7 display-fleet monitoring.
+- [ ] Provider-specific player, reader and sensor adapters validated during onboarding.
 
 ### Finance and accounting
 

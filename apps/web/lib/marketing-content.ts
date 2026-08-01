@@ -135,6 +135,8 @@ export const platformPillars = [
   {
     title: 'Web and commerce',
     text: 'Publish, enrol and sell from your own web presence.',
+    image: '/images/marketing/home-modules/web-commerce.jpg',
+    imageAlt: 'Academy team publishing a course website and online enrolment experience',
     capabilities: [
       'Website and CMS',
       'Domain and DNS',
@@ -146,36 +148,50 @@ export const platformPillars = [
   {
     title: 'Growth and admissions',
     text: 'Convert demand into qualified, confirmed enrolment.',
+    image: '/images/marketing/home-modules/growth-admissions.jpg',
+    imageAlt: 'Academy admissions team coordinating enquiries and applications',
     capabilities: ['Leads and CRM', 'Campaigns', 'Admissions', 'Reservations', 'Automation'],
   },
   {
     title: 'Academic operations',
     text: 'Coordinate programmes, schedules, places and attendance.',
-    capabilities: ['Courses', 'Cohorts', 'Schedules', 'Locations', 'Attendance'],
+    image: '/images/marketing/home-modules/academic-operations.jpg',
+    imageAlt: 'Academy operations team coordinating courses, rooms and schedules',
+    capabilities: ['Courses', 'Cohorts', 'Schedules', 'Locations', 'Attendance and access'],
   },
   {
     title: 'People and workforce',
     text: 'Give every person the right workspace.',
+    image: '/images/marketing/home-modules/people-workforce.jpg',
+    imageAlt: 'Teachers and academy staff coordinating their work together',
     capabilities: ['Student records', 'Teacher workspace', 'Roles', 'HR', 'Workload'],
   },
   {
     title: 'Campus and learning',
     text: 'Deliver learning, feedback, progress and community.',
+    image: '/images/marketing/home-modules/campus-learning.jpg',
+    imageAlt: 'Teacher and learners taking part in a connected hybrid class',
     capabilities: ['LMS', 'Gradebook', 'Chat', 'Certificates', 'Learner analytics'],
   },
   {
     title: 'Payments and finance',
     text: 'Connect collection, billing and financial control.',
+    image: '/images/marketing/home-modules/payments-finance.jpg',
+    imageAlt: 'Academy finance team reviewing billing and payment performance',
     capabilities: ['Checkout', 'Billing', 'Receivables', 'Reconciliation', 'Accounting'],
   },
   {
     title: 'Library and resources',
     text: 'Keep shared resources available and accountable.',
+    image: '/images/marketing/home-modules/library-resources.jpg',
+    imageAlt: 'Academy library and equipment resources being organised for learners',
     capabilities: ['Library', 'Inventory', 'Equipment', 'Facilities', 'Procurement'],
   },
   {
     title: 'Insight and ecosystem',
     text: 'Turn operations into insight and connected action.',
+    image: '/images/marketing/home-modules/insight-ecosystem.jpg',
+    imageAlt: 'Academy leadership reviewing connected performance insights',
     capabilities: ['Analytics', 'Reports', 'APIs', 'Integrations', 'AI assistance'],
   },
 ] as const
@@ -210,6 +226,16 @@ export const roadmapModules = [
     title: 'AI-assisted operations',
     phase: 'Optional capability',
     text: 'Permission-aware assistance with human review.',
+  },
+  {
+    title: 'Attendance and physical access',
+    phase: 'Campus operations roadmap',
+    text: 'QR check-in, NFC and RFID cards, readers and attendance sync.',
+  },
+  {
+    title: 'Digital signage',
+    phase: 'Campus communications roadmap',
+    text: 'Multi-site screens, scheduled playlists, announcements and device status.',
   },
 ] as const
 
@@ -478,6 +504,18 @@ export const featureGroups = [
     ],
   },
   {
+    title: 'Attendance and physical access',
+    eyebrow: 'Connect every arrival',
+    description: 'Link attendance, identity and campus access events.',
+    features: [
+      'QR check-in through responsive apps',
+      'NFC and RFID card journeys',
+      'Reader and access-controller adapters',
+      'Class and location attendance sync',
+      'Arrival status and exception review',
+    ],
+  },
+  {
     title: 'Students, members and participants',
     eyebrow: 'One participant record',
     description: 'Keep each participant record complete and current.',
@@ -535,6 +573,18 @@ export const featureGroups = [
       'Operational notifications',
       'Reminders and tasks',
       'Event-driven automation',
+    ],
+  },
+  {
+    title: 'Digital signage',
+    eyebrow: 'Activate every screen',
+    description: 'Publish timely academy content across every site.',
+    features: [
+      'Class calendar and room displays',
+      'Announcements and academy news',
+      'Course and event promotions',
+      'Site playlists and publishing schedules',
+      'Display status and playback monitoring',
     ],
   },
   {

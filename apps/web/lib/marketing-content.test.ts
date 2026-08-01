@@ -71,7 +71,7 @@ describe('public marketing architecture', () => {
   })
 
   it('describes the expanded operating platform without making AI the sales moat', () => {
-    expect(featureGroups).toHaveLength(21)
+    expect(featureGroups).toHaveLength(23)
     expect(featureGroups.every((group) => group.features.length >= 5)).toBe(true)
     expect(featureGroups.map((group) => group.title)).toEqual(
       expect.arrayContaining([
@@ -81,8 +81,10 @@ describe('public marketing architecture', () => {
         'Reservations and admissions',
         'Offers, runs and capacity',
         'Academic operations',
+        'Attendance and physical access',
         'Virtual campus and learning',
         'Communication and community',
+        'Digital signage',
         'Payments, billing and finance',
         'Finance and accounting',
         'HR and workforce',
@@ -108,6 +110,11 @@ describe('public marketing architecture', () => {
       'A page for every offer',
     ])
     expect(platformPillars).toHaveLength(8)
+    expect(new Set(platformPillars.map((pillar) => pillar.image)).size).toBe(8)
+    for (const pillar of platformPillars) {
+      expect(existsSync(new URL(`../public${pillar.image}`, import.meta.url))).toBe(true)
+      expect(pillar.imageAlt.length).toBeGreaterThan(20)
+    }
     expect(roadmapModules.map((module) => module.title)).toEqual(
       expect.arrayContaining([
         'Finance and accounting',
@@ -116,6 +123,8 @@ describe('public marketing architecture', () => {
         'Advanced learning',
         'Mobile experience',
         'AI-assisted operations',
+        'Attendance and physical access',
+        'Digital signage',
       ])
     )
   })
@@ -182,11 +191,11 @@ describe('public marketing architecture', () => {
       'utf8'
     )
     expect(`${download}${showcase}`).toMatch(/Coming soon/)
-    expect(showcase).toContain('No application download is available yet')
+    expect(showcase).toContain('Applications are coming soon')
     expect(`${download}${showcase}`).not.toMatch(/App Store|Download now|Install now/)
   })
 
-  it('makes connected role experiences and multi-site setup first-class product stories', () => {
+  it('makes connected role experiences and the operating dashboard first-class Home stories', () => {
     expect(academyExperiences.map((experience) => experience.id)).toEqual([
       'operations',
       'teachers',
@@ -227,12 +236,20 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/AcademySetupJourney.tsx', import.meta.url),
       'utf8'
     )
+    const operationsComponent = readFileSync(
+      new URL('../components/marketing/AcademyOperationsStory.tsx', import.meta.url),
+      'utf8'
+    )
     expect(home.indexOf('<ConnectedExperiences')).toBeLessThan(
       home.indexOf('<WebsiteDistributionPreview')
     )
     expect(home.indexOf('One platform. Every part of the academy.')).toBeLessThan(
       home.indexOf('<WebsiteDistributionPreview')
     )
+    expect(home).toContain('<AcademyOperationsStory')
+    expect(home).not.toContain('<AcademySetupJourney')
+    expect(operationsComponent).toMatch(/Academy overview/)
+    expect(operationsComponent).toMatch(/Active learners/)
     expect(roleComponent).toContain('role="tablist"')
     expect(roleComponent).toContain('role="tabpanel"')
     expect(setupComponent).toContain('role="tablist"')
@@ -241,6 +258,30 @@ describe('public marketing architecture', () => {
     expect(setupComponent).toContain('src={active.image}')
     expect(setupComponent).not.toContain('% complete')
     expect(setupComponent).not.toContain('active.progress')
+  })
+
+  it('adds connected-campus operations and keeps Home commercial language affirmative', () => {
+    const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+    const campus = readFileSync(
+      new URL('../components/marketing/PhysicalCampusStory.tsx', import.meta.url),
+      'utf8'
+    )
+    const mcp = readFileSync(
+      new URL('../components/marketing/HomeMcpConnect.tsx', import.meta.url),
+      'utf8'
+    )
+
+    expect(JSON.stringify(featureGroups)).toMatch(/QR check-in/i)
+    expect(JSON.stringify(featureGroups)).toMatch(/NFC and RFID/i)
+    expect(JSON.stringify(featureGroups)).toMatch(/Digital signage/i)
+    expect(JSON.stringify(featureGroups)).toMatch(/Display status/i)
+    expect(campus).toContain('/images/marketing/home-modules/attendance-access.jpg')
+    expect(campus).toContain('/images/marketing/home-modules/digital-signage.jpg')
+    expect(mcp).toContain('Connect your AI agent to Akademate.')
+    expect(mcp).toContain('agenticProviders.map')
+    expect(`${home}${campus}${mcp}`).not.toMatch(
+      /(?:^|[\s>])(?:No|Replace|Fragmented|Disconnected|Without)\b/
+    )
   })
 
   it('uses an accessible slow infinite carousel for every academy model', () => {

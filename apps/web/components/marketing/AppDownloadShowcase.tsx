@@ -135,7 +135,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
                   ))}
                 </ul>
                 <p className="mt-8 text-xs leading-5 text-blue-100/50">
-                  Preview only. No application download is available yet.
+                  Preview only. Applications are coming soon.
                 </p>
               </div>
             </div>

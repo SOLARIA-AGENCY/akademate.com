@@ -11,7 +11,7 @@ export function ConnectorLogos({
   if (ids.length === 0)
     return (
       <p className="text-sm leading-6 text-slate-500">
-        Built into the Akademate operating model without an external provider dependency.
+        Built directly into the Akademate operating model.
       </p>
     )
 
