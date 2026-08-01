@@ -2,6 +2,26 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { Award, BookOpen, GraduationCap, LayoutDashboard, LogOut, TrendingUp } from 'lucide-react'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  MetricCard,
+  PageHeader,
+  Progress,
+  Skeleton,
+  WorkspaceBrand,
+  WorkspaceNav,
+  WorkspaceNavItem,
+  WorkspaceShell,
+  WorkspaceSidebar,
+} from '@akademate/ui'
 
 import {
   CampusApiError,
@@ -9,6 +29,19 @@ import {
   fetchCampusDashboard,
 } from '../../lib/campus-client'
 import { AuthGuard, useSession } from '../../lib/session-context'
+
+type CourseStatusDisplay = { label: string; variant: 'secondary' | 'success' | 'warning' }
+const defaultCourseStatus: CourseStatusDisplay = { label: 'Activo', variant: 'secondary' }
+const courseStatus: Record<string, CourseStatusDisplay> = {
+  active: { label: 'Activo', variant: 'secondary' },
+  confirmed: { label: 'Confirmado', variant: 'secondary' },
+  in_progress: { label: 'En curso', variant: 'warning' },
+  completed: { label: 'Completado', variant: 'success' },
+}
+
+function courseStatusFor(status: string): CourseStatusDisplay {
+  return courseStatus[status] ?? defaultCourseStatus
+}
 
 export default function DashboardPage() {
   const { user, logout, refreshSession } = useSession()
@@ -43,59 +76,57 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
-      <main className="space-y-6" data-testid="dashboard">
-        <section className="rounded-2xl border border-border bg-card/70 p-6 shadow-xl shadow-black/30">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Panel del alumno</p>
-          <div className="mt-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold">Bienvenido, <span data-testid="user-name">{displayName}</span></h1>
-              <p className="mt-2 text-sm text-muted-foreground">Tus cursos, progreso y próximos pasos.</p>
-            </div>
-            <div className="text-left md:text-right">
-              <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">Progreso medio</div>
-              <div className="text-3xl font-semibold" data-testid="completion-rate">{averageProgress}%</div>
-            </div>
-          </div>
+      <WorkspaceShell sidebar={(
+        <WorkspaceSidebar>
+          <WorkspaceBrand eyebrow="Campus virtual" name="Akademate" />
+          <WorkspaceNav aria-label="Campus">
+            <WorkspaceNavItem asChild active><Link href="/dashboard"><LayoutDashboard className="size-4" />Dashboard</Link></WorkspaceNavItem>
+            <WorkspaceNavItem asChild><Link href="/progress"><TrendingUp className="size-4" />Progreso</Link></WorkspaceNavItem>
+            <WorkspaceNavItem asChild><Link href="/certificates"><Award className="size-4" />Certificados</Link></WorkspaceNavItem>
+          </WorkspaceNav>
+        </WorkspaceSidebar>
+      )}>
+      <main className="mx-auto max-w-7xl space-y-6" data-testid="dashboard">
+        <PageHeader
+          eyebrow="Campus del alumno"
+          title={`Bienvenido, ${displayName}`}
+          description="Tus cursos, progreso y próximos pasos en un solo espacio."
+          actions={<Button variant="outline" size="sm" onClick={() => void logout()}><LogOut className="size-4" />Cerrar sesión</Button>}
+        />
+
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Resumen">
+          <MetricCard label="Cursos activos" value={dashboard?.stats.totalCourses ?? 0} hint="Matrículas en curso" icon={<BookOpen className="size-5" />} />
+          <MetricCard label="Progreso medio" value={<span data-testid="completion-rate">{averageProgress}%</span>} hint="Sobre cursos visibles" icon={<TrendingUp className="size-5" />} />
+          <MetricCard label="Cursos completados" value={dashboard?.stats.completedCourses ?? 0} hint="Historial académico" icon={<GraduationCap className="size-5" />} />
         </section>
 
-        <nav className="grid gap-2 rounded-2xl border border-border bg-card/60 p-4 sm:grid-cols-3" aria-label="Campus">
-          <Link className="rounded-lg border border-primary/50 px-4 py-2 text-sm" href="/dashboard">Dashboard</Link>
-          <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm" href="/progress">Progreso</Link>
-          <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm" href="/certificates">Certificados</Link>
-        </nav>
-
-        <section className="rounded-2xl border border-border bg-card/60 p-6" aria-busy={isLoading}>
-          <h2 className="text-xl font-semibold">Cursos activos</h2>
-          {isLoading && <p className="mt-4 text-sm text-muted-foreground" role="status">Cargando cursos…</p>}
+        <Card aria-busy={isLoading}>
+          <CardHeader>
+            <CardTitle>Cursos activos</CardTitle>
+            <CardDescription>Continúa desde el último punto guardado.</CardDescription>
+          </CardHeader>
+          <CardContent>
+          {isLoading && <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" role="status" aria-label="Cargando cursos">{[0, 1, 2].map((item) => <Skeleton key={item} className="h-36" />)}</div>}
           {error && <p className="mt-4 text-sm text-red-400" role="alert">{error}</p>}
           {!isLoading && !error && dashboard?.enrollments.length === 0 && (
-            <p className="mt-4 text-sm text-muted-foreground">Todavía no tienes cursos activos.</p>
+            <EmptyState title="Sin cursos activos" description="Cuando tu academia confirme una matrícula, aparecerá aquí." icon={<BookOpen className="size-5" />} />
           )}
           {dashboard && dashboard.enrollments.length > 0 && (
-            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-testid="courses-grid">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-testid="courses-grid">
               {dashboard.enrollments.map((course) => (
-                <article key={course.id} className="rounded-xl border border-border/60 bg-background/40 p-4" data-testid="course-card">
-                  <div className="text-sm font-semibold">{course.courseTitle || course.courseRunTitle}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">{course.completedModules}/{course.totalModules} módulos</div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted" aria-label={`${course.progressPercent}% completado`}>
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(0, Math.min(100, course.progressPercent))}%` }} />
-                  </div>
-                </article>
+                <Card key={course.id} className="shadow-none transition-shadow duration-200 ease-in-out hover:shadow-md" data-testid="course-card">
+                  <CardHeader className="pb-3"><div className="flex items-start justify-between gap-3"><CardTitle>{course.courseTitle || course.courseRunTitle}</CardTitle><Badge variant={courseStatusFor(course.status).variant}>{courseStatusFor(course.status).label}</Badge></div><CardDescription>{course.completedModules}/{course.totalModules} módulos</CardDescription></CardHeader>
+                  <CardContent><div className="flex items-center justify-between text-xs text-muted-foreground"><span>Progreso</span><span>{course.progressPercent}%</span></div><Progress className="mt-2" value={course.progressPercent} aria-label={`${course.progressPercent}% completado`} /></CardContent>
+                </Card>
               ))}
             </div>
           )}
-        </section>
+          </CardContent>
+        </Card>
 
-        <div className="flex items-center justify-between rounded-2xl border border-border bg-card/60 p-4">
-          <div>
-            <div className="text-sm font-semibold">{user?.email}</div>
-            <div className="text-xs text-muted-foreground">Sesión protegida del campus</div>
-          </div>
-          <button className="rounded-lg border border-border/60 px-4 py-2 text-xs" type="button" onClick={() => void logout()}>
-            Cerrar sesión
-          </button>
-        </div>
+        <p className="text-xs text-muted-foreground" data-testid="user-name">Sesión de {user?.email}</p>
       </main>
+      </WorkspaceShell>
     </AuthGuard>
   )
 }

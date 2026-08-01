@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
@@ -14,6 +14,24 @@ const composeText = readFileSync(path.join(root, 'infrastructure/akademate-next/
 const envText = readFileSync(path.join(root, 'infrastructure/akademate-next/.env.example'), 'utf8')
 const dockerignoreText = readFileSync(path.join(root, '.dockerignore'), 'utf8')
 const payloadConfigText = readFileSync(path.join(root, 'apps/tenant-admin/src/payload.config.ts'), 'utf8')
+const campusRealtimeProviderText = readFileSync(
+  path.join(root, 'apps/campus/providers/RealtimeProvider.tsx'),
+  'utf8',
+)
+
+test('does not publish a development authentication bypass in Campus', () => {
+  assert.equal(
+    existsSync(path.join(root, 'apps/campus/app/api/auth/dev-login/route.ts')),
+    false,
+  )
+})
+
+test('keeps Campus realtime default-off without legacy or localStorage identity', () => {
+  assert.match(campusRealtimeProviderText, /NEXT_PUBLIC_CAMPUS_REALTIME_ENABLED === 'true'/)
+  assert.equal(campusRealtimeProviderText.includes('/api/auth/session'), false)
+  assert.equal(campusRealtimeProviderText.includes('localStorage'), false)
+  assert.equal(campusRealtimeProviderText.includes("defaultTenantId = 1"), false)
+})
 
 test('accepts the committed isolated Next contract', () => {
   assert.deepEqual(validateNextIsolation({ composeText, envText }), {

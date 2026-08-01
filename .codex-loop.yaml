@@ -26,7 +26,7 @@ checks:
     - name: next-compose
       command: docker compose --env-file infrastructure/akademate-next/.env.example -f infrastructure/akademate-next/compose.yaml config --quiet
     - name: campus-canonical-session
-      command: pnpm --filter @akademate/campus test && pnpm --filter @akademate/campus exec tsc --noEmit
+      command: corepack pnpm --filter @akademate/ui build && corepack pnpm --filter @akademate/campus test && corepack pnpm --filter @akademate/campus exec tsc --noEmit
     - name: diff-integrity
       command: git diff --check
 
