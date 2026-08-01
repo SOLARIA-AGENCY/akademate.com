@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
-import { legalCompany, legalLinks } from '@/lib/legal-config'
+import { legalLinks } from '@/lib/legal-config'
 import { publicCompanyLinks, publicSocialLinks } from '@/lib/public-navigation'
 
 const productLinks = [
@@ -19,7 +19,6 @@ export function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-2.5"><Image src="/logos/akademate-icon-48.png" alt="" width={34} height={34} /><span className="text-sm font-extrabold tracking-[0.12em]">AKADEMATE</span></Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">Turn demand into enrolment, programmes into standout experiences and everyday operations into lasting growth.</p>
-            <p className="mt-5 text-xs text-blue-100/50">A product by {legalCompany.name}</p>
             <div className="mt-6 flex items-center gap-2" aria-label="Akademate social media">
               {publicSocialLinks.map((link) => <a key={link.name} href={link.href} target="_blank" rel="noreferrer" aria-label={`${link.name}: find Akademate`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.06] text-blue-100/70 transition hover:border-blue-300/40 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300">{link.name === 'Instagram' ? <InstagramMark /> : link.name === 'Facebook' ? <FacebookMark /> : <XMark />}</a>)}
             </div>

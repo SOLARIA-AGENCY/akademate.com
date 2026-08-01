@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ArrowRight, Check, Cloud, Rocket, Server, WalletCards } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { plans } from '@/lib/marketing-content'
+import { plans, roadmapModules } from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -33,19 +33,19 @@ export default function PricingPage() {
         <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.9fr 1.1fr] lg:gap-20">
             <div>
-              <p className="section-kicker">Plans</p>
+              <p className="section-kicker">Plans shaped around your operation</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">A plan for every stage of your ambition.</h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">Start with one standout programme, transform your whole academy or create a dedicated platform for your network.</p>
               <Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
             </div>
-            <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-[2rem]">
-              <Image src="/images/marketing/pricing-growth-planning.jpg" alt="Academy leadership team planning the next stage of multi-site growth" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" />
+            <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">
+              <Image src="/images/marketing/akademate-finance-accounting-v2.png" alt="Akademate finance and accounting workspace across desktop and tablet" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" />
             </div>
           </div>
         </section>
 
         <section className="px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
-          <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] border border-slate-200 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-7xl overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
             {plans.map((plan, index) => {
               const Icon = planIcons[index] ?? Cloud
               return (
@@ -62,6 +62,16 @@ export default function PricingPage() {
             })}
           </div>
           <p className="mx-auto mt-7 max-w-7xl text-sm leading-6 text-slate-600">Every proposal is shaped around the scale of your programmes, team, integrations and growth plan. Participant revenue always remains separate from your Akademate subscription.</p>
+        </section>
+
+        <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Add the modules that complete your operating model.</h2>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">The roadmap expands Akademate across finance, accounting, people, resources, learning and mobile experiences.</p>
+            <div className="mt-12 grid overflow-hidden rounded-2xl border border-blue-200 bg-white md:grid-cols-2 lg:grid-cols-3">
+              {roadmapModules.map((module) => <article key={module.title} className="border-b border-blue-200 p-7 md:border-r lg:min-h-[230px]"><p className="text-sm font-semibold text-blue-700">{module.phase}</p><h3 className="mt-4 text-2xl font-semibold tracking-tight">{module.title}</h3><p className="mt-4 text-sm leading-6 text-slate-600">{module.text}</p></article>)}
+            </div>
+          </div>
         </section>
 
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
@@ -89,7 +99,7 @@ export default function PricingPage() {
                 ['Deposits and instalments', 'Configure what is due at reservation, before a start date or on a recurring schedule.'],
                 ['Memberships and session packs', 'Support recurring access, class packs and renewal-oriented models.'],
                 ['Finance APIs and reconciliation', 'Prepare payment state for invoicing, accounting, banking or ERP workflows.'],
-              ].map(([title, text]) => <article key={title} className="rounded-[2rem] bg-[#eaf1ff] p-7"><h3 className="text-xl font-semibold">{title}</h3><p className="mt-4 text-sm leading-6 text-slate-600">{text}</p></article>)}
+              ].map(([title, text]) => <article key={title} className="rounded-2xl bg-[#eaf1ff] p-7"><h3 className="text-xl font-semibold">{title}</h3><p className="mt-4 text-sm leading-6 text-slate-600">{text}</p></article>)}
             </div>
           </div>
         </section>

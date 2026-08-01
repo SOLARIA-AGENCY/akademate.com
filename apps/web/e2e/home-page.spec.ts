@@ -3,15 +3,17 @@ import { expect, test } from '@playwright/test'
 test.describe('Akademate public commercial surface', () => {
   test('communicates a growth outcome, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('The operating system for modern academies.')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('The operating system for academies.')
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'CEP Formación' })).toBeVisible()
     await expect(page.getByText('Built for modern academy models')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Let the people behind every academy speak.' })).toBeVisible()
+    await expect(page.getByText('Public learner review presented by CEP Formación').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Launch' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Business', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Enterprise' })).toBeVisible()
     await expect(page.getByText('Dedicated or on-premise').first()).toBeVisible()
-    await expect(page.getByText('Stripe / PayPal / SEPA')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Payments and finance' })).toBeVisible()
     await expect(page.getByRole('banner').getByRole('link', { name: 'Blog' })).toBeVisible()
     await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Blog' })).toBeVisible()
     for (const network of ['Instagram', 'X', 'Facebook']) await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
@@ -20,7 +22,7 @@ test.describe('Akademate public commercial surface', () => {
   test('publishes a complete feature catalogue, product examples and four substantive articles', async ({ page }) => {
     const featuresResponse = await page.goto('/features')
     expect(featuresResponse?.status()).toBe(200)
-    await expect(page.locator('article[id] h3')).toHaveCount(15)
+    await expect(page.getByTestId('feature-catalogue').locator(':scope > article > h3')).toHaveCount(19)
     await expect(page.getByRole('heading', { name: 'Reservations and admissions' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'APIs, webhooks and deployment' })).toBeVisible()
     await expect(page.getByRole('tablist', { name: 'Akademate product examples' })).toBeVisible()
@@ -108,6 +110,7 @@ test.describe('Akademate public commercial surface', () => {
   })
 
   test('loads every marketing image when its card enters the viewport', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     const images = page.locator('main img')
@@ -124,6 +127,7 @@ test.describe('Akademate public commercial surface', () => {
   })
 
   test('all internal links on commercial pages resolve without dead routes or fragments', async ({ page, request }) => {
+    test.setTimeout(60_000)
     for (const sourcePath of ['/', '/features', '/pricing', '/solutions', '/blog']) {
       await page.goto(sourcePath)
       const hrefs = await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')).filter(Boolean) as string[])
@@ -160,6 +164,8 @@ test.describe('Akademate public commercial surface', () => {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
       await page.waitForLoadState('networkidle')
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+      expect(overflow, `${path} has horizontal overflow`).toBeLessThanOrEqual(1)
     }
     expect(failures).toEqual([])
   })
@@ -171,6 +177,7 @@ test.describe('Akademate public commercial surface', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) })
     })
     await page.goto('/contacto?asunto=demo')
+    await page.waitForLoadState('networkidle')
     await page.getByLabel(/Full name/).fill('Ada Lovelace')
     await page.getByLabel(/Email/).fill('ada@example.com')
     await page.getByLabel(/What would you like to discuss/).selectOption('demo')

@@ -1,16 +1,12 @@
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
-import { Manrope, JetBrains_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 
-const fontSans = Manrope({
+const fontSans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
-})
-
-const fontMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -77,7 +73,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased min-h-screen`}
+        className={`${fontSans.variable} font-sans antialiased min-h-screen`}
         style={Object.keys(themeVars).length ? themeVars : undefined}
       >
         {children}

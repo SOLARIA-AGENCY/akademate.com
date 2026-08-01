@@ -3,21 +3,29 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { blogPosts } from '@/lib/blog-posts'
-import { academyTypes, featureGroups, governanceFrameworks, integrationPillars, plans, reservationModes, solutionDetails, verticals } from '@/lib/marketing-content'
+import { academyTypes, distributionModes, featureGroups, governanceFrameworks, integrationPillars, plans, platformPillars, reservationModes, roadmapModules, solutionDetails, verticals } from '@/lib/marketing-content'
 import { publicCompanyLinks, publicNavigation, publicSocialLinks } from '@/lib/public-navigation'
 
 describe('public marketing architecture', () => {
   it('describes the expanded operating platform without making AI the sales moat', () => {
-    expect(featureGroups).toHaveLength(15)
+    expect(featureGroups).toHaveLength(19)
     expect(featureGroups.every((group) => group.features.length >= 5)).toBe(true)
     expect(featureGroups.map((group) => group.title)).toEqual(expect.arrayContaining([
-      'Growth, Ads and CRM', 'Reservations and admissions', 'Offers, runs and capacity', 'Academic operations', 'Virtual campus and learning', 'Communication and community', 'Payments, billing and finance', 'Sports and seasonal operations', 'Security and governance', 'APIs, webhooks and deployment',
+      'Website, catalogue and embeds', 'Growth, Ads and CRM', 'Reservations and admissions', 'Offers, runs and capacity', 'Academic operations', 'Virtual campus and learning', 'Communication and community', 'Payments, billing and finance', 'Finance and accounting', 'HR and workforce', 'Library, inventory and facilities', 'Sports and seasonal operations', 'Security and governance', 'APIs, webhooks and deployment',
     ]))
 
     const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
     const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
-    expect(home).toMatch(/The operating system for modern academies\./)
+    expect(home).toMatch(/The operating system for academies\./)
+  })
+
+  it('models the complete product journey from website distribution to extensible operations', () => {
+    expect(distributionModes.map((mode) => mode.title)).toEqual(['Your Akademate website', 'Your own domain', 'Embeds for any website', 'A page for every offer'])
+    expect(platformPillars).toHaveLength(8)
+    expect(roadmapModules.map((module) => module.title)).toEqual(expect.arrayContaining([
+      'Finance and accounting', 'HR and workforce', 'Library and inventory', 'Advanced learning', 'Mobile experience', 'AI-assisted operations',
+    ]))
   })
 
   it('offers Launch, Business and Enterprise without fabricated prices', () => {
@@ -82,6 +90,14 @@ describe('public marketing architecture', () => {
     expect(proof).not.toMatch(/trusted by|customers include/i)
   })
 
+  it('attributes public learner reviews and never presents them as invented SaaS endorsements', () => {
+    const voices = readFileSync(new URL('../components/marketing/CustomerVoices.tsx', import.meta.url), 'utf8')
+    expect(voices).toContain('Public learner review presented by CEP Formación')
+    expect(voices).toContain('https://cepformacion.akademate.com/')
+    expect(voices).toMatch(/Olga Mercedes|Isabel Clemente|Mr\. Avocato/)
+    expect(voices).not.toMatch(/fictional|placeholder customer|trusted by/i)
+  })
+
   it('keeps navigation on real routes and replaces AI-first navigation with solutions', () => {
     expect(publicNavigation.map((item) => item.href)).toEqual(['/features', '/solutions', '/pricing', '/blog', '/sobre-nosotros'])
     expect(publicNavigation.find((item) => item.href === '/blog')?.name).toBe('Blog')
@@ -108,12 +124,29 @@ describe('public marketing architecture', () => {
 
   it('assigns dedicated imagery to the primary commercial pages', () => {
     const pages = [
-      ['../app/features/page.tsx', 'features-operations-team.jpg'],
-      ['../app/pricing/page.tsx', 'pricing-growth-planning.jpg'],
-      ['../app/sobre-nosotros/page.tsx', 'about-founder-campus.jpg'],
-      ['../app/contacto/page.tsx', 'contact-consultation.jpg'],
+      ['../app/features/page.tsx', 'akademate-product-ecosystem-v2.png'],
+      ['../app/pricing/page.tsx', 'akademate-finance-accounting-v2.png'],
+      ['../app/sobre-nosotros/page.tsx', 'akademate-company-blueprint-v2.png'],
+      ['../app/contacto/page.tsx', 'akademate-implementation-planner-v2.png'],
     ] as const
-    for (const [file, image] of pages) expect(readFileSync(new URL(file, import.meta.url), 'utf8')).toContain(image)
+    for (const [file, image] of pages) {
+      expect(readFileSync(new URL(file, import.meta.url), 'utf8')).toContain(image)
+      expect(existsSync(new URL(`../public/images/marketing/${image}`, import.meta.url))).toBe(true)
+    }
+    expect(new Set(pages.map(([, image]) => image)).size).toBe(pages.length)
+  })
+
+  it('keeps the core public surface on one typography and radius system', () => {
+    const files = [
+      '../app/page.tsx', '../app/features/page.tsx', '../app/pricing/page.tsx', '../app/solutions/page.tsx',
+      '../app/blog/page.tsx', '../app/sobre-nosotros/page.tsx', '../app/contacto/page.tsx',
+    ]
+    for (const file of files) {
+      const source = readFileSync(new URL(file, import.meta.url), 'utf8')
+      expect(source).not.toContain('font-mono')
+      expect(source).not.toContain('rounded-[2rem]')
+      expect(source).not.toMatch(/uppercase\s+tracking-/)
+    }
   })
 
   it('ships marketing copy without em-dash design flourishes', () => {

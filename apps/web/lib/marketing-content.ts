@@ -16,6 +16,105 @@ export const reservationModes = [
   { title: 'Waitlist', text: 'Keep demand organised and promote the next eligible participant.' },
 ] as const
 
+export const distributionModes = [
+  {
+    title: 'Your Akademate website',
+    label: 'academy.akademate.com',
+    text: 'Launch a complete branded academy website with catalogue, pages, forms, SEO and booking journeys connected to the same operation.',
+  },
+  {
+    title: 'Your own domain',
+    label: 'www.youracademy.com',
+    text: 'Connect an existing domain through guided DNS configuration and keep the public experience unmistakably yours.',
+  },
+  {
+    title: 'Embeds for any website',
+    label: 'Courses · Classes · Forms · Payments',
+    text: 'Add live Akademate modules to the website you already use without duplicating availability, registration or payment data.',
+  },
+  {
+    title: 'A page for every offer',
+    label: 'Shareable course URL',
+    text: 'Give every course, workshop, camp or event a page built to be shared, discovered, registered and paid for.',
+  },
+] as const
+
+export const platformPillars = [
+  {
+    title: 'Web and commerce',
+    text: 'Branded websites, custom domains, embedded modules, course pages, registration and checkout.',
+    capabilities: ['Website and CMS', 'Domain and DNS', 'Embeds', 'Offer pages', 'SEO and social sharing'],
+  },
+  {
+    title: 'Growth and admissions',
+    text: 'CRM, marketing context, forms, applications, capacity, waitlists and enrolment journeys.',
+    capabilities: ['Leads and CRM', 'Campaigns', 'Admissions', 'Reservations', 'Automation'],
+  },
+  {
+    title: 'Academic operations',
+    text: 'Courses, cohorts, sessions, timetables, campuses, rooms, resources and attendance.',
+    capabilities: ['Courses', 'Cohorts', 'Schedules', 'Locations', 'Attendance'],
+  },
+  {
+    title: 'People and workforce',
+    text: 'Students, guardians, teachers, coaches, administrators, roles, workload and HR context.',
+    capabilities: ['Student records', 'Teacher workspace', 'Roles', 'HR', 'Workload'],
+  },
+  {
+    title: 'Campus and learning',
+    text: 'Lessons, activities, live learning, assignments, grades, progress, certificates and community.',
+    capabilities: ['LMS', 'Gradebook', 'Chat', 'Certificates', 'Learner analytics'],
+  },
+  {
+    title: 'Payments and finance',
+    text: 'Deposits, instalments, subscriptions, invoices, refunds, reconciliation and accounting context.',
+    capabilities: ['Checkout', 'Billing', 'Receivables', 'Reconciliation', 'Accounting'],
+  },
+  {
+    title: 'Library and resources',
+    text: 'Library lending, digital resources, equipment, inventory, facilities and asset responsibility.',
+    capabilities: ['Library', 'Inventory', 'Equipment', 'Facilities', 'Procurement'],
+  },
+  {
+    title: 'Insight and ecosystem',
+    text: 'Dashboards, reports, APIs, webhooks, provider integrations and optional AI-assisted workflows.',
+    capabilities: ['Analytics', 'Reports', 'APIs', 'Integrations', 'AI assistance'],
+  },
+] as const
+
+export const roadmapModules = [
+  {
+    title: 'Finance and accounting',
+    phase: 'Expansion roadmap',
+    text: 'Receivables, payables, ledger, cost centres, bank feeds, reconciliation, tax workflows and accounting connectors.',
+  },
+  {
+    title: 'HR and workforce',
+    phase: 'Expansion roadmap',
+    text: 'Contracts, qualifications, availability, workload, time, leave, payroll inputs and teacher payments.',
+  },
+  {
+    title: 'Library and inventory',
+    phase: 'Expansion roadmap',
+    text: 'Catalogues, loans, digital resources, equipment, stock, facilities, procurement and maintenance.',
+  },
+  {
+    title: 'Advanced learning',
+    phase: 'Product roadmap',
+    text: 'Gradebook, rubrics, transcripts, verified certificates, learning pathways, community and moderated chat.',
+  },
+  {
+    title: 'Mobile experience',
+    phase: 'Future platform',
+    text: 'A responsive PWA followed by dedicated iPhone and iPad experiences for teachers, learners and operators.',
+  },
+  {
+    title: 'AI-assisted operations',
+    phase: 'Optional capability',
+    text: 'Permission-aware summaries, drafts, classifications, next actions and MCP tools with human review.',
+  },
+] as const
+
 export const verticals = [
   {
     slug: 'professional-training',
@@ -144,6 +243,12 @@ export const solutionDetails = {
 
 export const featureGroups = [
   {
+    title: 'Website, catalogue and embeds',
+    eyebrow: 'Publish anywhere',
+    description: 'Launch a complete academy website, connect your own domain or place live Akademate modules inside the site you already use.',
+    features: ['Automatic Akademate subdomain', 'Custom domains and guided DNS', 'Course and workshop pages', 'Embeddable classes, forms and payments', 'Reviews, testimonials and social sharing'],
+  },
+  {
     title: 'Growth, Ads and CRM',
     eyebrow: 'Build demand',
     description: 'Connect campaigns, source context, enquiries and follow-up so teams see how interest becomes participation.',
@@ -202,6 +307,24 @@ export const featureGroups = [
     eyebrow: 'Connect revenue',
     description: 'Keep the commercial policy, receiving entity, participant payment and finance status attached to the offer that created them.',
     features: ['Stripe, PayPal and SEPA adapters', 'Deposits, instalments and subscriptions', 'Memberships and session packs', 'Refund and cancellation policies', 'Reconciliation and finance APIs'],
+  },
+  {
+    title: 'Finance and accounting',
+    eyebrow: 'Understand the business',
+    description: 'Bring academy revenue, expenses, accounts and reconciliation into the same operational context as programmes and participants.',
+    features: ['Receivables and payables', 'Ledger and chart of accounts', 'Cost centres and entities', 'Bank feeds and reconciliation', 'Accounting exports and APIs'],
+  },
+  {
+    title: 'HR and workforce',
+    eyebrow: 'Support the team',
+    description: 'Coordinate the people behind delivery with contracts, availability, workload, qualifications and payroll-ready context.',
+    features: ['Contracts and staff records', 'Availability and substitutions', 'Workload and time', 'Leave and qualifications', 'Payroll inputs and teacher payments'],
+  },
+  {
+    title: 'Library, inventory and facilities',
+    eyebrow: 'Manage shared resources',
+    description: 'Keep learning resources, equipment, stock, rooms and facilities available to the programmes and people that need them.',
+    features: ['Library catalogue and lending', 'Digital resource access', 'Equipment and inventory', 'Facilities and maintenance', 'Procurement and suppliers'],
   },
   {
     title: 'Sports and seasonal operations',
