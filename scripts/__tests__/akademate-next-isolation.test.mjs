@@ -10,29 +10,36 @@ import {
 } from '../lib/akademate-next-isolation.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const composeText = readFileSync(path.join(root, 'infrastructure/akademate-next/compose.yaml'), 'utf8')
+const composeText = readFileSync(
+  path.join(root, 'infrastructure/akademate-next/compose.yaml'),
+  'utf8'
+)
 const envText = readFileSync(path.join(root, 'infrastructure/akademate-next/.env.example'), 'utf8')
 const dockerignoreText = readFileSync(path.join(root, '.dockerignore'), 'utf8')
-const payloadConfigText = readFileSync(path.join(root, 'apps/tenant-admin/src/payload.config.ts'), 'utf8')
+const payloadConfigText = readFileSync(
+  path.join(root, 'apps/tenant-admin/src/payload.config.ts'),
+  'utf8'
+)
 const campusRealtimeProviderText = readFileSync(
   path.join(root, 'apps/campus/providers/RealtimeProvider.tsx'),
-  'utf8',
+  'utf8'
 )
 const mcpIndexText = readFileSync(path.join(root, 'packages/mcp-server/src/index.ts'), 'utf8')
 const mcpConfigText = readFileSync(path.join(root, 'packages/mcp-server/src/config.ts'), 'utf8')
+const campusAttendanceRouteText = readFileSync(
+  path.join(root, 'apps/campus/app/api/attendance/qr-checkin/route.ts'),
+  'utf8'
+)
 
 test('does not publish a development authentication bypass in Campus', () => {
-  assert.equal(
-    existsSync(path.join(root, 'apps/campus/app/api/auth/dev-login/route.ts')),
-    false,
-  )
+  assert.equal(existsSync(path.join(root, 'apps/campus/app/api/auth/dev-login/route.ts')), false)
 })
 
 test('keeps Campus realtime default-off without legacy or localStorage identity', () => {
   assert.match(campusRealtimeProviderText, /NEXT_PUBLIC_CAMPUS_REALTIME_ENABLED === 'true'/)
   assert.equal(campusRealtimeProviderText.includes('/api/auth/session'), false)
   assert.equal(campusRealtimeProviderText.includes('localStorage'), false)
-  assert.equal(campusRealtimeProviderText.includes("defaultTenantId = 1"), false)
+  assert.equal(campusRealtimeProviderText.includes('defaultTenantId = 1'), false)
 })
 
 test('keeps the generic MCP server fail-closed and free of CEP endpoint defaults', () => {
@@ -41,6 +48,15 @@ test('keeps the generic MCP server fail-closed and free of CEP endpoint defaults
   assert.match(mcpIndexText, /resolveAkademateMcpConfig\(process\.env\)/)
   assert.match(mcpConfigText, /AKADEMATE_API_URL is required/)
   assert.match(mcpConfigText, /AKADEMATE_API_KEY is required/)
+})
+
+test('keeps QR attendance fail-closed until server-side identity and sessions exist', () => {
+  assert.match(campusAttendanceRouteText, /ATTENDANCE_NOT_CONFIGURED/)
+  assert.match(campusAttendanceRouteText, /private, no-store/)
+  assert.equal(campusAttendanceRouteText.includes('mockUserId'), false)
+  assert.equal(campusAttendanceRouteText.includes('mockEnrollmentId'), false)
+  assert.equal(campusAttendanceRouteText.includes('QR_SIGNATURE_SECRET ??'), false)
+  assert.equal(campusAttendanceRouteText.includes('fetch('), false)
 })
 
 test('accepts the committed isolated Next contract', () => {
@@ -54,42 +70,64 @@ test('rejects CEP hosts and live container identities', () => {
   for (const injected of ['https://cepformacion.akademate.com', 'akademate-tenant-final']) {
     assert.throws(
       () => validateNextIsolation({ composeText: `${composeText}\n# ${injected}`, envText }),
-      /forbidden production identifier/,
+      /forbidden production identifier/
     )
   }
 })
 
 test('rejects a shared volume or external network', () => {
   assert.throws(
-    () => validateNextIsolation({ composeText: composeText.replace('name: akademate_next_media_data', 'name: tenant-admin_media_data'), envText }),
-    /forbidden production identifier|dedicated resource/,
+    () =>
+      validateNextIsolation({
+        composeText: composeText.replace(
+          'name: akademate_next_media_data',
+          'name: tenant-admin_media_data'
+        ),
+        envText,
+      }),
+    /forbidden production identifier|dedicated resource/
   )
   assert.throws(
-    () => validateNextIsolation({ composeText: composeText.replace('internal: true', 'external: true'), envText }),
-    /external Docker networks/,
+    () =>
+      validateNextIsolation({
+        composeText: composeText.replace('internal: true', 'external: true'),
+        envText,
+      }),
+    /external Docker networks/
   )
 })
 
 test('rejects generic data-plane names and non-local example URLs', () => {
   assert.throws(
-    () => validateNextIsolation({ composeText, envText: envText.replace('AKADEMATE_NEXT_DB_NAME=akademate_next', 'AKADEMATE_NEXT_DB_NAME=akademate') }),
-    /environment contract missing/,
+    () =>
+      validateNextIsolation({
+        composeText,
+        envText: envText.replace(
+          'AKADEMATE_NEXT_DB_NAME=akademate_next',
+          'AKADEMATE_NEXT_DB_NAME=akademate'
+        ),
+      }),
+    /environment contract missing/
   )
   assert.throws(
-    () => validateNextIsolation({ composeText, envText: envText.replace('http://localhost:3109', 'https://example.invalid') }),
-    /example tenant URL must remain local/,
+    () =>
+      validateNextIsolation({
+        composeText,
+        envText: envText.replace('http://localhost:3109', 'https://example.invalid'),
+      }),
+    /example tenant URL must remain local/
   )
 })
 
 test('rejects a Redis service that does not receive its healthcheck password', () => {
   const withoutRedisPassword = composeText.replace(
     '    environment:\n      AKADEMATE_NEXT_REDIS_PASSWORD: ${AKADEMATE_NEXT_REDIS_PASSWORD:?AKADEMATE_NEXT_REDIS_PASSWORD is required}\n',
-    '',
+    ''
   )
   assert.equal(/^ {6}AKADEMATE_NEXT_REDIS_PASSWORD:\s*/m.test(withoutRedisPassword), false)
   assert.throws(
     () => validateNextIsolation({ composeText: withoutRedisPassword, envText }),
-    /Redis service must receive its dedicated password variable/,
+    /Redis service must receive its dedicated password variable/
   )
 })
 
@@ -97,7 +135,7 @@ test('requires backup and release archives to stay outside the Docker context', 
   assert.deepEqual(validateDockerContext(dockerignoreText), { sensitiveArtifactsExcluded: true })
   assert.throws(
     () => validateDockerContext(dockerignoreText.replace('*.sql.gz\n', '')),
-    /Docker context must exclude \*\.sql\.gz/,
+    /Docker context must exclude \*\.sql\.gz/
   )
 })
 
@@ -107,30 +145,37 @@ test('requires Payload collections to pass through the fail-closed Next runtime 
   })
 
   assert.throws(
-    () => validateNextRuntimeCollectionBoundary(
-      payloadConfigText.replace("await import('./runtime/next-only-collections')", "await import('./runtime/shared-collections')"),
-    ),
-    /Next-only collections must be loaded dynamically after the runtime gate/,
-  )
-  assert.throws(
-    () => validateNextRuntimeCollectionBoundary(
-      payloadConfigText.replace('selectRuntimeCollections(', 'selectCollections('),
-    ),
-    /Payload collections must be materialized through the Next runtime boundary/,
-  )
-  assert.throws(
-    () => validateNextRuntimeCollectionBoundary(
-      `${payloadConfigText}\nimport './runtime/next-only-collections'`,
-    ),
-    /must not statically import Next-only collections/,
-  )
-  assert.throws(
-    () => validateNextRuntimeCollectionBoundary(
-      payloadConfigText.replace(
-        'isAkademateNextRuntime(runtime)\n    ? []\n    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]',
-        'false\n    ? []\n    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]',
+    () =>
+      validateNextRuntimeCollectionBoundary(
+        payloadConfigText.replace(
+          "await import('./runtime/next-only-collections')",
+          "await import('./runtime/shared-collections')"
+        )
       ),
-    ),
-    /legacy and CEP shadow collections must be excluded from the Next runtime/,
+    /Next-only collections must be loaded dynamically after the runtime gate/
+  )
+  assert.throws(
+    () =>
+      validateNextRuntimeCollectionBoundary(
+        payloadConfigText.replace('selectRuntimeCollections(', 'selectCollections(')
+      ),
+    /Payload collections must be materialized through the Next runtime boundary/
+  )
+  assert.throws(
+    () =>
+      validateNextRuntimeCollectionBoundary(
+        `${payloadConfigText}\nimport './runtime/next-only-collections'`
+      ),
+    /must not statically import Next-only collections/
+  )
+  assert.throws(
+    () =>
+      validateNextRuntimeCollectionBoundary(
+        payloadConfigText.replace(
+          'isAkademateNextRuntime(runtime)\n    ? []\n    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]',
+          'false\n    ? []\n    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]'
+        )
+      ),
+    /legacy and CEP shadow collections must be excluded from the Next runtime/
   )
 })
