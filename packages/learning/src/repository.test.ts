@@ -37,6 +37,18 @@ test('makes message client ids idempotent and rejects conflicting reuse', () => 
   )
 })
 
+test('keeps message client ids independent per sender', () => {
+  const repository = messagingRepository()
+  repository.insertConversationParticipant({
+    ...participant,
+    id: 'participant-2',
+    userId: 'teacher-1',
+  })
+  repository.insertMessage(message)
+  const teacherMessage = { ...message, id: 'message-teacher-1', senderUserId: 'teacher-1' }
+  assert.deepEqual(repository.insertMessage(teacherMessage), { record: teacherMessage, inserted: true })
+})
+
 test('rejects orphaned and cross-course messages', () => {
   const repository = new InMemoryLearningRepository()
   assert.throws(

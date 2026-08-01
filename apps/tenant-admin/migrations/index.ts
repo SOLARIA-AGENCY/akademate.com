@@ -18,6 +18,7 @@ import * as migration_20260713_campus_virtual_internal from './20260713_campus_v
 import * as migration_20260714_staging_tenant_schema_compat from './20260714_staging_tenant_schema_compat'
 import * as migration_20260714_staging_users_auth_compat from './20260714_staging_users_auth_compat'
 import * as migration_20260730_akademate_next_learning from './20260730_akademate_next_learning'
+import * as migration_20260731_akademate_next_message_consistency from './20260731_akademate_next_message_consistency'
 import { selectRuntimeMigrations } from '../src/runtime/select-runtime-migrations'
 
 const legacyMigrations = [
@@ -133,6 +134,11 @@ const nextMigrations = [
     up: migration_20260730_akademate_next_learning.up,
     down: migration_20260730_akademate_next_learning.down,
     name: '20260730_akademate_next_learning',
+  },
+  {
+    up: migration_20260731_akademate_next_message_consistency.up,
+    down: migration_20260731_akademate_next_message_consistency.down,
+    name: '20260731_akademate_next_message_consistency',
   },
 ]
 

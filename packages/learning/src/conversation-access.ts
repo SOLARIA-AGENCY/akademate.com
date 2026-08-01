@@ -57,7 +57,7 @@ export function resolveConversationAccess({
     membership: learningMembership,
     context: learningContext,
   })
-  if (!learningAccess.allowed) {
+  if (learningAccess.allowed === false) {
     return denied(learningAccess.reason === 'membership_required' ? 'learning_membership_required' : `learning_${learningAccess.reason}`)
   }
 

@@ -9,6 +9,13 @@ const migrationText = readFileSync(
   path.join(root, 'apps/tenant-admin/migrations/20260730_akademate_next_learning.ts'),
   'utf8',
 )
+const messageConsistencyMigrationText = readFileSync(
+  path.join(
+    root,
+    'apps/tenant-admin/migrations/20260731_akademate_next_message_consistency.ts',
+  ),
+  'utf8',
+)
 const migrationIndexText = readFileSync(
   path.join(root, 'apps/tenant-admin/migrations/index.ts'),
   'utf8',
@@ -56,6 +63,9 @@ test('does not grant participant reads through a broad instructor management pol
   assert.match(migrationText, /CREATE POLICY "learning_conversation_participants_update"/)
   assert.match(migrationText, /CREATE POLICY "learning_conversation_participants_delete"/)
   assert.match(migrationText, /CREATE FUNCTION "akademate_next_is_conversation_moderator"/)
+  assert.match(messageConsistencyMigrationText, /CREATE FUNCTION "akademate_next_lock_learning_membership"/)
+  assert.match(messageConsistencyMigrationText, /CREATE FUNCTION "akademate_next_lock_learning_conversation"/)
+  assert.match(messageConsistencyMigrationText, /CREATE FUNCTION "akademate_next_lock_learning_participant"/)
   const participantPolicies = migrationText.split('CREATE POLICY "learning_conversation_participants_tenant_isolation"')[1]
     ?.split('CREATE POLICY "learning_messages_tenant_isolation"')[0] ?? ''
   assert.equal(participantPolicies.includes('FROM learning_conversation_participants moderator'), false)
@@ -96,7 +106,12 @@ test('registers the migration only through the exact runtime selector', () => {
   const nextManifest = migrationIndexText.split('const nextMigrations = [')[1]?.split('export const migrations')[0] ?? ''
   assert.deepEqual(
     [...nextManifest.matchAll(/name: '([^']+)'/g)].map((match) => match[1]),
-    ['20251207_081627', '20260428_students_tenant', '20260730_akademate_next_learning'],
+    [
+      '20251207_081627',
+      '20260428_students_tenant',
+      '20260730_akademate_next_learning',
+      '20260731_akademate_next_message_consistency',
+    ],
   )
   for (const forbidden of ['cep_planning', 'campus_virtual_internal', 'staging_']) {
     assert.equal(nextManifest.includes(forbidden), false)
@@ -104,11 +119,22 @@ test('registers the migration only through the exact runtime selector', () => {
 })
 
 test('defines idempotency and cross-scope integrity constraints', () => {
-  assert.match(migrationText, /UNIQUE \("tenant_id", "conversation_id", "client_message_id"\)/)
+  assert.match(
+    messageConsistencyMigrationText,
+    /UNIQUE \("tenant_id", "conversation_id", "sender_user_id", "client_message_id"\)/,
+  )
   assert.match(migrationText, /UNIQUE \("tenant_id", "assignment_id", "student_user_id", "client_submission_id"\)/)
   assert.match(migrationText, /UNIQUE \("tenant_id", "submission_id"\)/)
   assert.match(migrationText, /FOREIGN KEY \("tenant_id", "assignment_id", "course_run_id"\)/)
   assert.match(migrationText, /FOREIGN KEY \("tenant_id", "submission_id", "course_run_id", "assignment_id", "student_user_id"\)/)
+})
+
+test('fails closed before destructive rollback when sender-scoped ids overlap', () => {
+  const downBody = messageConsistencyMigrationText.split('export async function down')[1] ?? ''
+  const preflight = downBody.indexOf('HAVING count(*) > 1')
+  const destructiveChange = downBody.indexOf('DROP CONSTRAINT "learning_messages_sender_client_unique"')
+  assert.ok(preflight >= 0 && destructiveChange > preflight)
+  assert.match(downBody, /RAISE EXCEPTION/)
 })
 
 test('keeps Payload document locks aligned with every new collection', () => {

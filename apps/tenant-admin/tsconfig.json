@@ -15,6 +15,7 @@
     "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "lib": [
       "ES2022",
       "DOM",

@@ -75,7 +75,7 @@ function timestamp(value: string, code: string) {
 
 function accessFor(principal: LearningPrincipal, membership: LearningMembership | null | undefined, context: LearningContext) {
   const access = resolveLearningAccess({ principal, membership, context })
-  if (!access.allowed) fail(access.reason)
+  if (access.allowed === false) fail(access.reason)
   return access
 }
 

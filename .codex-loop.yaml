@@ -17,6 +17,12 @@ checks:
       command: node --experimental-strip-types --test apps/tenant-admin/src/runtime/next-only-collections.test.ts
     - name: next-runtime-migration-boundary
       command: node --experimental-strip-types --test apps/tenant-admin/src/runtime/select-runtime-migrations.test.ts
+    - name: next-learning-message-vertical
+      command: apps/tenant-admin/node_modules/.bin/tsx --test apps/tenant-admin/src/lib/learning/next-learning-auth.test.ts apps/tenant-admin/src/lib/learning/next-learning-transaction.test.ts apps/tenant-admin/src/lib/learning/send-message-command.test.ts apps/tenant-admin/src/lib/learning/send-message-handler.test.ts packages/learning/src/repository.test.ts
+    - name: next-learning-migration-contract
+      command: node scripts/__tests__/akademate-next-learning-migration.test.mjs
+    - name: next-learning-route-boundary
+      command: node --test scripts/__tests__/akademate-next-learning-route.test.mjs
     - name: next-compose
       command: docker compose --env-file infrastructure/akademate-next/.env.example -f infrastructure/akademate-next/compose.yaml config --quiet
     - name: diff-integrity

@@ -71,7 +71,7 @@ export function createMessage({
     conversation,
     participant,
   })
-  if (!access.allowed) fail(access.reason)
+  if (access.allowed === false) fail(access.reason)
   if (!hasConversationCapability(access, 'message.send')) fail('message_send_denied')
 
   if (!validIdentifier(messageId)) fail('message_id_invalid')

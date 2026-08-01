@@ -103,7 +103,7 @@ export class InMemoryLearningRepository implements LearningRepository {
     if (!participant) fail('message_participant_not_found')
     if (participant.status !== 'active') fail('message_participant_inactive')
 
-    const idempotencyKey = key(record.tenantId, record.conversationId, record.clientMessageId)
+    const idempotencyKey = key(record.tenantId, record.conversationId, record.senderUserId, record.clientMessageId)
     const existingByClient = this.messageIdempotency.get(idempotencyKey)
     if (existingByClient) {
       if (!sameRecord(existingByClient, record)) fail('message_idempotency_conflict')

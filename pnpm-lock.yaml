@@ -391,6 +391,9 @@ importers:
 
   apps/tenant-admin:
     dependencies:
+      '@akademate/learning':
+        specifier: workspace:*
+        version: link:../../packages/learning
       '@akademate/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
