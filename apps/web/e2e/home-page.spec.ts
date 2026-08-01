@@ -301,12 +301,29 @@ test.describe('Akademate public commercial surface', () => {
 
     await page.goto('/pricing')
     await expect(page.getByRole('heading', { name: 'Compare every plan.' })).toBeVisible()
-    await expect(page.getByRole('table')).toContainText('Website and growth')
-    await expect(page.getByRole('table')).toContainText('Payments and finance')
+    await expect(page.getByRole('table')).toContainText('Website, catalogue and enrolment')
+    await expect(page.getByRole('table')).toContainText('Payments and financial control')
     expect(await page.getByRole('table').getByLabel('Included').count()).toBeGreaterThan(40)
+    const signageRow = page.getByRole('row').filter({ hasText: 'Digital Signage' })
+    await expect(signageRow.getByText('Paid extension')).toHaveCount(3)
+    const extensions = page.getByTestId('pricing-paid-extensions')
+    await expect(extensions.getByRole('article')).toHaveCount(8)
+    await expect(
+      extensions.getByRole('heading', { name: 'Attendance and physical access' })
+    ).toBeVisible()
+    await expect(extensions.getByRole('heading', { name: 'Digital Signage' })).toBeVisible()
+    await expect(page.getByTestId('pricing-separate-costs')).toContainText(
+      'Access-control hardware, cards, readers, sensors and installation'
+    )
     await page.setViewportSize({ width: 390, height: 844 })
     await page.reload()
-    await expect(page.getByText('Website and growth').last()).toBeVisible()
+    await expect(page.getByText('Website, catalogue and enrolment').last()).toBeVisible()
+    const paidOperations = page
+      .locator('details')
+      .filter({ hasText: 'Paid operational extensions' })
+    await paidOperations.getByText('Paid operational extensions').click()
+    await expect(paidOperations.getByText('Digital Signage')).toBeVisible()
+    await expect(paidOperations.getByText('Paid extension')).toHaveCount(24)
   })
 
   test('mobile navigation is keyboard-operable without horizontal overflow', async ({ page }) => {

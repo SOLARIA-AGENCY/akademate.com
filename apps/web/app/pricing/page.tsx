@@ -3,17 +3,33 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowRight,
+  Bot,
+  Calculator,
+  Cable,
   Check,
   ChevronDown,
   Cloud,
+  Library,
+  Megaphone,
   Minus,
+  Monitor,
+  QrCode,
   Rocket,
   Server,
+  UsersRound,
   WalletCards,
 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { plans, roadmapModules } from '@/lib/marketing-content'
+import { plans } from '@/lib/marketing-content'
+import {
+  entitlementLabels,
+  paidExtensions,
+  planComparisonSections,
+  separatelyBilledItems,
+  type PlanComparisonSection,
+  type PlanEntitlement,
+} from '@/lib/pricing-content'
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -22,65 +38,17 @@ export const metadata: Metadata = {
   alternates: { canonical: '/pricing' },
 }
 
-type PlanValue = boolean | 'optional' | 'custom'
-
-const comparisonSections: ReadonlyArray<{
-  title: string
-  rows: ReadonlyArray<readonly [string, PlanValue, PlanValue, PlanValue]>
-}> = [
-  {
-    title: 'Website and growth',
-    rows: [
-      ['Public academy website', true, true, true],
-      ['Course and event pages', true, true, true],
-      ['Custom domain', 'optional', true, true],
-      ['CRM and campaign context', 'optional', true, true],
-      ['Embedded forms and payments', true, true, true],
-    ],
-  },
-  {
-    title: 'Academy operations',
-    rows: [
-      ['Courses, cohorts and schedules', true, true, true],
-      ['Students and guardian records', true, true, true],
-      ['Multiple campuses', false, 'optional', true],
-      ['Teacher and staff workspaces', 'optional', true, true],
-      ['Attendance and capacity', true, true, true],
-    ],
-  },
-  {
-    title: 'Learning and community',
-    rows: [
-      ['Virtual campus', 'optional', true, true],
-      ['Assignments and grades', false, true, true],
-      ['Teacher and learner chat', false, true, true],
-      ['Certificates and progress', 'optional', true, true],
-      ['Live learning integrations', 'optional', true, true],
-    ],
-  },
-  {
-    title: 'Payments and finance',
-    rows: [
-      ['Deposits and one-off payments', true, true, true],
-      ['Instalments and subscriptions', 'optional', true, true],
-      ['Memberships and session packs', 'optional', true, true],
-      ['Finance reporting', false, true, true],
-      ['Multi-entity payment scope', false, false, 'custom'],
-    ],
-  },
-  {
-    title: 'Platform and support',
-    rows: [
-      ['Managed cloud', true, true, 'optional'],
-      ['Dedicated or on-premise', false, false, true],
-      ['Standard onboarding', true, true, false],
-      ['Migration programme', false, 'optional', 'custom'],
-      ['Contracted integrations', false, 'optional', 'custom'],
-    ],
-  },
-]
-
 const planIcons = [Rocket, Cloud, Server] as const
+const extensionIcons = [
+  QrCode,
+  Monitor,
+  Megaphone,
+  Calculator,
+  UsersRound,
+  Library,
+  Bot,
+  Cable,
+] as const
 
 export default function PricingPage() {
   return (
@@ -164,6 +132,12 @@ export default function PricingPage() {
                   >
                     {plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
+                  <a
+                    href="#plan-comparison"
+                    className={`mt-4 inline-flex min-h-11 items-center text-sm font-semibold ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}
+                  >
+                    View complete inclusion list
+                  </a>
                 </article>
               )
             })}
@@ -173,41 +147,95 @@ export default function PricingPage() {
           </p>
         </section>
 
-        <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section
+          id="paid-extensions"
+          data-testid="pricing-paid-extensions"
+          className="bg-[#071633] px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-28"
+        >
           <div className="mx-auto max-w-7xl">
-            <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-              Complete your operating model.
-            </h2>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              Extend Akademate across finance, people, resources and learning.
-            </p>
-            <div className="mt-12 grid overflow-hidden rounded-2xl border border-blue-200 bg-white md:grid-cols-2 lg:grid-cols-3">
-              {roadmapModules.map((module) => (
-                <article
-                  key={module.title}
-                  className="border-b border-blue-200 p-7 md:border-r lg:min-h-[230px]"
-                >
-                  <p className="text-sm font-semibold text-blue-700">{module.phase}</p>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-tight">{module.title}</h3>
-                  <p className="mt-4 text-sm leading-6 text-slate-600">{module.text}</p>
-                </article>
-              ))}
+            <div className="grid gap-8 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
+              <div>
+                <p className="text-sm font-semibold text-blue-300">Optional paid modules</p>
+                <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+                  Add the modules you need.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-lg leading-8 text-blue-100/70">
+                Add specialist modules through a separately scoped commercial extension.
+              </p>
+            </div>
+            <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/15 bg-white/15 md:grid-cols-2 lg:grid-cols-4">
+              {paidExtensions.map((extension, index) => {
+                const Icon = extensionIcons[index] ?? Cable
+                return (
+                  <article key={extension.id} className="bg-[#0a1b3b] p-6 sm:p-7">
+                    <div className="flex items-center justify-between gap-4">
+                      <Icon
+                        className="h-6 w-6 text-blue-300"
+                        strokeWidth={1.75}
+                        aria-hidden="true"
+                      />
+                      <span className="rounded-full bg-blue-400/15 px-3 py-1 text-xs font-semibold text-blue-200">
+                        Paid extension
+                      </span>
+                    </div>
+                    <h3 className="mt-7 text-2xl font-semibold tracking-tight">
+                      {extension.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-blue-100/65">{extension.summary}</p>
+                    <ul className="mt-6 space-y-3 text-sm text-blue-50">
+                      {extension.includes.map((item) => (
+                        <li key={item} className="flex items-start gap-2">
+                          <Check
+                            className="mt-0.5 h-4 w-4 shrink-0 text-blue-300"
+                            aria-hidden="true"
+                          />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-6 border-t border-white/10 pt-5 text-xs leading-5 text-blue-100/55">
+                      Extra costs: {extension.separateCosts}
+                    </p>
+                  </article>
+                )
+              })}
             </div>
           </div>
         </section>
 
-        <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section
+          id="plan-comparison"
+          data-testid="pricing-comparison"
+          className="scroll-mt-24 bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+        >
           <div className="mx-auto max-w-7xl">
             <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
               Compare every plan.
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              See what is included, optional or shaped for your operation.
+              Every capability is labelled as included, a paid extension or Enterprise scope.
             </p>
+
+            <div className="mt-8 flex flex-wrap gap-3" aria-label="Plan comparison legend">
+              {(['included', 'paid-extension', 'enterprise-scope', 'not-included'] as const).map(
+                (value) => (
+                  <span
+                    key={value}
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700"
+                  >
+                    <PlanValueDisplay value={value} compact /> {entitlementLabels[value]}
+                  </span>
+                )
+              )}
+            </div>
 
             <div className="mt-12 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white md:block">
               <table className="w-full border-collapse text-left">
-                <thead>
+                <caption className="sr-only">
+                  Detailed comparison of Launch, Business and Enterprise plans
+                </caption>
+                <thead className="sticky top-[72px] z-10">
                   <tr className="border-b bg-slate-50">
                     <th className="w-[40%] px-6 py-5 text-sm font-semibold">Capability</th>
                     <th className="w-[20%] px-6 py-5 text-center text-sm font-semibold">Launch</th>
@@ -220,7 +248,7 @@ export default function PricingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {comparisonSections.map((section) => (
+                  {planComparisonSections.map((section) => (
                     <ComparisonRows key={section.title} section={section} />
                   ))}
                 </tbody>
@@ -228,7 +256,7 @@ export default function PricingPage() {
             </div>
 
             <div className="mt-10 space-y-3 md:hidden">
-              {comparisonSections.map((section, index) => (
+              {planComparisonSections.map((section, index) => (
                 <details
                   key={section.title}
                   open={index === 0}
@@ -239,13 +267,19 @@ export default function PricingPage() {
                     <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
                   </summary>
                   <div className="border-t border-slate-200">
-                    {section.rows.map(([feature, launch, business, enterprise]) => (
-                      <div key={feature} className="border-b border-slate-100 p-5 last:border-b-0">
-                        <p className="text-sm font-semibold">{feature}</p>
+                    {section.rows.map((row) => (
+                      <div
+                        key={row.capability}
+                        className="border-b border-slate-100 p-5 last:border-b-0"
+                      >
+                        <p className="text-sm font-semibold">{row.capability}</p>
+                        {row.note ? (
+                          <p className="mt-2 text-xs leading-5 text-slate-500">{row.note}</p>
+                        ) : null}
                         <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px] font-semibold text-slate-500">
-                          <MobilePlanValue label="Launch" value={launch} />
-                          <MobilePlanValue label="Business" value={business} featured />
-                          <MobilePlanValue label="Enterprise" value={enterprise} />
+                          <MobilePlanValue label="Launch" value={row.launch} />
+                          <MobilePlanValue label="Business" value={row.business} featured />
+                          <MobilePlanValue label="Enterprise" value={row.enterprise} />
                         </div>
                       </div>
                     ))}
@@ -253,6 +287,37 @@ export default function PricingPage() {
                 </details>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section
+          data-testid="pricing-separate-costs"
+          className="border-y border-slate-200 bg-[#f7f9fc] px-4 py-16 sm:px-6 lg:px-8"
+        >
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.75fr_1.25fr] lg:items-start">
+            <div>
+              <p className="text-sm font-semibold text-blue-700">Commercial scope</p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
+                Costs quoted separately.
+              </h2>
+              <p className="mt-4 max-w-lg leading-7 text-slate-600">
+                Proposals separate platform, implementation and external costs.
+              </p>
+            </div>
+            <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+              {separatelyBilledItems.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-3 border-b border-slate-200 pb-4 text-sm leading-6 text-slate-700"
+                >
+                  <WalletCards
+                    className="mt-0.5 h-4 w-4 shrink-0 text-blue-700"
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
@@ -321,8 +386,12 @@ export default function PricingPage() {
                   'Yes. Enterprise can run on-premise or in a dedicated private cloud.',
                 ],
                 [
-                  'Does AI define the plan?',
-                  'No. AI is optional; the core is connected academy operations.',
+                  'How does AI fit into a plan?',
+                  'AI workspace and MCP are optional paid extensions to the academy operating platform.',
+                ],
+                [
+                  'Are QR, NFC and Digital Signage included?',
+                  'Each is a paid extension. Hardware and licences are separate.',
                 ],
               ].map(([question, answer]) => (
                 <details key={question} className="group py-6">
@@ -341,7 +410,7 @@ export default function PricingPage() {
   )
 }
 
-function ComparisonRows({ section }: { section: (typeof comparisonSections)[number] }) {
+function ComparisonRows({ section }: { section: PlanComparisonSection }) {
   return (
     <>
       <tr className="border-y border-slate-200 bg-slate-50/80">
@@ -349,19 +418,24 @@ function ComparisonRows({ section }: { section: (typeof comparisonSections)[numb
           {section.title}
         </th>
       </tr>
-      {section.rows.map(([feature, launch, business, enterprise]) => (
-        <tr key={feature} className="border-b border-slate-100">
+      {section.rows.map((row) => (
+        <tr key={row.capability} className="border-b border-slate-100">
           <th scope="row" className="px-6 py-4 text-sm font-medium text-slate-700">
-            {feature}
+            {row.capability}
+            {row.note ? (
+              <span className="mt-1 block text-xs font-normal leading-5 text-slate-500">
+                {row.note}
+              </span>
+            ) : null}
           </th>
           <td className="px-6 py-4 text-center">
-            <PlanValueDisplay value={launch} />
+            <PlanValueDisplay value={row.launch} />
           </td>
           <td className="bg-blue-50/60 px-6 py-4 text-center">
-            <PlanValueDisplay value={business} />
+            <PlanValueDisplay value={row.business} />
           </td>
           <td className="px-6 py-4 text-center">
-            <PlanValueDisplay value={enterprise} />
+            <PlanValueDisplay value={row.enterprise} />
           </td>
         </tr>
       ))}
@@ -369,14 +443,29 @@ function ComparisonRows({ section }: { section: (typeof comparisonSections)[numb
   )
 }
 
-function PlanValueDisplay({ value }: { value: PlanValue }) {
-  if (value === true)
+function PlanValueDisplay({
+  value,
+  compact = false,
+}: {
+  value: PlanEntitlement
+  compact?: boolean
+}) {
+  if (value === 'included')
     return <Check className="mx-auto h-5 w-5 text-emerald-600" aria-label="Included" />
-  if (value === false)
+  if (value === 'not-included')
     return <Minus className="mx-auto h-5 w-5 text-slate-300" aria-label="Not included" />
+  if (compact)
+    return (
+      <span
+        className={`h-2.5 w-2.5 rounded-full ${value === 'paid-extension' ? 'bg-amber-500' : 'bg-blue-700'}`}
+        aria-hidden="true"
+      />
+    )
   return (
-    <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
-      {value === 'optional' ? 'Optional' : 'Custom'}
+    <span
+      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${value === 'paid-extension' ? 'bg-amber-50 text-amber-800' : 'bg-blue-100 text-blue-800'}`}
+    >
+      {entitlementLabels[value]}
     </span>
   )
 }
@@ -387,7 +476,7 @@ function MobilePlanValue({
   featured = false,
 }: {
   label: string
-  value: PlanValue
+  value: PlanEntitlement
   featured?: boolean
 }) {
   return (
