@@ -12,6 +12,7 @@
 - Campus virtual: matrículas, módulos/lecciones, materiales, evaluaciones simples, progreso, certificados.
 - Storage & media: R2/MinIO, uploads presignados por tenant, thumbs opcional.
 - Feature flags: rollout % y kill switches tenant-aware.
+- Connected Campus: asistencia QR, identidades NFC/RFID, adaptadores de acceso y Digital Signage multitenant como extensiones de pago.
 - CI/CD & runbooks: GH Actions lint/typecheck/test/build/migrate, pipelines preview, runbooks backup/restore, IaC scaffold.
 
 ## Milestones propuestos (ETA estimada por sprint)
@@ -26,6 +27,8 @@
 - P1 Campus Virtual — 2 sprints (dep. auth alumno + catálogo + storage).
 - P2 Storage & Media — 0.5 sprint.
 - P2 Feature Flags — 0.5 sprint.
+- P2 Connected Campus base — 1 sprint (dep. multitenancy, sedes, jobs, storage y auditoría).
+- P2 Digital Signage MVP — 1–1.5 sprints (dep. Connected Campus base; [plan técnico](./plans/2026-08-01-connected-campus-digital-signage.md)).
 - P2 CI/CD & Runbooks — 0.5 sprint.
 
 ## Dependencias clave
@@ -33,3 +36,4 @@
 - Auth multitenant + RLS prerequisito para cualquier UI integrada.
 - Stripe/meters necesita eventos y colas; Ops dashboard depende de esas métricas.
 - Campus depende de catálogo, auth alumno y storage.
+- Digital Signage depende de sedes, storage namespaced, jobs tenant-aware y RBAC; hardware y licencias externas quedan fuera de los planes base.
