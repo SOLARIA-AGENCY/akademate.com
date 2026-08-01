@@ -90,11 +90,7 @@ html {
   }
 
   .marketing-page main p:not([data-copy-flow='long']) {
-    display: -webkit-box;
-    overflow: hidden;
     text-wrap: pretty;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
   }
 
   .marketing-page main :is(h1, h2, h3) {
@@ -216,15 +212,48 @@ html {
   display: flex;
   width: max-content;
   gap: 1.25rem;
-  animation: client-marquee 34s linear infinite;
+  animation: client-marquee 132s linear infinite;
 }
 
 .client-marquee-track-reverse {
   animation-direction: reverse;
+  animation-duration: 148s;
 }
 
 .client-marquee-track:hover {
   animation-play-state: paused;
+}
+
+.solution-carousel-track {
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+
+.solution-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-control {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(203 213 225);
+  border-radius: 9999px;
+  color: #071633;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.carousel-control:hover {
+  border-color: rgb(96 165 250);
+  background: rgb(239 246 255);
+}
+
+.academy-stage-image {
+  animation: academy-stage-enter 480ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .journey-step {
@@ -259,6 +288,17 @@ html {
   }
   to {
     transform: translateX(calc(-50% - 0.625rem));
+  }
+}
+
+@keyframes academy-stage-enter {
+  from {
+    opacity: 0.25;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -301,6 +341,7 @@ html {
   .hero-item,
   .academy-rail,
   .client-marquee-track,
+  .academy-stage-image,
   .journey-step,
   .product-hero-visual,
   .scroll-depth {

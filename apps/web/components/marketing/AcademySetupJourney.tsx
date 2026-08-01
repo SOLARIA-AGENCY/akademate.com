@@ -1,9 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { Check, MapPin, Sparkles } from 'lucide-react'
+import { Check, Sparkles } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { academySetupStages } from '@/lib/marketing-content'
+import { academySetupStages } from '@akademate/ui/academy-setup'
 
 export function AcademySetupJourney() {
   const [activeId, setActiveId] = useState<(typeof academySetupStages)[number]['id']>('blueprint')
@@ -20,7 +20,7 @@ export function AcademySetupJourney() {
   }
 
   return (
-    <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-28">
+    <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-16 text-white sm:px-6 lg:px-8 lg:py-20">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[.78fr_1.22fr] lg:items-end">
           <div>
@@ -34,7 +34,7 @@ export function AcademySetupJourney() {
           </p>
         </div>
 
-        <div className="mt-12 grid overflow-hidden rounded-2xl border border-white/15 bg-[#081a3b] shadow-[0_30px_100px_rgba(0,0,0,.28)] lg:grid-cols-[.36fr_.64fr]">
+        <div className="mt-10 grid overflow-hidden rounded-2xl border border-white/15 bg-[#081a3b] shadow-[0_30px_100px_rgba(0,0,0,.28)] lg:grid-cols-[.36fr_.64fr]">
           <div className="order-2 min-w-0 p-6 sm:p-8 lg:order-1 lg:p-9">
             <div
               role="tablist"
@@ -43,7 +43,7 @@ export function AcademySetupJourney() {
             >
               {academySetupStages.map((stage, index) => {
                 const selected = stage.id === active.id
-                const complete = stage.progress < active.progress
+                const complete = index < activeIndex
                 return (
                   <button
                     key={stage.id}
@@ -93,34 +93,33 @@ export function AcademySetupJourney() {
 
           <div className="order-1 min-w-0 lg:order-2">
             <div className="relative h-[300px] overflow-hidden bg-[#030d20] sm:h-auto sm:aspect-[16/10] sm:min-h-[340px]">
-              <Image
-                src="/images/marketing/akademate-academy-setup-3d-v1.jpg"
-                alt="Academy setup progressing from architectural blueprints to connected physical campuses and an online academy"
-                fill
-                sizes="(max-width: 1024px) 100vw, 65vw"
-                className="object-cover"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-y-0 right-0 bg-[#06142f]/90 backdrop-blur-[2px] transition-[width] duration-500 motion-reduce:transition-none"
-                style={{ width: `${100 - active.progress}%` }}
-              />
+              <div key={active.id} className="academy-stage-image absolute inset-0">
+                <Image
+                  src={active.image}
+                  alt={active.imageAlt}
+                  fill
+                  priority={active.id === 'blueprint'}
+                  sizes="(max-width: 1024px) 100vw, 65vw"
+                  className="object-cover"
+                />
+              </div>
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#03102a] via-[#03102a]/75 to-transparent px-5 pb-5 pt-20 sm:px-8 sm:pb-7">
-                <div className="flex items-end justify-between gap-5">
+                <div className="flex items-end justify-between gap-5 text-white">
                   <div>
-                    <p className="text-xs font-semibold text-blue-300">Academy build</p>
-                    <p className="mt-2 text-2xl font-semibold">{active.progress}% complete</p>
+                    <p className="text-xs font-semibold text-blue-300">Stage {active.step} of 06</p>
+                    <p className="mt-2 text-2xl font-semibold">{active.visualLabel}</p>
                   </div>
-                  <div className="hidden items-center gap-2 text-sm font-semibold text-blue-100/80 sm:flex">
-                    <MapPin className="h-4 w-4 text-blue-300" aria-hidden="true" />
-                    Multi-campus ready
-                  </div>
+                  <p className="hidden text-sm font-semibold text-blue-100/80 sm:block">
+                    One academy. Six build states.
+                  </p>
                 </div>
-                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/15">
-                  <div
-                    className="h-full rounded-full bg-blue-400 transition-[width] duration-500 motion-reduce:transition-none"
-                    style={{ width: `${active.progress}%` }}
-                  />
+                <div className="mt-4 grid grid-cols-6 gap-1.5" aria-hidden="true">
+                  {academySetupStages.map((stage, index) => (
+                    <span
+                      key={stage.id}
+                      className={`h-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${index <= activeIndex ? 'bg-blue-400' : 'bg-white/20'}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

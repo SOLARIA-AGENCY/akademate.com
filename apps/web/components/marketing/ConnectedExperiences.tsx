@@ -22,7 +22,7 @@ export function ConnectedExperiences() {
   }
 
   return (
-    <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+    <section className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
           <div>
@@ -38,7 +38,7 @@ export function ConnectedExperiences() {
           </p>
         </div>
 
-        <div className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-[#071633] shadow-[0_28px_80px_rgba(7,22,51,.16)]">
+        <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-[#071633] shadow-[0_28px_80px_rgba(7,22,51,.16)]">
           <div className="grid lg:grid-cols-[.38fr_.62fr]">
             <div className="flex flex-col p-6 text-white sm:p-9 lg:min-h-[640px] lg:p-10">
               <div

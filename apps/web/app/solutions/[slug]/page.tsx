@@ -106,7 +106,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               Build a better academy.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-blue-100/70">
-              Map Akademate around your programmes, people and locations.
+              Map your programmes, people and locations.
             </p>
             <Link href="/contacto?asunto=demo" className="button-primary-light mt-8">
               Book your walkthrough <ArrowRight className="h-4 w-4" aria-hidden="true" />

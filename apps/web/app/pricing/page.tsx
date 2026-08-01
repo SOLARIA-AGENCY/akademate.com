@@ -302,27 +302,27 @@ export default function PricingPage() {
         <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-4xl">
             <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Questions</h2>
-            <div className="mt-12 divide-y border-y border-blue-200">
+            <div className="mt-12 divide-y border border-blue-200">
               {[
                 [
                   'Why are prices not listed?',
-                  'Organisations differ in programmes, users, payment flows, integrations, migration and infrastructure. We prepare a clear scope after understanding the operation.',
+                  'Every academy is scoped around its programmes, users and operating model.',
                 ],
                 [
                   'Can Launch support a summer camp?',
-                  'Yes. Launch is designed for a time-bound programme with dates, capacity, booking, deposits, communication and closeout.',
+                  'Yes. Launch supports dates, capacity, booking, deposits and communication.',
                 ],
                 [
                   'Can payments use Stripe, PayPal or SEPA?',
-                  'The payment layer is designed around provider adapters. The exact provider, country coverage and commercial responsibility are agreed during onboarding.',
+                  'Provider adapters support Stripe, PayPal and SEPA where available.',
                 ],
                 [
                   'Can Enterprise run on-premise?',
-                  'Yes. Enterprise covers on-premise or dedicated private-cloud deployment through an agreed implementation and operating model.',
+                  'Yes. Enterprise can run on-premise or in a dedicated private cloud.',
                 ],
                 [
                   'Does AI define the plan?',
-                  'No. AI assistance is an optional capability. The core value is the connected operating model across growth, delivery, finance and participant experience.',
+                  'No. AI is optional; the core is connected academy operations.',
                 ],
               ].map(([question, answer]) => (
                 <details key={question} className="group py-6">

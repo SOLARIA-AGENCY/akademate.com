@@ -57,7 +57,7 @@ export function WebsiteDistributionPreview() {
           role="tabpanel"
           className="min-w-0 bg-[linear-gradient(145deg,#ffffff_0%,#eef4ff_100%)] p-5 sm:p-8"
         >
-          <div className="flex items-start justify-between gap-5">
+          <div className="flex min-h-[118px] items-start justify-between gap-5">
             <div className="max-w-xl">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
                 <ActiveIcon className="h-5 w-5" aria-hidden="true" />
@@ -70,7 +70,7 @@ export function WebsiteDistributionPreview() {
             </span>
           </div>
 
-          <div className="mt-7 min-h-[330px]">{renderMode(activeIndex, active.label)}</div>
+          <div className="mt-7 h-[620px] sm:h-[330px]">{renderMode(activeIndex, active.label)}</div>
         </div>
       </div>
     </div>
@@ -86,9 +86,9 @@ function renderMode(index: number, label: string) {
 
 function AcademyWebsite({ domain }: { domain: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <BrowserBar address={domain} />
-      <div className="grid min-h-[275px] grid-cols-[.72fr_.28fr] bg-[#f8faff]">
+      <div className="grid min-h-0 flex-1 grid-cols-[.72fr_.28fr] bg-[#f8faff]">
         <div className="p-5 sm:p-7">
           <span className="text-xs font-semibold text-blue-700">Your academy, online</span>
           <div className="mt-3 h-7 w-3/4 rounded bg-[#071633]" />
@@ -125,7 +125,7 @@ function AcademyWebsite({ domain }: { domain: string }) {
 
 function DomainConnection({ domain }: { domain: string }) {
   return (
-    <div className="grid min-h-[330px] gap-4 sm:grid-cols-[.56fr_.44fr]">
+    <div className="grid h-full gap-4 sm:grid-cols-[.56fr_.44fr]">
       <div className="rounded-2xl bg-[#071633] p-6 text-white">
         <Globe2 className="h-7 w-7 text-blue-300" />
         <p className="mt-8 text-xs font-semibold text-blue-300">DOMAIN MAPPING</p>
@@ -160,7 +160,7 @@ function DomainConnection({ domain }: { domain: string }) {
 
 function EmbedBuilder() {
   return (
-    <div className="grid min-h-[330px] gap-4 sm:grid-cols-2">
+    <div className="grid h-full gap-4 sm:grid-cols-2">
       <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
           <FileCode2 className="h-4 w-4" />
@@ -204,7 +204,7 @@ function EmbedBuilder() {
 
 function OfferShare() {
   return (
-    <div className="grid min-h-[330px] gap-4 sm:grid-cols-[.62fr_.38fr]">
+    <div className="grid h-full gap-4 sm:grid-cols-[.62fr_.38fr]">
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <BrowserBar address="academy.akademate.com/creative-leadership" />
         <div className="p-5">

@@ -117,24 +117,25 @@ export function CourseRegistrationPreview() {
             <div className="mt-9 grid gap-5 border-t border-white/15 pt-7 sm:grid-cols-[auto_1fr] sm:items-center">
               <div>
                 <p className="mb-3 text-xs font-semibold text-blue-200">Confirmed attendees</p>
-                <div className="flex -space-x-2" aria-label="Four example confirmed attendees">
+                <div className="flex -space-x-3" aria-label="Four example confirmed attendees">
                   {attendees.map((attendee, index) => (
                     <span
                       key={attendee.name}
                       title={attendee.name}
-                      className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-[#071633] bg-blue-100"
+                      className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-[3px] border-[#071633] bg-blue-100 shadow-sm ring-1 ring-white/30 sm:h-14 sm:w-14"
                       style={{ zIndex: attendees.length - index }}
                     >
                       <Image
                         src={attendee.image}
                         alt={`Example attendee ${attendee.name}`}
                         fill
-                        sizes="44px"
-                        className="object-cover"
+                        loading="eager"
+                        sizes="(max-width: 639px) 48px, 56px"
+                        className="object-cover object-[center_32%]"
                       />
                     </span>
                   ))}
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#071633] bg-blue-100 text-xs font-bold text-blue-800">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-[3px] border-[#071633] bg-blue-100 text-xs font-bold text-blue-800 shadow-sm sm:h-14 sm:w-14">
                     +12
                   </span>
                 </div>

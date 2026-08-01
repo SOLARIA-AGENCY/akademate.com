@@ -1,12 +1,27 @@
 import Link from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  BrainCircuit,
+  ClipboardCheck,
+  CodeXml,
+  ShieldCheck,
+} from 'lucide-react'
 import { governanceFrameworks } from '@/lib/marketing-content'
+
+const frameworkIcons = {
+  GDPR: ShieldCheck,
+  'EU AI Act': BrainCircuit,
+  'ISO 27001': ClipboardCheck,
+  'SOC 2': BadgeCheck,
+  OWASP: CodeXml,
+} as const
 
 export function GovernanceFrameworks() {
   return (
     <section
       aria-labelledby="governance-title"
-      className="bg-[#eff5ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+      className="bg-[#eff5ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
@@ -24,21 +39,31 @@ export function GovernanceFrameworks() {
           </p>
         </div>
 
-        <div className="mt-12 grid border-y border-blue-200 md:grid-cols-5">
-          {governanceFrameworks.map((framework) => (
-            <article
-              key={framework.short}
-              className="border-b border-blue-200 py-7 md:border-b-0 md:border-r md:px-5 first:md:pl-0 last:md:border-r-0"
-            >
-              <p className="text-sm font-bold text-blue-700">{framework.short}</p>
-              <h3 className="mt-4 font-semibold text-[#071633]">{framework.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{framework.text}</p>
-            </article>
-          ))}
+        <div className="mt-10 grid border border-blue-200 md:grid-cols-5">
+          {governanceFrameworks.map((framework) => {
+            const Icon = frameworkIcons[framework.short]
+            return (
+              <article
+                key={framework.short}
+                className="border-b border-blue-200 p-6 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+              >
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-white text-blue-700 shadow-sm"
+                  aria-label={`${framework.short} framework mark`}
+                  title={`${framework.short} framework reference`}
+                >
+                  <Icon className="h-6 w-6" aria-hidden="true" />
+                </div>
+                <p className="mt-5 text-sm font-bold text-blue-700">{framework.short}</p>
+                <h3 className="mt-3 font-semibold text-[#071633]">{framework.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{framework.text}</p>
+              </article>
+            )
+          })}
         </div>
 
         <div className="mt-8 flex flex-col gap-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>Explore the principles shaping our privacy, security and responsible AI roadmap.</p>
+          <p>Framework references shaping our privacy, security and responsible AI roadmap.</p>
           <Link
             href="/legal/ia"
             className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"

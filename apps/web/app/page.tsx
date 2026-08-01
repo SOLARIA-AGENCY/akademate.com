@@ -21,17 +21,18 @@ import { CourseRegistrationPreview } from '@/components/marketing/CourseRegistra
 import { CustomerVoices } from '@/components/marketing/CustomerVoices'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
 import { ProductHeroCarousel } from '@/components/marketing/ProductHeroCarousel'
+import { SolutionCarousel } from '@/components/marketing/SolutionCarousel'
+import { TrustSignals } from '@/components/marketing/TrustSignals'
 import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistributionPreview'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { blogPosts } from '@/lib/blog-posts'
+import { insightPosts, newsPosts } from '@/lib/blog-posts'
 import { homeIntegrationBrands } from '@/lib/integration-brands'
 import {
   distributionModes,
   operatingJourney,
   plans,
   platformPillars,
-  verticals,
 } from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
@@ -87,10 +88,11 @@ export default function HomePage() {
         </section>
 
         <ClientMarquee />
+        <TrustSignals />
 
         <ConnectedExperiences />
 
-        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <p className="text-sm font-semibold text-blue-700">
@@ -103,11 +105,11 @@ export default function HomePage() {
                 Replace fragmented tools with one connected academy record.
               </p>
             </div>
-            <ol className="mt-14 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
+            <ol className="mt-10 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
               {operatingJourney.map((item) => (
                 <li
                   key={item.step}
-                  className="journey-step border-b border-blue-200 py-7 sm:px-5 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"
+                  className="journey-step border-b border-blue-200 px-5 py-7 lg:border-b-0 lg:border-r last:lg:border-r-0"
                 >
                   <span className="text-sm font-semibold text-blue-700">{item.step}</span>
                   <h3 className="mt-8 text-xl font-semibold tracking-tight">{item.title}</h3>
@@ -118,7 +120,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section className="bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
@@ -128,13 +130,13 @@ export default function HomePage() {
                 Choose the modules your academy needs. Keep every role connected.
               </p>
             </div>
-            <div className="mt-14 grid border-y border-blue-200 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-10 grid border border-blue-200 md:grid-cols-2 lg:grid-cols-4">
               {platformPillars.map((pillar, index) => {
                 const Icon = pillarIcons[index] ?? Network
                 return (
                   <article
                     key={pillar.title}
-                    className="border-b border-blue-200 py-8 md:px-6 lg:min-h-[330px] lg:border-r"
+                    className="border-b border-blue-200 px-6 py-8 lg:min-h-[330px] lg:border-r"
                   >
                     <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
                     <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
@@ -165,7 +167,7 @@ export default function HomePage() {
 
         <AcademySetupJourney />
 
-        <section className="paper-texture px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section className="paper-texture px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <p className="text-sm font-semibold text-blue-700">
@@ -178,14 +180,14 @@ export default function HomePage() {
                 Launch, connect your domain or embed live Akademate modules.
               </p>
             </div>
-            <div className="scroll-depth mt-12">
+            <div className="scroll-depth mt-10">
               <WebsiteDistributionPreview />
             </div>
-            <div className="mt-12 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-10 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
               {distributionModes.map((mode, index) => (
                 <article
                   key={mode.title}
-                  className="border-b border-blue-200 py-8 sm:px-6 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"
+                  className="border-b border-blue-200 px-6 py-8 lg:border-b-0 lg:border-r last:lg:border-r-0"
                 >
                   <span className="text-sm font-semibold text-blue-700">0{index + 1}</span>
                   <h3 className="mt-7 text-xl font-semibold">{mode.title}</h3>
@@ -196,7 +198,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="reservations" className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section id="reservations" className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
               <div>
@@ -211,7 +213,7 @@ export default function HomePage() {
                 Give every offer one shareable page for discovery and booking.
               </p>
             </div>
-            <div className="scroll-depth mt-12">
+            <div className="scroll-depth mt-10">
               <CourseRegistrationPreview />
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm font-semibold text-slate-700">
@@ -258,58 +260,31 @@ export default function HomePage() {
 
         <CustomerVoices />
 
-        <section id="solutions" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section id="solutions" className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
                 Built around your academy model.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Cohorts, classes, memberships, seasons and multi-site networks can share one
-                connected operating foundation.
+                Run every academy model on one connected foundation.
               </p>
             </div>
-            <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-5">
-              {verticals.map((vertical) => (
-                <article
-                  key={vertical.slug}
-                  className="group w-[calc(100vw-3rem)] max-w-[390px] shrink-0 snap-start"
-                >
-                  <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-200">
-                    <Image
-                      src={vertical.image}
-                      alt={vertical.imageAlt}
-                      fill
-                      sizes="(max-width: 640px) calc(100vw - 3rem), 390px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <h3 className="mt-6 text-2xl font-semibold tracking-tight">{vertical.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{vertical.description}</p>
-                  <Link
-                    href={`/solutions/${vertical.slug}`}
-                    className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
-                  >
-                    Explore solution <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
-                </article>
-              ))}
-            </div>
+            <SolutionCarousel />
           </div>
         </section>
 
-        <section id="pricing" className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section id="pricing" className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
                 Choose the operating scope you need.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Launch one programme, connect a growing academy or create a dedicated platform for a
-                network.
+                Launch one programme, grow an academy or run a network.
               </p>
             </div>
-            <div className="mt-14 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
+            <div className="mt-10 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
               {plans.map((plan, index) => (
                 <article
                   key={plan.name}
@@ -359,40 +334,53 @@ export default function HomePage() {
 
         <GovernanceFrameworks />
 
-        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
-            <div className="flex items-end justify-between gap-6">
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-                Ideas for connected academies.
+                Insights and product news.
               </h2>
-              <Link
-                href="/blog"
-                className="hidden min-h-11 items-center gap-2 font-semibold text-blue-700 sm:inline-flex"
-              >
-                Explore the blog <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </div>
-            <div className="mt-12 grid gap-8 lg:grid-cols-2">
-              {blogPosts.slice(0, 2).map((post) => (
-                <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
-                  <div className="media-reveal relative aspect-[16/9] overflow-hidden rounded-2xl">
-                    <Image
-                      src={post.image}
-                      alt={post.imageAlt}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <p className="mt-5 text-sm font-semibold text-blue-700">
-                    {post.category} · {post.readingTime}
-                  </p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight transition-colors group-hover:text-blue-700 sm:text-3xl">
-                    {post.title}
-                  </h3>
-                  <p className="mt-3 max-w-2xl leading-7 text-slate-600">{post.excerpt}</p>
+              <div className="flex gap-5 text-sm font-semibold text-blue-700">
+                <Link href="/blog" className="inline-flex min-h-11 items-center gap-2">
+                  Explore insights <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-              ))}
+                <Link href="/news" className="inline-flex min-h-11 items-center gap-2">
+                  Read news <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+            <div className="mt-10 grid gap-8 lg:grid-cols-2">
+              {[
+                { label: 'Latest insight', href: '/blog', post: insightPosts[0] },
+                { label: 'Latest news', href: '/news', post: newsPosts.at(-1) },
+              ].map(({ label, href, post }) =>
+                post ? (
+                  <Link
+                    key={post.slug}
+                    href={`${href}/${post.slug}`}
+                    className="group block rounded-2xl border border-slate-200 bg-white p-3"
+                  >
+                    <div className="media-reveal relative aspect-[16/9] overflow-hidden rounded-xl">
+                      <Image
+                        src={post.image}
+                        alt={post.imageAlt}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4 sm:p-5">
+                      <p className="text-sm font-semibold text-blue-700">
+                        {label} · {post.readingTime}
+                      </p>
+                      <h3 className="mt-3 text-2xl font-semibold tracking-tight transition-colors group-hover:text-blue-700 sm:text-3xl">
+                        {post.title}
+                      </h3>
+                      <p className="mt-3 max-w-2xl leading-7 text-slate-600">{post.excerpt}</p>
+                    </div>
+                  </Link>
+                ) : null
+              )}
             </div>
           </div>
         </section>
@@ -408,8 +396,7 @@ export default function HomePage() {
               Build the academy people want to join.
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100/75">
-              See how Akademate can connect your public experience, daily operation and learning
-              journey.
+              Connect your public experience, operation and learning journey.
             </p>
             <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">
               Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />

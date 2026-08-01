@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { EditorialArticle } from '@/components/editorial/EditorialArticle'
-import { getBlogPost, getEditorialPost, insightPosts } from '@/lib/blog-posts'
+import { getNewsPost, newsPosts } from '@/lib/blog-posts'
 
 export function generateStaticParams() {
-  return insightPosts.map((post) => ({ slug: post.slug }))
+  return newsPosts.map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({
@@ -13,15 +13,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = getEditorialPost(slug)
+  const post = getNewsPost(slug)
   if (!post) return {}
-  const canonical = `${post.kind === 'news' ? '/news' : '/blog'}/${post.slug}`
   return {
     title: post.seoTitle,
     description: post.excerpt,
     keywords: [...post.keywords],
     authors: [{ name: post.author }],
-    alternates: { canonical },
+    alternates: { canonical: `/news/${post.slug}` },
     openGraph: {
       type: 'article',
       title: post.seoTitle,
@@ -33,16 +32,11 @@ export async function generateMetadata({
   }
 }
 
-export default async function BlogArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const editorialPost = getEditorialPost(slug)
-  if (editorialPost?.kind === 'news') redirect(`/news/${editorialPost.slug}`)
-  const post = getBlogPost(slug)
+  const post = getNewsPost(slug)
   if (!post) notFound()
   return (
-    <EditorialArticle
-      post={post}
-      related={insightPosts.filter((item) => item.slug !== post.slug)}
-    />
+    <EditorialArticle post={post} related={newsPosts.filter((item) => item.slug !== post.slug)} />
   )
 }

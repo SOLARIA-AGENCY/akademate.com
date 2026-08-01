@@ -26,7 +26,7 @@ const principles = [
   {
     icon: Sparkles,
     title: 'Automate the work around teaching',
-    text: 'Streamline repetitive operations with governed automation and optional AI assistance.',
+    text: 'Automate repetitive work with clear human oversight.',
   },
 ] as const
 
@@ -67,11 +67,11 @@ export default function AboutPage() {
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
               Better operations. More space for teaching.
             </h2>
-            <div className="mt-14 grid border-y border-white/15 md:grid-cols-3">
+            <div className="mt-14 grid border border-white/15 md:grid-cols-3">
               {principles.map(({ icon: Icon, title, text }) => (
                 <article
                   key={title}
-                  className="border-b border-white/15 py-8 md:border-b-0 md:border-r md:px-8 first:md:pl-0 last:md:border-r-0"
+                  className="border-b border-white/15 px-8 py-8 md:border-b-0 md:border-r last:md:border-r-0"
                 >
                   <Icon className="h-7 w-7 text-blue-300" aria-hidden="true" />
                   <h3 className="mt-8 text-xl font-semibold">{title}</h3>

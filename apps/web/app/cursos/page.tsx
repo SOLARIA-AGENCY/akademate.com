@@ -21,10 +21,7 @@ export default function CoursesPage() {
             Turn programmes into enrolment.
           </h1>
           <p className="mt-5 text-lg leading-8 text-muted-foreground">
-            Akademate gives each academy its own space to publish courses, cohorts, schedules,
-            availability and booking options. Learners discover the right programme on the
-            academy&apos;s branded experience and move from interest to a confirmed place with less
-            friction.
+            Publish courses, schedules and bookings in one academy space.
           </p>
           <div className="mt-8 rounded-2xl border bg-muted/30 p-6 text-sm leading-7 text-muted-foreground">
             Looking for a specific course? Visit the academy that provides it. Planning your own

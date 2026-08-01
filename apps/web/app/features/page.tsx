@@ -115,18 +115,17 @@ export default function FeaturesPage() {
                 One connected academy system.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Eight connected layers cover how people discover, join, learn, teach, operate, pay
-                and make decisions.
+                Eight layers connect discovery, learning, operations and decisions.
               </p>
             </div>
-            <div className="mt-14 grid border-y border-blue-200 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-14 grid border border-blue-200 md:grid-cols-2 lg:grid-cols-4">
               {platformPillars.map((pillar, index) => {
                 const Icon = pillarIcons[index] ?? Network
                 return (
                   <article
                     id={`platform-${slugify(pillar.title)}`}
                     key={pillar.title}
-                    className="scroll-mt-44 border-b border-blue-200 py-8 md:px-6 lg:min-h-[360px] lg:border-r"
+                    className="scroll-mt-44 border-b border-blue-200 px-6 py-8 lg:min-h-[360px] lg:border-r"
                   >
                     <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
                     <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
@@ -178,8 +177,7 @@ export default function FeaturesPage() {
               <ProductMoments />
             </div>
             <p className="mt-5 text-sm leading-6 text-slate-500">
-              Interactive product example with illustrative data. Configuration and integrations are
-              defined for each operating scope.
+              Illustrative product flow; configuration depends on each academy.
             </p>
           </div>
         </section>
@@ -193,8 +191,7 @@ export default function FeaturesPage() {
                 The roadmap extends beyond the core.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Akademate is being shaped to replace more disconnected systems across finance,
-                people, resources and advanced learning.
+                The roadmap connects finance, people, resources and learning.
               </p>
             </div>
             <div className="mt-14 grid overflow-hidden rounded-2xl border border-slate-200 md:grid-cols-2 lg:grid-cols-3">
@@ -221,11 +218,11 @@ export default function FeaturesPage() {
             <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
               Connect your academy ecosystem.
             </h2>
-            <div className="mt-12 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
               {integrationPillars.map((pillar) => (
                 <article
                   key={pillar.title}
-                  className="border-b border-blue-200 py-8 sm:px-6 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"
+                  className="border-b border-blue-200 px-6 py-8 lg:border-b-0 lg:border-r last:lg:border-r-0"
                 >
                   <h3 className="text-2xl font-semibold">{pillar.title}</h3>
                   <p className="mt-4 text-sm font-semibold leading-6 text-blue-700">
@@ -239,8 +236,7 @@ export default function FeaturesPage() {
               ))}
             </div>
             <p className="mt-7 max-w-3xl text-sm leading-6 text-slate-600">
-              Provider availability, market coverage and implementation scope are defined during
-              onboarding.
+              Provider availability and scope are agreed during onboarding.
             </p>
           </div>
         </section>
@@ -251,8 +247,7 @@ export default function FeaturesPage() {
               See how Akademate fits your operation.
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              Map your offers, people, locations, website, payment model and learning experience
-              into one connected platform.
+              Map your academy into one connected operating model.
             </p>
             <Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">
               Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />

@@ -7,9 +7,9 @@ export function ClientMarquee() {
   return (
     <section
       aria-labelledby="client-marquee-title"
-      className="overflow-hidden border-y border-slate-200 bg-white py-10"
+      className="overflow-hidden border-y border-slate-200 bg-white py-8"
     >
-      <div className="mx-auto mb-7 max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto mb-7 max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         <p id="client-marquee-title" className="text-sm font-semibold text-slate-500">
           Academies using Akademate
         </p>

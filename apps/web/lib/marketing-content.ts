@@ -12,17 +12,17 @@ export const operatingJourney = [
   {
     step: '03',
     title: 'Confirm',
-    text: 'Confirm capacity, documents, consent and approval.',
+    text: 'Confirm capacity, consent and approval.',
   },
   {
     step: '04',
     title: 'Pay',
-    text: 'Collect deposits, instalments or recurring fees.',
+    text: 'Collect deposits and recurring fees.',
   },
   {
     step: '05',
     title: 'Deliver',
-    text: 'Run teaching, attendance, campus and communication.',
+    text: 'Run teaching, attendance and campus.',
   },
   {
     step: '06',
@@ -129,56 +129,7 @@ export const academyExperiences = [
   },
 ] as const
 
-export const academySetupStages = [
-  {
-    id: 'blueprint',
-    step: '01',
-    title: 'Academy blueprint',
-    description: 'Define your model, calendar and launch priorities.',
-    progress: 12,
-    capabilities: ['Academy model', 'Teaching formats', 'Launch plan'],
-  },
-  {
-    id: 'campuses',
-    step: '02',
-    title: 'Campuses and spaces',
-    description: 'Create campuses, rooms, facilities and online capacity.',
-    progress: 30,
-    capabilities: ['Multiple campuses', 'Rooms and facilities', 'Online campus'],
-  },
-  {
-    id: 'programmes',
-    step: '03',
-    title: 'Programmes and offers',
-    description: 'Shape offers, schedules, capacity and enrolment rules.',
-    progress: 48,
-    capabilities: ['Courses and cohorts', 'Schedules', 'Capacity and pricing'],
-  },
-  {
-    id: 'people',
-    step: '04',
-    title: 'People and access',
-    description: 'Give every role a focused workspace and responsibility.',
-    progress: 66,
-    capabilities: ['Teams and roles', 'Teachers', 'Learners and families'],
-  },
-  {
-    id: 'experience',
-    step: '05',
-    title: 'Learning and operations',
-    description: 'Connect learning, payments, communication and reporting.',
-    progress: 84,
-    capabilities: ['Campus and chat', 'Payments and finance', 'Integrations'],
-  },
-  {
-    id: 'live',
-    step: '06',
-    title: 'Academy live',
-    description: 'Complete readiness and launch under your identity.',
-    progress: 100,
-    capabilities: ['Brand and website', 'Team ready', 'Launch complete'],
-  },
-] as const
+export { academySetupStages } from '@akademate/ui/academy-setup'
 
 export const platformPillars = [
   {
@@ -756,27 +707,27 @@ export const governanceFrameworks = [
   {
     short: 'GDPR',
     title: 'Privacy operations',
-    text: 'Data boundaries, rights workflows and privacy-aware operations.',
+    text: 'Rights, consent and privacy controls.',
   },
   {
     short: 'EU AI Act',
     title: 'AI transparency',
-    text: 'Human oversight, clear AI use and accountable operational controls.',
+    text: 'Human oversight and transparent AI use.',
   },
   {
     short: 'ISO 27001',
     title: 'Security management',
-    text: 'A control-oriented approach to information security governance.',
+    text: 'Structured information-security controls.',
   },
   {
     short: 'SOC 2',
     title: 'Trust controls',
-    text: 'Operational thinking around security, availability and confidentiality.',
+    text: 'Security, availability and confidentiality controls.',
   },
   {
     short: 'OWASP',
     title: 'Application security',
-    text: 'Secure engineering practices for modern web applications.',
+    text: 'Modern web-application security practices.',
   },
 ] as const
 

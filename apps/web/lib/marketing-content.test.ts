@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { blogPosts } from '@/lib/blog-posts'
+import { blogPosts, insightPosts, newsPosts } from '@/lib/blog-posts'
 import { featureModuleDetails } from '@/lib/feature-module-details'
 import { integrationBrands, integrationPillarBrands } from '@/lib/integration-brands'
 import {
@@ -53,6 +53,11 @@ describe('public marketing architecture', () => {
     expect(marquee).toContain('Academies using Akademate')
     expect(marquee).toContain('client-marquee-track-reverse')
     expect(marquee).toContain('aria-hidden="true"')
+    expect(marquee).toContain('text-center')
+
+    const styles = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+    expect(styles).toMatch(/client-marquee 132s linear infinite/)
+    expect(styles).toMatch(/animation-duration: 148s/)
   })
 
   it('describes the expanded operating platform without making AI the sales moat', () => {
@@ -116,7 +121,19 @@ describe('public marketing architecture', () => {
     expect(JSON.stringify(academyExperiences)).toMatch(/live online/i)
 
     expect(academySetupStages).toHaveLength(6)
-    expect(academySetupStages.map((stage) => stage.progress)).toEqual([12, 30, 48, 66, 84, 100])
+    expect(new Set(academySetupStages.map((stage) => stage.image)).size).toBe(6)
+    expect(academySetupStages.map((stage) => stage.image)).toEqual([
+      '/images/academy-setup/academy-stage-01-blueprint.jpg',
+      '/images/academy-setup/academy-stage-02-structure.jpg',
+      '/images/academy-setup/academy-stage-03-envelope.jpg',
+      '/images/academy-setup/academy-stage-04-spaces.jpg',
+      '/images/academy-setup/academy-stage-05-identity.jpg',
+      '/images/academy-setup/academy-stage-06-live.jpg',
+    ])
+    for (const stage of academySetupStages) {
+      expect(existsSync(new URL(`../public${stage.image}`, import.meta.url))).toBe(true)
+      expect(stage.imageAlt).toMatch(/same|academy/i)
+    }
     expect(academySetupStages[1]?.title).toBe('Campuses and spaces')
     expect(academySetupStages[1]?.capabilities).toEqual(
       expect.arrayContaining(['Multiple campuses', 'Rooms and facilities', 'Online campus'])
@@ -143,6 +160,23 @@ describe('public marketing architecture', () => {
     expect(setupComponent).toContain('role="tablist"')
     expect(setupComponent).toContain('role="tabpanel"')
     expect(setupComponent).toContain('aria-live="polite"')
+    expect(setupComponent).toContain('src={active.image}')
+    expect(setupComponent).not.toContain('% complete')
+    expect(setupComponent).not.toContain('active.progress')
+  })
+
+  it('uses an accessible slow infinite carousel for every academy model', () => {
+    const carousel = readFileSync(
+      new URL('../components/marketing/SolutionCarousel.tsx', import.meta.url),
+      'utf8'
+    )
+    expect(carousel).toContain('aria-roledescription="carousel"')
+    expect(carousel).toContain('overflow-x-auto')
+    expect(carousel).toContain('requestAnimationFrame')
+    expect(carousel).toContain('* 0.006')
+    expect(carousel).toContain('Previous academy model')
+    expect(carousel).toContain('Next academy model')
+    expect(carousel).toContain('prefers-reduced-motion: reduce')
   })
 
   it('offers Launch, Business and Enterprise without fabricated prices', () => {
@@ -259,8 +293,10 @@ describe('public marketing architecture', () => {
     }
   })
 
-  it('publishes at least four complete articles and product news with local images', () => {
-    expect(blogPosts.length).toBeGreaterThanOrEqual(4)
+  it('separates substantial SEO insights from product news with local images', () => {
+    expect(blogPosts.length).toBeGreaterThanOrEqual(5)
+    expect(insightPosts.length).toBeGreaterThanOrEqual(3)
+    expect(newsPosts.length).toBeGreaterThanOrEqual(2)
     expect(blogPosts.map((post) => post.slug)).toEqual(
       expect.arrayContaining([
         'campaign-click-to-confirmed-place',
@@ -268,9 +304,28 @@ describe('public marketing architecture', () => {
       ])
     )
     for (const post of blogPosts) {
-      expect(post.sections.length).toBeGreaterThanOrEqual(4)
+      expect(post.sections.length).toBeGreaterThanOrEqual(6)
+      const editorialWords = [
+        post.introduction,
+        ...post.sections.flatMap((section) => [
+          section.title,
+          ...section.paragraphs,
+          ...(section.points ?? []),
+        ]),
+      ]
+        .join(' ')
+        .trim()
+        .split(/\s+/)
+      expect(editorialWords.length).toBeGreaterThanOrEqual(500)
+      expect(post.seoTitle.length).toBeGreaterThan(30)
+      expect(post.keywords.length).toBeGreaterThanOrEqual(3)
       expect(existsSync(new URL(`../public${post.image}`, import.meta.url))).toBe(true)
     }
+
+    const blogIndex = readFileSync(new URL('../app/blog/page.tsx', import.meta.url), 'utf8')
+    const newsIndex = readFileSync(new URL('../app/news/page.tsx', import.meta.url), 'utf8')
+    expect(blogIndex).toContain('kind="insight"')
+    expect(newsIndex).toContain('kind="news"')
   })
 
   it('presents governance as a roadmap without unsupported certification language', () => {
@@ -282,9 +337,28 @@ describe('public marketing architecture', () => {
       'utf8'
     )
     expect(frameworkComponent).toMatch(/privacy, security and responsible AI roadmap/i)
+    expect(frameworkComponent).toContain('framework mark')
+    expect(frameworkComponent).toMatch(/ShieldCheck|BrainCircuit|ClipboardCheck|BadgeCheck|CodeXml/)
     expect(frameworkComponent).not.toMatch(
       /certified|official endorsement|official seal|approved by/i
     )
+  })
+
+  it('does not clip commercial copy or leave card-grid side borders open', () => {
+    const styles = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+    expect(styles).not.toMatch(/-webkit-line-clamp:\s*2/)
+
+    for (const path of [
+      '../app/page.tsx',
+      '../app/features/page.tsx',
+      '../app/pricing/page.tsx',
+      '../app/sobre-nosotros/page.tsx',
+      '../components/marketing/GovernanceFrameworks.tsx',
+    ]) {
+      const source = readFileSync(new URL(path, import.meta.url), 'utf8')
+      expect(source).not.toMatch(/grid border-y border-/)
+      expect(source).not.toMatch(/divide-y border-y border-/)
+    }
   })
 
   it('keeps the owner-provided academy list separate from testimonials and invented logos', () => {
@@ -294,6 +368,16 @@ describe('public marketing architecture', () => {
     )
     expect(marquee).not.toMatch(/testimonial|review|logo/i)
     expect(marquee).not.toMatch(/trusted by/i)
+  })
+
+  it('uses source-linked trust signals without fabricating an external review platform', () => {
+    const trustSignals = readFileSync(
+      new URL('../components/marketing/TrustSignals.tsx', import.meta.url),
+      'utf8'
+    )
+    expect(trustSignals).toContain('Public learner feedback')
+    expect(trustSignals).toContain('https://cepformacion.akademate.com/')
+    expect(trustSignals).not.toMatch(/trustpilot|g2 crowd|capterra/i)
   })
 
   it('attributes public learner reviews and never presents them as invented SaaS endorsements', () => {
@@ -346,10 +430,13 @@ describe('public marketing architecture', () => {
       '/solutions',
       '/pricing',
       '/blog',
+      '/news',
       '/sobre-nosotros',
     ])
     expect(publicNavigation.find((item) => item.href === '/blog')?.name).toBe('Blog')
+    expect(publicNavigation.find((item) => item.href === '/news')?.name).toBe('News')
     expect(publicCompanyLinks.find((item) => item.href === '/blog')?.name).toBe('Blog')
+    expect(publicCompanyLinks.find((item) => item.href === '/news')?.name).toBe('News')
   })
 
   it('centralizes accessible Instagram, X and Facebook destinations', () => {
@@ -419,6 +506,7 @@ describe('public marketing architecture', () => {
       '../app/pricing/page.tsx',
       '../app/solutions/page.tsx',
       '../app/blog/page.tsx',
+      '../app/news/page.tsx',
       '../app/sobre-nosotros/page.tsx',
       '../app/contacto/page.tsx',
     ]

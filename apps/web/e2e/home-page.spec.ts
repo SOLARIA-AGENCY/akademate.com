@@ -24,10 +24,20 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('tabpanel', { name: 'Campuses and spaces' })).toContainText(
       'Multiple campuses'
     )
-    await expect(page.getByText('30% complete').first()).toBeVisible()
+    const setupJourney = page
+      .getByRole('heading', { name: 'Watch your academy take shape.' })
+      .locator('xpath=ancestor::section[1]')
+    await expect(setupJourney.getByText('Stage 02 of 06')).toBeVisible()
+    await expect(setupJourney.getByRole('img')).toHaveAttribute('src', /academy-stage-02-structure/)
+    await expect(setupJourney).not.toContainText(/% complete/)
     await expect(page.getByText('Academies using Akademate')).toBeVisible()
     await expect(page.getByText('CEP Formación').first()).toBeAttached()
     await expect(page.getByText('Waira Sisa Studio').first()).toBeAttached()
+    const trustSignals = page.getByRole('region', { name: 'Akademate trust signals' })
+    await expect(trustSignals).toBeVisible()
+    await expect(trustSignals.getByText('Public learner feedback')).toBeVisible()
+    await expect(trustSignals.getByText('Consent-first privacy')).toBeVisible()
+    await expect(trustSignals).not.toContainText(/trustpilot/i)
     await expect(
       page.getByRole('heading', { name: 'Let every academy voice be heard.' })
     ).toBeVisible()
@@ -40,12 +50,14 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByText('Dedicated or on-premise').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Payments and finance' })).toBeVisible()
     await expect(page.getByRole('banner').getByRole('link', { name: 'Blog' })).toBeVisible()
+    await expect(page.getByRole('banner').getByRole('link', { name: 'News' })).toBeVisible()
     await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Blog' })).toBeVisible()
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'News' })).toBeVisible()
     for (const network of ['Instagram', 'X', 'Facebook'])
       await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
   })
 
-  test('publishes a complete feature catalogue, product examples and four substantive articles', async ({
+  test('publishes a complete feature catalogue, product examples and separate SEO editorial sections', async ({
     page,
   }) => {
     const featuresResponse = await page.goto('/features')
@@ -76,14 +88,22 @@ test.describe('Akademate public commercial surface', () => {
       '/blog/ai-assisted-academy-operations',
       '/blog/one-operation-in-person-online-academies',
       '/blog/campaign-click-to-confirmed-place',
-      '/blog/akademate-expands-sport-wellness-seasonal',
+      '/news/akademate-expands-sport-wellness-seasonal',
+      '/news/academy-setup-blueprint-to-live',
     ]) {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
-      await expect(page.locator('article h2')).toHaveCount(5)
+      expect(
+        await page.locator('article section[id^="section-"] h2').count()
+      ).toBeGreaterThanOrEqual(6)
+      await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1)
     }
+    await page.goto('/blog/akademate-expands-sport-wellness-seasonal')
+    await expect(page).toHaveURL(/\/news\/akademate-expands-sport-wellness-seasonal$/)
     const missing = await page.goto('/blog/not-a-real-article')
     expect(missing?.status()).toBe(404)
+    const missingNews = await page.goto('/news/not-a-real-update')
+    expect(missingNews?.status()).toBe(404)
   })
 
   test('renders distinct web distribution modes and a complete shareable course journey', async ({
@@ -91,14 +111,25 @@ test.describe('Akademate public commercial surface', () => {
   }) => {
     await page.goto('/')
     const distribution = page.getByRole('tablist', { name: 'Website distribution options' })
+    const distributionPanel = distribution
+      .locator('xpath=ancestor::div[contains(@class,"overflow-hidden")][1]')
+      .getByRole('tabpanel')
+    const panelHeights: number[] = []
     await distribution.getByRole('tab', { name: 'Your Akademate website' }).click()
     await expect(page.getByText('Live CMS')).toBeVisible()
-    await distribution.getByRole('tab', { name: 'Your own domain' }).click()
+    panelHeights.push(Math.round((await distributionPanel.boundingBox())?.height ?? 0))
+    const domainTab = distribution.getByRole('tab', { name: 'Your own domain' })
+    await domainTab.click()
+    await expect(domainTab).toHaveAttribute('aria-selected', 'true')
     await expect(page.getByText('DNS verified')).toBeVisible()
+    panelHeights.push(Math.round((await distributionPanel.boundingBox())?.height ?? 0))
     await distribution.getByRole('tab', { name: 'Embeds for any website' }).click()
     await expect(page.getByText('EMBED BUILDER')).toBeVisible()
+    panelHeights.push(Math.round((await distributionPanel.boundingBox())?.height ?? 0))
     await distribution.getByRole('tab', { name: 'A page for every offer' }).click()
     await expect(page.getByText('Ready to share')).toBeVisible()
+    panelHeights.push(Math.round((await distributionPanel.boundingBox())?.height ?? 0))
+    expect(new Set(panelHeights).size).toBe(1)
 
     const course = page.locator('#reservations')
     await expect(course.getByText('academy.akademate.com/creative-leadership')).toBeVisible()
@@ -107,8 +138,60 @@ test.describe('Akademate public commercial surface', () => {
     await expect(
       course.getByLabel('Four example confirmed attendees').getByRole('img')
     ).toHaveCount(4)
+    for (const avatar of await course
+      .getByLabel('Four example confirmed attendees')
+      .getByRole('img')
+      .all()) {
+      await expect
+        .poll(() => avatar.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+        .toBeGreaterThanOrEqual(48)
+      expect((await avatar.boundingBox())?.width).toBeGreaterThanOrEqual(48)
+    }
     await course.getByRole('button', { name: 'Share course' }).click()
     await expect(course.getByRole('dialog', { name: 'Share course' })).toBeVisible()
+  })
+
+  test('runs slow accessible carousels with manual control and complete card borders', async ({
+    page,
+  }) => {
+    await page.goto('/')
+
+    const clientTitle = page.getByText('Academies using Akademate')
+    await expect(clientTitle).toHaveCSS('text-align', 'center')
+    const marqueeTracks = page.locator('.client-marquee-track')
+    await expect(marqueeTracks).toHaveCount(2)
+    expect(
+      await marqueeTracks.evaluateAll((tracks) =>
+        tracks.map((track) => Number.parseFloat(getComputedStyle(track).animationDuration))
+      )
+    ).toEqual([132, 148])
+
+    const carousel = page.getByRole('region', { name: 'Academy models' })
+    await expect(carousel).toBeVisible()
+    await expect(carousel.getByRole('link', { name: 'Explore solution' })).toHaveCount(8)
+    await expect(carousel.getByRole('button', { name: /^Show / })).toHaveCount(8)
+    const rail = carousel.locator('.solution-carousel-track')
+    await expect
+      .poll(() =>
+        rail.evaluate((node) => node.scrollWidth > node.clientWidth && node.scrollLeft > 0)
+      )
+      .toBe(true)
+    await carousel.getByRole('button', { name: 'Next academy model' }).click()
+    await expect(carousel.getByRole('button', { name: /^Show / }).nth(1)).toHaveAttribute(
+      'aria-current',
+      'true'
+    )
+
+    const distributionCards = page
+      .locator('article')
+      .filter({ hasText: 'A page for every offer' })
+      .last()
+      .locator('..')
+    const borders = await distributionCards.evaluate((node) => {
+      const style = getComputedStyle(node)
+      return [style.borderLeftWidth, style.borderRightWidth]
+    })
+    expect(borders).toEqual(['1px', '1px'])
   })
 
   test('shows eight or more ecosystem marks per connector pillar and a responsive plan comparison', async ({
@@ -161,6 +244,7 @@ test.describe('Akademate public commercial surface', () => {
       '/solutions/online-cohorts',
       '/solutions/networks',
       '/blog',
+      '/news',
       '/sobre-nosotros',
       '/contacto',
       '/cursos',
@@ -201,8 +285,25 @@ test.describe('Akademate public commercial surface', () => {
   }) => {
     await page.goto('/')
     await expect(
-      page.getByText(/principles shaping our privacy, security and responsible AI roadmap/i)
+      page.getByText(
+        /framework references shaping our privacy, security and responsible AI roadmap/i
+      )
     ).toBeVisible()
+    await expect(page.getByLabel(/framework mark$/)).toHaveCount(5)
+    for (const paragraph of await page
+      .getByRole('heading', { name: 'Grow with confidence.' })
+      .locator('xpath=ancestor::section[1]')
+      .locator('article p:last-child')
+      .all()) {
+      const clipping = await paragraph.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return {
+          lineClamp: style.getPropertyValue('-webkit-line-clamp'),
+          clipped: node.scrollHeight > node.clientHeight + 1,
+        }
+      })
+      expect(clipping).toEqual({ lineClamp: 'none', clipped: false })
+    }
     await expect(page.getByRole('img', { name: 'GDPR' })).toBeVisible()
     await expect(page.getByRole('img', { name: 'EU Artificial Intelligence Act' })).toBeVisible()
     await expect(page.locator('body')).not.toContainText(/certified by|official seal|approved by/i)
@@ -284,7 +385,7 @@ test.describe('Akademate public commercial surface', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
-    const images = page.locator('main img')
+    const images = page.locator('main img[alt]:not([alt=""])')
     const count = await images.count()
     expect(count).toBeGreaterThanOrEqual(10)
 
@@ -304,7 +405,7 @@ test.describe('Akademate public commercial surface', () => {
     request,
   }) => {
     test.setTimeout(60_000)
-    for (const sourcePath of ['/', '/features', '/pricing', '/solutions', '/blog']) {
+    for (const sourcePath of ['/', '/features', '/pricing', '/solutions', '/blog', '/news']) {
       await page.goto(sourcePath)
       const hrefs = await page
         .locator('a[href]')
@@ -346,8 +447,10 @@ test.describe('Akademate public commercial surface', () => {
       '/pricing',
       '/solutions',
       '/blog',
+      '/news',
       '/blog/campaign-click-to-confirmed-place',
-      '/blog/akademate-expands-sport-wellness-seasonal',
+      '/news/akademate-expands-sport-wellness-seasonal',
+      '/news/academy-setup-blueprint-to-live',
       '/sobre-nosotros',
       '/contacto',
     ]) {

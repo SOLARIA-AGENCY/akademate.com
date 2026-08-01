@@ -11,7 +11,7 @@ export function CustomerVoices() {
   return (
     <section
       aria-labelledby="customer-voices-title"
-      className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+      className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-4xl">
@@ -29,7 +29,7 @@ export function CustomerVoices() {
           </p>
         </div>
 
-        <div className="mt-14 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
+        <div className="mt-10 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
           {reviews.map((review, index) => (
             <article
               key={review.name}

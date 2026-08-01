@@ -16,13 +16,16 @@ export function ConnectorLogos({
     )
 
   return (
-    <div className="flex flex-wrap gap-2" aria-label="Connected services and supported methods">
+    <div
+      className={`grid w-full gap-2 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'}`}
+      aria-label="Connected services and supported methods"
+    >
       {ids.map((id) => {
         const brand = integrationBrands[id]
         return (
           <div
             key={id}
-            className={`group flex items-center gap-2 rounded-xl border border-slate-200 bg-white ${compact ? 'px-3 py-2' : 'px-4 py-3'}`}
+            className={`group flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-white ${compact ? 'px-3 py-2' : 'min-h-12 px-4 py-3'}`}
             title={`${brand.label}: ${brand.status}`}
           >
             {'preserveColor' in brand && brand.preserveColor ? (
@@ -46,7 +49,9 @@ export function ConnectorLogos({
                 }}
               />
             )}
-            <span className="text-xs font-semibold text-slate-800">{brand.label}</span>
+            <span className="min-w-0 truncate text-xs font-semibold text-slate-800">
+              {brand.label}
+            </span>
             {!compact && (
               <span className="hidden text-[11px] text-slate-400 xl:inline">{brand.status}</span>
             )}

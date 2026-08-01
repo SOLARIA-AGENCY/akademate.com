@@ -22,7 +22,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'programme',
         label: 'Programme',
         title: 'Build intake around the programme.',
-        text: 'Define qualification, delivery format, entry route, documents and available campuses.',
+        text: 'Define qualifications, delivery, documents and campuses.',
         metric: '24',
         metricLabel: 'places in September intake',
         fields: [
@@ -101,7 +101,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'classes',
         label: 'Classes',
         title: 'Build a schedule members love.',
-        text: 'Offer yoga, pilates, reformer and private sessions by level, instructor and studio.',
+        text: 'Offer sessions by level, instructor and studio.',
         metric: '18',
         metricLabel: 'classes today',
         fields: [
@@ -174,7 +174,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'trials',
         label: 'Trials',
         title: 'Turn interest into team placement.',
-        text: 'Capture age, experience, guardian details and preferred location before the assessment.',
+        text: 'Capture age, experience, guardian and location details.',
         metric: '24',
         metricLabel: 'trials this week',
         fields: [
@@ -236,7 +236,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'launch',
         label: 'Launch',
         title: 'Publish a camp in one setup.',
-        text: 'Turn dates, age groups, activities and capacity into a page families can understand and book.',
+        text: 'Publish dates, age groups, activities and capacity.',
         metric: '6',
         metricLabel: 'weeks open for booking',
         fields: [
@@ -304,7 +304,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'disciplines',
         label: 'Disciplines',
         title: 'Shape every creative offer.',
-        text: 'Publish dance, music, theatre and private lessons with the right progression and prerequisites.',
+        text: 'Publish lessons with clear progression and prerequisites.',
         metric: '34',
         metricLabel: 'weekly class formats',
         fields: [
@@ -367,7 +367,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'cohort',
         label: 'Cohort',
         title: 'Build the right cohort.',
-        text: 'Connect application, curriculum, live sessions and community from the first enrolment.',
+        text: 'Connect applications, curriculum, sessions and community.',
         metric: '36',
         metricLabel: 'learners in next cohort',
         fields: [
@@ -434,7 +434,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'placement',
         label: 'Placement',
         title: 'Place learners at the right level.',
-        text: 'Connect placement result, learning goal, availability and preferred campus before group matching.',
+        text: 'Connect placement, goals, availability and campus choice.',
         metric: 'B2',
         metricLabel: 'recommended CEFR level',
         fields: [
@@ -504,7 +504,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
         id: 'structure',
         label: 'Structure',
         title: 'Model the whole network.',
-        text: 'Represent the organisation, brands, campuses and online entities with clear responsibility.',
+        text: 'Model brands, campuses and clear responsibilities.',
         metric: '14',
         metricLabel: 'campuses in the group',
         fields: [

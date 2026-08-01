@@ -41,7 +41,7 @@ export default function ContactPage() {
                 <ContactPoint
                   icon={Route}
                   title="Start with your goals"
-                  text="More enrolments, smoother delivery, stronger retention or a connected multi-site operation."
+                  text="Grow enrolment, delivery, retention or multi-site operations."
                 />
                 <ContactPoint
                   icon={UsersRound}
