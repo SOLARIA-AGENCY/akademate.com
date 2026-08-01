@@ -7,3 +7,5 @@ Brand marks in this directory are used only to identify compatible services or p
 - Visa and Mastercard marks may only be presented as accepted methods through the configured payment provider and must be removed if Akademate is not authorised to present acceptance.
 
 Every public use must be backed by `apps/web/lib/integration-brands.ts`, which distinguishes available, connector-ready, roadmap and payment-method contexts.
+
+The extended catalogue includes ecosystem targets whose official APIs were reviewed before inclusion. A displayed mark remains a compatibility or roadmap reference and never implies a commercial partnership.

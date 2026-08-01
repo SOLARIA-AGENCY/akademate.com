@@ -4,15 +4,17 @@ import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { blogPosts } from '@/lib/blog-posts'
 import { featureModuleDetails } from '@/lib/feature-module-details'
-import { integrationBrands } from '@/lib/integration-brands'
+import { integrationBrands, integrationPillarBrands } from '@/lib/integration-brands'
 import {
   academyExperiences,
   academySetupStages,
   academyTypes,
+  clientAcademies,
   distributionModes,
   featureGroups,
   governanceFrameworks,
   integrationPillars,
+  operatingJourney,
   plans,
   platformPillars,
   reservationModes,
@@ -24,6 +26,35 @@ import { publicCompanyLinks, publicNavigation, publicSocialLinks } from '@/lib/p
 import { verticalProductStories } from '@/lib/vertical-product-stories'
 
 describe('public marketing architecture', () => {
+  it('keeps repeated commercial surfaces compact and structurally symmetric', () => {
+    const words = (value: string) => value.trim().split(/\s+/).length
+
+    expect(platformPillars.every((pillar) => pillar.capabilities.length === 5)).toBe(true)
+    expect(platformPillars.every((pillar) => words(pillar.text) <= 10)).toBe(true)
+    expect(operatingJourney.every((step) => words(step.text) <= 10)).toBe(true)
+    expect(academySetupStages.every((stage) => words(stage.description) <= 10)).toBe(true)
+    expect(verticals.every((vertical) => words(vertical.description) <= 10)).toBe(true)
+    expect(featureGroups.every((group) => words(group.description) <= 12)).toBe(true)
+    expect(plans.every((plan) => words(plan.description) <= 12)).toBe(true)
+
+    const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+    expect(home).toContain('<ul className="compact-feature-list">')
+    expect(home).not.toContain("pillar.capabilities.join(' · ')")
+  })
+
+  it('publishes the owner-provided academy list once semantically and animates two visual rows', () => {
+    expect(clientAcademies).toHaveLength(47)
+    expect(new Set(clientAcademies).size).toBe(clientAcademies.length)
+    expect(clientAcademies).toEqual(expect.arrayContaining(['CEP Formación', 'Waira Sisa Studio']))
+    const marquee = readFileSync(
+      new URL('../components/marketing/ClientMarquee.tsx', import.meta.url),
+      'utf8'
+    )
+    expect(marquee).toContain('Academies using Akademate')
+    expect(marquee).toContain('client-marquee-track-reverse')
+    expect(marquee).toContain('aria-hidden="true"')
+  })
+
   it('describes the expanded operating platform without making AI the sales moat', () => {
     expect(featureGroups).toHaveLength(19)
     expect(featureGroups.every((group) => group.features.length >= 5)).toBe(true)
@@ -49,7 +80,7 @@ describe('public marketing architecture', () => {
     const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
     const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
-    expect(home).toMatch(/The operating system for academies\./)
+    expect(home).toMatch(/Operating system for academies\./)
   })
 
   it('models the complete product journey from website distribution to extensible operations', () => {
@@ -220,6 +251,14 @@ describe('public marketing architecture', () => {
     expect(integrationBrands.sepa.status).not.toBe('Available')
   })
 
+  it('shows at least eight researched ecosystem marks in every connector pillar', () => {
+    for (const ids of Object.values(integrationPillarBrands)) {
+      expect(ids.length).toBeGreaterThanOrEqual(8)
+      expect(new Set(ids).size).toBe(ids.length)
+      for (const id of ids) expect(integrationBrands).toHaveProperty(id)
+    }
+  })
+
   it('publishes at least four complete articles and product news with local images', () => {
     expect(blogPosts.length).toBeGreaterThanOrEqual(4)
     expect(blogPosts.map((post) => post.slug)).toEqual(
@@ -248,14 +287,13 @@ describe('public marketing architecture', () => {
     )
   })
 
-  it('does not represent vertical labels or fictional names as customers', () => {
-    const proof = readFileSync(
-      new URL('../components/marketing/AcademyProof.tsx', import.meta.url),
+  it('keeps the owner-provided academy list separate from testimonials and invented logos', () => {
+    const marquee = readFileSync(
+      new URL('../components/marketing/ClientMarquee.tsx', import.meta.url),
       'utf8'
     )
-    expect(proof).toContain('CEP Formación')
-    expect(proof).toContain('Built for modern academy models')
-    expect(proof).not.toMatch(/trusted by|customers include/i)
+    expect(marquee).not.toMatch(/testimonial|review|logo/i)
+    expect(marquee).not.toMatch(/trusted by/i)
   })
 
   it('attributes public learner reviews and never presents them as invented SaaS endorsements', () => {
@@ -266,7 +304,40 @@ describe('public marketing architecture', () => {
     expect(voices).toContain('Public learner review presented by CEP Formación')
     expect(voices).toContain('https://cepformacion.akademate.com/')
     expect(voices).toMatch(/Olga Mercedes|Isabel Clemente|Mr\. Avocato/)
+    expect(voices).toMatch(
+      /The service is excellent|I recommend it 100%|best academy on the island/i
+    )
+    expect(voices).not.toMatch(/Atienden|Lo recomiendo|Mejor academia/i)
     expect(voices).not.toMatch(/fictional|placeholder customer|trusted by/i)
+  })
+
+  it('gives each web distribution mode a distinct visual and ships shareable course assets', () => {
+    const distribution = readFileSync(
+      new URL('../components/marketing/WebsiteDistributionPreview.tsx', import.meta.url),
+      'utf8'
+    )
+    for (const visual of ['AcademyWebsite', 'DomainConnection', 'EmbedBuilder', 'OfferShare'])
+      expect(distribution).toContain(`function ${visual}`)
+
+    const course = readFileSync(
+      new URL('../components/marketing/CourseRegistrationPreview.tsx', import.meta.url),
+      'utf8'
+    )
+    expect(course).toContain('academy.akademate.com/creative-leadership')
+    expect(course).toContain('8 places available')
+    expect(course).toContain('16 of 24 confirmed')
+    expect(course).toContain('ShareSheet')
+    expect(
+      existsSync(
+        new URL('../public/images/marketing/course-creative-leadership-v1.jpg', import.meta.url)
+      )
+    ).toBe(true)
+    for (let index = 1; index <= 4; index += 1)
+      expect(
+        existsSync(
+          new URL(`../public/images/avatars/course-attendee-0${index}.jpg`, import.meta.url)
+        )
+      ).toBe(true)
   })
 
   it('keeps navigation on real routes and replaces AI-first navigation with solutions', () => {

@@ -21,7 +21,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'programme',
         label: 'Programme',
-        title: 'Build a compliant intake around the real programme.',
+        title: 'Build intake around the programme.',
         text: 'Define qualification, delivery format, entry route, documents and available campuses.',
         metric: '24',
         metricLabel: 'places in September intake',
@@ -42,7 +42,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'admissions',
         label: 'Admissions',
-        title: 'Move every applicant through one visible decision process.',
+        title: 'Guide every applicant clearly.',
         text: 'Track eligibility, documentation, interviews, approval and place acceptance without parallel spreadsheets.',
         metric: '42',
         metricLabel: 'active applications',
@@ -62,7 +62,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'delivery',
         label: 'Delivery',
-        title: 'Connect timetable, attendance, assessment and campus.',
+        title: 'Connect delivery and assessment.',
         text: 'Teachers see their course workspace while learners move between classroom, live sessions and resources.',
         metric: '92%',
         metricLabel: 'cohort attendance',
@@ -77,7 +77,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'finance',
         label: 'Finance',
-        title: 'Keep fees and instalments attached to the enrolment.',
+        title: 'Connect fees to enrolment.',
         text: 'Collect deposits or instalments, monitor receivables and reconcile the receiving academy entity.',
         metric: '98%',
         metricLabel: 'payments reconciled',
@@ -100,7 +100,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'classes',
         label: 'Classes',
-        title: 'Create the class schedule members want to return to.',
+        title: 'Build a schedule members love.',
         text: 'Offer yoga, pilates, reformer and private sessions by level, instructor and studio.',
         metric: '18',
         metricLabel: 'classes today',
@@ -117,7 +117,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'studios',
         label: 'Studios',
-        title: 'Protect room, equipment and instructor capacity.',
+        title: 'Protect studio capacity.',
         text: 'Coordinate every physical studio and your online schedule without double-booking spaces or people.',
         metric: '4',
         metricLabel: 'connected studio spaces',
@@ -131,7 +131,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'members',
         label: 'Members',
-        title: 'Make booking and check-in effortless.',
+        title: 'Simplify booking and check-in.',
         text: 'Let members use trials, drop-ins, packs or memberships while the team sees attendance and retention.',
         metric: '84%',
         metricLabel: 'monthly retention',
@@ -149,7 +149,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'payments',
         label: 'Payments',
-        title: 'Sell the right studio experience in one checkout.',
+        title: 'Sell memberships in one checkout.',
         text: 'Connect the selected class, studio, cancellation policy and recurring payment to the member record.',
         metric: '€89',
         metricLabel: 'monthly unlimited membership',
@@ -173,7 +173,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'trials',
         label: 'Trials',
-        title: 'Turn interest into the right trial and team placement.',
+        title: 'Turn interest into team placement.',
         text: 'Capture age, experience, guardian details and preferred location before the assessment.',
         metric: '24',
         metricLabel: 'trials this week',
@@ -187,7 +187,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'teams',
         label: 'Teams',
-        title: 'Coordinate squads, coaches and seasonal schedules.',
+        title: 'Coordinate teams and coaches.',
         text: 'Keep rosters, training groups, attendance and substitutions connected to the season.',
         metric: '12',
         metricLabel: 'active teams',
@@ -201,7 +201,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'facilities',
         label: 'Facilities',
-        title: 'Plan every pitch, court and equipment requirement.',
+        title: 'Plan facilities and equipment.',
         text: 'Match sessions to facilities, capacity and equipment without hidden calendar conflicts.',
         metric: '91%',
         metricLabel: 'facility utilisation',
@@ -215,7 +215,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'fees',
         label: 'Fees',
-        title: 'Connect season fees, licences and family payments.',
+        title: 'Connect fees and family payments.',
         text: 'Collect deposits, subscriptions or season fees with guardian consent and clear renewal dates.',
         metric: '96%',
         metricLabel: 'season fees collected',
@@ -235,7 +235,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'launch',
         label: 'Launch',
-        title: 'Publish a complete camp in one focused setup.',
+        title: 'Publish a camp in one setup.',
         text: 'Turn dates, age groups, activities and capacity into a page families can understand and book.',
         metric: '6',
         metricLabel: 'weeks open for booking',
@@ -252,7 +252,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'families',
         label: 'Families',
-        title: 'Collect every detail before arrival day.',
+        title: 'Prepare every arrival detail.',
         text: 'Keep guardian consent, health information, authorised pickup and documents together.',
         metric: '88%',
         metricLabel: 'forms complete',
@@ -269,7 +269,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'checkin',
         label: 'Check-in',
-        title: 'Give the team a calm first morning.',
+        title: 'Give teams a calm arrival.',
         text: 'See arrivals, groups, leaders and exceptions without printing or reconciling several lists.',
         metric: '74',
         metricLabel: 'participants arriving Monday',
@@ -283,7 +283,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'deposits',
         label: 'Deposits',
-        title: 'Take deposits and complete payment before the programme.',
+        title: 'Collect deposits before arrival.',
         text: 'Set deposit, balance deadline, cancellation policy and eligible discounts per camp week.',
         metric: '€75',
         metricLabel: 'booking deposit',
@@ -303,7 +303,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'disciplines',
         label: 'Disciplines',
-        title: 'Shape an offer around discipline, level and format.',
+        title: 'Shape every creative offer.',
         text: 'Publish dance, music, theatre and private lessons with the right progression and prerequisites.',
         metric: '34',
         metricLabel: 'weekly class formats',
@@ -317,7 +317,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'studios',
         label: 'Studios',
-        title: 'Keep studios, instruments and teachers in rhythm.',
+        title: 'Keep studios and teachers in rhythm.',
         text: 'Coordinate recurring lessons with room suitability, equipment and teacher availability.',
         metric: '7',
         metricLabel: 'specialist spaces',
@@ -331,7 +331,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'progress',
         label: 'Progress',
-        title: 'Connect practice, feedback and performance preparation.',
+        title: 'Connect practice and performance.',
         text: 'Teachers share resources and feedback while learners see goals, rehearsals and progress.',
         metric: '82%',
         metricLabel: 'practice goals completed',
@@ -346,7 +346,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'family-billing',
         label: 'Billing',
-        title: 'Simplify recurring lessons and family accounts.',
+        title: 'Simplify lessons and family accounts.',
         text: 'Combine siblings, private lessons, ensembles and performance fees in a clear account.',
         metric: '€145',
         metricLabel: 'family monthly plan',
@@ -366,7 +366,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'cohort',
         label: 'Cohort',
-        title: 'Build a cohort around timezone, pace and outcome.',
+        title: 'Build the right cohort.',
         text: 'Connect application, curriculum, live sessions and community from the first enrolment.',
         metric: '36',
         metricLabel: 'learners in next cohort',
@@ -380,7 +380,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'live',
         label: 'Live learning',
-        title: 'Make every live session easy to join and revisit.',
+        title: 'Simplify every live session.',
         text: 'Coordinate facilitators, meeting rooms, attendance, recordings and follow-up resources.',
         metric: '8',
         metricLabel: 'live sessions this week',
@@ -395,7 +395,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'community',
         label: 'Community',
-        title: 'Keep assignments and conversation close to the course.',
+        title: 'Connect assignments and conversation.',
         text: 'Give learners a clear next step, private teacher support and cohort discussion.',
         metric: '78%',
         metricLabel: 'weekly engagement',
@@ -413,7 +413,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'subscription',
         label: 'Payment',
-        title: 'Sell a cohort, subscription or payment plan globally.',
+        title: 'Sell cohorts globally.',
         text: 'Attach payment terms, access dates and cancellation rules to the learner account.',
         metric: '€320',
         metricLabel: 'three-part payment plan',
@@ -433,7 +433,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'placement',
         label: 'Placement',
-        title: 'Place every learner at the right level.',
+        title: 'Place learners at the right level.',
         text: 'Connect placement result, learning goal, availability and preferred campus before group matching.',
         metric: 'B2',
         metricLabel: 'recommended CEFR level',
@@ -451,7 +451,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'groups',
         label: 'Groups',
-        title: 'Build balanced groups around level and availability.',
+        title: 'Build balanced learning groups.',
         text: 'See campuses, classrooms, teachers and online alternatives before confirming a place.',
         metric: '8',
         metricLabel: 'B2 groups with availability',
@@ -465,7 +465,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'learning',
         label: 'Learning',
-        title: 'Keep classroom and online progress aligned.',
+        title: 'Align classroom and online progress.',
         text: 'Track attendance, homework, speaking feedback, grades and level progression in one campus.',
         metric: '91%',
         metricLabel: 'monthly attendance',
@@ -479,7 +479,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'monthly',
         label: 'Monthly billing',
-        title: 'Connect recurring tuition to the active group.',
+        title: 'Connect tuition to every group.',
         text: 'Manage monthly billing, term fees, materials and transfers without losing the learner history.',
         metric: '€119',
         metricLabel: 'monthly group tuition',
@@ -503,7 +503,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'structure',
         label: 'Structure',
-        title: 'Model the group without flattening local operations.',
+        title: 'Model the whole network.',
         text: 'Represent the organisation, brands, campuses and online entities with clear responsibility.',
         metric: '14',
         metricLabel: 'campuses in the group',
@@ -521,7 +521,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'permissions',
         label: 'Permissions',
-        title: 'Give local teams control without losing governance.',
+        title: 'Keep local teams in control.',
         text: 'Scope people to the campuses, finance responsibilities and participant records they own.',
         metric: '6',
         metricLabel: 'role templates',
@@ -539,7 +539,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'local',
         label: 'Local operation',
-        title: 'Let every campus run a relevant local experience.',
+        title: 'Run every campus locally.',
         text: 'Use local schedules, capacity, offers, language and communications on the shared foundation.',
         metric: '92%',
         metricLabel: 'catalogue consistency',
@@ -553,7 +553,7 @@ export const verticalProductStories: Record<string, VerticalProductStory> = {
       {
         id: 'consolidated',
         label: 'Group finance',
-        title: 'See local responsibility and group performance together.',
+        title: 'See network performance together.',
         text: 'Route payments to the agreed entity and consolidate revenue, occupancy and receivables.',
         metric: '€284k',
         metricLabel: 'group monthly revenue',

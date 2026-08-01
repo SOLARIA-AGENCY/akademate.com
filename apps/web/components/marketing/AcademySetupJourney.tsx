@@ -25,13 +25,12 @@ export function AcademySetupJourney() {
         <div className="grid gap-8 lg:grid-cols-[.78fr_1.22fr] lg:items-end">
           <div>
             <p className="text-sm font-semibold text-blue-300">Guided academy setup</p>
-            <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+            <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
               Watch your academy take shape.
             </h2>
           </div>
           <p className="max-w-2xl text-lg leading-8 text-blue-100/70">
-            Every Akademate academy begins with a visual build journey. Add the foundations, create
-            your campuses and see the complete operation come to life under your identity.
+            Build your model, campuses and identity step by step.
           </p>
         </div>
 

@@ -2,32 +2,32 @@ export const operatingJourney = [
   {
     step: '01',
     title: 'Discover',
-    text: 'Turn campaigns, recommendations and course pages into one measurable intake.',
+    text: 'Turn every source into measurable demand.',
   },
   {
     step: '02',
     title: 'Reserve',
-    text: 'Offer enquiry, application, instant booking, paid enrolment or a waitlist.',
+    text: 'Offer enquiry, booking, payment or waitlist.',
   },
   {
     step: '03',
     title: 'Confirm',
-    text: 'Coordinate approval, capacity, documents, consent and place expiry.',
+    text: 'Confirm capacity, documents, consent and approval.',
   },
   {
     step: '04',
     title: 'Pay',
-    text: 'Collect a deposit, one-off payment, subscription, instalment or membership fee.',
+    text: 'Collect deposits, instalments or recurring fees.',
   },
   {
     step: '05',
     title: 'Deliver',
-    text: 'Run sessions, attendance, teaching, communication and the learner campus.',
+    text: 'Run teaching, attendance, campus and communication.',
   },
   {
     step: '06',
     title: 'Grow',
-    text: 'Connect conversion, participation and finance signals across the organisation.',
+    text: 'Connect growth, learning and finance signals.',
   },
 ] as const
 
@@ -56,22 +56,22 @@ export const distributionModes = [
   {
     title: 'Your Akademate website',
     label: 'academy.akademate.com',
-    text: 'Launch a complete branded academy website with catalogue, pages, forms, SEO and booking journeys connected to the same operation.',
+    text: 'Launch a branded website connected to your operation.',
   },
   {
     title: 'Your own domain',
     label: 'www.youracademy.com',
-    text: 'Connect an existing domain through guided DNS configuration and keep the public experience unmistakably yours.',
+    text: 'Connect your domain with guided DNS setup.',
   },
   {
     title: 'Embeds for any website',
     label: 'Courses · Classes · Forms · Payments',
-    text: 'Add live Akademate modules to the website you already use without duplicating availability, registration or payment data.',
+    text: 'Embed live classes, forms and payments anywhere.',
   },
   {
     title: 'A page for every offer',
     label: 'Shareable course URL',
-    text: 'Give every course, workshop, camp or event a page built to be shared, discovered, registered and paid for.',
+    text: 'Share one page for discovery, registration and payment.',
   },
 ] as const
 
@@ -80,9 +80,8 @@ export const academyExperiences = [
     id: 'operations',
     label: 'Academy team',
     eyebrow: 'For directors and centre staff',
-    title: 'Run the whole academy with a clear view of today.',
-    description:
-      'Bring enrolment, schedules, campuses, people, attendance, communication and finance into one operational workspace.',
+    title: 'Run your academy with clarity.',
+    description: 'See enrolment, schedules, people and finance in one workspace.',
     image: '/images/marketing/akademate-operations-experience-v1.jpg',
     imageAlt:
       'Academy directors and administrative staff using Akademate to coordinate performance, schedules and learners',
@@ -98,9 +97,8 @@ export const academyExperiences = [
     id: 'teachers',
     label: 'Teachers',
     eyebrow: 'For teachers and coaches',
-    title: 'Prepare, teach and support every learner in one place.',
-    description:
-      'Plan courses, run in-person or live online classes, record attendance, share work, grade submissions and continue the conversation privately.',
+    title: 'Plan, teach and support in one place.',
+    description: 'Plan classes, grade work and support learners privately.',
     image: '/images/marketing/akademate-teacher-experience-v1.jpg',
     imageAlt:
       'Teacher using Akademate for a hybrid class, course preparation, attendance, assignments and grades',
@@ -116,9 +114,8 @@ export const academyExperiences = [
     id: 'learners',
     label: 'Learners',
     eyebrow: 'For learners and families',
-    title: 'Know what comes next and keep learning moving.',
-    description:
-      'Give every learner a branded virtual campus for classes, resources, assignments, grades, progress, certificates and direct teacher support.',
+    title: 'Know what comes next.',
+    description: 'Learn, submit work and track progress from one campus.',
     image: '/images/marketing/akademate-learner-experience-v1.jpg',
     imageAlt:
       'Learner using the Akademate virtual campus on laptop and mobile alongside an in-person class',
@@ -137,8 +134,7 @@ export const academySetupStages = [
     id: 'blueprint',
     step: '01',
     title: 'Academy blueprint',
-    description:
-      'Define the operating model, teaching formats, academic calendar and launch priorities.',
+    description: 'Define your model, calendar and launch priorities.',
     progress: 12,
     capabilities: ['Academy model', 'Teaching formats', 'Launch plan'],
   },
@@ -146,8 +142,7 @@ export const academySetupStages = [
     id: 'campuses',
     step: '02',
     title: 'Campuses and spaces',
-    description:
-      'Create one or many physical locations, rooms, facilities and an online campus with the right capacity.',
+    description: 'Create campuses, rooms, facilities and online capacity.',
     progress: 30,
     capabilities: ['Multiple campuses', 'Rooms and facilities', 'Online campus'],
   },
@@ -155,8 +150,7 @@ export const academySetupStages = [
     id: 'programmes',
     step: '03',
     title: 'Programmes and offers',
-    description:
-      'Shape courses, cohorts, classes, memberships, events, schedules and enrolment rules.',
+    description: 'Shape offers, schedules, capacity and enrolment rules.',
     progress: 48,
     capabilities: ['Courses and cohorts', 'Schedules', 'Capacity and pricing'],
   },
@@ -164,8 +158,7 @@ export const academySetupStages = [
     id: 'people',
     step: '04',
     title: 'People and access',
-    description:
-      'Bring in centre staff, teachers and learners with role-specific workspaces and responsibilities.',
+    description: 'Give every role a focused workspace and responsibility.',
     progress: 66,
     capabilities: ['Teams and roles', 'Teachers', 'Learners and families'],
   },
@@ -173,8 +166,7 @@ export const academySetupStages = [
     id: 'experience',
     step: '05',
     title: 'Learning and operations',
-    description:
-      'Connect attendance, campus, communication, payments, reporting and the tools around your academy.',
+    description: 'Connect learning, payments, communication and reporting.',
     progress: 84,
     capabilities: ['Campus and chat', 'Payments and finance', 'Integrations'],
   },
@@ -182,8 +174,7 @@ export const academySetupStages = [
     id: 'live',
     step: '06',
     title: 'Academy live',
-    description:
-      'Complete the readiness check and reveal a connected academy experience carrying your identity.',
+    description: 'Complete readiness and launch under your identity.',
     progress: 100,
     capabilities: ['Brand and website', 'Team ready', 'Launch complete'],
   },
@@ -192,7 +183,7 @@ export const academySetupStages = [
 export const platformPillars = [
   {
     title: 'Web and commerce',
-    text: 'Branded websites, custom domains, embedded modules, course pages, registration and checkout.',
+    text: 'Publish, enrol and sell from your own web presence.',
     capabilities: [
       'Website and CMS',
       'Domain and DNS',
@@ -203,37 +194,37 @@ export const platformPillars = [
   },
   {
     title: 'Growth and admissions',
-    text: 'CRM, marketing context, forms, applications, capacity, waitlists and enrolment journeys.',
+    text: 'Convert demand into qualified, confirmed enrolment.',
     capabilities: ['Leads and CRM', 'Campaigns', 'Admissions', 'Reservations', 'Automation'],
   },
   {
     title: 'Academic operations',
-    text: 'Courses, cohorts, sessions, timetables, campuses, rooms, resources and attendance.',
+    text: 'Coordinate programmes, schedules, places and attendance.',
     capabilities: ['Courses', 'Cohorts', 'Schedules', 'Locations', 'Attendance'],
   },
   {
     title: 'People and workforce',
-    text: 'Students, guardians, teachers, coaches, administrators, roles, workload and HR context.',
+    text: 'Give every person the right workspace.',
     capabilities: ['Student records', 'Teacher workspace', 'Roles', 'HR', 'Workload'],
   },
   {
     title: 'Campus and learning',
-    text: 'Lessons, activities, live learning, assignments, grades, progress, certificates and community.',
+    text: 'Deliver learning, feedback, progress and community.',
     capabilities: ['LMS', 'Gradebook', 'Chat', 'Certificates', 'Learner analytics'],
   },
   {
     title: 'Payments and finance',
-    text: 'Deposits, instalments, subscriptions, invoices, refunds, reconciliation and accounting context.',
+    text: 'Connect collection, billing and financial control.',
     capabilities: ['Checkout', 'Billing', 'Receivables', 'Reconciliation', 'Accounting'],
   },
   {
     title: 'Library and resources',
-    text: 'Library lending, digital resources, equipment, inventory, facilities and asset responsibility.',
+    text: 'Keep shared resources available and accountable.',
     capabilities: ['Library', 'Inventory', 'Equipment', 'Facilities', 'Procurement'],
   },
   {
     title: 'Insight and ecosystem',
-    text: 'Dashboards, reports, APIs, webhooks, provider integrations and optional AI-assisted workflows.',
+    text: 'Turn operations into insight and connected action.',
     capabilities: ['Analytics', 'Reports', 'APIs', 'Integrations', 'AI assistance'],
   },
 ] as const
@@ -242,32 +233,32 @@ export const roadmapModules = [
   {
     title: 'Finance and accounting',
     phase: 'Expansion roadmap',
-    text: 'Receivables, payables, ledger, cost centres, bank feeds, reconciliation, tax workflows and accounting connectors.',
+    text: 'Ledger, reconciliation, banking and accounting connections.',
   },
   {
     title: 'HR and workforce',
     phase: 'Expansion roadmap',
-    text: 'Contracts, qualifications, availability, workload, time, leave, payroll inputs and teacher payments.',
+    text: 'Contracts, availability, workload and payroll inputs.',
   },
   {
     title: 'Library and inventory',
     phase: 'Expansion roadmap',
-    text: 'Catalogues, loans, digital resources, equipment, stock, facilities, procurement and maintenance.',
+    text: 'Libraries, equipment, stock, facilities and procurement.',
   },
   {
     title: 'Advanced learning',
     phase: 'Product roadmap',
-    text: 'Gradebook, rubrics, transcripts, verified certificates, learning pathways, community and moderated chat.',
+    text: 'Assessment, pathways, certificates and moderated community.',
   },
   {
     title: 'Mobile experience',
     phase: 'Future platform',
-    text: 'A responsive PWA followed by dedicated iPhone and iPad experiences for teachers, learners and operators.',
+    text: 'Responsive access, followed by dedicated Apple experiences.',
   },
   {
     title: 'AI-assisted operations',
     phase: 'Optional capability',
-    text: 'Permission-aware summaries, drafts, classifications, next actions and MCP tools with human review.',
+    text: 'Permission-aware assistance with human review.',
   },
 ] as const
 
@@ -275,8 +266,7 @@ export const verticals = [
   {
     slug: 'professional-training',
     title: 'Professional and regulated training',
-    description:
-      'Applications, documentation, cohorts, academic calendars, instalments and a connected learner campus.',
+    description: 'Admissions, cohorts, compliance and learner progress.',
     image: '/images/marketing/akademate-in-person-academy.jpg',
     imageAlt: 'Adult vocational learners working with a teacher in a modern training centre',
     capabilities: ['Admissions', 'Cohorts', 'Academic progress'],
@@ -284,8 +274,7 @@ export const verticals = [
   {
     slug: 'wellness',
     title: 'Yoga, pilates and wellness studios',
-    description:
-      'Recurring classes, room capacity, memberships, session packs and frictionless repeat booking.',
+    description: 'Classes, memberships, capacity and repeat booking.',
     image: '/images/marketing/akademate-wellness-studio.jpg',
     imageAlt: 'Yoga studio class coordinated by an instructor using a tablet',
     capabilities: ['Memberships', 'Session packs', 'Recurring classes'],
@@ -293,17 +282,15 @@ export const verticals = [
   {
     slug: 'sports',
     title: 'Sports academies and clubs',
-    description:
-      'Age groups, guardians, assessments, teams, seasons, attendance, licences and participant development.',
+    description: 'Teams, guardians, seasons and athlete development.',
     image: '/images/marketing/akademate-sports-campus.jpg',
     imageAlt: 'Children taking part in a professionally organised outdoor sports academy',
     capabilities: ['Guardians', 'Teams', 'Seasons'],
   },
   {
     slug: 'seasonal',
-    title: 'Camps and seasonal programmes',
-    description:
-      'Launch a reservable programme with dates, capacity, deposits, documents and automated reminders.',
+    title: 'Seasonal camps',
+    description: 'Launch, fill and operate time-bound programmes.',
     image: '/images/marketing/seasonal-campus-checkin.jpg',
     imageAlt: 'Summer sports campus with participant check-in and coached activities',
     capabilities: ['Fast launch', 'Deposits', 'Capacity'],
@@ -311,8 +298,7 @@ export const verticals = [
   {
     slug: 'performing-arts',
     title: 'Music, dance and performing arts',
-    description:
-      'Coordinate teachers, rooms, recurring lessons, attendance, performances and family payments.',
+    description: 'Coordinate studios, lessons, performances and families.',
     image: '/images/marketing/akademate-performing-arts.jpg',
     imageAlt: 'Dance and music academy operating several classes in a shared studio',
     capabilities: ['Studios', 'Teachers', 'Recurring lessons'],
@@ -320,8 +306,7 @@ export const verticals = [
   {
     slug: 'online-cohorts',
     title: 'Online schools and cohort programmes',
-    description:
-      'Bring applications, payments, lessons, assignments, chat and progress into one digital operation.',
+    description: 'Connect cohorts, learning, community and progress.',
     image: '/images/marketing/akademate-online-academy.jpg',
     imageAlt: 'Educator delivering a live online lesson from a professional teaching studio',
     capabilities: ['Virtual campus', 'Assignments', 'Community'],
@@ -329,8 +314,7 @@ export const verticals = [
   {
     slug: 'languages',
     title: 'Language academies',
-    description:
-      'Placement tests, level-based groups, attendance, monthly billing and classroom or online delivery.',
+    description: 'Placement, levels, billing and hybrid delivery.',
     image: '/images/marketing/language-academy.jpg',
     imageAlt: 'Adult learners in a collaborative language academy class',
     capabilities: ['Placement', 'Levels', 'Monthly billing'],
@@ -338,8 +322,7 @@ export const verticals = [
   {
     slug: 'networks',
     title: 'Multi-site groups and franchises',
-    description:
-      'Shared standards with local catalogues, domains, permissions, capacity and payment responsibility.',
+    description: 'Shared standards with local operational control.',
     image: '/images/marketing/akademate-multisite-network.jpg',
     imageAlt: 'Education group leaders coordinating a multi-location training organisation',
     capabilities: ['Brands', 'Locations', 'Local finance'],
@@ -348,9 +331,8 @@ export const verticals = [
 
 export const solutionDetails = {
   'professional-training': {
-    headline: 'Fill cohorts faster. Deliver every programme with confidence.',
-    promise:
-      'Bring applications, documentation, schedules, teaching and learner progress into one connected professional training operation.',
+    headline: 'Fill cohorts. Deliver with confidence.',
+    promise: 'Connect admissions, delivery and progress for every cohort.',
     outcomes: [
       'Convert more enquiries into qualified applications',
       'Keep documentation and approvals moving',
@@ -371,9 +353,8 @@ export const solutionDetails = {
     ],
   },
   languages: {
-    headline: 'More full classes. Less timetable juggling.',
-    promise:
-      'Connect placement, levels, recurring schedules, monthly payments and hybrid learning in a language-school experience people love.',
+    headline: 'Fill classes. Simplify schedules.',
+    promise: 'Connect placement, groups, billing and hybrid learning.',
     outcomes: [
       'Route learners to the right level',
       'Open groups around real demand',
@@ -384,9 +365,8 @@ export const solutionDetails = {
     modules: ['Placement and CRM', 'Levels and groups', 'Recurring billing', 'Hybrid campus'],
   },
   wellness: {
-    headline: 'Create a studio experience members keep coming back to.',
-    promise:
-      'Make classes easy to discover, book and renew while your team stays ahead of rooms, instructors, packs and memberships.',
+    headline: 'Build a studio members return to.',
+    promise: 'Make every class easy to discover, book and renew.',
     outcomes: [
       'Make repeat booking effortless',
       'Protect room and instructor capacity',
@@ -398,8 +378,7 @@ export const solutionDetails = {
   },
   sports: {
     headline: 'Run the season. Grow every athlete.',
-    promise:
-      'Coordinate trials, teams, guardians, schedules, facilities, attendance and development from one sports academy platform.',
+    promise: 'Coordinate trials, teams, guardians and athlete progress.',
     outcomes: [
       'Turn trials into confirmed places',
       'Keep guardians informed',
@@ -415,9 +394,8 @@ export const solutionDetails = {
     ],
   },
   seasonal: {
-    headline: 'Launch your next camp in days, not weeks.',
-    promise:
-      'Create a polished programme page, take deposits, manage capacity and keep every family informed from booking to the final day.',
+    headline: 'Launch your next camp in days.',
+    promise: 'Publish, fill and run every seasonal programme.',
     outcomes: [
       'Publish a bookable programme quickly',
       'Manage weeks, age groups and capacity',
@@ -433,9 +411,8 @@ export const solutionDetails = {
     ],
   },
   'performing-arts': {
-    headline: 'Keep every class, studio and performance in rhythm.',
-    promise:
-      'Connect recurring lessons, teachers, rooms, attendance, family payments and performance preparation in one creative operation.',
+    headline: 'Keep performances in rhythm.',
+    promise: 'Keep lessons, studios, families and performances in rhythm.',
     outcomes: [
       'Simplify recurring enrolment',
       'Coordinate studios and teachers',
@@ -446,9 +423,8 @@ export const solutionDetails = {
     modules: ['Recurring lessons', 'Studio scheduling', 'Family accounts', 'Events and progress'],
   },
   'online-cohorts': {
-    headline: 'Turn every cohort into a learning community.',
-    promise:
-      'Bring applications, payments, live sessions, content, assignments, conversation and progress into one branded online academy.',
+    headline: 'Build every cohort into a community.',
+    promise: 'Unite enrolment, live learning, community and progress.',
     outcomes: [
       'Create a premium enrolment journey',
       'Give learners one digital home',
@@ -464,9 +440,8 @@ export const solutionDetails = {
     ],
   },
   networks: {
-    headline: 'One brand experience. Every location in control.',
-    promise:
-      'Scale shared programmes, standards and insight while each location keeps the catalogue, permissions and payment responsibility it needs.',
+    headline: 'One brand. Every location in control.',
+    promise: 'Scale shared standards while every location stays in control.',
     outcomes: [
       'Launch new locations with shared standards',
       'Keep local teams focused on their operation',
@@ -482,8 +457,7 @@ export const featureGroups = [
   {
     title: 'Website, catalogue and embeds',
     eyebrow: 'Publish anywhere',
-    description:
-      'Launch a complete academy website, connect your own domain or place live Akademate modules inside the site you already use.',
+    description: 'Launch a connected website, domain or embedded journey.',
     features: [
       'Automatic Akademate subdomain',
       'Custom domains and guided DNS',
@@ -495,8 +469,7 @@ export const featureGroups = [
   {
     title: 'Growth, Ads and CRM',
     eyebrow: 'Build demand',
-    description:
-      'Connect campaigns, source context, enquiries and follow-up so teams see how interest becomes participation.',
+    description: 'Follow every lead from campaign to enrolment.',
     features: [
       'Lead capture and qualification',
       'Campaign and UTM attribution',
@@ -508,8 +481,7 @@ export const featureGroups = [
   {
     title: 'Reservations and admissions',
     eyebrow: 'Convert demand',
-    description:
-      'Configure the right route into every offer, from a simple enquiry to approval, payment and confirmed enrolment.',
+    description: 'Shape every route from enquiry to confirmed place.',
     features: [
       'Enquiry and application modes',
       'Place holds and expiry',
@@ -521,8 +493,7 @@ export const featureGroups = [
   {
     title: 'Offers, runs and capacity',
     eyebrow: 'Shape the offer',
-    description:
-      'Model what is sold, when it runs, who can access it and which people or resources limit capacity.',
+    description: 'Define offers, schedules, access and capacity.',
     features: [
       'Courses, classes and memberships',
       'Runs, cohorts and seasons',
@@ -534,8 +505,7 @@ export const featureGroups = [
   {
     title: 'Academic operations',
     eyebrow: 'Run the programme',
-    description:
-      'Plan programmes, cohorts, schedules, rooms and delivery with the operational context kept intact.',
+    description: 'Plan programmes, cohorts, rooms and delivery.',
     features: [
       'Courses and programmes',
       'Cohorts and course runs',
@@ -547,8 +517,7 @@ export const featureGroups = [
   {
     title: 'Students, members and participants',
     eyebrow: 'One participant record',
-    description:
-      'Keep identity, enrolment, membership, attendance, documents and progress connected over time.',
+    description: 'Keep each participant record complete and current.',
     features: [
       'Student and participant profiles',
       'Enrolments and memberships',
@@ -560,8 +529,7 @@ export const featureGroups = [
   {
     title: 'Organisation, brands and domains',
     eyebrow: 'Structure the business',
-    description:
-      'Represent organisations, brands and locations while every public domain resolves the right experience and responsibility.',
+    description: 'Structure brands, locations, domains and responsibilities.',
     features: [
       'Organisation and brand hierarchy',
       'Locations and campuses',
@@ -573,8 +541,7 @@ export const featureGroups = [
   {
     title: 'Teaching and staff operations',
     eyebrow: 'Coordinate the team',
-    description:
-      'Connect teachers, coaches and administrators to the sessions, participants and work they own.',
+    description: 'Connect every team member to their work.',
     features: [
       'Teacher and coach registry',
       'Staff profiles',
@@ -586,8 +553,7 @@ export const featureGroups = [
   {
     title: 'Virtual campus and learning',
     eyebrow: 'Deliver learning',
-    description:
-      'Give learners and teachers dedicated spaces for content, activities, progress and day-to-day collaboration.',
+    description: 'Bring lessons, work, feedback and progress together.',
     features: [
       'Learner campus',
       'Teacher course workspace',
@@ -599,8 +565,7 @@ export const featureGroups = [
   {
     title: 'Communication and community',
     eyebrow: 'Keep people aligned',
-    description:
-      'Turn reservation, payment, teaching and attendance events into timely communication for every role.',
+    description: 'Trigger the right message from every event.',
     features: [
       'Transactional email journeys',
       'Internal teacher and learner chat',
@@ -612,8 +577,7 @@ export const featureGroups = [
   {
     title: 'Payments, billing and finance',
     eyebrow: 'Connect revenue',
-    description:
-      'Keep the commercial policy, receiving entity, participant payment and finance status attached to the offer that created them.',
+    description: 'Keep every payment connected to its offer.',
     features: [
       'Stripe, PayPal and SEPA adapters',
       'Deposits, instalments and subscriptions',
@@ -625,8 +589,7 @@ export const featureGroups = [
   {
     title: 'Finance and accounting',
     eyebrow: 'Understand the business',
-    description:
-      'Bring academy revenue, expenses, accounts and reconciliation into the same operational context as programmes and participants.',
+    description: 'See revenue, costs, accounts and reconciliation together.',
     features: [
       'Receivables and payables',
       'Ledger and chart of accounts',
@@ -638,8 +601,7 @@ export const featureGroups = [
   {
     title: 'HR and workforce',
     eyebrow: 'Support the team',
-    description:
-      'Coordinate the people behind delivery with contracts, availability, workload, qualifications and payroll-ready context.',
+    description: 'Coordinate contracts, availability, workload and qualifications.',
     features: [
       'Contracts and staff records',
       'Availability and substitutions',
@@ -651,8 +613,7 @@ export const featureGroups = [
   {
     title: 'Library, inventory and facilities',
     eyebrow: 'Manage shared resources',
-    description:
-      'Keep learning resources, equipment, stock, rooms and facilities available to the programmes and people that need them.',
+    description: 'Control resources, equipment, stock and facilities.',
     features: [
       'Library catalogue and lending',
       'Digital resource access',
@@ -664,8 +625,7 @@ export const featureGroups = [
   {
     title: 'Sports and seasonal operations',
     eyebrow: 'Run teams and seasons',
-    description:
-      'Support age groups, guardians, trials, teams, licences, seasonal capacity and temporary programmes.',
+    description: 'Run teams, trials, seasons and temporary programmes.',
     features: [
       'Teams and categories',
       'Seasons and camps',
@@ -677,8 +637,7 @@ export const featureGroups = [
   {
     title: 'Insight and reporting',
     eyebrow: 'See the operation',
-    description:
-      'Bring demand, conversion, delivery, participation and finance signals together for better decisions.',
+    description: 'Turn demand, delivery and finance into decisions.',
     features: [
       'Operational dashboards',
       'Conversion and enrolment funnels',
@@ -690,8 +649,7 @@ export const featureGroups = [
   {
     title: 'AI-assisted workflows',
     eyebrow: 'Optional assistance',
-    description:
-      'Use contextual assistance for summaries, communications and next actions while people remain responsible for decisions.',
+    description: 'Assist routine work while people keep control.',
     features: [
       'Contextual assistance',
       'Permission-aware tools',
@@ -703,8 +661,7 @@ export const featureGroups = [
   {
     title: 'Security and governance',
     eyebrow: 'Operate with trust',
-    description:
-      'Make access boundaries, privacy and accountable technology part of routine operations.',
+    description: 'Build access, privacy and accountability into operations.',
     features: [
       'Tenant and organisation boundaries',
       'Role and permission controls',
@@ -716,8 +673,7 @@ export const featureGroups = [
   {
     title: 'APIs, webhooks and deployment',
     eyebrow: 'Fit the technology landscape',
-    description:
-      'Connect providers and systems through governed interfaces and choose the operating model that fits the organisation.',
+    description: 'Connect systems through governed, adaptable interfaces.',
     features: [
       'API and webhook layer',
       'MCP integration layer',
@@ -732,22 +688,22 @@ export const integrationPillars = [
   {
     title: 'Payments',
     providers: ['Stripe', 'PayPal', 'SEPA'],
-    text: 'Cards, wallets, direct debit, deposits, instalments and recurring models through configurable provider adapters.',
+    text: 'Cards, wallets, direct debit and recurring collection.',
   },
   {
     title: 'Finance',
     providers: ['Invoices', 'Reconciliation', 'Finance APIs'],
-    text: 'Keep payment context, receiving entity and finance status ready for accounting, banking and ERP workflows.',
+    text: 'Prepare every transaction for finance workflows.',
   },
   {
     title: 'Growth',
     providers: ['Meta Ads', 'CAPI', 'MCP'],
-    text: 'Carry source, campaign and conversion context from first click to reservation, enrolment and participation.',
+    text: 'Connect campaign source to confirmed participation.',
   },
   {
     title: 'Communication',
     providers: ['Email', 'Webhooks', 'Messaging'],
-    text: 'Trigger confirmations, reminders, team actions and participant journeys from operational events.',
+    text: 'Trigger timely messages from operational events.',
   },
 ] as const
 
@@ -755,8 +711,7 @@ export const plans = [
   {
     name: 'Launch',
     label: 'Seasonal and cohort-ready',
-    description:
-      'For camps, events and time-bound programmes that need a polished booking and payment operation without long setup.',
+    description: 'Launch polished booking and payment for one programme.',
     features: [
       'Public offer and booking journey',
       'Capacity, waitlist and deadlines',
@@ -770,8 +725,7 @@ export const plans = [
   {
     name: 'Business',
     label: 'Managed cloud',
-    description:
-      'For growing academies that need admissions, operations, campus, communication and finance in one managed service.',
+    description: 'Run your complete academy in one managed service.',
     features: [
       'CRM and reservation workflows',
       'Academic and participant operations',
@@ -785,8 +739,7 @@ export const plans = [
   {
     name: 'Enterprise',
     label: 'Dedicated or on-premise',
-    description:
-      'For groups and networks that need organisational depth, dedicated infrastructure and an agreed integration programme.',
+    description: 'Scale complex organisations on dedicated infrastructure.',
     features: [
       'Multi-brand and multi-location model',
       'Custom domains and payment responsibility',
@@ -836,4 +789,54 @@ export const academyTypes = [
   'Performing arts',
   'Online cohorts',
   'Multi-site groups',
+] as const
+
+export const clientAcademies = [
+  'CEP Formación',
+  'Waira Sisa Studio',
+  'LinguaPro Academy',
+  'SpeakEasy Institute',
+  'GlobalTalk Learning Center',
+  'Polyglot Hub',
+  'FluentPath Academy',
+  'ZenFlow Studio',
+  'PranaLife Academy',
+  'BalanceCore Wellness',
+  'LotusMind Institute',
+  'SoulStretch Yoga Hub',
+  'ProSport Academy',
+  'EliteTrain Institute',
+  'ChampionPath Sports Hub',
+  'VictoryField Academy',
+  'NextGen Athletics Center',
+  'HarmonyStage Academy',
+  'RhythmWave Institute',
+  'ArtFlow Performing Arts',
+  'MelodyMakers Hub',
+  'DanceSphere Academy',
+  'CohortPro Academy',
+  'LearnLoop Institute',
+  'VirtualPath Learning Hub',
+  'CourseWave Academy',
+  'SkillStream Online',
+  'CertifyPro Institute',
+  'ComplianceAcademy Hub',
+  'RegulaLearn Center',
+  'ProLicense Academy',
+  'AccreditaSkills Institute',
+  'SummerSpark Camps',
+  'SeasonPath Academy',
+  'CampVibe Institute',
+  'YouthTrail Camps',
+  'AdventureLearn Hub',
+  'MultiCampus Pro',
+  'FranchiseLearn Group',
+  'CampusNet Academy',
+  'GlobalSites Institute',
+  'BranchWise Learning Hub',
+  'CodeCraft Academy',
+  'DevPath Institute',
+  'TechWave Learning Hub',
+  'PixelMasters Academy',
+  'DataFlow Tech Institute',
 ] as const

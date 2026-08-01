@@ -4,12 +4,12 @@ test.describe('Akademate public commercial surface', () => {
   test('communicates a growth outcome, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'The operating system for academies.'
+      'Operating system for academies.'
     )
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
     await expect(
       page.getByRole('heading', {
-        name: 'A focused workspace for everyone who makes learning happen.',
+        name: 'One workspace for every role.',
       })
     ).toBeVisible()
     await expect(page.getByRole('tablist', { name: 'Akademate experiences' })).toBeVisible()
@@ -25,10 +25,11 @@ test.describe('Akademate public commercial surface', () => {
       'Multiple campuses'
     )
     await expect(page.getByText('30% complete').first()).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'CEP Formación' })).toBeVisible()
-    await expect(page.getByText('Built for modern academy models')).toBeVisible()
+    await expect(page.getByText('Academies using Akademate')).toBeVisible()
+    await expect(page.getByText('CEP Formación').first()).toBeAttached()
+    await expect(page.getByText('Waira Sisa Studio').first()).toBeAttached()
     await expect(
-      page.getByRole('heading', { name: 'Let the people behind every academy speak.' })
+      page.getByRole('heading', { name: 'Let every academy voice be heard.' })
     ).toBeVisible()
     await expect(
       page.getByText('Public learner review presented by CEP Formación').first()
@@ -85,6 +86,52 @@ test.describe('Akademate public commercial surface', () => {
     expect(missing?.status()).toBe(404)
   })
 
+  test('renders distinct web distribution modes and a complete shareable course journey', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const distribution = page.getByRole('tablist', { name: 'Website distribution options' })
+    await distribution.getByRole('tab', { name: 'Your Akademate website' }).click()
+    await expect(page.getByText('Live CMS')).toBeVisible()
+    await distribution.getByRole('tab', { name: 'Your own domain' }).click()
+    await expect(page.getByText('DNS verified')).toBeVisible()
+    await distribution.getByRole('tab', { name: 'Embeds for any website' }).click()
+    await expect(page.getByText('EMBED BUILDER')).toBeVisible()
+    await distribution.getByRole('tab', { name: 'A page for every offer' }).click()
+    await expect(page.getByText('Ready to share')).toBeVisible()
+
+    const course = page.locator('#reservations')
+    await expect(course.getByText('academy.akademate.com/creative-leadership')).toBeVisible()
+    await expect(course.getByText('8 places available')).toBeVisible()
+    await expect(course.getByText('16 of 24 confirmed')).toBeVisible()
+    await expect(
+      course.getByLabel('Four example confirmed attendees').getByRole('img')
+    ).toHaveCount(4)
+    await course.getByRole('button', { name: 'Share course' }).click()
+    await expect(course.getByRole('dialog', { name: 'Share course' })).toBeVisible()
+  })
+
+  test('shows eight or more ecosystem marks per connector pillar and a responsive plan comparison', async ({
+    page,
+  }) => {
+    await page.goto('/features')
+    for (const pillar of ['Payments', 'Finance', 'Growth', 'Communication']) {
+      const article = page
+        .getByRole('heading', { name: pillar, exact: true })
+        .locator('xpath=ancestor::article[1]')
+      await expect(article.locator('[title]')).toHaveCount(pillar === 'Payments' ? 9 : 8)
+    }
+
+    await page.goto('/pricing')
+    await expect(page.getByRole('heading', { name: 'Compare every plan.' })).toBeVisible()
+    await expect(page.getByRole('table')).toContainText('Website and growth')
+    await expect(page.getByRole('table')).toContainText('Payments and finance')
+    expect(await page.getByRole('table').getByLabel('Included').count()).toBeGreaterThan(40)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.reload()
+    await expect(page.getByText('Website and growth').last()).toBeVisible()
+  })
+
   test('mobile navigation is keyboard-operable without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
@@ -97,6 +144,56 @@ test.describe('Akademate public commercial surface', () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     )
     expect(overflow).toBeLessThanOrEqual(1)
+  })
+
+  test('commercial copy stays within a two-line visual budget', async ({ page }) => {
+    const paths = [
+      '/',
+      '/features',
+      '/pricing',
+      '/solutions',
+      '/solutions/professional-training',
+      '/solutions/languages',
+      '/solutions/wellness',
+      '/solutions/sports',
+      '/solutions/seasonal',
+      '/solutions/performing-arts',
+      '/solutions/online-cohorts',
+      '/solutions/networks',
+      '/blog',
+      '/sobre-nosotros',
+      '/contacto',
+      '/cursos',
+    ]
+
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 1440, height: 1100 },
+    ]) {
+      await page.setViewportSize(viewport)
+      for (const path of paths) {
+        await page.goto(path)
+        const offenders = await page
+          .locator(
+            '.marketing-page main p, .marketing-page main h1, .marketing-page main h2, .marketing-page main h3'
+          )
+          .evaluateAll((nodes) =>
+            nodes.flatMap((node) => {
+              const style = getComputedStyle(node)
+              const lineHeight = Number.parseFloat(style.lineHeight)
+              if (!lineHeight || node.getBoundingClientRect().height === 0) return []
+              const lines = node.getBoundingClientRect().height / lineHeight
+              return lines > 2.15
+                ? [{ lines, text: node.textContent?.trim().replace(/\s+/g, ' ').slice(0, 90) }]
+                : []
+            })
+          )
+        expect(
+          offenders,
+          `${path} at ${viewport.width}px contains text blocks over two lines`
+        ).toEqual([])
+      }
+    }
   })
 
   test('legal routes and visual governance marks resolve without unsupported claims', async ({
@@ -140,7 +237,7 @@ test.describe('Akademate public commercial surface', () => {
     const response = await page.goto('/solutions')
     expect(response?.status()).toBe(200)
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Your model is unique. Your operating system should fit it.'
+      'Built around your academy model.'
     )
     await expect(page.locator('main a[href^="/solutions/"]')).toHaveCount(8)
     const verticalImages = page.locator('main img')

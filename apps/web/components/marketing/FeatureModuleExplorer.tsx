@@ -18,11 +18,10 @@ export function FeatureModuleExplorer() {
         <div className="max-w-4xl">
           <p className="text-sm font-semibold text-blue-700">Complete module catalogue</p>
           <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-            Explore every part of the academy, one workflow at a time.
+            Explore every module.
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            Each module connects a concrete team, daily decision and participant outcome. Choose a
-            module to see how it works and what it can connect to.
+            Choose a module. See its workflow, audience and connections.
           </p>
         </div>
 

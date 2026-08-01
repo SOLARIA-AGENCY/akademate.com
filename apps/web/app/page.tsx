@@ -13,10 +13,10 @@ import {
   School,
   UsersRound,
 } from 'lucide-react'
-import { AcademyProof } from '@/components/marketing/AcademyProof'
 import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
+import { ClientMarquee } from '@/components/marketing/ClientMarquee'
 import { CourseRegistrationPreview } from '@/components/marketing/CourseRegistrationPreview'
 import { CustomerVoices } from '@/components/marketing/CustomerVoices'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
@@ -54,7 +54,7 @@ const pillarIcons = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#f7f9fc] text-[#071633]">
+    <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
       <main id="content">
         <section className="product-texture relative overflow-hidden bg-[#06142f] text-white">
@@ -63,8 +63,8 @@ export default function HomePage() {
               <p className="hero-item text-sm font-semibold text-blue-200">
                 Built for in-person, online and hybrid academies
               </p>
-              <h1 className="hero-item mt-5 text-[2.8rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.6rem]">
-                The operating system for academies.
+              <h1 className="hero-item mt-5 text-[2.8rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.15rem]">
+                Operating system for academies.
               </h1>
               <p className="hero-item mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
                 Publish, enrol, teach, collect and grow from one connected platform.
@@ -86,7 +86,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <AcademyProof />
+        <ClientMarquee />
 
         <ConnectedExperiences />
 
@@ -97,11 +97,10 @@ export default function HomePage() {
                 Replace fragmented administration
               </p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                One learner journey instead of a maze of disconnected tools.
+                One learner journey. No disconnected tools.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Stop copying the same information between forms, spreadsheets, calendars, payment
-                tools and learning platforms. Keep every step connected to one academy record.
+                Replace fragmented tools with one connected academy record.
               </p>
             </div>
             <ol className="mt-14 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
@@ -126,8 +125,7 @@ export default function HomePage() {
                 One platform. Every part of the academy.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Choose the modules your operation needs and keep the experience coherent for teams,
-                teachers, learners and families.
+                Choose the modules your academy needs. Keep every role connected.
               </p>
             </div>
             <div className="mt-14 grid border-y border-blue-200 md:grid-cols-2 lg:grid-cols-4">
@@ -141,9 +139,17 @@ export default function HomePage() {
                     <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
                     <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
                     <p className="mt-4 text-sm leading-6 text-slate-600">{pillar.text}</p>
-                    <p className="mt-7 text-sm font-semibold leading-7 text-blue-800">
-                      {pillar.capabilities.join(' · ')}
-                    </p>
+                    <ul className="compact-feature-list">
+                      {pillar.capabilities.map((capability) => (
+                        <li key={capability}>
+                          <Check
+                            className="mt-1 h-3.5 w-3.5 shrink-0 text-blue-700"
+                            aria-hidden="true"
+                          />
+                          <span>{capability}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </article>
                 )
               })}
@@ -166,11 +172,10 @@ export default function HomePage() {
                 Your public academy, connected to operations
               </p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                Turn discovery into enrolment without rebuilding the journey.
+                From discovery to enrolment.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Launch on an Akademate subdomain, connect your own domain or bring live course,
-                booking and payment modules into the website you already have.
+                Launch, connect your domain or embed live Akademate modules.
               </p>
             </div>
             <div className="scroll-depth mt-12">
@@ -198,13 +203,12 @@ export default function HomePage() {
                 <p className="text-sm font-semibold text-blue-700">
                   Built to convert interest into action
                 </p>
-                <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
                   A shareable page for every course.
                 </h2>
               </div>
               <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                Turn a course, workshop, camp or class into a polished destination with schedule,
-                instructor, attendees, reviews, registration and payment.
+                Give every offer one shareable page for discovery and booking.
               </p>
             </div>
             <div className="scroll-depth mt-12">
@@ -234,11 +238,10 @@ export default function HomePage() {
             <div>
               <p className="text-sm font-semibold text-blue-700">A connected academy ecosystem</p>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
-                Bring the tools around your academy into the same operating flow.
+                Connect every tool. Keep one flow.
               </h2>
               <p className="mt-4 max-w-xl leading-7 text-slate-600">
-                Payments, campaign context, live delivery, domains and automation connect at the
-                point where your team actually uses them.
+                Connect payments, campaigns, delivery, domains and automation.
               </p>
             </div>
             <div>
@@ -360,7 +363,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="flex items-end justify-between gap-6">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-                Ideas for more connected academies.
+                Ideas for connected academies.
               </h2>
               <Link
                 href="/blog"

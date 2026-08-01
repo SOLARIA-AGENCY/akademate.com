@@ -34,7 +34,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
   if (!vertical) notFound()
   const detail = solutionDetails[vertical.slug]
   return (
-    <div className="min-h-screen bg-[#f7f9fc] text-[#071633]">
+    <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
       <main id="content">
         <section className="relative flex min-h-[calc(100dvh-73px)] items-end overflow-hidden bg-[#071633] text-white">
@@ -61,7 +61,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <h2 className="max-w-3xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              A smoother journey for your team and every participant.
+              A smoother journey for everyone.
             </h2>
             <div className="mt-12 grid gap-5 md:grid-cols-2">
               {detail.outcomes.map((outcome) => (
@@ -82,8 +82,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               See the workflow come together.
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              Explore the real offers, spaces, people and payment decisions that define this type of
-              academy.
+              Explore a workflow shaped around this academy model.
             </p>
             <div className="mt-12">
               <VerticalProductExperience slug={vertical.slug} />
@@ -104,10 +103,10 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-5xl rounded-2xl bg-[#071633] p-8 text-center text-white sm:p-14">
             <h2 className="text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-              Build the experience your academy deserves.
+              Build a better academy.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-blue-100/70">
-              We will map Akademate around your programmes, people, locations and growth goals.
+              Map Akademate around your programmes, people and locations.
             </p>
             <Link href="/contacto?asunto=demo" className="button-primary-light mt-8">
               Book your walkthrough <ArrowRight className="h-4 w-4" aria-hidden="true" />

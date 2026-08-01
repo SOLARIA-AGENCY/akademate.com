@@ -54,7 +54,7 @@ const roadmapIcons = [
 
 export default function FeaturesPage() {
   return (
-    <div className="min-h-screen bg-[#f7f9fc] text-[#071633]">
+    <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
       <main id="content">
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
@@ -62,11 +62,10 @@ export default function FeaturesPage() {
             <div className="max-w-2xl">
               <p className="text-sm font-semibold text-blue-200">The complete academy platform</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-                Everything your academy needs to operate and grow.
+                Operate. Teach. Grow.
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
-                Connect the public experience, daily operation, learning and business performance in
-                one system.
+                Connect growth, operations, learning and performance.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link href="/contacto?asunto=demo" className="button-primary-light">
@@ -113,7 +112,7 @@ export default function FeaturesPage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                The academy, organised as one system.
+                One connected academy system.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
                 Eight connected layers cover how people discover, join, learn, teach, operate, pay
@@ -132,9 +131,12 @@ export default function FeaturesPage() {
                     <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
                     <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
                     <p className="mt-4 text-sm leading-6 text-slate-600">{pillar.text}</p>
-                    <ul className="mt-7 space-y-2 text-sm font-semibold text-slate-800">
+                    <ul className="compact-feature-list">
                       {pillar.capabilities.map((capability) => (
-                        <li key={capability}>{capability}</li>
+                        <li key={capability}>
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-600" />
+                          <span>{capability}</span>
+                        </li>
                       ))}
                     </ul>
                   </article>
@@ -153,8 +155,7 @@ export default function FeaturesPage() {
                 Publish a complete academy experience.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Use a managed website, your own domain or embedded modules while the data remains
-                connected to the academy operation.
+                Publish through your website, domain or embedded modules.
               </p>
             </div>
             <div className="scroll-depth mt-12">
@@ -170,8 +171,7 @@ export default function FeaturesPage() {
                 Explore an example operating flow.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                These sample controls show how configurable journeys can connect reservations, CRM,
-                programmes, campus, payments and insight.
+                See reservations, CRM, campus and payments working together.
               </p>
             </div>
             <div className="mt-12">
@@ -219,7 +219,7 @@ export default function FeaturesPage() {
         <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              Connect the ecosystem around your academy.
+              Connect your academy ecosystem.
             </h2>
             <div className="mt-12 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
               {integrationPillars.map((pillar) => (

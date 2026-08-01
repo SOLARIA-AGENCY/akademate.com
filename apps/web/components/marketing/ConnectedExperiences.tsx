@@ -30,12 +30,11 @@ export function ConnectedExperiences() {
               One academy, connected around its people
             </p>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              A focused workspace for everyone who makes learning happen.
+              One workspace for every role.
             </h2>
           </div>
           <p className="max-w-2xl text-lg leading-8 text-slate-600">
-            Centre teams, teachers and learners work from the same academy record, with an
-            experience shaped around what each person needs to do next.
+            One academy record. A focused workspace for every role.
           </p>
         </div>
 
