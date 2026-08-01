@@ -1,6 +1,6 @@
 # Public Pricing Entitlements
 
-Status: implemented and locally verified
+Status: deployed and live-verified
 
 Scope: `akademate.com/pricing` and its centralized public pricing catalogue.
 
@@ -55,6 +55,6 @@ The proposal must distinguish Akademate fees from:
 - [x] QR, NFC, physical access and Digital Signage locked to `Paid extension` for all plans.
 - [x] Desktop table and mobile accordion variants.
 - [x] Unit, typecheck, build and responsive browser checks.
-- [ ] Commit and push.
-- [ ] Public-web-only deployment.
-- [ ] Live artifact verification.
+- [x] Commit and push (`1ce01ab86003b50ddfd21e48e60be49f4d97ca14`).
+- [x] Public-web-only deployment.
+- [x] Live artifact verification.
