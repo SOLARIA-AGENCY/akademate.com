@@ -44,10 +44,13 @@ MCP (Model Context Protocol) Server for Akademate. Connects Claude Desktop, Curs
 
 The server reads two environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `AKADEMATE_API_URL` | `http://localhost:3000` | Base URL of your Akademate instance |
-| `AKADEMATE_API_KEY` | _(none)_ | API key from /configuracion/apis |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AKADEMATE_API_URL` | Yes | Explicit base URL of the intended Akademate instance |
+| `AKADEMATE_API_KEY` | Yes | API key from /configuracion/apis |
+
+The server has no default production endpoint and exits before connecting when either variable is
+missing. HTTPS is required except for `localhost`, `127.0.0.1` and `::1` development endpoints.
 
 ## Claude Desktop
 
@@ -152,6 +155,7 @@ AKADEMATE_API_URL=https://app.akademate.com AKADEMATE_API_KEY=ak_live_xxx pnpm s
 ## Security notes
 
 - API keys are tenant-scoped: the server can only access data from the tenant that issued the key
+- The target endpoint must be selected explicitly; the package never falls back to a customer tenant
 - Keys are validated on every request — revoke a key from the dashboard to immediately cut off access
 - The server does not cache responses or store data locally
 - Use read-only scopes (`courses:read`, `students:read`, etc.) when write access is not needed

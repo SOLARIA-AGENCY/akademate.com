@@ -9,6 +9,8 @@ checks:
       command: node --test scripts/__tests__/akademate-next-learning-migration.test.mjs
     - name: next-isolation-contract
       command: node scripts/verify-akademate-next-isolation.mjs
+    - name: next-mcp-runtime-boundary
+      command: corepack pnpm --filter @akademate/mcp-server test && corepack pnpm --filter @akademate/mcp-server build
     - name: learning-membership-access
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
     - name: next-runtime-collection-boundary

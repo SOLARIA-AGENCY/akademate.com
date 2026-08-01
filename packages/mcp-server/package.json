@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "node --experimental-strip-types --test src/config.test.ts",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts"
   },

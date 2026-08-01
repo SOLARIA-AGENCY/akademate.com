@@ -6,8 +6,8 @@
  * Cursor, Continue.dev and any other MCP client can manage your academy.
  *
  * Configuration (environment variables):
- *   AKADEMATE_API_URL  — Base URL of your Akademate instance (default: https://cepformacion.akademate.com)
- *   AKADEMATE_API_KEY  — API key obtained from /configuracion/apis
+ *   AKADEMATE_API_URL  — Required base URL of the intended Akademate instance
+ *   AKADEMATE_API_KEY  — Required API key obtained from /configuracion/apis
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
@@ -18,19 +18,13 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
+import { resolveAkademateMcpConfig } from './config.js'
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-const API_URL = (process.env.AKADEMATE_API_URL ?? 'https://cepformacion.akademate.com').replace(/\/$/, '')
-const API_KEY = process.env.AKADEMATE_API_KEY ?? ''
-
-if (!API_KEY) {
-  process.stderr.write(
-    '[akademate-mcp] WARNING: AKADEMATE_API_KEY is not set. All API calls will fail with 401.\n',
-  )
-}
+const { apiUrl: API_URL, apiKey: API_KEY } = resolveAkademateMcpConfig(process.env)
 
 // ---------------------------------------------------------------------------
 // HTTP helpers

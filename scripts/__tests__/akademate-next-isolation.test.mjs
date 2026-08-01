@@ -18,6 +18,8 @@ const campusRealtimeProviderText = readFileSync(
   path.join(root, 'apps/campus/providers/RealtimeProvider.tsx'),
   'utf8',
 )
+const mcpIndexText = readFileSync(path.join(root, 'packages/mcp-server/src/index.ts'), 'utf8')
+const mcpConfigText = readFileSync(path.join(root, 'packages/mcp-server/src/config.ts'), 'utf8')
 
 test('does not publish a development authentication bypass in Campus', () => {
   assert.equal(
@@ -31,6 +33,14 @@ test('keeps Campus realtime default-off without legacy or localStorage identity'
   assert.equal(campusRealtimeProviderText.includes('/api/auth/session'), false)
   assert.equal(campusRealtimeProviderText.includes('localStorage'), false)
   assert.equal(campusRealtimeProviderText.includes("defaultTenantId = 1"), false)
+})
+
+test('keeps the generic MCP server fail-closed and free of CEP endpoint defaults', () => {
+  assert.equal(mcpIndexText.includes('cepformacion.akademate.com'), false)
+  assert.equal(mcpConfigText.includes('cepformacion.akademate.com'), false)
+  assert.match(mcpIndexText, /resolveAkademateMcpConfig\(process\.env\)/)
+  assert.match(mcpConfigText, /AKADEMATE_API_URL is required/)
+  assert.match(mcpConfigText, /AKADEMATE_API_KEY is required/)
 })
 
 test('accepts the committed isolated Next contract', () => {
