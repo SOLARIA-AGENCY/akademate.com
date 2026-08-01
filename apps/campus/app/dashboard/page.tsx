@@ -1,115 +1,101 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
-export const metadata = {
-  title: 'Campus - Dashboard',
-}
-
-const courses = [
-  { id: 'course-1', title: 'Marketing Digital', progress: 64, lessons: '8/12' },
-  { id: 'course-2', title: 'Gestión de proyectos', progress: 42, lessons: '5/12' },
-  { id: 'course-3', title: 'Diseño UX', progress: 88, lessons: '11/12' },
-]
+import {
+  CampusApiError,
+  type CampusDashboard,
+  fetchCampusDashboard,
+} from '../../lib/campus-client'
+import { AuthGuard, useSession } from '../../lib/session-context'
 
 export default function DashboardPage() {
+  const { user, logout, refreshSession } = useSession()
+  const [dashboard, setDashboard] = useState<CampusDashboard | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
+
+  useEffect(() => {
+    let active = true
+    setDashboard(null)
+    setIsLoading(true)
+    setError(null)
+    fetchCampusDashboard(apiBaseUrl).then((result) => {
+      if (!active) return
+      setDashboard(result)
+      setIsLoading(false)
+    }).catch((cause) => {
+      if (!active) return
+      setDashboard(null)
+      setIsLoading(false)
+      if (cause instanceof CampusApiError && cause.status === 401) void refreshSession()
+      else setError(cause instanceof Error ? cause.message : 'No se pudo cargar el dashboard.')
+    })
+    return () => { active = false }
+  }, [apiBaseUrl, refreshSession])
+
+  const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Alumno'
+  const averageProgress = dashboard?.enrollments.length
+    ? Math.round(dashboard.enrollments.reduce((sum, item) => sum + item.progressPercent, 0) / dashboard.enrollments.length)
+    : 0
+
   return (
-    <main className="space-y-6" data-testid="dashboard">
-      <section className="rounded-2xl border border-border bg-card/70 p-6 shadow-xl shadow-black/30">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Panel del alumno</p>
-            <h1 className="text-3xl font-semibold">
-              Bienvenida, <span data-testid="user-name">María López</span>
-            </h1>
-            <p className="text-sm text-muted-foreground">Aquí tienes el estado de tus cursos activos.</p>
-          </div>
-          <div className="space-y-2 text-right">
-            <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Progreso total</div>
-            <div className="text-3xl font-semibold" data-testid="completion-rate">68%</div>
-            <p className="text-xs text-muted-foreground">+4% respecto a la última semana</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-4 lg:flex-row">
-        <nav className="flex-1 rounded-2xl border border-border bg-card/60 p-4" data-testid="navigation">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Navegación</div>
-          <div className="mt-4 grid gap-2">
-            <Link
-              className="active rounded-lg border border-primary/50 px-4 py-2 text-sm"
-              href="/dashboard"
-              data-testid="nav-link"
-              data-active="true"
-            >
-              Dashboard
-            </Link>
-            <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm hover:border-primary" href="/dashboard" data-testid="nav-link">
-              Cursos
-            </Link>
-            <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm hover:border-primary" href="/progress" data-testid="nav-link">
-              Progreso
-            </Link>
-            <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm hover:border-primary" href="/profile" data-testid="nav-link">
-              Perfil
-            </Link>
-          </div>
-        </nav>
-
-        <div className="flex-1 rounded-2xl border border-border bg-card/60 p-4" data-testid="user-profile">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Perfil</div>
-          <div className="mt-4 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-primary/20" />
+    <AuthGuard>
+      <main className="space-y-6" data-testid="dashboard">
+        <section className="rounded-2xl border border-border bg-card/70 p-6 shadow-xl shadow-black/30">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Panel del alumno</p>
+          <div className="mt-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-sm font-semibold">María López</div>
-              <div className="text-xs text-muted-foreground">alumno@akademate.com</div>
+              <h1 className="text-3xl font-semibold">Bienvenido, <span data-testid="user-name">{displayName}</span></h1>
+              <p className="mt-2 text-sm text-muted-foreground">Tus cursos, progreso y próximos pasos.</p>
+            </div>
+            <div className="text-left md:text-right">
+              <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">Progreso medio</div>
+              <div className="text-3xl font-semibold" data-testid="completion-rate">{averageProgress}%</div>
             </div>
           </div>
-          <div className="mt-4 flex gap-2">
-            <button className="rounded-lg border border-border/60 px-4 py-2 text-xs">Editar perfil</button>
-            <button className="rounded-lg border border-border/60 px-4 py-2 text-xs">Preferencias</button>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="rounded-2xl border border-border bg-card/60 p-6">
-        <div className="flex items-center justify-between">
+        <nav className="grid gap-2 rounded-2xl border border-border bg-card/60 p-4 sm:grid-cols-3" aria-label="Campus">
+          <Link className="rounded-lg border border-primary/50 px-4 py-2 text-sm" href="/dashboard">Dashboard</Link>
+          <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm" href="/progress">Progreso</Link>
+          <Link className="rounded-lg border border-border/60 px-4 py-2 text-sm" href="/certificates">Certificados</Link>
+        </nav>
+
+        <section className="rounded-2xl border border-border bg-card/60 p-6" aria-busy={isLoading}>
+          <h2 className="text-xl font-semibold">Cursos activos</h2>
+          {isLoading && <p className="mt-4 text-sm text-muted-foreground" role="status">Cargando cursos…</p>}
+          {error && <p className="mt-4 text-sm text-red-400" role="alert">{error}</p>}
+          {!isLoading && !error && dashboard?.enrollments.length === 0 && (
+            <p className="mt-4 text-sm text-muted-foreground">Todavía no tienes cursos activos.</p>
+          )}
+          {dashboard && dashboard.enrollments.length > 0 && (
+            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-testid="courses-grid">
+              {dashboard.enrollments.map((course) => (
+                <article key={course.id} className="rounded-xl border border-border/60 bg-background/40 p-4" data-testid="course-card">
+                  <div className="text-sm font-semibold">{course.courseTitle || course.courseRunTitle}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{course.completedModules}/{course.totalModules} módulos</div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted" aria-label={`${course.progressPercent}% completado`}>
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(0, Math.min(100, course.progressPercent))}%` }} />
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card/60 p-4">
           <div>
-            <h2 className="text-xl font-semibold">Cursos activos</h2>
-            <p className="text-sm text-muted-foreground">Continúa donde lo dejaste.</p>
+            <div className="text-sm font-semibold">{user?.email}</div>
+            <div className="text-xs text-muted-foreground">Sesión protegida del campus</div>
           </div>
-          <button className="rounded-full border border-border/60 px-4 py-2 text-xs">Ver todos</button>
+          <button className="rounded-lg border border-border/60 px-4 py-2 text-xs" type="button" onClick={() => void logout()}>
+            Cerrar sesión
+          </button>
         </div>
-        <div className="courses-grid mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-testid="courses-grid">
-          {courses.map((course) => (
-            <article key={course.id} className="course-card rounded-xl border border-border/60 bg-background/40 p-4" data-testid="course-card">
-              <div className="text-sm font-semibold">{course.title}</div>
-              <div className="mt-1 text-xs text-muted-foreground">Lecciones {course.lessons}</div>
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Progreso</span>
-                  <span>{course.progress}%</span>
-                </div>
-                <div className="progress-bar mt-2 h-2 w-full overflow-hidden rounded-full bg-muted" data-testid="progress-bar">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${course.progress}%` }} />
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="flex items-center justify-between rounded-2xl border border-border bg-card/60 p-4">
-        <div>
-          <div className="text-sm font-semibold">Todo listo para seguir avanzando.</div>
-          <div className="text-xs text-muted-foreground">Recuerda completar tus lecciones para desbloquear el certificado.</div>
-        </div>
-        <button className="rounded-full border border-border/60 px-4 py-2 text-xs">Ver certificados</button>
-      </section>
-
-      <div className="flex justify-end">
-        <button className="rounded-lg border border-border/60 px-4 py-2 text-xs" type="button">
-          Cerrar sesión
-        </button>
-      </div>
-    </main>
+      </main>
+    </AuthGuard>
   )
 }

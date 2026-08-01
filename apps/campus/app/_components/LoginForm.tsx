@@ -2,7 +2,10 @@
 
 import { useRef, useState } from 'react'
 
+import { useSession } from '../../lib/session-context'
+
 export function LoginForm() {
+  const { login, error: sessionError } = useSession()
   const emailRef = useRef<HTMLInputElement | null>(null)
   const passwordRef = useRef<HTMLInputElement | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -28,17 +31,8 @@ export function LoginForm() {
     setError(null)
     setIsSubmitting(true)
     try {
-      const response = await fetch('/api/auth/dev-login', {
-        method: 'POST',
-        credentials: 'include',
-        body: new URLSearchParams({ redirect: '/dashboard' }),
-      })
-
-      if (!response.ok) {
-        throw new Error('No se pudo iniciar sesión en modo desarrollo.')
-      }
-
-      window.location.href = '/dashboard'
+      if (await login(email, password)) window.location.href = '/dashboard'
+      else setIsSubmitting(false)
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Error de autenticación.')
       setIsSubmitting(false)
@@ -78,9 +72,9 @@ export function LoginForm() {
             autoComplete="current-password"
           />
         </label>
-        {error && (
+        {(error || sessionError) && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs text-red-300">
-            {error}
+            {error || sessionError}
           </div>
         )}
         <button

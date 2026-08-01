@@ -25,6 +25,8 @@ checks:
       command: node --test scripts/__tests__/akademate-next-learning-route.test.mjs
     - name: next-compose
       command: docker compose --env-file infrastructure/akademate-next/.env.example -f infrastructure/akademate-next/compose.yaml config --quiet
+    - name: campus-canonical-session
+      command: pnpm --filter @akademate/campus test && pnpm --filter @akademate/campus exec tsc --noEmit
     - name: diff-integrity
       command: git diff --check
 
