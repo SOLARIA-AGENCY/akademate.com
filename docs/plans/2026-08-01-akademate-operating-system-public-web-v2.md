@@ -161,10 +161,10 @@ Why: the current problem is not missing page volume. It is the gap between Akade
 - [x] Typecheck and build.
 - [x] Desktop/mobile visual QA.
 - [x] Mobile internal-clipping audit and long-label variation.
-- [ ] Commit.
-- [ ] Push.
-- [ ] Public deploy.
-- [ ] Served-artifact verification.
+- [x] Commit.
+- [x] Push.
+- [x] Public deploy.
+- [x] Served-artifact verification.
 
 ## Agentic growth extension
 

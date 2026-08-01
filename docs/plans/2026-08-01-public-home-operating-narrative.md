@@ -1,6 +1,6 @@
 # Public Home Operating Narrative
 
-Status: implementation in progress
+Status: deployed and live-verified
 
 Scope: `apps/web` and the public `akademate.com` deployment only
 
@@ -30,8 +30,8 @@ Selected: **A. Central operating narrative**. It places the new capabilities ins
 - [x] Digital signage shown across academy displays and sites.
 - [x] Home commercial copy uses affirmative language.
 - [x] Unit, type, build and browser validation.
-- [ ] Commit and push.
-- [ ] Public-web-only deployment and served-artifact verification.
+- [x] Commit and push (`0863e478d335b553f07e5b16376a0bc895daf575`).
+- [x] Public-web-only deployment and served-artifact verification.
 
 ## Product roadmap additions
 
