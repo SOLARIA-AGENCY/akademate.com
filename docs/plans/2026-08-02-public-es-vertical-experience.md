@@ -31,10 +31,28 @@ Upgrade the complete public Akademate website into a genuinely bilingual, premiu
 - [x] Add hover and keyboard-focus activation to vertical tabs.
 - [x] Add a tailored role narrative and second photograph to every vertical.
 - [x] Add `/cursos` and `/download` to the localized sitemap.
-- [ ] Complete build and full test suite.
-- [ ] Complete desktop/mobile browser, console, network and overflow QA.
-- [ ] Commit and push the isolated public branch.
-- [ ] Deploy only `apps/web` and verify the served revision and Spanish body copy.
+- [x] Complete build and full test suite.
+- [x] Complete desktop/mobile browser, console, network and overflow QA.
+- [x] Commit and push the isolated public branch.
+- [x] Deploy only `apps/web` and verify the served revision and Spanish body copy.
+
+## Release evidence
+
+- Functional commit and live revision: `6d9ba8ee90ded3f6433934088e9ff6f0187dfacf`.
+- Branch: `codex/akademate-public-es-verticals`.
+- Unit/adversarial suite: 19 files, 116 tests, all passing.
+- TypeScript: `tsc --noEmit` passing.
+- Production build: 80 routes generated.
+- Docker artifact: `linux/amd64`, image `sha256:cc9ae4d127813f7424f7c2743fbcb2c1472f7f8634ef8f331b0014bb18006120`.
+- Live health: five consecutive checks returned the exact functional revision before acceptance.
+- Live vertical smoke: 8/8 Spanish routes returned 200 with their specific copy, canonical and EN/ES/x-default alternates.
+- Live media smoke: 8/8 new editorial assets returned 200 as JPEG.
+- Browser QA: desktop 1440×1000 and narrow/mobile viewport; no horizontal overflow; no console errors; hero and secondary images reached non-zero natural dimensions.
+- Visual depth: `/es/solutions` and `/es/solutions/wellness` inspected directly; every remaining vertical was covered by route/content/media assertions and HTTP live smoke.
+- Tracker gate: no GA, GTM or Meta Pixel tokens found in the served Spanish solutions surface.
+- Isolation: all non-web container IDs were byte-for-byte identical before and after deployment.
+- Rollback: previous image `11cf447bfaeb36007d0ce445e89accce90d9dd87` retained and validated after an automatic first-attempt rollback.
+- Operational note: production disk finished at 87% used with 4.9 GB free; cleanup is recommended before the next large image release.
 
 ## Vertical coverage
 
