@@ -13,6 +13,7 @@ import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 import { blogPosts, insightPosts, newsPosts } from '@/lib/blog-posts'
 import { featureModuleDetails } from '@/lib/feature-module-details'
 import { integrationBrands, integrationPillarBrands } from '@/lib/integration-brands'
+import { homeExperienceContent } from '@/lib/home-experience-i18n'
 import {
   academyExperiences,
   academySetupStages,
@@ -254,8 +255,9 @@ describe('public marketing architecture', () => {
     )
     expect(home).toContain('<AcademyOperationsStory')
     expect(home).not.toContain('<AcademySetupJourney')
-    expect(operationsComponent).toMatch(/Academy overview/)
-    expect(operationsComponent).toMatch(/Active learners/)
+    expect(operationsComponent).toContain('getHomeExperienceContent')
+    expect(homeExperienceContent.en.operations.overviewTitle).toBe('Academy overview')
+    expect(homeExperienceContent.en.operations.metrics[0]?.label).toBe('Active learners')
     expect(roleComponent).toContain('role="tablist"')
     expect(roleComponent).toContain('role="tabpanel"')
     expect(setupComponent).toContain('role="tablist"')

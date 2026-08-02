@@ -84,7 +84,21 @@ test.describe('public EN/ES parity', () => {
 
   test('Spanish conversion surfaces do not fall back to English controls', async ({ page }) => {
     const checks = [
-      { path: '/es', forbidden: ['Book a demo', 'Explore every module', 'Compare plans'] },
+      {
+        path: '/es',
+        forbidden: [
+          'Book a demo',
+          'Explore every module',
+          'Compare plans',
+          'See the whole academy.',
+          'The academy command centre',
+          'One workspace for every role.',
+          'Publish your way',
+          'Example public course page',
+          'Seasonal and cohort-ready',
+          'Connector-ready',
+        ],
+      },
       {
         path: '/es/features',
         forbidden: ['Complete module catalogue', 'What your team can do', 'Illustrative roadmap'],
