@@ -78,7 +78,8 @@ export default async function FeaturesPage() {
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link href={href('/contacto?asunto=demo')} className="button-primary-light">
-                  {dictionary.features.primaryCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  {dictionary.features.primaryCta}{' '}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link href={href('/pricing')} className="button-ghost-light">
                   {dictionary.features.secondaryCta}

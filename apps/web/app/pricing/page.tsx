@@ -73,7 +73,8 @@ export default async function PricingPage() {
                 {dictionary.pricing.description}
               </p>
               <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
-                {dictionary.pricing.primaryCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                {dictionary.pricing.primaryCta}{' '}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
             <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">

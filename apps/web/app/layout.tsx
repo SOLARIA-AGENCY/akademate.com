@@ -18,8 +18,16 @@ export const metadata: Metadata = {
     default: 'Akademate | Grow your academy and delight every learner',
     template: '%s | Akademate',
   },
-  description: 'Bring enrolment, operations, learning and revenue together in one academy operating system.',
-  keywords: ['academy management', 'education operations', 'booking software', 'sports academy software', 'learning management', 'academy payments'],
+  description:
+    'Bring enrolment, operations, learning and revenue together in one academy operating system.',
+  keywords: [
+    'academy management',
+    'education operations',
+    'booking software',
+    'sports academy software',
+    'learning management',
+    'academy payments',
+  ],
   authors: [{ name: 'SOLARIA Agency' }],
   icons: {
     icon: '/favicon.png',
@@ -32,7 +40,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_GB',
     siteName: 'Akademate',
-    images: [{ url: '/images/marketing/akademate-hero-operations.jpg', width: 1716, height: 917, alt: 'Modern learning business operations with Akademate' }],
+    images: [
+      {
+        url: '/images/marketing/akademate-hero-operations.jpg',
+        width: 1716,
+        height: 917,
+        alt: 'Modern learning business operations with Akademate',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -44,11 +59,7 @@ export const metadata: Metadata = {
   alternates: localizedAlternates('/'),
 }
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const locale = await getRequestLocale()
   const themeCookie = cookieStore.get('akademate_theme')?.value

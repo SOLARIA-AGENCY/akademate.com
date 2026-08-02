@@ -63,11 +63,17 @@ export default async function ContactPage() {
               </div>
             </div>
             <section className="self-start rounded-2xl bg-slate-50 p-6 sm:p-10 lg:sticky lg:top-28">
-              <h2 className="text-3xl font-semibold tracking-tight">{dictionary.contact.formTitle}</h2>
+              <h2 className="text-3xl font-semibold tracking-tight">
+                {dictionary.contact.formTitle}
+              </h2>
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 {dictionary.contact.formDescription}
               </p>
-              <Suspense fallback={<p className="mt-8 text-sm text-slate-500">{dictionary.contact.loadingForm}</p>}>
+              <Suspense
+                fallback={
+                  <p className="mt-8 text-sm text-slate-500">{dictionary.contact.loadingForm}</p>
+                }
+              >
                 <ContactForm />
               </Suspense>
             </section>

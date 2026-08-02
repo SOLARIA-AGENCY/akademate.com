@@ -13,7 +13,7 @@ export function isLocale(value: string | null | undefined): value is Locale {
 }
 
 export function getLocaleFromPathname(pathname: string): Locale | undefined {
-  const segment = pathname.split('/').filter(Boolean)[0]?.toLowerCase()
+  const segment = pathname.split('/').find(Boolean)?.toLowerCase()
   return isLocale(segment) ? segment : undefined
 }
 
@@ -65,7 +65,8 @@ export function resolveLocale({
   const pathLocale = pathname ? getLocaleFromPathname(pathname) : undefined
   if (pathLocale) return { locale: pathLocale, source: 'path' }
 
-  if (isLocale(cookieLocale)) return { locale: cookieLocale.toLowerCase() as Locale, source: 'cookie' }
+  if (isLocale(cookieLocale))
+    return { locale: cookieLocale.toLowerCase() as Locale, source: 'cookie' }
 
   const acceptedLocale = parseAcceptLanguage(acceptLanguage)
   if (acceptedLocale) return { locale: acceptedLocale, source: 'accept-language' }
@@ -78,7 +79,12 @@ export function shouldHandleLocalePath(pathname: string): boolean {
 
   if (normalizedPathname === '/api' || normalizedPathname.startsWith('/api/')) return false
   if (normalizedPathname === '/_next' || normalizedPathname.startsWith('/_next/')) return false
-  if (normalizedPathname === '/favicon.ico' || normalizedPathname === '/robots.txt' || normalizedPathname === '/sitemap.xml') return false
+  if (
+    normalizedPathname === '/favicon.ico' ||
+    normalizedPathname === '/robots.txt' ||
+    normalizedPathname === '/sitemap.xml'
+  )
+    return false
 
   const lastSegment = normalizedPathname.split('/').pop() ?? ''
   return !/\.[a-z0-9]+$/i.test(lastSegment)

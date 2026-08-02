@@ -38,7 +38,10 @@ export async function Footer() {
             <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">
               {dictionary.footer.description}
             </p>
-            <div className="mt-6 flex items-center gap-2" aria-label={dictionary.footer.socialMedia}>
+            <div
+              className="mt-6 flex items-center gap-2"
+              aria-label={dictionary.footer.socialMedia}
+            >
               {publicSocialLinks.map((link) => (
                 <a
                   key={link.name}
@@ -81,15 +84,15 @@ export async function Footer() {
             <p className="max-w-xl text-2xl font-semibold tracking-tight">
               {dictionary.footer.statement}
             </p>
-            <p className="mt-3 text-sm text-blue-100/50">
-              {dictionary.footer.detail}
-            </p>
+            <p className="mt-3 text-sm text-blue-100/50">{dictionary.footer.detail}</p>
           </div>
           <ComplianceBadges />
         </div>
         <div>
           <div className="mt-8 flex flex-col gap-2 text-center text-xs leading-5 text-blue-100/45 sm:flex-row sm:justify-between sm:text-left">
-            <p>© {new Date().getFullYear()} Akademate. {dictionary.footer.rights}</p>
+            <p>
+              © {new Date().getFullYear()} Akademate. {dictionary.footer.rights}
+            </p>
             <p>{dictionary.footer.governance}</p>
           </div>
         </div>

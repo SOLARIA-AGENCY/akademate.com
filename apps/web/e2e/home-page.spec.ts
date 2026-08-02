@@ -4,7 +4,7 @@ test.describe('Akademate public commercial surface', () => {
   test('communicates a growth outcome, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Operating system for academies.'
+      'Run your academy. Grow every experience.'
     )
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
     await expect(
@@ -42,8 +42,8 @@ test.describe('Akademate public commercial surface', () => {
     await expect(mcp.getByText('Grok')).toBeVisible()
     await expect(mcp.getByText('Gemini')).toBeVisible()
     await expect(page.getByText('Built around every academy model')).toBeVisible()
-    await expect(page.getByText('CEP Formación').first()).toBeAttached()
-    await expect(page.getByText('Waira Sisa Studio').first()).toBeAttached()
+    await expect(page.getByText('Language academies').first()).toBeAttached()
+    await expect(page.getByText('Multi-site academy groups').first()).toBeAttached()
     const trustSignals = page.getByRole('region', { name: 'Akademate trust signals' })
     await expect(trustSignals).toBeVisible()
     await expect(trustSignals.getByText('Learner-rated experience')).toBeVisible()
@@ -66,6 +66,44 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('contentinfo').getByRole('link', { name: 'News' })).toBeVisible()
     for (const network of ['Instagram', 'X', 'Facebook'])
       await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
+  })
+
+  test('serves persistent English and Spanish routes without redirect loops', async ({
+    context,
+    page,
+  }) => {
+    const spanish = await page.goto('/es')
+    expect(spanish?.status()).toBe(200)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Gestiona tu academia. Haz crecer cada experiencia.'
+    )
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es')
+    await expect(page.getByRole('link', { name: /ES/ }).first()).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+
+    const cookies = await context.cookies()
+    const localeCookie = cookies.find((cookie) => cookie.name === 'akademate_locale')
+    expect(localeCookie?.value).toBe('es')
+    expect(localeCookie?.httpOnly).toBe(true)
+
+    await page.getByRole('link', { name: /EN/ }).first().click()
+    await expect(page).toHaveURL(/\/en$/)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Run your academy. Grow every experience.'
+    )
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+
+    for (const path of ['/en/features', '/es/pricing', '/en/solutions', '/es/contacto']) {
+      const response = await page.goto(path)
+      expect(response?.status(), path).toBe(200)
+    }
+
+    const health = await page.request.get('/api/health')
+    expect(health.status()).toBe(200)
+    const asset = await page.request.get('/logos/akademate-icon-48.png')
+    expect(asset.status()).toBe(200)
   })
 
   test('publishes a complete feature catalogue, product examples and separate SEO editorial sections', async ({

@@ -97,8 +97,10 @@ describe('public marketing architecture', () => {
 
     const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
     const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8')
+    const dictionaries = readFileSync(new URL('./i18n/dictionaries.ts', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
-    expect(home).toMatch(/Run your academy\. Grow every experience\./)
+    expect(home).toContain('{dictionary.home.title}')
+    expect(dictionaries).toMatch(/Run your academy\. Grow every experience\./)
   })
 
   it('models the complete product journey from website distribution to extensible operations', () => {
@@ -570,7 +572,7 @@ describe('public marketing architecture', () => {
     const footer = readFileSync(new URL('../components/layout/footer.tsx', import.meta.url), 'utf8')
     expect(footer).toContain('target="_blank"')
     expect(footer).toContain('rel="noreferrer"')
-    expect(footer).toContain('aria-label={`${link.name}: find Akademate`}')
+    expect(footer).toContain('aria-label={`${link.name}: ${dictionary.footer.socialLabel}`}')
   })
 
   it('ships interactive product examples with accessible tabs and real controls', () => {

@@ -15,13 +15,14 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-akademate-locale', plan.locale)
 
-  const response = plan.type === 'rewrite'
-    ? (() => {
-        const destination = request.nextUrl.clone()
-        destination.pathname = plan.pathname
-        return NextResponse.rewrite(destination, { request: { headers: requestHeaders } })
-      })()
-    : NextResponse.next({ request: { headers: requestHeaders } })
+  const response =
+    plan.type === 'rewrite'
+      ? (() => {
+          const destination = request.nextUrl.clone()
+          destination.pathname = plan.pathname
+          return NextResponse.rewrite(destination, { request: { headers: requestHeaders } })
+        })()
+      : NextResponse.next({ request: { headers: requestHeaders } })
 
   if (plan.persistLocale) {
     response.cookies.set(localePreferenceCookie, plan.locale, {
