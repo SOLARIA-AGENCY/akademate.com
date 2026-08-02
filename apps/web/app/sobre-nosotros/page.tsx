@@ -11,7 +11,7 @@ import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   const { metadata } = getSecondaryPublicContent(locale).company
-  return { ...metadata, alternates: localizedAlternates('/sobre-nosotros') }
+  return { ...metadata, alternates: localizedAlternates('/sobre-nosotros', locale) }
 }
 
 export default async function AboutPage() {

@@ -47,7 +47,7 @@ const documents = {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   const { title, description } = documents[locale]
-  return { title, description, alternates: localizedAlternates('/legal/cookies') }
+  return { title, description, alternates: localizedAlternates('/legal/cookies', locale) }
 }
 
 export default async function CookiesPage() {

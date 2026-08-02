@@ -77,7 +77,7 @@ describe('editorial i18n content contract', () => {
         expect(getLocalizedEditorialPath(post, locale)).toBe(`/${locale}${path}`)
         expect(alternates).toEqual({
           canonical: `/${locale}${path}`,
-          languages: { en: `/en${path}`, es: `/es${path}`, 'x-default': path },
+          languages: { en: `/en${path}`, es: `/es${path}`, 'x-default': `/en${path}` },
         })
         expect(schema).toMatchObject({
           '@type': post.kind === 'news' ? 'NewsArticle' : 'Article',

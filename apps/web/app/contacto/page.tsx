@@ -6,13 +6,25 @@ import { ContactForm } from '@/components/forms/contact-form'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizedAlternates } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Book an Akademate demo or discuss your academy operating model.',
-  alternates: localizedAlternates('/contacto'),
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  return publicPageMetadata({
+    locale,
+    pathname: '/contacto',
+    copy: {
+      en: {
+        title: 'Contact',
+        description: 'Book an Akademate demo or discuss your academy operating model.',
+      },
+      es: {
+        title: 'Contacto',
+        description: 'Reserva una demo de Akademate o cuéntanos cómo opera tu academia.',
+      },
+    },
+  })
 }
 
 export default async function ContactPage() {
@@ -29,7 +41,7 @@ export default async function ContactPage() {
               <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">
                 <Image
                   src="/images/marketing/akademate-implementation-planner-v2.png"
-                  alt="Akademate implementation planner for academy setup, locations, payments, learner experience and domain launch"
+                  alt={dictionary.contact.imageAlt}
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -46,18 +58,18 @@ export default async function ContactPage() {
               <div className="mt-10 space-y-6 border-y py-8">
                 <ContactPoint
                   icon={Route}
-                  title="Start with your goals"
-                  text="Grow enrolment, delivery, retention or multi-site operations."
+                  title={dictionary.contact.goalsTitle}
+                  text={dictionary.contact.goalsText}
                 />
                 <ContactPoint
                   icon={UsersRound}
-                  title="Bring the people who matter"
-                  text="Invite leaders from operations, education, finance, technology or growth."
+                  title={dictionary.contact.peopleTitle}
+                  text={dictionary.contact.peopleText}
                 />
                 <ContactPoint
                   icon={Mail}
-                  title="Prefer email?"
-                  text="Write to info@akademate.com"
+                  title={dictionary.contact.emailTitle}
+                  text={dictionary.contact.emailText}
                   href="mailto:info@akademate.com"
                 />
               </div>

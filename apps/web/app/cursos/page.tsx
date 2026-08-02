@@ -9,7 +9,7 @@ import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   const { metadata } = getSecondaryPublicContent(locale).courses
-  return { ...metadata, alternates: localizedAlternates('/cursos') }
+  return { ...metadata, alternates: localizedAlternates('/cursos', locale) }
 }
 
 export default async function CoursesPage() {

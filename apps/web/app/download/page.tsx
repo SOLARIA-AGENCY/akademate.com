@@ -12,7 +12,7 @@ import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   const { metadata } = getSecondaryPublicContent(locale).download
-  return { ...metadata, alternates: localizedAlternates('/download') }
+  return { ...metadata, alternates: localizedAlternates('/download', locale) }
 }
 
 export default async function DownloadPage() {

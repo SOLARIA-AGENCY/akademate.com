@@ -58,6 +58,13 @@ type Dictionary = {
     formTitle: string
     formDescription: string
     loadingForm: string
+    imageAlt: string
+    goalsTitle: string
+    goalsText: string
+    peopleTitle: string
+    peopleText: string
+    emailTitle: string
+    emailText: string
   }
 }
 
@@ -131,6 +138,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formTitle: 'Book your walkthrough',
       formDescription: 'Share a little context and we’ll make the conversation immediately useful.',
       loadingForm: 'Loading form…',
+      imageAlt:
+        'Akademate implementation planner for academy setup, locations, payments, learner experience and domain launch',
+      goalsTitle: 'Start with your goals',
+      goalsText: 'Grow enrolment, delivery, retention or multi-site operations.',
+      peopleTitle: 'Bring the people who matter',
+      peopleText: 'Invite leaders from operations, education, finance, technology or growth.',
+      emailTitle: 'Prefer email?',
+      emailText: 'Write to info@akademate.com',
     },
   },
   es: {
@@ -205,6 +220,15 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formDescription:
         'Comparte un poco de contexto y haremos que la conversación sea útil desde el inicio.',
       loadingForm: 'Cargando formulario…',
+      imageAlt:
+        'Planificador de implantación de Akademate para configurar la academia, sedes, pagos, experiencia del alumnado y dominio',
+      goalsTitle: 'Empieza por tus objetivos',
+      goalsText: 'Impulsa matrículas, enseñanza, retención u operaciones multisede.',
+      peopleTitle: 'Reúne a las personas clave',
+      peopleText:
+        'Invita a responsables de operaciones, educación, finanzas, tecnología o crecimiento.',
+      emailTitle: '¿Prefieres escribirnos?',
+      emailText: 'Escribe a info@akademate.com',
     },
   },
 }
