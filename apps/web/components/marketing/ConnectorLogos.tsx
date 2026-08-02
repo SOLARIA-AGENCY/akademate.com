@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { usePreviewCopy } from '@/components/i18n/use-preview-copy'
 import { integrationBrands, type IntegrationBrandId } from '@/lib/integration-brands'
 
 export function ConnectorLogos({
@@ -8,17 +9,14 @@ export function ConnectorLogos({
   ids: readonly IntegrationBrandId[]
   compact?: boolean
 }) {
+  const copy = usePreviewCopy()
   if (ids.length === 0)
-    return (
-      <p className="text-sm leading-6 text-slate-500">
-        Built directly into the Akademate operating model.
-      </p>
-    )
+    return <p className="text-sm leading-6 text-slate-500">{copy.connectors.empty}</p>
 
   return (
     <div
       className={`grid w-full gap-2 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'}`}
-      aria-label="Connected services and supported methods"
+      aria-label={copy.connectors.ariaLabel}
     >
       {ids.map((id) => {
         const brand = integrationBrands[id]
@@ -26,7 +24,7 @@ export function ConnectorLogos({
           <div
             key={id}
             className={`group flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-white ${compact ? 'px-3 py-2' : 'min-h-12 px-4 py-3'}`}
-            title={`${brand.label}: ${brand.status}`}
+            title={`${brand.label}: ${copy.connectors.status[brand.status]}`}
           >
             {'preserveColor' in brand && brand.preserveColor ? (
               <span className="relative h-5 w-8 overflow-hidden">
@@ -53,7 +51,9 @@ export function ConnectorLogos({
               {brand.label}
             </span>
             {!compact && (
-              <span className="hidden text-[11px] text-slate-400 xl:inline">{brand.status}</span>
+              <span className="hidden text-[11px] text-slate-400 xl:inline">
+                {copy.connectors.status[brand.status]}
+              </span>
             )}
           </div>
         )

@@ -535,9 +535,12 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/CourseRegistrationPreview.tsx', import.meta.url),
       'utf8'
     )
+    const previewCopy = readFileSync(new URL('./i18n/preview-copy.ts', import.meta.url), 'utf8')
     expect(course).toContain('academy.akademate.com/creative-leadership')
-    expect(course).toContain('8 places available')
-    expect(course).toContain('16 of 24 confirmed')
+    expect(previewCopy).toContain("availabilityTitle: '8 places available'")
+    expect(previewCopy).toContain("availabilityDescription: '16 of 24 confirmed'")
+    expect(previewCopy).toContain("availabilityTitle: '8 plazas disponibles'")
+    expect(previewCopy).toContain("availabilityDescription: '16 de 24 confirmadas'")
     expect(course).toContain('ShareSheet')
     expect(
       existsSync(
