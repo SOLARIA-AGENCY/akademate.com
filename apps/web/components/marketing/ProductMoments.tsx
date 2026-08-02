@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
 import {
   BarChart3,
   BookOpenCheck,
@@ -164,6 +165,7 @@ export function ProductMoments({
   initial?: (typeof moments)[number]['id']
   compact?: boolean
 }) {
+  const t = useMarketingText()
   const [activeId, setActiveId] = useState(initial)
   const active = moments.find((moment) => moment.id === activeId) ?? moments[0]
   const Icon = active.icon
@@ -177,7 +179,7 @@ export function ProductMoments({
       >
         <div
           role="tablist"
-          aria-label="Akademate product examples"
+          aria-label={t('Akademate product examples')}
           className={`flex gap-2 overflow-x-auto ${compact ? '' : 'lg:grid'}`}
         >
           {moments.map((moment) => {
@@ -192,7 +194,7 @@ export function ProductMoments({
                 onClick={() => setActiveId(moment.id)}
                 className={`flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-4 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 ${selected ? 'bg-white text-[#071633]' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
               >
-                <MomentIcon className="h-4 w-4" aria-hidden="true" /> {moment.label}
+                <MomentIcon className="h-4 w-4" aria-hidden="true" /> {t(moment.label)}
               </button>
             )
           })}
@@ -206,13 +208,13 @@ export function ProductMoments({
               <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
             <h3 className="mt-5 text-2xl font-semibold tracking-tight sm:text-3xl">
-              {active.title}
+              {t(active.title)}
             </h3>
-            <p className="mt-3 leading-7 text-slate-600">{active.text}</p>
+            <p className="mt-3 leading-7 text-slate-600">{t(active.text)}</p>
           </div>
           <span className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full bg-emerald-50 px-3 text-sm font-semibold text-emerald-800">
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-            {active.accent}
+            {t(active.accent)}
           </span>
         </div>
 
@@ -221,7 +223,7 @@ export function ProductMoments({
           onSubmit={(event) => event.preventDefault()}
         >
           {active.fields.map((field) => (
-            <DemoField key={field.label} field={field} />
+            <DemoField key={field.label} field={field} t={t} />
           ))}
         </form>
 
@@ -233,7 +235,7 @@ export function ProductMoments({
               ) : (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-blue-700" aria-hidden="true" />
               )}
-              <span>{item}</span>
+              <span>{t(item)}</span>
             </div>
           ))}
         </div>
@@ -242,26 +244,32 @@ export function ProductMoments({
   )
 }
 
-function DemoField({ field }: { field: (typeof moments)[number]['fields'][number] }) {
+function DemoField({
+  field,
+  t,
+}: {
+  field: (typeof moments)[number]['fields'][number]
+  t: (source: string) => string
+}) {
   const id = `demo-${field.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
   return (
     <label htmlFor={id} className="grid gap-2 text-sm font-semibold text-[#071633]">
-      <span>{field.label}</span>
+      <span>{t(field.label)}</span>
       {field.type === 'select' ? (
         <select
           id={id}
-          defaultValue={field.options[0]}
+          defaultValue={t(field.options[0] ?? '')}
           className="min-h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 font-normal text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           {field.options.map((option) => (
-            <option key={option}>{option}</option>
+            <option key={option}>{t(option)}</option>
           ))}
         </select>
       ) : (
         <input
           id={id}
           type={field.type}
-          defaultValue={'value' in field ? field.value : ''}
+          defaultValue={'value' in field ? t(field.value) : ''}
           className="min-h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 font-normal text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
       )}

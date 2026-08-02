@@ -4,8 +4,10 @@ import Image from 'next/image'
 import { Check, Sparkles } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { academySetupStages } from '@akademate/ui/academy-setup'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
 
 export function AcademySetupJourney() {
+  const t = useMarketingText()
   const [activeId, setActiveId] = useState<(typeof academySetupStages)[number]['id']>('blueprint')
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
   const activeIndex = academySetupStages.findIndex((stage) => stage.id === activeId)
@@ -24,13 +26,13 @@ export function AcademySetupJourney() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[.78fr_1.22fr] lg:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-300">Guided academy setup</p>
+            <p className="text-sm font-semibold text-blue-300">{t('Guided academy setup')}</p>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-              Watch your academy take shape.
+              {t('Watch your academy take shape.')}
             </h2>
           </div>
           <p className="max-w-2xl text-lg leading-8 text-blue-100/70">
-            Build your model, campuses and identity step by step.
+            {t('Build your model, campuses and identity step by step.')}
           </p>
         </div>
 
@@ -38,7 +40,7 @@ export function AcademySetupJourney() {
           <div className="order-2 min-w-0 p-6 sm:p-8 lg:order-1 lg:p-9">
             <div
               role="tablist"
-              aria-label="Academy setup stages"
+              aria-label={t('Academy setup stages')}
               className="grid grid-cols-2 gap-1 lg:block lg:space-y-1"
             >
               {academySetupStages.map((stage, index) => {
@@ -83,7 +85,7 @@ export function AcademySetupJourney() {
                       {complete ? <Check className="h-4 w-4" aria-hidden="true" /> : stage.step}
                     </span>
                     <span className="min-w-0 text-xs font-semibold leading-5 sm:text-sm lg:text-base">
-                      {stage.title}
+                      {t(stage.title)}
                     </span>
                   </button>
                 )
@@ -96,7 +98,7 @@ export function AcademySetupJourney() {
               <div key={active.id} className="academy-stage-image absolute inset-0">
                 <Image
                   src={active.image}
-                  alt={active.imageAlt}
+                  alt={t(active.imageAlt)}
                   fill
                   priority={active.id === 'blueprint'}
                   sizes="(max-width: 1024px) 100vw, 65vw"
@@ -106,11 +108,13 @@ export function AcademySetupJourney() {
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#03102a] via-[#03102a]/75 to-transparent px-5 pb-5 pt-20 sm:px-8 sm:pb-7">
                 <div className="flex items-end justify-between gap-5 text-white">
                   <div>
-                    <p className="text-xs font-semibold text-blue-300">Stage {active.step} of 06</p>
-                    <p className="mt-2 text-2xl font-semibold">{active.visualLabel}</p>
+                    <p className="text-xs font-semibold text-blue-300">
+                      {t('Stage')} {active.step} {t('of')} 06
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold">{t(active.visualLabel)}</p>
                   </div>
                   <p className="hidden text-sm font-semibold text-blue-100/80 sm:block">
-                    One academy. Six build states.
+                    {t('One academy. Six build states.')}
                   </p>
                 </div>
                 <div className="mt-4 grid grid-cols-6 gap-1.5" aria-hidden="true">
@@ -134,10 +138,10 @@ export function AcademySetupJourney() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-sm font-semibold text-blue-300">
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  <span aria-live="polite">{active.title}</span>
+                  <span aria-live="polite">{t(active.title)}</span>
                 </div>
                 <p className="mt-3 max-w-2xl break-words leading-7 text-blue-100/70">
-                  {active.description}
+                  {t(active.description)}
                 </p>
               </div>
               <div className="flex min-w-0 flex-wrap gap-2 lg:max-w-[260px] lg:justify-end">
@@ -146,7 +150,7 @@ export function AcademySetupJourney() {
                     key={capability}
                     className="max-w-full whitespace-normal rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-blue-100/80"
                   >
-                    {capability}
+                    {t(capability)}
                   </span>
                 ))}
               </div>

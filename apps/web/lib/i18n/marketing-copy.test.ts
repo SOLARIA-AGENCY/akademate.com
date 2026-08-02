@@ -56,6 +56,33 @@ describe('marketing copy registry', () => {
     }
   })
 
+  it('keeps the interactive feature, setup and agentic surfaces fail-closed in Spanish', () => {
+    const sources = [
+      'Academy setup stages',
+      'Academy blueprint',
+      'Isometric line blueprint of a compact two-storey academy',
+      'Akademate product examples',
+      'Reservations',
+      'Reserve with a €90 deposit',
+      'Akademate feature modules',
+      'Website, catalogue and embeds',
+      'Automatic Akademate subdomain',
+      'Card and wallet marks describe payment methods delivered through the configured payment provider.',
+      'Agentic and growth examples',
+      'Planned connector',
+      'Approval required',
+      'Academy operator viewing a social course promotion and campaign dashboard',
+      'Rules can prepare a follow-up or alert. Budget and campaign changes require approval.',
+    ] as const
+
+    for (const source of sources) {
+      expect(marketingText('es', source), source).not.toBe(source)
+    }
+
+    expect(marketingText('en', 'Planned connector')).toBe('Planned connector')
+    expect(marketingText('en', 'Approval required')).toBe('Approval required')
+  })
+
   it('keeps all contact form fields, subject options and submission states bilingual', () => {
     const english = getDictionary('en').contact
     const spanish = getDictionary('es').contact

@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
 import {
   agenticControls,
   agenticProviders,
@@ -33,6 +34,7 @@ const tabs: Array<{ id: ShowcaseTab; label: string; icon: typeof Sparkles; panel
 ]
 
 export function AgenticGrowthShowcase() {
+  const t = useMarketingText()
   const [activeTab, setActiveTab] = useState<ShowcaseTab>('mcp')
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
 
@@ -68,23 +70,23 @@ export function AgenticGrowthShowcase() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-700">Assisted operations and growth</p>
+            <p className="text-sm font-semibold text-blue-700">{t('Assisted operations and growth')}</p>
             <h2
               id="agentic-growth-title"
               className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl"
             >
-              Assisted operations. Measurable growth.
+              {t('Assisted operations. Measurable growth.')}
             </h2>
           </div>
           <p className="max-w-2xl text-lg leading-8 text-slate-600">
-            Connect governed AI workflows and paid growth signals to the academy record.
+            {t('Connect governed AI workflows and paid growth signals to the academy record.')}
           </p>
         </div>
 
         <div className="mt-10 overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_24px_70px_rgba(7,22,51,.08)]">
           <div
             role="tablist"
-            aria-label="Agentic and growth examples"
+            aria-label={t('Agentic and growth examples')}
             className="grid border-b border-slate-200 sm:grid-cols-2"
           >
             {tabs.map(({ id, label, icon: Icon, panelId }, index) => {
@@ -123,21 +125,21 @@ export function AgenticGrowthShowcase() {
                   className={`flex min-h-14 items-center justify-center gap-2 border-b-2 px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:justify-start sm:px-6 ${selected ? 'border-blue-600 bg-blue-50 text-[#071633]' : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-[#071633]'}`}
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
-                  {label}
+                  {t(label)}
                 </button>
               )
             })}
           </div>
 
-          <McpPanel hidden={activeTab !== 'mcp'} />
-          <GrowthPanel hidden={activeTab !== 'growth'} />
+          <McpPanel hidden={activeTab !== 'mcp'} t={t} />
+          <GrowthPanel hidden={activeTab !== 'growth'} t={t} />
         </div>
       </div>
     </section>
   )
 }
 
-function McpPanel({ hidden }: { hidden: boolean }) {
+function McpPanel({ hidden, t }: { hidden: boolean; t: (source: string) => string }) {
   return (
     <div
       id="mcp-agentic-operations"
@@ -154,18 +156,18 @@ function McpPanel({ hidden }: { hidden: boolean }) {
                 <Sparkles className="h-4 w-4 text-blue-200" aria-hidden="true" />
               </span>
               <div>
-                <p className="text-sm font-semibold">Ask Akademate</p>
-                <p className="text-xs text-blue-100/60">MCP workspace preview</p>
+                <p className="text-sm font-semibold">{t('Ask Akademate')}</p>
+                <p className="text-xs text-blue-100/60">{t('MCP workspace preview')}</p>
               </div>
             </div>
             <span className="rounded-full border border-amber-300/30 bg-amber-300/10 px-2.5 py-1 text-[11px] font-semibold text-amber-200">
-              Illustrative roadmap
+              {t('Illustrative roadmap')}
             </span>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold">
-            <span className="rounded-full bg-white/10 px-3 py-1.5">Northstar Academy</span>
-            <span className="rounded-full bg-white/10 px-3 py-1.5">Admissions lead</span>
+            <span className="rounded-full bg-white/10 px-3 py-1.5">{t('Northstar Academy')}</span>
+            <span className="rounded-full bg-white/10 px-3 py-1.5">{t('Admissions lead')}</span>
             <span className="rounded-full bg-blue-500/20 px-3 py-1.5 text-blue-100">
               leads:read · campaigns:draft
             </span>
@@ -173,15 +175,15 @@ function McpPanel({ hidden }: { hidden: boolean }) {
 
           <div className="mt-7 space-y-4">
             <div className="ml-auto max-w-[86%] rounded-2xl rounded-br-sm bg-blue-600 px-4 py-3 text-sm text-white">
-              Summarise unanswered enrolment questions from this week.
+              {t('Summarise unanswered enrolment questions from this week.')}
             </div>
             <div className="max-w-[92%] rounded-2xl rounded-bl-sm bg-white/10 px-4 py-3 text-sm text-blue-50">
               <div className="flex items-center justify-between gap-3">
-                <span className="font-semibold">Draft ready · 12 conversations</span>
+                <span className="font-semibold">{t('Draft ready · 12 conversations')}</span>
                 <CircleCheck className="h-4 w-4 text-emerald-300" aria-hidden="true" />
               </div>
               <p className="mt-2 text-xs leading-5 text-blue-100/65">
-                Read-only summary. No message was sent.
+                {t('Read-only summary. No message was sent.')}
               </p>
             </div>
           </div>
@@ -190,27 +192,27 @@ function McpPanel({ hidden }: { hidden: boolean }) {
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-slate-600">
           <span className="inline-flex items-center gap-1.5">
             <LockKeyhole className="h-3.5 w-3.5 text-blue-700" aria-hidden="true" />
-            Target: tenant-scoped tools
+            {t('Target: tenant-scoped tools')}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3.5 w-3.5 text-blue-700" aria-hidden="true" />
-            Target: human confirmation
+            {t('Target: human confirmation')}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5 text-blue-700" aria-hidden="true" />
-            Target: auditable trail
+            {t('Target: auditable trail')}
           </span>
         </div>
       </div>
 
       <div className="flex flex-col">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Planned client options</p>
+          <p className="text-sm font-semibold text-blue-700">{t('Planned client options')}</p>
           <h3 className="mt-3 text-3xl font-semibold tracking-tight">
-            Your permissions stay in the room.
+            {t('Your permissions stay in the room.')}
           </h3>
           <p className="mt-4 leading-7 text-slate-600">
-            Explore how approved AI clients could prepare work inside each role’s scope.
+            {t('Explore how approved AI clients could prepare work inside each role’s scope.')}
           </p>
         </div>
 
@@ -241,7 +243,7 @@ function McpPanel({ hidden }: { hidden: boolean }) {
                   {provider.provider}
                 </span>
                 <span className="mt-0.5 block truncate text-[10px] font-semibold text-blue-700">
-                  {provider.status}
+                  {t(provider.status)}
                 </span>
               </span>
             </div>
@@ -256,29 +258,29 @@ function McpPanel({ hidden }: { hidden: boolean }) {
             >
               <div className="flex min-w-0 items-start gap-3">
                 <span className="mt-0.5 rounded-md bg-blue-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-blue-700">
-                  {control.title}
+                  {t(control.title)}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[#071633]">{control.label}</p>
-                  <p className="truncate text-xs text-slate-500">{control.detail}</p>
+                  <p className="truncate text-sm font-semibold text-[#071633]">{t(control.label)}</p>
+                  <p className="truncate text-xs text-slate-500">{t(control.detail)}</p>
                 </div>
               </div>
               <span className="shrink-0 text-right text-[11px] font-semibold text-slate-500">
-                {control.action}
+                {t(control.action)}
               </span>
             </div>
           ))}
         </div>
 
         <div className="mt-auto pt-6">
-          <p className="text-xs leading-5 text-slate-500">Planned integration.</p>
+          <p className="text-xs leading-5 text-slate-500">{t('Planned integration.')}</p>
         </div>
       </div>
     </div>
   )
 }
 
-function GrowthPanel({ hidden }: { hidden: boolean }) {
+function GrowthPanel({ hidden, t }: { hidden: boolean; t: (source: string) => string }) {
   return (
     <div
       id="growth-ads-intelligence"
@@ -291,42 +293,42 @@ function GrowthPanel({ hidden }: { hidden: boolean }) {
         <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
           <Image
             src="/images/marketing/akademate-growth-ads-mobile-v1.jpg"
-            alt="Academy operator viewing a social course promotion and campaign dashboard"
+            alt={t('Academy operator viewing a social course promotion and campaign dashboard')}
             width={1200}
             height={1499}
             sizes="(max-width: 1024px) 100vw, 36vw"
             className="h-auto w-full object-cover"
           />
           <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#071633] shadow-lg backdrop-blur">
-            Social promotion preview
+            {t('Social promotion preview')}
           </div>
         </div>
         <p className="mt-4 text-xs leading-5 text-slate-500">
-          Illustrative creative; provider formats and availability vary by account.
+          {t('Illustrative creative; provider formats and availability vary by account.')}
         </p>
       </div>
 
       <div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-blue-700">Paid growth intelligence</p>
+            <p className="text-sm font-semibold text-blue-700">{t('Paid growth intelligence')}</p>
             <h3 className="mt-3 text-3xl font-semibold tracking-tight">
-              See the path from campaign to enrolment.
+              {t('See the path from campaign to enrolment.')}
             </h3>
           </div>
           <span className="rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-semibold text-amber-800">
-            Illustrative example
+            {t('Illustrative example')}
           </span>
         </div>
         <p className="mt-4 leading-7 text-slate-600">
-          Bring paid media and CRM signals together with visible freshness and attribution rules.
+          {t('Bring paid media and CRM signals together with visible freshness and attribution rules.')}
         </p>
 
         <div className="mt-6 rounded-2xl bg-[#071633] p-5 text-white sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/15 pb-4">
             <div>
-              <p className="text-sm font-semibold">Autumn intake</p>
-              <p className="mt-1 text-xs text-blue-100/60">Last sync · 2h ago · EUR</p>
+              <p className="text-sm font-semibold">{t('Autumn intake')}</p>
+              <p className="mt-1 text-xs text-blue-100/60">{t('Last sync · 2h ago · EUR')}</p>
             </div>
             <div className="flex gap-2 text-[11px] font-semibold">
               <span className="rounded-full bg-white/10 px-2.5 py-1">Meta Ads</span>
@@ -336,23 +338,22 @@ function GrowthPanel({ hidden }: { hidden: boolean }) {
           <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-5 sm:grid-cols-4">
             {campaignMetrics.map((metric) => (
               <div key={metric.label}>
-                <p className="text-[11px] leading-4 text-blue-100/55">{metric.label}</p>
+                <p className="text-[11px] leading-4 text-blue-100/55">{t(metric.label)}</p>
                 <p className="mt-1 text-xl font-semibold tracking-tight">{metric.value}</p>
               </div>
             ))}
           </div>
           <p className="mt-5 border-t border-white/10 pt-4 text-[11px] leading-5 text-blue-100/55">
-            Reach is shown as N/D when the provider does not return it. Attribution follows your
-            configured model.
+            {t('Reach is shown as N/D when the provider does not return it. Attribution follows your configured model.')}
           </p>
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-[#071633]">Illustrative funnel</p>
+            <p className="text-sm font-semibold text-[#071633]">{t('Illustrative funnel')}</p>
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
               <MousePointerClick className="h-3.5 w-3.5 text-blue-700" aria-hidden="true" />
-              Source and freshness shown
+              {t('Source and freshness shown')}
             </span>
           </div>
           <div className="mt-4 grid grid-cols-5 gap-1.5">
@@ -371,7 +372,7 @@ function GrowthPanel({ hidden }: { hidden: boolean }) {
                   )}
                 </div>
                 <p className="mt-2 truncate text-[10px] font-semibold text-slate-500">
-                  {step.label}
+                  {t(step.label)}
                 </p>
                 <p className="mt-0.5 truncate text-xs font-bold text-[#071633]">{step.value}</p>
               </div>
@@ -382,7 +383,7 @@ function GrowthPanel({ hidden }: { hidden: boolean }) {
         <div className="mt-6 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
           <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" aria-hidden="true" />
           <p className="text-xs leading-5 text-blue-950">
-            Rules can prepare a follow-up or alert. Budget and campaign changes require approval.
+            {t('Rules can prepare a follow-up or alert. Budget and campaign changes require approval.')}
           </p>
         </div>
       </div>
