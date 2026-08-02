@@ -1,7 +1,10 @@
-import { clientAcademies } from '@/lib/marketing-content'
+import { academyModelCoverage } from '@/lib/marketing-content'
 
-const midpoint = Math.ceil(clientAcademies.length / 2)
-const rows = [clientAcademies.slice(0, midpoint), clientAcademies.slice(midpoint)] as const
+const midpoint = Math.ceil(academyModelCoverage.length / 2)
+const rows = [
+  academyModelCoverage.slice(0, midpoint),
+  academyModelCoverage.slice(midpoint),
+] as const
 
 export function ClientMarquee() {
   return (
@@ -11,9 +14,9 @@ export function ClientMarquee() {
     >
       <div className="mx-auto mb-7 max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         <p id="client-marquee-title" className="text-sm font-semibold text-slate-500">
-          Academies using Akademate
+          Built around every academy model
         </p>
-        <p className="sr-only">{clientAcademies.join(', ')}</p>
+        <p className="sr-only">{academyModelCoverage.join(', ')}</p>
       </div>
       <div className="space-y-4" aria-hidden="true">
         {rows.map((row, rowIndex) => (

@@ -16,7 +16,7 @@ import {
   academyExperiences,
   academySetupStages,
   academyTypes,
-  clientAcademies,
+  academyModelCoverage,
   distributionModes,
   featureGroups,
   governanceFrameworks,
@@ -49,15 +49,14 @@ describe('public marketing architecture', () => {
     expect(home).not.toContain("pillar.capabilities.join(' · ')")
   })
 
-  it('publishes the owner-provided academy list once semantically and animates two visual rows', () => {
-    expect(clientAcademies).toHaveLength(47)
-    expect(new Set(clientAcademies).size).toBe(clientAcademies.length)
-    expect(clientAcademies).toEqual(expect.arrayContaining(['CEP Formación', 'Waira Sisa Studio']))
+  it('presents academy-model coverage without fabricating customer adoption', () => {
+    expect(academyModelCoverage.length).toBeGreaterThanOrEqual(12)
+    expect(new Set(academyModelCoverage).size).toBe(academyModelCoverage.length)
     const marquee = readFileSync(
       new URL('../components/marketing/ClientMarquee.tsx', import.meta.url),
       'utf8'
     )
-    expect(marquee).toContain('Academies using Akademate')
+    expect(marquee).toContain('Built around every academy model')
     expect(marquee).toContain('client-marquee-track-reverse')
     expect(marquee).toContain('aria-hidden="true"')
     expect(marquee).toContain('text-center')
@@ -99,7 +98,7 @@ describe('public marketing architecture', () => {
     const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
     const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
-    expect(home).toMatch(/Operating system for academies\./)
+    expect(home).toMatch(/Run your academy\. Grow every experience\./)
   })
 
   it('models the complete product journey from website distribution to extensible operations', () => {

@@ -62,12 +62,12 @@ export default function FeaturesPage() {
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
             <div className="max-w-2xl">
-              <p className="text-sm font-semibold text-blue-200">The complete academy platform</p>
+              <p className="text-sm font-semibold text-blue-200">The academy operating platform</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-                Operate. Teach. Grow.
+                Every academy workflow, connected.
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
-                Connect growth, operations, learning and performance.
+                Give directors, staff, teachers and learners the tools they need in one platform.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link href="/contacto?asunto=demo" className="button-primary-light">

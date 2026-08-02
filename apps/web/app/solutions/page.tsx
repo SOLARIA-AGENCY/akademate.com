@@ -18,15 +18,28 @@ export default function SolutionsPage() {
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
       <main id="content">
-        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="mx-auto max-w-7xl">
-            <p className="section-kicker">Built around your academy</p>
-            <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-              Built around your academy model.
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
-              Start with familiar workflows. Connect everything around them.
-            </p>
+        <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
+            <div>
+              <p className="text-sm font-semibold text-blue-200">Built around your academy</p>
+              <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
+                Your model. Your workflows. One platform.
+              </h1>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100/75">
+                Shape Akademate around the programmes, people and places that make your academy
+                distinctive.
+              </p>
+            </div>
+            <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">
+              <Image
+                src="/images/marketing/akademate-multisite-network.jpg"
+                alt="Academy teams coordinating courses across in-person, online and multi-site learning models"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover"
+              />
+            </div>
           </div>
         </section>
         <section className="px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">

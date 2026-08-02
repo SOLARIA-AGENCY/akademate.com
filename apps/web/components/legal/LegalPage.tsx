@@ -24,27 +24,33 @@ export function LegalPage({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main id="content" className="flex-1 bg-background px-4 py-12 sm:px-6 sm:py-16">
-        <article className="mx-auto max-w-3xl">
-          <Link href="/" className="text-sm font-medium text-primary hover:underline">
-            ← Back to Akademate
-          </Link>
-          <header className="mt-8 border-b pb-8">
-            <p className="text-sm font-medium text-primary">Trust centre</p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-            <p className="mt-4 leading-7 text-muted-foreground">{description}</p>
+      <main id="content" className="flex-1 bg-background">
+        <header className="product-texture bg-[#06142f] px-4 py-14 text-white sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-4xl">
+            <Link href="/" className="text-sm font-medium text-blue-200 hover:text-white">
+              ← Back to Akademate
+            </Link>
+            <p className="mt-8 text-sm font-semibold text-blue-200">Akademate trust centre</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">{title}</h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-blue-100/75">{description}</p>
+          </div>
+        </header>
+        <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+          <div className="border-b pb-8">
             <p className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
               {legalDraftNotice}
             </p>
             <p className="mt-4 text-sm text-muted-foreground">Last updated: {legalLastUpdated}</p>
-          </header>
+          </div>
 
           <div className="space-y-10 py-10">
             {sections.map((section, index) => {
               const id = `seccion-${index + 1}`
               return (
                 <section key={section.title} aria-labelledby={id}>
-                  <h2 id={id} className="text-xl font-semibold tracking-tight">{section.title}</h2>
+                  <h2 id={id} className="text-xl font-semibold tracking-tight">
+                    {section.title}
+                  </h2>
                   <div className="mt-3 space-y-4 text-sm leading-7 text-muted-foreground">
                     {section.content}
                   </div>

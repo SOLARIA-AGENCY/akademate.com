@@ -55,6 +55,9 @@ export function GovernanceFrameworks() {
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
                 <p className="mt-5 text-sm font-bold text-blue-700">{framework.short}</p>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                  Governance reference
+                </p>
                 <h3 className="mt-3 font-semibold text-[#071633]">{framework.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{framework.text}</p>
               </article>

@@ -43,13 +43,13 @@ export default function HomePage() {
           <div className="mx-auto grid min-h-[min(760px,calc(100dvh-73px))] max-w-[1440px] items-center gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[.78fr_1.22fr] lg:px-8 lg:py-10">
             <div className="max-w-[650px]">
               <p className="hero-item text-sm font-semibold text-blue-200">
-                Built for in-person, online and hybrid academies
+                One connected platform for every academy team
               </p>
               <h1 className="hero-item mt-5 text-[2.8rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.15rem]">
-                Operating system for academies.
+                Run your academy. Grow every experience.
               </h1>
               <p className="hero-item mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
-                Publish, enrol, teach, collect and grow from one connected platform.
+                Bring enrolment, teaching, payments and performance into one operating system.
               </p>
               <div className="hero-item mt-8 flex flex-wrap gap-3">
                 <Link href="/contacto?asunto=demo" className="button-primary-light group">

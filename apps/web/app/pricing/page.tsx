@@ -55,17 +55,19 @@ export default function PricingPage() {
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
       <main id="content">
-        <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.9fr 1.1fr] lg:gap-20">
             <div>
-              <p className="section-kicker">Plans shaped around your operation</p>
-              <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-                A plan for every stage.
-              </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
-                Launch one programme, run an academy or scale a network.
+              <p className="text-sm font-semibold text-blue-200">
+                Plans shaped around your operation
               </p>
-              <Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">
+              <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
+                A clear operating scope for every stage.
+              </h1>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100/75">
+                Launch a programme, run a growing academy or coordinate an enterprise network.
+              </p>
+              <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">
                 Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>

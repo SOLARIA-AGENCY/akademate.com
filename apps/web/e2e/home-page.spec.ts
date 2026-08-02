@@ -41,7 +41,7 @@ test.describe('Akademate public commercial surface', () => {
     await expect(mcp.getByText('Claude')).toBeVisible()
     await expect(mcp.getByText('Grok')).toBeVisible()
     await expect(mcp.getByText('Gemini')).toBeVisible()
-    await expect(page.getByText('Academies using Akademate')).toBeVisible()
+    await expect(page.getByText('Built around every academy model')).toBeVisible()
     await expect(page.getByText('CEP Formación').first()).toBeAttached()
     await expect(page.getByText('Waira Sisa Studio').first()).toBeAttached()
     const trustSignals = page.getByRole('region', { name: 'Akademate trust signals' })
@@ -243,7 +243,7 @@ test.describe('Akademate public commercial surface', () => {
   }) => {
     await page.goto('/')
 
-    const clientTitle = page.getByText('Academies using Akademate')
+    const clientTitle = page.getByText('Built around every academy model')
     await expect(clientTitle).toHaveCSS('text-align', 'center')
     const marqueeTracks = page.locator('.client-marquee-track')
     await expect(marqueeTracks).toHaveCount(2)
