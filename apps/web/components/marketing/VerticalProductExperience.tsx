@@ -3,10 +3,12 @@
 import { CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
-import { verticalProductStories } from '@/lib/vertical-product-stories'
+import type { Locale } from '@/lib/i18n/routing'
+import { getLocalizedVerticalProductStory, verticalPageChrome } from '@/lib/vertical-i18n'
 
-export function VerticalProductExperience({ slug }: { slug: string }) {
-  const story = verticalProductStories[slug]
+export function VerticalProductExperience({ slug, locale }: { slug: string; locale: Locale }) {
+  const story = getLocalizedVerticalProductStory(slug, locale)
+  const chrome = verticalPageChrome[locale]
   const [activeId, setActiveId] = useState(story?.moments[0]?.id ?? '')
   if (!story) return null
   const moment = story.moments.find((item) => item.id === activeId) ?? story.moments[0]
@@ -16,12 +18,13 @@ export function VerticalProductExperience({ slug }: { slug: string }) {
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_rgba(7,22,51,.09)]">
       <div
         role="tablist"
-        aria-label={`Akademate for this ${story.noun}`}
+        aria-label={`Akademate ${chrome.designedFor.toLowerCase()} ${story.noun}`}
         className="grid grid-cols-2 border-b border-slate-200 sm:grid-cols-4"
       >
         {story.moments.map((item) => (
           <button
             key={item.id}
+            id={`vertical-tab-${item.id}`}
             type="button"
             role="tab"
             aria-selected={item.id === moment.id}
@@ -37,11 +40,12 @@ export function VerticalProductExperience({ slug }: { slug: string }) {
       <div
         role="tabpanel"
         id={`vertical-panel-${moment.id}`}
+        aria-labelledby={`vertical-tab-${moment.id}`}
         className="grid lg:grid-cols-[.42fr_.58fr]"
         key={moment.id}
       >
         <div className="bg-[#071633] p-7 text-white sm:p-10">
-          <p className="text-sm font-semibold text-blue-300">Designed for this {story.noun}</p>
+          <p className="text-sm font-semibold text-blue-300">{chrome.designedFor} {story.noun}</p>
           <h3 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
             {moment.title}
           </h3>
@@ -70,7 +74,7 @@ export function VerticalProductExperience({ slug }: { slug: string }) {
             ))}
           </div>
           <div className="mt-8 rounded-2xl bg-slate-50 p-5 sm:p-6">
-            <p className="text-sm font-semibold text-slate-500">Live operating context</p>
+            <p className="text-sm font-semibold text-slate-500">{chrome.operatingContext}</p>
             <div className="mt-4 grid gap-3">
               {moment.activity.map((item) => (
                 <p
