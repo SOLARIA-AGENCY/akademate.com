@@ -31,12 +31,8 @@ export default async function AboutPage() {
           <div className="flex items-center px-4 py-20 sm:px-8 lg:px-[max(2rem,calc((100vw-80rem)/2))]">
             <div className="max-w-xl">
               <p className="section-kicker">{content.kicker}</p>
-              <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em]">
-                {content.title}
-              </h1>
-              <p className="mt-7 text-lg leading-8 text-blue-100/75">
-                {content.description}
-              </p>
+              <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em]">{content.title}</h1>
+              <p className="mt-7 text-lg leading-8 text-blue-100/75">{content.description}</p>
               <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
                 {content.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>

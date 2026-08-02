@@ -22,12 +22,8 @@ export default async function CoursesPage() {
       <main id="content" className="flex flex-1 items-center px-4 py-20 sm:px-6">
         <section className="mx-auto max-w-3xl">
           <p className="text-sm font-semibold text-primary">{content.kicker}</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight">
-            {content.title}
-          </h1>
-          <p className="mt-5 text-lg leading-8 text-muted-foreground">
-            {content.description}
-          </p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight">{content.title}</h1>
+          <p className="mt-5 text-lg leading-8 text-muted-foreground">{content.description}</p>
           <div className="mt-8 rounded-2xl border bg-muted/30 p-6 text-sm leading-7 text-muted-foreground">
             {content.detail}
           </div>

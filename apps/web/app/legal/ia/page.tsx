@@ -74,7 +74,10 @@ export default async function AiTransparencyPage() {
       locale={locale}
       title={document.title}
       description={document.description}
-      sections={document.sections.map((section) => ({ ...section, content: <p>{section.content}</p> }))}
+      sections={document.sections.map((section) => ({
+        ...section,
+        content: <p>{section.content}</p>,
+      }))}
     />
   )
 }

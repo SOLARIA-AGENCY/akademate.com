@@ -31,9 +31,7 @@ export default async function DownloadPage() {
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl">
                 {content.title}
               </h1>
-              <p className="mt-6 text-lg leading-8 text-blue-100/75">
-                {content.description}
-              </p>
+              <p className="mt-6 text-lg leading-8 text-blue-100/75">{content.description}</p>
               <div className="mt-8 flex flex-wrap gap-2 text-sm font-semibold text-blue-100/80">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2">
                   <Laptop className="h-4 w-4" aria-hidden="true" /> Mac
