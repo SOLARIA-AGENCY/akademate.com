@@ -18,6 +18,9 @@ import { TrustSignals } from '@/components/marketing/TrustSignals'
 import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistributionPreview'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 import { insightPosts, newsPosts } from '@/lib/blog-posts'
 import { homeIntegrationBrands } from '@/lib/integration-brands'
 import {
@@ -31,10 +34,14 @@ export const metadata: Metadata = {
   title: 'The operating system for academies',
   description:
     'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
-  alternates: { canonical: '/' },
+  alternates: localizedAlternates('/'),
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const locale = await getRequestLocale()
+  const dictionary = getDictionary(locale)
+  const href = (path: string) => localizedHref(path, locale)
+
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
@@ -43,24 +50,24 @@ export default function HomePage() {
           <div className="mx-auto grid min-h-[min(760px,calc(100dvh-73px))] max-w-[1440px] items-center gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[.78fr_1.22fr] lg:px-8 lg:py-10">
             <div className="max-w-[650px]">
               <p className="hero-item text-sm font-semibold text-blue-200">
-                One connected platform for every academy team
+                {dictionary.home.eyebrow}
               </p>
               <h1 className="hero-item mt-5 text-[2.8rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.15rem]">
-                Run your academy. Grow every experience.
+                {dictionary.home.title}
               </h1>
               <p className="hero-item mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
-                Bring enrolment, teaching, payments and performance into one operating system.
+                {dictionary.home.description}
               </p>
               <div className="hero-item mt-8 flex flex-wrap gap-3">
-                <Link href="/contacto?asunto=demo" className="button-primary-light group">
-                  Book a demo{' '}
+                <Link href={href('/contacto?asunto=demo')} className="button-primary-light group">
+                  {dictionary.home.primaryCta}{' '}
                   <ArrowRight
                     className="h-4 w-4 transition-transform group-hover:translate-x-1"
                     aria-hidden="true"
                   />
                 </Link>
-                <Link href="/features" className="button-ghost-light">
-                  Explore the platform
+                <Link href={href('/features')} className="button-ghost-light">
+                  {dictionary.home.secondaryCta}
                 </Link>
               </div>
             </div>

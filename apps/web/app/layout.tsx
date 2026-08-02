@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { Inter } from 'next/font/google'
+import { LocaleProvider } from '@/components/i18n/locale-provider'
+import { localizedAlternates } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 import './globals.css'
 
 const fontSans = Inter({
@@ -38,6 +41,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: localizedAlternates('/'),
 }
 
 export default async function RootLayout({
@@ -46,6 +50,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
+  const locale = await getRequestLocale()
   const themeCookie = cookieStore.get('akademate_theme')?.value
   const themeVars: Record<string, string> = {}
 
@@ -71,12 +76,12 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${fontSans.variable} font-sans antialiased min-h-screen`}
         style={Object.keys(themeVars).length ? themeVars : undefined}
       >
-        {children}
+        <LocaleProvider locale={locale}>{children}</LocaleProvider>
       </body>
     </html>
   )

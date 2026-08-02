@@ -4,16 +4,22 @@ import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedAlternates } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 import { solutionDetails, verticals } from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
   title: 'Who Akademate is for',
   description:
     'Explore how Akademate adapts to professional training, languages, wellness, sport, camps, performing arts, online education and multi-site groups.',
-  alternates: { canonical: '/solutions' },
+  alternates: localizedAlternates('/solutions'),
 }
 
-export default function SolutionsPage() {
+export default async function SolutionsPage() {
+  const locale = await getRequestLocale()
+  const dictionary = getDictionary(locale)
+
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
@@ -21,13 +27,12 @@ export default function SolutionsPage() {
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
             <div>
-              <p className="text-sm font-semibold text-blue-200">Built around your academy</p>
+              <p className="text-sm font-semibold text-blue-200">{dictionary.solutions.eyebrow}</p>
               <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-                Your model. Your workflows. One platform.
+                {dictionary.solutions.title}
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100/75">
-                Shape Akademate around the programmes, people and places that make your academy
-                distinctive.
+                {dictionary.solutions.description}
               </p>
             </div>
             <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">

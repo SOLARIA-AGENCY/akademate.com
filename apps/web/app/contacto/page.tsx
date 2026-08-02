@@ -5,14 +5,20 @@ import { Mail, Route, UsersRound } from 'lucide-react'
 import { ContactForm } from '@/components/forms/contact-form'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedAlternates } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Book an Akademate demo or discuss your academy operating model.',
-  alternates: { canonical: '/contacto' },
+  alternates: localizedAlternates('/contacto'),
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const locale = await getRequestLocale()
+  const dictionary = getDictionary(locale)
+
   return (
     <div className="marketing-page min-h-screen bg-white text-[#071633]">
       <Header />
@@ -30,12 +36,12 @@ export default function ContactPage() {
                   className="object-cover"
                 />
               </div>
-              <p className="section-kicker mt-10">Let&apos;s build your next chapter</p>
+              <p className="section-kicker mt-10">{dictionary.contact.eyebrow}</p>
               <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em] sm:text-6xl">
-                See your academy differently.
+                {dictionary.contact.title}
               </h1>
               <p className="mt-6 text-lg leading-8 text-slate-600">
-                Tell us your goals. We&apos;ll shape the walkthrough around them.
+                {dictionary.contact.description}
               </p>
               <div className="mt-10 space-y-6 border-y py-8">
                 <ContactPoint
@@ -57,11 +63,11 @@ export default function ContactPage() {
               </div>
             </div>
             <section className="self-start rounded-2xl bg-slate-50 p-6 sm:p-10 lg:sticky lg:top-28">
-              <h2 className="text-3xl font-semibold tracking-tight">Book your walkthrough</h2>
+              <h2 className="text-3xl font-semibold tracking-tight">{dictionary.contact.formTitle}</h2>
               <p className="mt-3 text-sm leading-6 text-slate-600">
-                Share a little context and we&apos;ll make the conversation immediately useful.
+                {dictionary.contact.formDescription}
               </p>
-              <Suspense fallback={<p className="mt-8 text-sm text-slate-500">Loading form…</p>}>
+              <Suspense fallback={<p className="mt-8 text-sm text-slate-500">{dictionary.contact.loadingForm}</p>}>
                 <ContactForm />
               </Suspense>
             </section>

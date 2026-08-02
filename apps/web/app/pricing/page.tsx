@@ -21,6 +21,9 @@ import {
 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 import { plans } from '@/lib/marketing-content'
 import {
   entitlementLabels,
@@ -35,7 +38,7 @@ export const metadata: Metadata = {
   title: 'Pricing',
   description:
     'Launch, Business and Enterprise operating models for seasonal programmes, growing academies and multi-site organisations.',
-  alternates: { canonical: '/pricing' },
+  alternates: localizedAlternates('/pricing'),
 }
 
 const planIcons = [Rocket, Cloud, Server] as const
@@ -50,7 +53,11 @@ const extensionIcons = [
   Cable,
 ] as const
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const locale = await getRequestLocale()
+  const dictionary = getDictionary(locale)
+  const href = (path: string) => localizedHref(path, locale)
+
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
@@ -58,17 +65,15 @@ export default function PricingPage() {
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.9fr 1.1fr] lg:gap-20">
             <div>
-              <p className="text-sm font-semibold text-blue-200">
-                Plans shaped around your operation
-              </p>
+              <p className="text-sm font-semibold text-blue-200">{dictionary.pricing.eyebrow}</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-                A clear operating scope for every stage.
+                {dictionary.pricing.title}
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100/75">
-                Launch a programme, run a growing academy or coordinate an enterprise network.
+                {dictionary.pricing.description}
               </p>
-              <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">
-                Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
+                {dictionary.pricing.primaryCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
             <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">

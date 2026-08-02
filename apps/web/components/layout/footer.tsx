@@ -1,39 +1,51 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 import { legalLinks } from '@/lib/legal-config'
-import { publicCompanyLinks, publicSocialLinks } from '@/lib/public-navigation'
+import { publicSocialLinks } from '@/lib/public-navigation'
 
-const productLinks = [
-  { name: 'Features', href: '/features' },
-  { name: 'Reservations', href: '/#reservations' },
-  { name: "Who it's for", href: '/solutions' },
-  { name: 'Pricing', href: '/pricing' },
-  { name: 'Download apps', href: '/download' },
-] as const
+export async function Footer() {
+  const locale = await getRequestLocale()
+  const dictionary = getDictionary(locale)
+  const href = (path: string) => localizedHref(path, locale)
+  const productLinks = [
+    { name: dictionary.navigation.features, href: '/features' },
+    { name: dictionary.footer.reservations, href: '/#reservations' },
+    { name: dictionary.footer.whoItsFor, href: '/solutions' },
+    { name: dictionary.navigation.pricing, href: '/pricing' },
+    { name: dictionary.footer.downloadApps, href: '/download' },
+  ] as const
+  const companyLinks = [
+    { name: dictionary.navigation.company, href: '/sobre-nosotros' },
+    { name: dictionary.navigation.blog, href: '/blog' },
+    { name: dictionary.navigation.news, href: '/news' },
+    { name: dictionary.navigation.download, href: '/download' },
+    { name: dictionary.navigation.contact, href: '/contacto' },
+  ] as const
 
-export function Footer() {
   return (
     <footer className="bg-[#050f24] text-white">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           <div>
-            <Link href="/" className="flex items-center gap-2.5">
+            <Link href={href('/')} className="flex items-center gap-2.5">
               <Image src="/logos/akademate-icon-48.png" alt="" width={34} height={34} />
               <span className="text-sm font-extrabold tracking-[0.12em]">AKADEMATE</span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">
-              Turn demand into enrolment, programmes into standout experiences and everyday
-              operations into lasting growth.
+              {dictionary.footer.description}
             </p>
-            <div className="mt-6 flex items-center gap-2" aria-label="Akademate social media">
+            <div className="mt-6 flex items-center gap-2" aria-label={dictionary.footer.socialMedia}>
               {publicSocialLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={`${link.name}: find Akademate`}
+                  aria-label={`${link.name}: ${dictionary.footer.socialLabel}`}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.06] text-blue-100/70 transition hover:border-blue-300/40 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
                 >
                   {link.name === 'Instagram' ? (
@@ -47,12 +59,13 @@ export function Footer() {
               ))}
             </div>
           </div>
-          <FooterColumn title="Product" links={productLinks} />
-          <FooterColumn title="Company" links={publicCompanyLinks} />
+          <FooterColumn title={dictionary.footer.product} links={productLinks} href={href} />
+          <FooterColumn title={dictionary.footer.company} links={companyLinks} href={href} />
           <div>
             <FooterColumn
-              title="Legal"
+              title={dictionary.footer.legal}
               links={legalLinks.map(({ title, href }) => ({ name: title, href }))}
+              href={href}
             />
             <a
               className="mt-5 inline-block text-sm text-blue-200 hover:text-white"
@@ -66,18 +79,18 @@ export function Footer() {
         <div className="mt-14 grid gap-8 border-t border-white/10 pt-9 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <p className="max-w-xl text-2xl font-semibold tracking-tight">
-              Run a better academy. Create a better experience for everyone in it.
+              {dictionary.footer.statement}
             </p>
             <p className="mt-3 text-sm text-blue-100/50">
-              Akademate brings growth, operations, learning and finance into one connected rhythm.
+              {dictionary.footer.detail}
             </p>
           </div>
           <ComplianceBadges />
         </div>
         <div>
           <div className="mt-8 flex flex-col gap-2 text-center text-xs leading-5 text-blue-100/45 sm:flex-row sm:justify-between sm:text-left">
-            <p>© {new Date().getFullYear()} Akademate. All rights reserved.</p>
-            <p>Legal information is maintained as part of our product governance programme.</p>
+            <p>© {new Date().getFullYear()} Akademate. {dictionary.footer.rights}</p>
+            <p>{dictionary.footer.governance}</p>
           </div>
         </div>
       </div>
@@ -88,9 +101,11 @@ export function Footer() {
 function FooterColumn({
   title,
   links,
+  href,
 }: {
   title: string
   links: readonly { name: string; href: string }[]
+  href: (path: string) => string
 }) {
   return (
     <div>
@@ -98,7 +113,7 @@ function FooterColumn({
       <ul className="mt-5 space-y-3">
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="text-sm text-blue-100/60 hover:text-white">
+            <Link href={href(link.href)} className="text-sm text-blue-100/60 hover:text-white">
               {link.name}
             </Link>
           </li>

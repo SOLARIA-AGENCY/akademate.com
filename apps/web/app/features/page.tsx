@@ -17,6 +17,9 @@ import {
 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
 import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
 import { AgenticGrowthShowcase } from '@/components/marketing/AgenticGrowthShowcase'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
@@ -32,7 +35,7 @@ export const metadata: Metadata = {
   title: 'Features',
   description:
     'Explore Akademate across public websites, growth, admissions, academic operations, campus, people, finance, accounting, resources and integrations.',
-  alternates: { canonical: '/features' },
+  alternates: localizedAlternates('/features'),
 }
 
 const pillarIcons = [
@@ -54,7 +57,11 @@ const roadmapIcons = [
   Bot,
 ] as const
 
-export default function FeaturesPage() {
+export default async function FeaturesPage() {
+  const locale = await getRequestLocale()
+  const dictionary = getDictionary(locale)
+  const href = (path: string) => localizedHref(path, locale)
+
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
@@ -62,19 +69,19 @@ export default function FeaturesPage() {
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
             <div className="max-w-2xl">
-              <p className="text-sm font-semibold text-blue-200">The academy operating platform</p>
+              <p className="text-sm font-semibold text-blue-200">{dictionary.features.eyebrow}</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
-                Every academy workflow, connected.
+                {dictionary.features.title}
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
-                Give directors, staff, teachers and learners the tools they need in one platform.
+                {dictionary.features.description}
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
-                <Link href="/contacto?asunto=demo" className="button-primary-light">
-                  Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                <Link href={href('/contacto?asunto=demo')} className="button-primary-light">
+                  {dictionary.features.primaryCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <Link href="/pricing" className="button-ghost-light">
-                  Compare plans
+                <Link href={href('/pricing')} className="button-ghost-light">
+                  {dictionary.features.secondaryCta}
                 </Link>
               </div>
             </div>
