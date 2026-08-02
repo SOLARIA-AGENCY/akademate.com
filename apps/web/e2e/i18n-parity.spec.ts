@@ -61,17 +61,21 @@ test.describe('public EN/ES parity', () => {
         const invalidInternalLinks = await page
           .locator('a[href^="/"]')
           .evaluateAll(
-            (links, expectedLocale) =>
+            (links, context) =>
               links
                 .map((link) => link.getAttribute('href'))
                 .filter(
                   (href): href is string =>
                     Boolean(href) &&
-                    !href.startsWith(`/${expectedLocale}`) &&
+                    !href.startsWith(`/${context.locale}`) &&
+                    href !== context.languageSwitchPath &&
                     !href.startsWith('/api/') &&
                     !href.startsWith('/_next/')
                 ),
-            locale
+            {
+              locale,
+              languageSwitchPath: `/${locale === 'en' ? 'es' : 'en'}${path === '/' ? '' : path}`,
+            }
           )
         expect(invalidInternalLinks, localizedPath).toEqual([])
       })

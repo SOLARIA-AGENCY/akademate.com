@@ -1,6 +1,13 @@
 // @vitest-environment node
 
 import { describe, expect, it } from 'vitest'
+import {
+  distributionModes,
+  integrationPillars,
+  operatingJourney,
+  platformPillars,
+  roadmapModules,
+} from '../marketing-content'
 import { getDictionary } from './dictionaries'
 import { marketingText, spanishMarketingCopy } from './marketing-copy'
 
@@ -32,6 +39,20 @@ describe('marketing copy registry', () => {
 
     for (const source of sources) {
       expect(marketingText('es', source)).not.toBe(source)
+    }
+  })
+
+  it('covers every data-driven Home and Features string that is passed to the registry', () => {
+    const sources = [
+      ...operatingJourney.flatMap((item) => [item.title, item.text]),
+      ...distributionModes.flatMap((mode) => [mode.title, mode.text]),
+      ...platformPillars.flatMap((pillar) => [pillar.title, pillar.text, ...pillar.capabilities]),
+      ...roadmapModules.flatMap((module) => [module.title, module.phase, module.text]),
+      ...integrationPillars.flatMap((pillar) => [pillar.title, pillar.text]),
+    ]
+
+    for (const source of sources) {
+      expect(() => marketingText('es', source), source).not.toThrow()
     }
   })
 

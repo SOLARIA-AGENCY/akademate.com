@@ -125,7 +125,9 @@ export default async function FeaturesPage() {
             <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">
               <Image
                 src="/images/marketing/akademate-product-ecosystem-v2.png"
-                alt="Akademate platform across academy operations, public course pages and learner campus"
+                alt={tx(
+                  'Akademate platform across academy operations, public course pages and learner campus'
+                )}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 58vw"
@@ -136,7 +138,7 @@ export default async function FeaturesPage() {
         </section>
 
         <nav
-          aria-label="Platform categories"
+          aria-label={tx('Platform categories')}
           className="sticky top-[72px] z-30 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8"
         >
           <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto py-4">

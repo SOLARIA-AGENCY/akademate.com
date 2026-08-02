@@ -93,10 +93,21 @@ export const spanishMarketingCopy = {
   'Connect your academy ecosystem.': 'Conecta el ecosistema de tu academia.',
   'Provider availability and scope are agreed during onboarding.':
     'La disponibilidad y alcance de proveedores se acuerdan durante la incorporación.',
+  Finance: 'Finanzas',
+  Growth: 'Crecimiento',
+  Communication: 'Comunicación',
+  'Cards, wallets, direct debit and recurring collection.':
+    'Tarjetas, monederos, domiciliación y cobros recurrentes.',
+  'Prepare every transaction for finance workflows.':
+    'Prepara cada transacción para los flujos financieros.',
+  'Connect campaign source to confirmed participation.':
+    'Conecta el origen de la campaña con la participación confirmada.',
+  'Trigger timely messages from operational events.':
+    'Activa mensajes oportunos desde los eventos operativos.',
   'See how Akademate fits your operation.': 'Descubre cómo Akademate encaja en tu operación.',
   'Map your academy into one connected operating model.':
     'Modela tu academia en una operación conectada.',
-  'Website and commerce': 'Web y comercio',
+  'Web and commerce': 'Web y comercio',
   'Publish, enrol and sell from your own web presence.':
     'Publica, matricula y vende desde tu propia presencia web.',
   'Website and CMS': 'Web y CMS',
@@ -264,6 +275,9 @@ export const spanishMarketingCopy = {
   'Academy models': 'Modelos de academia',
   'Explore solution': 'Explorar solución',
   'Show ': 'Mostrar ',
+  'Platform categories': 'Categorías de la plataforma',
+  'Akademate platform across academy operations, public course pages and learner campus':
+    'Plataforma Akademate para operaciones académicas, páginas públicas de cursos y campus del alumno',
   'Previous academy model': 'Modelo de academia anterior',
   'Next academy model': 'Siguiente modelo de academia',
   'framework mark': 'símbolo del marco',

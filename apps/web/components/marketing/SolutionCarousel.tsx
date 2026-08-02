@@ -8,6 +8,7 @@ import { verticals } from '@/lib/marketing-content'
 import { useMarketingText } from '@/components/i18n/use-marketing-text'
 import { useLocale } from '@/components/i18n/locale-provider'
 import { localizedHref } from '@/lib/i18n/routing'
+import { getLocalizedVertical } from '@/lib/vertical-i18n'
 
 const repeatedVerticals = [...verticals, ...verticals, ...verticals]
 
@@ -113,6 +114,8 @@ export function SolutionCarousel() {
       >
         {repeatedVerticals.map((vertical, index) => {
           const canonical = index >= verticals.length && index < verticals.length * 2
+          const localizedVertical = getLocalizedVertical(vertical.slug, locale)
+          if (!localizedVertical) return null
           return (
             <article
               key={`${vertical.slug}-${index}`}
@@ -122,7 +125,7 @@ export function SolutionCarousel() {
               <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-200">
                 <Image
                   src={vertical.image}
-                  alt={canonical ? t(vertical.imageAlt) : ''}
+                  alt={canonical ? localizedVertical.imageAlt : ''}
                   fill
                   loading={canonical ? 'eager' : 'lazy'}
                   sizes="(max-width: 640px) 82vw, 390px"
@@ -130,8 +133,10 @@ export function SolutionCarousel() {
                 />
               </div>
               <div className="px-3 pb-3 pt-5">
-                <h3 className="text-2xl font-semibold tracking-tight">{t(vertical.title)}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{t(vertical.description)}</p>
+                <h3 className="text-2xl font-semibold tracking-tight">{localizedVertical.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {localizedVertical.description}
+                </p>
                 <Link
                   href={localizedHref(`/solutions/${vertical.slug}`, locale)}
                   tabIndex={canonical ? 0 : -1}
@@ -154,7 +159,7 @@ export function SolutionCarousel() {
             <button
               key={vertical.slug}
               type="button"
-              aria-label={`${t('Show')} ${t(vertical.title)}`}
+              aria-label={`${t('Show')} ${getLocalizedVertical(vertical.slug, locale)?.title ?? vertical.title}`}
               aria-current={activeIndex === index ? 'true' : undefined}
               onClick={() => moveTo(index)}
               className={`h-1.5 rounded-full transition-[width,background-color] duration-300 ${activeIndex === index ? 'w-8 bg-blue-600' : 'w-3 bg-slate-300 hover:bg-slate-400'}`}
