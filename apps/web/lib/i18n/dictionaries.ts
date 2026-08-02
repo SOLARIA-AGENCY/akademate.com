@@ -65,6 +65,24 @@ type Dictionary = {
     peopleText: string
     emailTitle: string
     emailText: string
+    name: string
+    email: string
+    phone: string
+    phoneOptional: string
+    subject: string
+    message: string
+    subjectPlaceholder: string
+    subjects: Record<'demo' | 'pricing' | 'support' | 'partnership' | 'privacy' | 'other', string>
+    privacyPrefix: string
+    privacyLink: string
+    privacySuffix: string
+    marketingNotice: string
+    submit: string
+    sending: string
+    privacyRequired: string
+    success: string
+    requestFailed: string
+    website: string
   }
 }
 
@@ -146,6 +164,31 @@ export const dictionaries: Record<Locale, Dictionary> = {
       peopleText: 'Invite leaders from operations, education, finance, technology or growth.',
       emailTitle: 'Prefer email?',
       emailText: 'Write to info@akademate.com',
+      name: 'Full name',
+      email: 'Email',
+      phone: 'Phone',
+      phoneOptional: 'optional',
+      subject: 'What would you like to discuss?',
+      message: 'Tell us about your academy',
+      subjectPlaceholder: 'Select a topic',
+      subjects: {
+        demo: 'Product demo',
+        pricing: 'Plans and commercial scope',
+        support: 'Customer support',
+        partnership: 'Enterprise or partnership',
+        privacy: 'Privacy',
+        other: 'Other',
+      },
+      privacyPrefix: 'I accept the',
+      privacyLink: 'privacy policy',
+      privacySuffix: 'so Akademate can respond to this request.',
+      marketingNotice: 'Marketing consent is not selected.',
+      submit: 'Send request',
+      sending: 'Sending…',
+      privacyRequired: 'Please accept the privacy policy before sending your request.',
+      success: 'Thanks. Your request has been received.',
+      requestFailed: 'We could not send your request.',
+      website: 'Website',
     },
   },
   es: {
@@ -229,6 +272,31 @@ export const dictionaries: Record<Locale, Dictionary> = {
         'Invita a responsables de operaciones, educación, finanzas, tecnología o crecimiento.',
       emailTitle: '¿Prefieres escribirnos?',
       emailText: 'Escribe a info@akademate.com',
+      name: 'Nombre completo',
+      email: 'Correo electrónico',
+      phone: 'Teléfono',
+      phoneOptional: 'opcional',
+      subject: '¿Sobre qué te gustaría hablar?',
+      message: 'Cuéntanos sobre tu academia',
+      subjectPlaceholder: 'Selecciona un tema',
+      subjects: {
+        demo: 'Demo de producto',
+        pricing: 'Planes y alcance comercial',
+        support: 'Atención al cliente',
+        partnership: 'Enterprise o colaboración',
+        privacy: 'Privacidad',
+        other: 'Otro',
+      },
+      privacyPrefix: 'Acepto la',
+      privacyLink: 'política de privacidad',
+      privacySuffix: 'para que Akademate pueda responder a esta solicitud.',
+      marketingNotice: 'No se ha seleccionado consentimiento de marketing.',
+      submit: 'Enviar solicitud',
+      sending: 'Enviando…',
+      privacyRequired: 'Acepta la política de privacidad antes de enviar tu solicitud.',
+      success: 'Gracias. Hemos recibido tu solicitud.',
+      requestFailed: 'No hemos podido enviar tu solicitud.',
+      website: 'Sitio web',
     },
   },
 }

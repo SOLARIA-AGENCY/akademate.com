@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import {
   ArrowRight,
@@ -9,6 +11,9 @@ import {
   Radio,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { localizedHref } from '@/lib/i18n/routing'
 
 const stories = [
   {
@@ -38,6 +43,8 @@ const stories = [
 ] as const
 
 export function PhysicalCampusStory() {
+  const locale = useLocale()
+  const t = useMarketingText()
   return (
     <section
       data-testid="connected-campus-story"
@@ -45,12 +52,12 @@ export function PhysicalCampusStory() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-4xl">
-          <p className="text-sm font-semibold text-blue-200">The connected physical campus</p>
+          <p className="text-sm font-semibold text-blue-200">{t('The connected physical campus')}</p>
           <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-            Connect every academy space.
+            {t('Connect every academy space.')}
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-100/75">
-            Link arrivals, rooms, schedules and on-site communications to the academy day.
+            {t('Link arrivals, rooms, schedules and on-site communications to the academy day.')}
           </p>
         </div>
 
@@ -63,23 +70,23 @@ export function PhysicalCampusStory() {
               <div className="relative aspect-[16/9] overflow-hidden">
                 <Image
                   src={story.image}
-                  alt={story.imageAlt}
+                  alt={t(story.imageAlt)}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
               </div>
               <div className="p-6 sm:p-8">
-                <p className="text-sm font-semibold text-blue-300">{story.eyebrow}</p>
-                <h3 className="mt-3 text-3xl font-semibold tracking-tight">{story.title}</h3>
-                <p className="mt-4 max-w-xl leading-7 text-blue-100/70">{story.text}</p>
+                <p className="text-sm font-semibold text-blue-300">{t(story.eyebrow)}</p>
+                <h3 className="mt-3 text-3xl font-semibold tracking-tight">{t(story.title)}</h3>
+                <p className="mt-4 max-w-xl leading-7 text-blue-100/70">{t(story.text)}</p>
                 <ul className="mt-7 grid gap-3 sm:grid-cols-3">
                   {story.items.map(({ icon: Icon, label }) => (
                     <li
                       key={label}
                       className="flex items-center gap-2 rounded-lg bg-white/[.07] px-3 py-3 text-sm font-semibold"
                     >
-                      <Icon className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /> {label}
+                      <Icon className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /> {t(label)}
                     </li>
                   ))}
                 </ul>
@@ -88,13 +95,13 @@ export function PhysicalCampusStory() {
           ))}
         </div>
         <p className="mt-6 max-w-3xl text-sm leading-6 text-blue-100/60">
-          Display players, access readers and sensors connect through validated provider adapters.
+          {t('Display players, access readers and sensors connect through validated provider adapters.')}
         </p>
         <Link
-          href="/features"
+          href={localizedHref('/features', locale)}
           className="mt-6 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-200 hover:text-white"
         >
-          Explore campus operations <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          {t('Explore campus operations')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
     </section>

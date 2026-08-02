@@ -4,7 +4,7 @@ import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
-import { legalLinks } from '@/lib/legal-config'
+import { getLegalLinks } from '@/lib/legal-config'
 import { publicSocialLinks } from '@/lib/public-navigation'
 
 export async function Footer() {
@@ -67,7 +67,7 @@ export async function Footer() {
           <div>
             <FooterColumn
               title={dictionary.footer.legal}
-              links={legalLinks.map(({ title, href }) => ({ name: title, href }))}
+              links={getLegalLinks(locale).map(({ title, href }) => ({ name: title, href }))}
               href={href}
             />
             <a

@@ -5,10 +5,15 @@ import Link from 'next/link'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { verticals } from '@/lib/marketing-content'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { localizedHref } from '@/lib/i18n/routing'
 
 const repeatedVerticals = [...verticals, ...verticals, ...verticals]
 
 export function SolutionCarousel() {
+  const locale = useLocale()
+  const t = useMarketingText()
   const trackRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<number | null>(null)
   const pausedRef = useRef(false)
@@ -91,7 +96,7 @@ export function SolutionCarousel() {
       className="mt-12"
       role="region"
       aria-roledescription="carousel"
-      aria-label="Academy models"
+      aria-label={t('Academy models')}
       onMouseEnter={() => (pausedRef.current = true)}
       onMouseLeave={() => (pausedRef.current = false)}
       onFocus={() => (pausedRef.current = true)}
@@ -117,7 +122,7 @@ export function SolutionCarousel() {
               <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-200">
                 <Image
                   src={vertical.image}
-                  alt={canonical ? vertical.imageAlt : ''}
+                  alt={canonical ? t(vertical.imageAlt) : ''}
                   fill
                   loading={canonical ? 'eager' : 'lazy'}
                   sizes="(max-width: 640px) 82vw, 390px"
@@ -125,14 +130,14 @@ export function SolutionCarousel() {
                 />
               </div>
               <div className="px-3 pb-3 pt-5">
-                <h3 className="text-2xl font-semibold tracking-tight">{vertical.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{vertical.description}</p>
+                <h3 className="text-2xl font-semibold tracking-tight">{t(vertical.title)}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{t(vertical.description)}</p>
                 <Link
-                  href={`/solutions/${vertical.slug}`}
+                  href={localizedHref(`/solutions/${vertical.slug}`, locale)}
                   tabIndex={canonical ? 0 : -1}
                   className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
                 >
-                  Explore solution <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  {t('Explore solution')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
             </article>
@@ -143,13 +148,13 @@ export function SolutionCarousel() {
       <div className="mt-5 flex items-center justify-between gap-5">
         <div
           className="flex items-center gap-2"
-          aria-label={`Academy model ${activeIndex + 1} of ${verticals.length}`}
+          aria-label={`${t('Academy model')} ${activeIndex + 1} ${t('of')} ${verticals.length}`}
         >
           {verticals.map((vertical, index) => (
             <button
               key={vertical.slug}
               type="button"
-              aria-label={`Show ${vertical.title}`}
+              aria-label={`${t('Show')} ${t(vertical.title)}`}
               aria-current={activeIndex === index ? 'true' : undefined}
               onClick={() => moveTo(index)}
               className={`h-1.5 rounded-full transition-[width,background-color] duration-300 ${activeIndex === index ? 'w-8 bg-blue-600' : 'w-3 bg-slate-300 hover:bg-slate-400'}`}
@@ -161,7 +166,7 @@ export function SolutionCarousel() {
             type="button"
             onClick={() => moveBy(-1)}
             className="carousel-control"
-            aria-label="Previous academy model"
+            aria-label={t('Previous academy model')}
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -169,7 +174,7 @@ export function SolutionCarousel() {
             type="button"
             onClick={() => moveBy(1)}
             className="carousel-control"
-            aria-label="Next academy model"
+            aria-label={t('Next academy model')}
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </button>

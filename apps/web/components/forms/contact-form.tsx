@@ -3,10 +3,15 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { localizedHref } from '@/lib/i18n/routing'
 
 const validSubjects = ['demo', 'pricing', 'support', 'partnership', 'privacy', 'other'] as const
 
 export function ContactForm() {
+  const locale = useLocale()
+  const copy = getDictionary(locale).contact
   const searchParams = useSearchParams()
   const requestedSubject = searchParams.get('asunto')
   const initialSubject = validSubjects.includes(requestedSubject as (typeof validSubjects)[number])
@@ -31,7 +36,7 @@ export function ContactForm() {
     setFeedback('')
     if (!form.privacyAccepted) {
       setStatus('error')
-      setFeedback('Please accept the privacy policy before sending your request.')
+      setFeedback(copy.privacyRequired)
       return
     }
     setStatus('loading')
@@ -53,14 +58,14 @@ export function ContactForm() {
           utm,
         }),
       })
-      const data = await response.json().catch(() => ({})) as { error?: string }
-      if (!response.ok) throw new Error(data.error ?? 'We could not send your request')
+      await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error()
       setStatus('success')
-      setFeedback('Thanks. Your request has been received.')
+      setFeedback(copy.success)
       setForm({ name: '', email: '', phone: '', subject: '', message: '', website: '', privacyAccepted: false })
     } catch (error) {
       setStatus('error')
-      setFeedback(error instanceof Error ? error.message : 'We could not send your request')
+      setFeedback(copy.requestFailed)
     }
   }
 
@@ -74,25 +79,25 @@ export function ContactForm() {
         </p>
       ) : null}
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Full name" id="name" required><input id="name" required maxLength={200} autoComplete="name" className={fieldClass} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></Field>
-        <Field label="Email" id="email" required><input id="email" required type="email" maxLength={254} autoComplete="email" className={fieldClass} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></Field>
+        <Field label={copy.name} id="name" required><input id="name" required maxLength={200} autoComplete="name" className={fieldClass} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></Field>
+        <Field label={copy.email} id="email" required><input id="email" required type="email" maxLength={254} autoComplete="email" className={fieldClass} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></Field>
       </div>
-      <Field label="Phone (optional)" id="phone"><input id="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
-      <Field label="What would you like to discuss?" id="subject" required>
+      <Field label={`${copy.phone} (${copy.phoneOptional})`} id="phone"><input id="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
+      <Field label={copy.subject} id="subject" required>
         <select id="subject" required className={fieldClass} value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })}>
-          <option value="">Select a topic</option><option value="demo">Product demo</option><option value="pricing">Plans and commercial scope</option><option value="support">Customer support</option><option value="partnership">Enterprise or partnership</option><option value="privacy">Privacy</option><option value="other">Other</option>
+          <option value="">{copy.subjectPlaceholder}</option>{validSubjects.map((subject) => <option key={subject} value={subject}>{copy.subjects[subject]}</option>)}
         </select>
       </Field>
-      <Field label="Tell us about your academy" id="message" required><textarea id="message" required minLength={10} maxLength={4000} rows={6} className={fieldClass} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} /></Field>
+      <Field label={copy.message} id="message" required><textarea id="message" required minLength={10} maxLength={4000} rows={6} className={fieldClass} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} /></Field>
       <div className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-        <label htmlFor="website">Website</label><input id="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} />
+        <label htmlFor="website">{copy.website}</label><input id="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} />
       </div>
       <label className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
         <input type="checkbox" required checked={form.privacyAccepted} onChange={(event) => setForm({ ...form, privacyAccepted: event.target.checked })} className="mt-1 h-4 w-4" />
-        <span>I accept the <Link href="/legal/privacidad" className="font-medium text-primary hover:underline">privacy policy</Link> so Akademate can respond to this request. Marketing consent is not selected.</span>
+        <span>{copy.privacyPrefix} <Link href={localizedHref('/legal/privacidad', locale)} className="font-medium text-primary hover:underline">{copy.privacyLink}</Link> {copy.privacySuffix} {copy.marketingNotice}</span>
       </label>
       <button type="submit" disabled={status === 'loading'} className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-        {status === 'loading' ? 'Sending…' : 'Send request'}
+        {status === 'loading' ? copy.sending : copy.submit}
       </button>
     </form>
   )

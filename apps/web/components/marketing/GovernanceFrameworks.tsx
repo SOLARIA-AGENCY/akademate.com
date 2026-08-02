@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import {
   ArrowUpRight,
@@ -8,6 +10,9 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { governanceFrameworks } from '@/lib/marketing-content'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { localizedHref } from '@/lib/i18n/routing'
 
 const frameworkIcons = {
   GDPR: ShieldCheck,
@@ -18,6 +23,8 @@ const frameworkIcons = {
 } as const
 
 export function GovernanceFrameworks() {
+  const locale = useLocale()
+  const t = useMarketingText()
   return (
     <section
       aria-labelledby="governance-title"
@@ -26,16 +33,16 @@ export function GovernanceFrameworks() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="section-kicker">Trust by design</p>
+            <p className="section-kicker">{t('Trust by design')}</p>
             <h2
               id="governance-title"
               className="mt-4 max-w-xl text-4xl font-semibold tracking-[-0.04em] text-[#071633] sm:text-5xl"
             >
-              Grow with confidence.
+              {t('Grow with confidence.')}
             </h2>
           </div>
           <p className="max-w-2xl text-lg leading-8 text-slate-600">
-            Privacy, security and responsible AI belong inside the product.
+            {t('Privacy, security and responsible AI belong inside the product.')}
           </p>
         </div>
 
@@ -49,29 +56,29 @@ export function GovernanceFrameworks() {
               >
                 <div
                   className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200 bg-white text-blue-700 shadow-sm"
-                  aria-label={`${framework.short} framework mark`}
-                  title={`${framework.short} framework reference`}
+                  aria-label={`${framework.short} ${t('framework mark')}`}
+                  title={`${framework.short} ${t('framework reference')}`}
                 >
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
                 <p className="mt-5 text-sm font-bold text-blue-700">{framework.short}</p>
                 <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                  Governance reference
+                  {t('Governance reference')}
                 </p>
-                <h3 className="mt-3 font-semibold text-[#071633]">{framework.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{framework.text}</p>
+                <h3 className="mt-3 font-semibold text-[#071633]">{t(framework.title)}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{t(framework.text)}</p>
               </article>
             )
           })}
         </div>
 
         <div className="mt-8 flex flex-col gap-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>Framework references shaping our privacy, security and responsible AI roadmap.</p>
+          <p>{t('Framework references shaping our privacy, security and responsible AI roadmap.')}</p>
           <Link
-            href="/legal/ia"
+            href={localizedHref('/legal/ia', locale)}
             className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
           >
-            Explore responsible AI at Akademate{' '}
+            {t('Explore responsible AI at Akademate')}{' '}
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>

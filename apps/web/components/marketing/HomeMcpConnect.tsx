@@ -1,7 +1,12 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle2, MessageSquareText, PlugZap } from 'lucide-react'
 import { agenticProviders } from '@/lib/agentic-growth-content'
+import { useMarketingText } from '@/components/i18n/use-marketing-text'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { localizedHref } from '@/lib/i18n/routing'
 
 const steps = [
   { icon: PlugZap, label: 'Connect', text: 'Choose an approved AI client.' },
@@ -10,6 +15,8 @@ const steps = [
 ] as const
 
 export function HomeMcpConnect() {
+  const locale = useLocale()
+  const t = useMarketingText()
   return (
     <section
       data-testid="home-mcp-connect"
@@ -17,25 +24,25 @@ export function HomeMcpConnect() {
     >
       <div className="mx-auto grid max-w-7xl gap-10 rounded-2xl border border-blue-200 bg-white p-6 sm:p-10 lg:grid-cols-[.9fr_1.1fr] lg:p-12">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Optional AI connection</p>
+          <p className="text-sm font-semibold text-blue-700">{t('Optional AI connection')}</p>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-            Connect your AI agent to Akademate.
+            {t('Connect your AI agent to Akademate.')}
           </h2>
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
-            Manage and configure your academy with MCP assistance.
+            {t('Manage and configure your academy with MCP assistance.')}
           </p>
           <Link
-            href="/features#mcp-agentic-operations"
+            href={localizedHref('/features#mcp-agentic-operations', locale)}
             className="mt-7 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
           >
-            Explore the MCP roadmap <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            {t('Explore the MCP roadmap')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
 
         <div>
           <div
             className="grid grid-cols-2 gap-3 sm:grid-cols-4"
-            aria-label="Planned AI client connections"
+            aria-label={t('Planned AI client connections')}
           >
             {agenticProviders.map((provider) => (
               <div
@@ -63,8 +70,8 @@ export function HomeMcpConnect() {
             {steps.map(({ icon: Icon, label, text }) => (
               <li key={label} className="rounded-xl bg-[#071633] p-4 text-white">
                 <Icon className="h-5 w-5 text-blue-300" aria-hidden="true" />
-                <p className="mt-4 font-semibold">{label}</p>
-                <p className="mt-1 text-sm leading-6 text-blue-100/70">{text}</p>
+                <p className="mt-4 font-semibold">{t(label)}</p>
+                <p className="mt-1 text-sm leading-6 text-blue-100/70">{t(text)}</p>
               </li>
             ))}
           </ol>
