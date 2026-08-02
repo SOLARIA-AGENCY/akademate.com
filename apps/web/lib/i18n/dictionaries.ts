@@ -101,30 +101,28 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     home: {
       eyebrow: 'One connected platform for every academy team',
-      title: 'Run your academy. Grow every experience.',
+      title: 'Run your academy. Grow.',
       description: 'Bring enrolment, teaching, payments and performance into one operating system.',
       primaryCta: 'Book a demo',
       secondaryCta: 'Explore the platform',
     },
     features: {
       eyebrow: 'The academy operating platform',
-      title: 'Every academy workflow, connected.',
-      description:
-        'Give directors, staff, teachers and learners the tools they need in one platform.',
+      title: 'Your academy, connected.',
+      description: 'Equip every academy role in one platform.',
       primaryCta: 'Book a demo',
       secondaryCta: 'Compare plans',
     },
     pricing: {
       eyebrow: 'Plans shaped around your operation',
       title: 'A clear operating scope for every stage.',
-      description: 'Launch a programme, run a growing academy or coordinate an enterprise network.',
+      description: 'Choose the scope for your academy today and tomorrow.',
       primaryCta: 'Book a demo',
     },
     solutions: {
       eyebrow: 'Built around your academy',
-      title: 'Your model. Your workflows. One platform.',
-      description:
-        'Shape Akademate around the programmes, people and places that make your academy distinctive.',
+      title: 'Your academy. One platform.',
+      description: 'Connect your programmes, people and places.',
     },
     contact: {
       eyebrow: 'Let’s build your next chapter',
@@ -175,7 +173,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     home: {
       eyebrow: 'Una plataforma conectada para todo el equipo',
-      title: 'Gestiona tu academia. Haz crecer cada experiencia.',
+      title: 'Gestiona tu academia. Crece.',
       description:
         'Conecta matrículas, enseñanza, pagos y rendimiento en un único sistema operativo.',
       primaryCta: 'Reservar una demo',
@@ -183,24 +181,21 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     features: {
       eyebrow: 'La plataforma operativa para academias',
-      title: 'Cada flujo de tu academia, conectado.',
-      description:
-        'Ofrece a dirección, personal, profesores y alumnos las herramientas que necesitan en una sola plataforma.',
+      title: 'Tu academia, conectada.',
+      description: 'Un espacio conectado para cada rol de tu academia.',
       primaryCta: 'Reservar una demo',
       secondaryCta: 'Comparar planes',
     },
     pricing: {
       eyebrow: 'Planes adaptados a tu operación',
       title: 'Un alcance operativo claro para cada etapa.',
-      description:
-        'Lanza un programa, gestiona una academia en crecimiento o coordina una red empresarial.',
+      description: 'Elige el alcance adecuado para tu academia hoy y mañana.',
       primaryCta: 'Reservar una demo',
     },
     solutions: {
       eyebrow: 'Construido para tu academia',
-      title: 'Tu modelo. Tus flujos. Una plataforma.',
-      description:
-        'Configura Akademate en torno a los programas, las personas y los espacios que hacen única tu academia.',
+      title: 'Tu academia. Una plataforma.',
+      description: 'Conecta tus programas, personas y espacios.',
     },
     contact: {
       eyebrow: 'Construyamos tu siguiente etapa',

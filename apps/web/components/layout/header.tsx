@@ -205,7 +205,7 @@ function LanguageSelector({
 
   return (
     <div className={commonClassName} role="group" aria-label={dictionary.header.chooseLanguage}>
-      <Link
+      <a
         href={hrefForLocale('en')}
         lang="en"
         aria-current={locale === 'en' ? 'page' : undefined}
@@ -213,8 +213,8 @@ function LanguageSelector({
         onClick={onNavigate}
       >
         EN<span className="sr-only"> — {dictionary.language.english}</span>
-      </Link>
-      <Link
+      </a>
+      <a
         href={hrefForLocale('es')}
         lang="es"
         aria-current={locale === 'es' ? 'page' : undefined}
@@ -222,7 +222,7 @@ function LanguageSelector({
         onClick={onNavigate}
       >
         ES<span className="sr-only"> — {dictionary.language.spanish}</span>
-      </Link>
+      </a>
     </div>
   )
 }

@@ -3,9 +3,7 @@ import { expect, test } from '@playwright/test'
 test.describe('Akademate public commercial surface', () => {
   test('communicates a growth outcome, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Run your academy. Grow every experience.'
-    )
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Run your academy. Grow.')
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
     await expect(
       page.getByRole('heading', {
@@ -75,7 +73,7 @@ test.describe('Akademate public commercial surface', () => {
     const spanish = await page.goto('/es')
     expect(spanish?.status()).toBe(200)
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Gestiona tu academia. Haz crecer cada experiencia.'
+      'Gestiona tu academia. Crece.'
     )
     await expect(page.locator('html')).toHaveAttribute('lang', 'es')
     await expect(page.getByRole('link', { name: /ES/ }).first()).toHaveAttribute(
@@ -90,9 +88,7 @@ test.describe('Akademate public commercial surface', () => {
 
     await page.getByRole('link', { name: /EN/ }).first().click()
     await expect(page).toHaveURL(/\/en$/)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Run your academy. Grow every experience.'
-    )
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Run your academy. Grow.')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
 
     for (const path of ['/en/features', '/es/pricing', '/en/solutions', '/es/contacto']) {
@@ -489,10 +485,10 @@ test.describe('Akademate public commercial surface', () => {
     const response = await page.goto('/solutions', { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBe(200)
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Built around your academy model.'
+      'Your academy. One platform.'
     )
     await expect(page.locator('main a[href^="/solutions/"]')).toHaveCount(8)
-    const verticalImages = page.locator('main img')
+    const verticalImages = page.locator('main a[href^="/solutions/"] img')
     await expect(verticalImages).toHaveCount(8)
     for (let index = 0; index < (await verticalImages.count()); index += 1) {
       const image = verticalImages.nth(index)

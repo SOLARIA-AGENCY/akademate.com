@@ -100,7 +100,7 @@ describe('public marketing architecture', () => {
     const dictionaries = readFileSync(new URL('./i18n/dictionaries.ts', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
     expect(home).toContain('{dictionary.home.title}')
-    expect(dictionaries).toMatch(/Run your academy\. Grow every experience\./)
+    expect(dictionaries).toMatch(/Run your academy\. Grow\./)
   })
 
   it('models the complete product journey from website distribution to extensible operations', () => {
