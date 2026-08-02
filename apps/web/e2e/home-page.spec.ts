@@ -473,22 +473,22 @@ test.describe('Akademate public commercial surface', () => {
     page,
   }) => {
     const paths = [
-      '/solutions/professional-training',
-      '/solutions/wellness',
-      '/solutions/sports',
-      '/solutions/seasonal',
-      '/solutions/performing-arts',
-      '/solutions/online-cohorts',
-      '/solutions/languages',
-      '/solutions/networks',
+      '/en/solutions/professional-training',
+      '/en/solutions/wellness',
+      '/en/solutions/sports',
+      '/en/solutions/seasonal',
+      '/en/solutions/performing-arts',
+      '/en/solutions/online-cohorts',
+      '/en/solutions/languages',
+      '/en/solutions/networks',
     ]
-    const response = await page.goto('/solutions', { waitUntil: 'domcontentloaded' })
+    const response = await page.goto('/en/solutions', { waitUntil: 'domcontentloaded' })
     expect(response?.status()).toBe(200)
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
       'Your academy. One platform.'
     )
-    await expect(page.locator('main a[href^="/solutions/"]')).toHaveCount(8)
-    const verticalImages = page.locator('main a[href^="/solutions/"] img')
+    await expect(page.locator('main a[href^="/en/solutions/"]')).toHaveCount(8)
+    const verticalImages = page.locator('main a[href^="/en/solutions/"] img')
     await expect(verticalImages).toHaveCount(8)
     for (let index = 0; index < (await verticalImages.count()); index += 1) {
       const image = verticalImages.nth(index)
@@ -512,7 +512,7 @@ test.describe('Akademate public commercial surface', () => {
       const heading = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? ''
       expect(heading.length).toBeGreaterThan(20)
       headings.add(heading)
-      await expect(page.getByRole('tablist', { name: /Akademate for this/ })).toBeVisible()
+      await expect(page.getByRole('tablist', { name: /Akademate designed for this/ })).toBeVisible()
       await page.getByRole('tab').last().click()
       await expect(page.getByRole('tabpanel').locator('select')).toHaveCount(3)
     }
