@@ -62,6 +62,8 @@ export function ConnectedExperiences() {
                       aria-controls={`experience-panel-${experience.id}`}
                       tabIndex={selected ? 0 : -1}
                       onClick={() => setActiveId(experience.id)}
+                      onMouseEnter={() => setActiveId(experience.id)}
+                      onFocus={() => setActiveId(experience.id)}
                       onKeyDown={(event) => {
                         if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
                           event.preventDefault()

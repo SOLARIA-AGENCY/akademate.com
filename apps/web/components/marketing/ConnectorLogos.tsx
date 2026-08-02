@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import { usePreviewCopy } from '@/components/i18n/use-preview-copy'
 import { integrationBrands, type IntegrationBrandId } from '@/lib/integration-brands'

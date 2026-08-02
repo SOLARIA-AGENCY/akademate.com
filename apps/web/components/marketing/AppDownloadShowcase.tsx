@@ -83,6 +83,8 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
                       aria-controls="download-panel"
                       tabIndex={selected ? 0 : -1}
                       onClick={() => selectApp(option.id)}
+                      onMouseEnter={() => selectApp(option.id)}
+                      onFocus={() => selectApp(option.id)}
                       onKeyDown={(event) => {
                         if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
                           event.preventDefault()

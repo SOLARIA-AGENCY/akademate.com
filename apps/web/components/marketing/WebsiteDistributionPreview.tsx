@@ -46,6 +46,8 @@ export function WebsiteDistributionPreview() {
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveIndex(index)}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onFocus={() => setActiveIndex(index)}
                   className={`flex min-h-14 items-center gap-3 rounded-xl px-3 text-left text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 sm:px-4 sm:text-sm ${selected ? 'bg-white text-[#071633]' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
                 >
                   <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />

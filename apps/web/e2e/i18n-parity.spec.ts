@@ -120,4 +120,31 @@ test.describe('public EN/ES parity', () => {
         expect(visibleText, `${path}: ${sentinel}`).not.toContain(sentinel)
     }
   })
+
+  test('desktop previews respond to pointer hover while preserving tab semantics', async ({
+    page,
+  }) => {
+    await page.goto('/en')
+
+    const experienceTabs = page.getByRole('tablist', { name: 'Akademate experiences' })
+    await experienceTabs.getByRole('tab', { name: 'Teachers' }).hover()
+    await expect(experienceTabs.getByRole('tab', { name: 'Teachers' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+
+    const distributionTabs = page.getByRole('tablist', { name: 'Website distribution options' })
+    await distributionTabs.getByRole('tab', { name: 'Your own domain' }).hover()
+    await expect(distributionTabs.getByRole('tab', { name: 'Your own domain' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+
+    const appTabs = page.getByRole('tablist', { name: 'Future Akademate applications' })
+    await appTabs.getByRole('tab', { name: 'iPhone' }).hover()
+    await expect(appTabs.getByRole('tab', { name: 'iPhone' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+  })
 })
