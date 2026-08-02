@@ -4,32 +4,39 @@ import { ArrowRight, CalendarDays, Newspaper } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog-posts'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { getEditorialUi, getLocalizedEditorialPath } from '@/lib/editorial-i18n'
+import type { Locale } from '@/lib/i18n/routing'
 
 export function EditorialIndex({
   kind,
   posts,
+  locale,
 }: {
   kind: 'insight' | 'news'
   posts: readonly BlogPost[]
+  locale: Locale
 }) {
-  return kind === 'news' ? <NewsIndex posts={posts} /> : <InsightIndex posts={posts} />
+  return kind === 'news' ? (
+    <NewsIndex posts={posts} locale={locale} />
+  ) : (
+    <InsightIndex posts={posts} locale={locale} />
+  )
 }
 
-function InsightIndex({ posts }: { posts: readonly BlogPost[] }) {
+function InsightIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: Locale }) {
   const [featured, ...remaining] = posts
+  const content = getEditorialUi(locale).index.insight
   return (
     <div className="marketing-page min-h-screen bg-white text-[#071633]">
       <Header />
       <main id="content">
         <section className="paper-texture px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <p className="section-kicker">Akademate insights</p>
+            <p className="section-kicker">{content.kicker}</p>
             <h1 className="mt-5 max-w-5xl text-5xl font-semibold tracking-[-0.055em] sm:text-7xl">
-              Ideas for better academy operations.
+              {content.title}
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
-              Practical guides for growing, teaching and operating with clarity.
-            </p>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">{content.description}</p>
           </div>
         </section>
 
@@ -37,7 +44,7 @@ function InsightIndex({ posts }: { posts: readonly BlogPost[] }) {
           <section className="px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
             <article className="mx-auto max-w-7xl overflow-hidden rounded-2xl border border-slate-200 bg-[#f7f9fc]">
               <Link
-                href={`/blog/${featured.slug}`}
+                href={getLocalizedEditorialPath(featured, locale)}
                 className="group grid lg:grid-cols-[1.15fr_.85fr] lg:items-stretch"
               >
                 <div className="relative min-h-[360px] overflow-hidden">
@@ -57,7 +64,7 @@ function InsightIndex({ posts }: { posts: readonly BlogPost[] }) {
                   </h2>
                   <p className="mt-5 text-lg leading-8 text-slate-600">{featured.excerpt}</p>
                   <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
-                    Read the guide <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    {content.readMore} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </span>
                 </div>
               </Link>
@@ -73,7 +80,7 @@ function InsightIndex({ posts }: { posts: readonly BlogPost[] }) {
                   key={post.slug}
                   className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
                 >
-                  <Link href={`/blog/${post.slug}`} className="group block p-3">
+                  <Link href={getLocalizedEditorialPath(post, locale)} className="group block p-3">
                     <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
                       <Image
                         src={post.image}
@@ -102,7 +109,8 @@ function InsightIndex({ posts }: { posts: readonly BlogPost[] }) {
   )
 }
 
-function NewsIndex({ posts }: { posts: readonly BlogPost[] }) {
+function NewsIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: Locale }) {
+  const content = getEditorialUi(locale).index.news
   return (
     <div className="marketing-page min-h-screen bg-[#f4f7fb] text-[#071633]">
       <Header />
@@ -110,12 +118,12 @@ function NewsIndex({ posts }: { posts: readonly BlogPost[] }) {
         <section className="product-texture bg-[#06142f] px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <Newspaper className="h-10 w-10 text-blue-300" strokeWidth={1.6} aria-hidden="true" />
-            <p className="mt-8 text-sm font-semibold text-blue-300">Akademate newsroom</p>
+            <p className="mt-8 text-sm font-semibold text-blue-300">{content.kicker}</p>
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-[-0.055em] sm:text-7xl">
-              Product news and company updates.
+              {content.title}
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100/70">
-              New capabilities, operating profiles and platform direction.
+              {content.description}
             </p>
           </div>
         </section>
@@ -128,7 +136,7 @@ function NewsIndex({ posts }: { posts: readonly BlogPost[] }) {
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_20px_60px_rgba(7,22,51,.06)]"
               >
                 <Link
-                  href={`/news/${post.slug}`}
+                  href={getLocalizedEditorialPath(post, locale)}
                   className="group grid lg:grid-cols-[.42fr_.58fr] lg:items-stretch"
                 >
                   <div className="relative min-h-[300px] overflow-hidden">
@@ -152,7 +160,7 @@ function NewsIndex({ posts }: { posts: readonly BlogPost[] }) {
                     </h2>
                     <p className="mt-5 text-lg leading-8 text-slate-600">{post.excerpt}</p>
                     <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
-                      Read the update <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      {content.readMore} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </span>
                   </div>
                 </Link>

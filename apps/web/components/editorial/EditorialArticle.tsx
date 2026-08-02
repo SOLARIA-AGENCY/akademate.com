@@ -4,30 +4,26 @@ import { ArrowLeft, ArrowRight, CalendarDays, Clock3, UserRound } from 'lucide-r
 import type { BlogPost } from '@/lib/blog-posts'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import {
+  getEditorialArticleSchema,
+  getEditorialUi,
+  getLocalizedEditorialPath,
+} from '@/lib/editorial-i18n'
+import { localizedHref, type Locale } from '@/lib/i18n/routing'
 
 export function EditorialArticle({
   post,
   related,
+  locale,
 }: {
   post: BlogPost
   related: readonly BlogPost[]
+  locale: Locale
 }) {
   const isNews = post.kind === 'news'
-  const indexHref = isNews ? '/news' : '/blog'
-  const articleHref = `${indexHref}/${post.slug}`
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': isNews ? 'NewsArticle' : 'Article',
-    headline: post.title,
-    description: post.excerpt,
-    image: `https://akademate.com${post.image}`,
-    datePublished: post.date,
-    dateModified: post.date,
-    author: { '@type': 'Organization', name: post.author },
-    publisher: { '@type': 'Organization', name: 'Akademate', url: 'https://akademate.com' },
-    mainEntityOfPage: `https://akademate.com${articleHref}`,
-    keywords: post.keywords.join(', '),
-  }
+  const indexHref = localizedHref(isNews ? '/news' : '/blog', locale)
+  const content = getEditorialUi(locale).article
+  const schema = getEditorialArticleSchema(post, locale)
 
   return (
     <div className="min-h-screen bg-white text-[#071633]">
@@ -47,12 +43,12 @@ export function EditorialArticle({
                 className={`inline-flex min-h-11 items-center gap-2 text-sm font-semibold ${isNews ? 'text-blue-300' : 'text-blue-700'}`}
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                {isNews ? 'All news' : 'All insights'}
+                {isNews ? content.allNews : content.allInsights}
               </Link>
               <p
                 className={`mt-8 text-sm font-semibold ${isNews ? 'text-blue-300' : 'text-blue-700'}`}
               >
-                {isNews ? 'Product update' : post.category}
+                {isNews ? content.productUpdate : post.category}
               </p>
               <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em] sm:text-7xl">
                 {post.title}
@@ -98,7 +94,7 @@ export function EditorialArticle({
             <aside className="hidden lg:block">
               <div className="sticky top-28 border-l border-blue-200 pl-5">
                 <p className="text-xs font-semibold text-blue-700">
-                  IN THIS {isNews ? 'UPDATE' : 'GUIDE'}
+                  {isNews ? content.inThisUpdate : content.inThisGuide}
                 </p>
                 <ol className="mt-5 space-y-3 text-sm leading-5 text-slate-500">
                   {post.sections.map((section, index) => (
@@ -150,15 +146,15 @@ export function EditorialArticle({
               ))}
 
               <div className="mt-16 rounded-2xl border border-blue-200 bg-[#eff5ff] p-8 sm:p-10">
-                <h2 className="text-3xl font-semibold tracking-tight">
-                  Connect the idea to your academy.
-                </h2>
+                <h2 className="text-3xl font-semibold tracking-tight">{content.ctaTitle}</h2>
                 <p data-copy-flow="long" className="mt-4 leading-7 text-slate-600">
-                  Explore how Akademate can connect your public experience, daily operation and
-                  learning journey.
+                  {content.ctaDescription}
                 </p>
-                <Link href="/contacto?asunto=demo" className="button-primary-dark mt-7">
-                  See Akademate in action <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                <Link
+                  href={localizedHref('/contacto?asunto=demo', locale)}
+                  className="button-primary-dark mt-7"
+                >
+                  {content.ctaLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
             </div>
@@ -168,12 +164,12 @@ export function EditorialArticle({
         {related.length ? (
           <section className="border-t border-slate-200 bg-[#f7f9fc] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
             <div className="mx-auto max-w-6xl">
-              <h2 className="text-3xl font-semibold">Continue reading</h2>
+              <h2 className="text-3xl font-semibold">{content.relatedTitle}</h2>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 {related.slice(0, 2).map((item) => (
                   <Link
                     key={item.slug}
-                    href={`${isNews ? '/news' : '/blog'}/${item.slug}`}
+                    href={getLocalizedEditorialPath(item, locale)}
                     className="rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-blue-300"
                   >
                     <p className="text-sm font-semibold text-blue-700">{item.category}</p>
