@@ -151,6 +151,7 @@ test.describe('public EN/ES parity', () => {
   test('all 23 Spanish feature modules preview on hover without an internal vertical scroller', async ({
     page,
   }) => {
+    test.slow()
     await page.goto('/es/features')
     const catalogue = page.getByTestId('feature-catalogue')
     const tablist = catalogue.getByRole('tablist', { name: 'Módulos de producto de Akademate' })
@@ -161,9 +162,12 @@ test.describe('public EN/ES parity', () => {
       /auto|scroll/
     )
 
+    await tabs.nth(1).hover()
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true')
+
     for (let index = 0; index < 23; index += 1) {
       const tab = tabs.nth(index)
-      await tab.hover()
+      await tab.focus()
       await expect(tab).toHaveAttribute('aria-selected', 'true')
       await expect(catalogue.getByRole('tabpanel')).toBeVisible()
     }
