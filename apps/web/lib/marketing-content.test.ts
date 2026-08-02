@@ -605,6 +605,24 @@ describe('public marketing architecture', () => {
     expect(productMoments).toContain('<input')
   })
 
+  it('keeps the complete feature catalogue visible and previews modules on pointer and focus intent', () => {
+    const explorer = readFileSync(
+      new URL('../components/marketing/FeatureModuleExplorer.tsx', import.meta.url),
+      'utf8'
+    )
+
+    expect(featureGroups).toHaveLength(23)
+    expect(new Set(featureGroups.map((group) => group.id)).size).toBe(featureGroups.length)
+    expect(featureModuleDetails.map((detail) => detail.id).sort()).toEqual(
+      featureGroups.map((group) => group.id).sort()
+    )
+    expect(explorer).toContain('onMouseEnter={() => selectFeature(item.id)}')
+    expect(explorer).toContain('onFocus={() => selectFeature(item.id)}')
+    expect(explorer).not.toContain('overflow-y-auto')
+    expect(explorer).toContain('feature-tab-${item.id}')
+    expect(explorer).toContain('featureModuleDetailById[group.id]')
+  })
+
   it('assigns dedicated imagery to the primary commercial pages', () => {
     const pages = [
       ['../app/features/page.tsx', 'akademate-product-ecosystem-v2.png'],

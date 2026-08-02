@@ -4,21 +4,23 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { useMarketingText } from '@/components/i18n/use-marketing-text'
-import { featureModuleDetailByTitle } from '@/lib/feature-module-details'
+import { featureModuleDetailById } from '@/lib/feature-module-details'
 import { featureGroups } from '@/lib/marketing-content'
 
 export function FeatureModuleExplorer() {
   const t = useMarketingText()
-  const [activeTitle, setActiveTitle] = useState<string>(featureGroups[0]?.title ?? '')
+  const [activeId, setActiveId] = useState<(typeof featureGroups)[number]['id']>(
+    featureGroups[0]?.id ?? 'website-catalogue-embeds'
+  )
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
-  const group = featureGroups.find((item) => item.title === activeTitle) ?? featureGroups[0]
-  const detail = group ? featureModuleDetailByTitle[group.title] : undefined
+  const group = featureGroups.find((item) => item.id === activeId) ?? featureGroups[0]
+  const detail = group ? featureModuleDetailById[group.id] : undefined
   if (!group || !detail) return null
 
-  const selectFeature = (title: string, focus = false) => {
-    setActiveTitle(title)
+  const selectFeature = (id: (typeof featureGroups)[number]['id'], focus = false) => {
+    setActiveId(id)
     if (!focus) return
-    const index = featureGroups.findIndex((item) => item.title === title)
+    const index = featureGroups.findIndex((item) => item.id === id)
     tabRefs.current[index]?.focus()
   }
 
@@ -42,28 +44,30 @@ export function FeatureModuleExplorer() {
           <div
             role="tablist"
             aria-label={t('Akademate feature modules')}
-            className="flex gap-1 overflow-x-auto border-b border-slate-200 p-3 lg:block lg:max-h-[760px] lg:overflow-y-auto lg:border-b-0 lg:border-r"
+            className="flex gap-1 overflow-x-auto border-b border-slate-200 p-3 lg:grid lg:grid-cols-2 lg:gap-1 lg:overflow-visible lg:border-b-0 lg:border-r"
           >
             {featureGroups.map((item, index) => {
-              const selected = item.title === group.title
+              const selected = item.id === group.id
               return (
                 <button
-                  key={item.title}
+                  key={item.id}
                   ref={(node) => {
                     tabRefs.current[index] = node
                   }}
-                  id={`feature-tab-${slugify(item.title)}`}
+                  id={`feature-tab-${item.id}`}
                   type="button"
                   role="tab"
                   aria-selected={selected}
                   aria-controls="feature-panel"
                   tabIndex={selected ? 0 : -1}
-                  onClick={() => selectFeature(item.title)}
+                  onClick={() => selectFeature(item.id)}
+                  onMouseEnter={() => selectFeature(item.id)}
+                  onFocus={() => selectFeature(item.id)}
                   onKeyDown={(event) => {
                     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
                       event.preventDefault()
                       selectFeature(
-                        featureGroups[(index + 1) % featureGroups.length]?.title ?? group.title,
+                        featureGroups[(index + 1) % featureGroups.length]?.id ?? group.id,
                         true
                       )
                     }
@@ -71,17 +75,17 @@ export function FeatureModuleExplorer() {
                       event.preventDefault()
                       selectFeature(
                         featureGroups[(index - 1 + featureGroups.length) % featureGroups.length]
-                          ?.title ?? group.title,
+                          ?.id ?? group.id,
                         true
                       )
                     }
                     if (event.key === 'Home') {
                       event.preventDefault()
-                      selectFeature(featureGroups[0]?.title ?? group.title, true)
+                      selectFeature(featureGroups[0]?.id ?? group.id, true)
                     }
                     if (event.key === 'End') {
                       event.preventDefault()
-                      selectFeature(featureGroups.at(-1)?.title ?? group.title, true)
+                      selectFeature(featureGroups.at(-1)?.id ?? group.id, true)
                     }
                   }}
                   className={`flex w-[260px] shrink-0 items-center gap-4 rounded-xl px-4 py-3 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:w-full ${selected ? 'bg-[#071633] text-white' : 'text-slate-700 hover:bg-blue-50'}`}
@@ -100,9 +104,9 @@ export function FeatureModuleExplorer() {
           <article
             role="tabpanel"
             id="feature-panel"
-            aria-labelledby={`feature-tab-${slugify(group.title)}`}
+            aria-labelledby={`feature-tab-${group.id}`}
             className="p-6 sm:p-9 lg:p-12"
-            key={group.title}
+            key={group.id}
           >
             <div className="flex flex-wrap gap-2">
               {detail.audiences.map((audience) => (
@@ -182,11 +186,4 @@ export function FeatureModuleExplorer() {
       </div>
     </section>
   )
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
 }

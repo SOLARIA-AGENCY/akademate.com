@@ -1,6 +1,32 @@
 import type { IntegrationBrandId } from '@/lib/integration-brands'
 
+export type FeatureModuleId =
+  | 'website-catalogue-embeds'
+  | 'growth-ads-crm'
+  | 'campaign-intelligence'
+  | 'reservations-admissions'
+  | 'offers-runs-capacity'
+  | 'academic-operations'
+  | 'attendance-physical-access'
+  | 'students-members-participants'
+  | 'organisation-brands-domains'
+  | 'teaching-staff-operations'
+  | 'virtual-campus-learning'
+  | 'communication-community'
+  | 'digital-signage'
+  | 'payments-billing-finance'
+  | 'finance-accounting'
+  | 'hr-workforce'
+  | 'library-inventory-facilities'
+  | 'sports-seasonal-operations'
+  | 'insight-reporting'
+  | 'ai-assisted-workflows'
+  | 'ai-workspace-mcp'
+  | 'security-governance'
+  | 'apis-webhooks-deployment'
+
 type ModuleDetail = {
+  id: FeatureModuleId
   title: string
   audiences: string[]
   signal: string
@@ -12,6 +38,7 @@ type ModuleDetail = {
 
 export const featureModuleDetails: ModuleDetail[] = [
   {
+    id: 'website-catalogue-embeds',
     title: 'Website, catalogue and embeds',
     audiences: ['Growth', 'Operations'],
     signal: '3',
@@ -25,6 +52,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['cloudflare'],
   },
   {
+    id: 'growth-ads-crm',
     title: 'Growth, Ads and CRM',
     audiences: ['Growth', 'Admissions'],
     signal: '24%',
@@ -38,6 +66,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['meta', 'googleads'],
   },
   {
+    id: 'campaign-intelligence',
     title: 'Campaign intelligence',
     audiences: ['Growth', 'Leadership'],
     signal: 'Illustrative',
@@ -51,6 +80,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['meta', 'googleads'],
   },
   {
+    id: 'reservations-admissions',
     title: 'Reservations and admissions',
     audiences: ['Admissions', 'Learners'],
     signal: '42',
@@ -64,6 +94,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['googlecalendar'],
   },
   {
+    id: 'offers-runs-capacity',
     title: 'Offers, runs and capacity',
     audiences: ['Operations', 'Growth'],
     signal: '86%',
@@ -77,6 +108,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['googlecalendar', 'zoom'],
   },
   {
+    id: 'academic-operations',
     title: 'Academic operations',
     audiences: ['Academic team', 'Teachers'],
     signal: '18',
@@ -90,6 +122,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['googlecalendar', 'googlemeet'],
   },
   {
+    id: 'attendance-physical-access',
     title: 'Attendance and physical access',
     audiences: ['Operations', 'Learners'],
     signal: '92%',
@@ -103,6 +136,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: [],
   },
   {
+    id: 'students-members-participants',
     title: 'Students, members and participants',
     audiences: ['Administration', 'Learners'],
     signal: '1,284',
@@ -116,6 +150,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['auth0'],
   },
   {
+    id: 'organisation-brands-domains',
     title: 'Organisation, brands and domains',
     audiences: ['Leadership', 'IT'],
     signal: '4',
@@ -129,6 +164,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['cloudflare', 'auth0'],
   },
   {
+    id: 'teaching-staff-operations',
     title: 'Teaching and staff operations',
     audiences: ['Teachers', 'HR'],
     signal: '28',
@@ -142,6 +178,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['zoom', 'googlemeet'],
   },
   {
+    id: 'virtual-campus-learning',
     title: 'Virtual campus and learning',
     audiences: ['Learners', 'Teachers'],
     signal: '78%',
@@ -155,6 +192,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['zoom', 'googlemeet', 'youtube', 'vimeo'],
   },
   {
+    id: 'communication-community',
     title: 'Communication and community',
     audiences: ['Everyone'],
     signal: '96%',
@@ -168,6 +206,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['whatsapp', 'twilio'],
   },
   {
+    id: 'digital-signage',
     title: 'Digital signage',
     audiences: ['Operations', 'Growth'],
     signal: '12',
@@ -181,6 +220,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: [],
   },
   {
+    id: 'payments-billing-finance',
     title: 'Payments, billing and finance',
     audiences: ['Finance', 'Learners'],
     signal: '€48k',
@@ -194,6 +234,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['stripe', 'paypal', 'sepa', 'visa', 'mastercard', 'applepay', 'googlepay'],
   },
   {
+    id: 'finance-accounting',
     title: 'Finance and accounting',
     audiences: ['Finance', 'Leadership'],
     signal: '98.4%',
@@ -207,6 +248,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['xero', 'quickbooks', 'sage'],
   },
   {
+    id: 'hr-workforce',
     title: 'HR and workforce',
     audiences: ['HR', 'Leadership'],
     signal: '312h',
@@ -220,6 +262,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: [],
   },
   {
+    id: 'library-inventory-facilities',
     title: 'Library, inventory and facilities',
     audiences: ['Operations', 'Teachers'],
     signal: '94%',
@@ -233,6 +276,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: [],
   },
   {
+    id: 'sports-seasonal-operations',
     title: 'Sports and seasonal operations',
     audiences: ['Coaches', 'Families'],
     signal: '12',
@@ -246,6 +290,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['googlecalendar'],
   },
   {
+    id: 'insight-reporting',
     title: 'Insight and reporting',
     audiences: ['Leadership', 'Operations'],
     signal: '+18%',
@@ -259,6 +304,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: [],
   },
   {
+    id: 'ai-assisted-workflows',
     title: 'AI-assisted workflows',
     audiences: ['Optional for every role'],
     signal: 'Human',
@@ -272,6 +318,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['openai'],
   },
   {
+    id: 'ai-workspace-mcp',
     title: 'AI workspace and MCP',
     audiences: ['Optional for every role', 'IT'],
     signal: 'Scoped',
@@ -285,6 +332,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['openai', 'claude', 'gemini'],
   },
   {
+    id: 'security-governance',
     title: 'Security and governance',
     audiences: ['IT', 'Privacy'],
     signal: 'Scoped',
@@ -298,6 +346,7 @@ export const featureModuleDetails: ModuleDetail[] = [
     connectors: ['okta', 'auth0'],
   },
   {
+    id: 'apis-webhooks-deployment',
     title: 'APIs, webhooks and deployment',
     audiences: ['IT', 'Partners'],
     signal: '3',
@@ -312,6 +361,6 @@ export const featureModuleDetails: ModuleDetail[] = [
   },
 ]
 
-export const featureModuleDetailByTitle = Object.fromEntries(
-  featureModuleDetails.map((detail) => [detail.title, detail])
-) as Record<string, ModuleDetail>
+export const featureModuleDetailById = Object.fromEntries(
+  featureModuleDetails.map((detail) => [detail.id, detail])
+) as Record<FeatureModuleId, ModuleDetail>

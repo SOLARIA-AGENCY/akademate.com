@@ -432,6 +432,7 @@ export const solutionDetails = {
 
 export const featureGroups = [
   {
+    id: 'website-catalogue-embeds',
     title: 'Website, catalogue and embeds',
     eyebrow: 'Publish anywhere',
     description: 'Launch a connected website, domain or embedded journey.',
@@ -444,6 +445,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'growth-ads-crm',
     title: 'Growth, Ads and CRM',
     eyebrow: 'Build demand',
     description: 'Follow every lead from campaign to enrolment.',
@@ -456,6 +458,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'campaign-intelligence',
     title: 'Campaign intelligence',
     eyebrow: 'Understand paid growth',
     description: 'Connect campaign signals to attributed enrolment.',
@@ -468,6 +471,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'reservations-admissions',
     title: 'Reservations and admissions',
     eyebrow: 'Convert demand',
     description: 'Shape every route from enquiry to confirmed place.',
@@ -480,6 +484,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'offers-runs-capacity',
     title: 'Offers, runs and capacity',
     eyebrow: 'Shape the offer',
     description: 'Define offers, schedules, access and capacity.',
@@ -492,6 +497,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'academic-operations',
     title: 'Academic operations',
     eyebrow: 'Run the programme',
     description: 'Plan programmes, cohorts, rooms and delivery.',
@@ -504,6 +510,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'attendance-physical-access',
     title: 'Attendance and physical access',
     eyebrow: 'Connect every arrival',
     description: 'Link attendance, identity and campus access events.',
@@ -516,6 +523,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'students-members-participants',
     title: 'Students, members and participants',
     eyebrow: 'One participant record',
     description: 'Keep each participant record complete and current.',
@@ -528,6 +536,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'organisation-brands-domains',
     title: 'Organisation, brands and domains',
     eyebrow: 'Structure the business',
     description: 'Structure brands, locations, domains and responsibilities.',
@@ -540,6 +549,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'teaching-staff-operations',
     title: 'Teaching and staff operations',
     eyebrow: 'Coordinate the team',
     description: 'Connect every team member to their work.',
@@ -552,6 +562,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'virtual-campus-learning',
     title: 'Virtual campus and learning',
     eyebrow: 'Deliver learning',
     description: 'Bring lessons, work, feedback and progress together.',
@@ -564,6 +575,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'communication-community',
     title: 'Communication and community',
     eyebrow: 'Keep people aligned',
     description: 'Trigger the right message from every event.',
@@ -576,6 +588,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'digital-signage',
     title: 'Digital signage',
     eyebrow: 'Activate every screen',
     description: 'Publish timely academy content across every site.',
@@ -588,6 +601,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'payments-billing-finance',
     title: 'Payments, billing and finance',
     eyebrow: 'Connect revenue',
     description: 'Keep every payment connected to its offer.',
@@ -600,6 +614,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'finance-accounting',
     title: 'Finance and accounting',
     eyebrow: 'Understand the business',
     description: 'See revenue, costs, accounts and reconciliation together.',
@@ -612,6 +627,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'hr-workforce',
     title: 'HR and workforce',
     eyebrow: 'Support the team',
     description: 'Coordinate contracts, availability, workload and qualifications.',
@@ -624,6 +640,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'library-inventory-facilities',
     title: 'Library, inventory and facilities',
     eyebrow: 'Manage shared resources',
     description: 'Control resources, equipment, stock and facilities.',
@@ -636,6 +653,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'sports-seasonal-operations',
     title: 'Sports and seasonal operations',
     eyebrow: 'Run teams and seasons',
     description: 'Run teams, trials, seasons and temporary programmes.',
@@ -648,6 +666,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'insight-reporting',
     title: 'Insight and reporting',
     eyebrow: 'See the operation',
     description: 'Turn demand, delivery and finance into decisions.',
@@ -660,6 +679,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'ai-assisted-workflows',
     title: 'AI-assisted workflows',
     eyebrow: 'Optional assistance',
     description: 'Assist routine work while people keep control.',
@@ -672,6 +692,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'ai-workspace-mcp',
     title: 'AI workspace and MCP',
     eyebrow: 'Connect approved clients',
     description: 'Prepare academy work inside each person’s permission scope.',
@@ -684,6 +705,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'security-governance',
     title: 'Security and governance',
     eyebrow: 'Operate with trust',
     description: 'Build access, privacy and accountability into operations.',
@@ -696,6 +718,7 @@ export const featureGroups = [
     ],
   },
   {
+    id: 'apis-webhooks-deployment',
     title: 'APIs, webhooks and deployment',
     eyebrow: 'Fit the technology landscape',
     description: 'Connect systems through governed, adaptable interfaces.',
