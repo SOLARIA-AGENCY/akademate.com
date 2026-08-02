@@ -23,14 +23,10 @@ import { marketingText } from '@/lib/i18n/marketing-copy'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
-import { insightPosts, newsPosts } from '@/lib/blog-posts'
+import { getInsightPosts, getNewsPosts } from '@/lib/blog-posts'
 import { homeIntegrationBrands } from '@/lib/integration-brands'
-import {
-  distributionModes,
-  operatingJourney,
-  plans,
-  platformPillars,
-} from '@/lib/marketing-content'
+import { distributionModes, operatingJourney, platformPillars } from '@/lib/marketing-content'
+import { getPricingContent } from '@/lib/pricing-i18n'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
@@ -74,6 +70,9 @@ export default async function HomePage() {
     text: tx(pillar.text),
     capabilities: pillar.capabilities.map(tx),
   }))
+  const homePlans = getPricingContent(locale).page.cards
+  const insightPosts = getInsightPosts(locale)
+  const newsPosts = getNewsPosts(locale)
 
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -325,10 +324,10 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="mt-10 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
-              {plans.map((plan, index) => (
+              {homePlans.map((plan, index) => (
                 <article
                   key={plan.name}
-                  className={`p-8 sm:p-10 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'} ${index < plans.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}
+                  className={`p-8 sm:p-10 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'} ${index < homePlans.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}
                 >
                   <p
                     className={`text-sm font-semibold ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}
