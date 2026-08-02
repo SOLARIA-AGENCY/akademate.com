@@ -2,13 +2,17 @@
 
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useLocale } from '@/components/i18n/locale-provider'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
-import { useMarketingText } from '@/components/i18n/use-marketing-text'
+import {
+  getSpanishFeatureModule,
+  spanishFeatureExplorerCopy,
+} from '@/lib/feature-module-catalogue.es'
 import { featureModuleDetailById } from '@/lib/feature-module-details'
 import { featureGroups } from '@/lib/marketing-content'
 
 export function FeatureModuleExplorer() {
-  const t = useMarketingText()
+  const locale = useLocale()
   const [activeId, setActiveId] = useState<(typeof featureGroups)[number]['id']>(
     featureGroups[0]?.id ?? 'website-catalogue-embeds'
   )
@@ -16,6 +20,16 @@ export function FeatureModuleExplorer() {
   const group = featureGroups.find((item) => item.id === activeId) ?? featureGroups[0]
   const detail = group ? featureModuleDetailById[group.id] : undefined
   if (!group || !detail) return null
+  const spanishModule = locale === 'es' ? getSpanishFeatureModule(group.id) : undefined
+  const explorerCopy = locale === 'es' ? spanishFeatureExplorerCopy : undefined
+  const title = spanishModule?.title ?? group.title
+  const eyebrow = spanishModule?.eyebrow ?? group.eyebrow
+  const description = spanishModule?.description ?? group.description
+  const features = spanishModule?.features ?? group.features
+  const audiences = spanishModule?.audiences ?? detail.audiences
+  const previewTitle = spanishModule?.preview.title ?? detail.previewTitle
+  const signalLabel = spanishModule?.preview.signalLabel ?? detail.signalLabel
+  const previewRows = spanishModule?.preview.rows ?? detail.previewRows
 
   const selectFeature = (id: (typeof featureGroups)[number]['id'], focus = false) => {
     setActiveId(id)
@@ -28,12 +42,15 @@ export function FeatureModuleExplorer() {
     <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-4xl">
-          <p className="text-sm font-semibold text-blue-700">{t('Complete module catalogue')}</p>
+          <p className="text-sm font-semibold text-blue-700">
+            {explorerCopy?.eyebrow ?? 'Complete module catalogue'}
+          </p>
           <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-            {t('Explore every module.')}
+            {explorerCopy?.title ?? 'Explore every module.'}
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            {t('Choose a module. See its workflow, audience and connections.')}
+            {explorerCopy?.description ??
+              'Choose a module. See its workflow, audience and connections.'}
           </p>
         </div>
 
@@ -43,7 +60,7 @@ export function FeatureModuleExplorer() {
         >
           <div
             role="tablist"
-            aria-label={t('Akademate feature modules')}
+            aria-label={explorerCopy?.tablistAria ?? 'Akademate feature modules'}
             className="flex gap-1 overflow-x-auto border-b border-slate-200 p-3 lg:grid lg:grid-cols-2 lg:gap-1 lg:overflow-visible lg:border-b-0 lg:border-r"
           >
             {featureGroups.map((item, index) => {
@@ -59,6 +76,9 @@ export function FeatureModuleExplorer() {
                   role="tab"
                   aria-selected={selected}
                   aria-controls="feature-panel"
+                  aria-label={
+                    locale === 'es' ? getSpanishFeatureModule(item.id).aria.tab : undefined
+                  }
                   tabIndex={selected ? 0 : -1}
                   onClick={() => selectFeature(item.id)}
                   onMouseEnter={() => selectFeature(item.id)}
@@ -95,7 +115,9 @@ export function FeatureModuleExplorer() {
                   >
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className="text-sm font-semibold">{t(item.title)}</span>
+                  <span className="text-sm font-semibold">
+                    {locale === 'es' ? getSpanishFeatureModule(item.id).title : item.title}
+                  </span>
                 </button>
               )
             })}
@@ -105,30 +127,31 @@ export function FeatureModuleExplorer() {
             role="tabpanel"
             id="feature-panel"
             aria-labelledby={`feature-tab-${group.id}`}
+            aria-label={spanishModule?.aria.panel}
             className="p-6 sm:p-9 lg:p-12"
             key={group.id}
           >
             <div className="flex flex-wrap gap-2">
-              {detail.audiences.map((audience) => (
+              {audiences.map((audience) => (
                 <span
                   key={audience}
                   className="rounded-full bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-800"
                 >
-                  {t(audience)}
+                  {audience}
                 </span>
               ))}
             </div>
-            <p className="mt-8 text-sm font-semibold text-blue-700">{t(group.eyebrow)}</p>
-            <h3 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
-              {t(group.title)}
-            </h3>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">{t(group.description)}</p>
+            <p className="mt-8 text-sm font-semibold text-blue-700">{eyebrow}</p>
+            <h3 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">{title}</h3>
+            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">{description}</p>
 
             <div className="mt-10 grid gap-8 xl:grid-cols-[.92fr_1.08fr]">
               <div>
-                <h4 className="text-sm font-semibold text-slate-500">{t('What your team can do')}</h4>
+                <h4 className="text-sm font-semibold text-slate-500">
+                  {explorerCopy?.capabilitiesHeading ?? 'What your team can do'}
+                </h4>
                 <ul className="mt-5 space-y-4">
-                  {group.features.map((feature) => (
+                  {features.map((feature) => (
                     <li
                       key={feature}
                       className="flex items-start gap-3 text-sm font-semibold leading-6 text-slate-800"
@@ -137,47 +160,74 @@ export function FeatureModuleExplorer() {
                         className="mt-0.5 h-5 w-5 shrink-0 text-blue-600"
                         aria-hidden="true"
                       />
-                      {t(feature)}
+                      {feature}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="rounded-2xl bg-[#071633] p-5 text-white sm:p-7">
+              <div
+                className="rounded-2xl bg-[#071633] p-5 text-white sm:p-7"
+                role={spanishModule ? 'img' : undefined}
+                aria-label={spanishModule?.aria.preview}
+              >
                 <div className="flex items-start justify-between gap-5 border-b border-white/15 pb-6">
                   <div>
-                    <p className="text-xs font-semibold text-blue-300">{t(detail.previewTitle)}</p>
+                    <p className="text-xs font-semibold text-blue-300">{previewTitle}</p>
+                    {spanishModule && (
+                      <p className="mt-2 max-w-sm text-xs leading-5 text-blue-100/60">
+                        {spanishModule.preview.description}
+                      </p>
+                    )}
                     <p className="mt-3 text-4xl font-semibold">{detail.signal}</p>
-                    <p className="mt-1 text-sm text-blue-100/60">{t(detail.signalLabel)}</p>
+                    <p className="mt-1 text-sm text-blue-100/60">{signalLabel}</p>
                   </div>
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/15">
                     <ArrowRight className="h-5 w-5 text-blue-300" aria-hidden="true" />
                   </span>
                 </div>
+                {spanishModule && (
+                  <p className="pt-5 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                    {spanishModule.preview.tableHeading}
+                  </p>
+                )}
                 <div className="divide-y divide-white/10">
-                  {detail.previewRows.map((row) => (
+                  {previewRows.map((row, index) => (
                     <div
                       key={row.label}
                       className="flex items-center justify-between gap-4 py-4 text-sm"
                     >
-                      <span className="text-blue-100/60">{t(row.label)}</span>
-                      <span className="text-right font-semibold">{t(row.value)}</span>
+                      <span className="text-blue-100/60">{row.label}</span>
+                      <span className="text-right">
+                        <span className="block font-semibold">{row.value}</span>
+                        {spanishModule?.preview.rows[index]?.action && (
+                          <span className="mt-1 block text-xs font-semibold text-blue-300">
+                            {spanishModule.preview.rows[index]?.action}
+                          </span>
+                        )}
+                      </span>
                     </div>
                   ))}
                 </div>
+                {spanishModule && (
+                  <p className="border-t border-white/10 pt-4 text-xs leading-5 text-blue-100/60">
+                    {spanishModule.preview.note}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="mt-10 border-t border-slate-200 pt-8">
               <h4 className="text-sm font-semibold text-slate-500">
-                {t('Connected services and methods')}
+                {explorerCopy?.connectorsHeading ?? 'Connected services and methods'}
               </h4>
               <div className="mt-4">
                 <ConnectorLogos ids={detail.connectors} />
               </div>
               {group.title === 'Payments, billing and finance' && (
                 <p className="mt-4 text-xs leading-5 text-slate-500">
-                  {t('Card and wallet marks describe payment methods delivered through the configured payment provider.')}
+                  {explorerCopy?.paymentMethodsNote ??
+                    'Card and wallet marks describe payment methods delivered through the configured payment provider.'}
                 </p>
               )}
             </div>

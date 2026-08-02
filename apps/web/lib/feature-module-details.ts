@@ -25,7 +25,7 @@ export type FeatureModuleId =
   | 'security-governance'
   | 'apis-webhooks-deployment'
 
-type ModuleDetail = {
+export type ModuleDetail = {
   id: FeatureModuleId
   title: string
   audiences: string[]
