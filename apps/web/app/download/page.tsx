@@ -5,14 +5,21 @@ import { ArrowRight, Laptop, Smartphone, Tablet } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { metadata } = getSecondaryPublicContent(locale).download
-  return { ...metadata, alternates: localizedAlternates('/download', locale) }
+  return publicPageMetadata({
+    locale,
+    pathname: '/download',
+    copy: {
+      en: getSecondaryPublicContent('en').download.metadata,
+      es: getSecondaryPublicContent('es').download.metadata,
+    },
+  })
 }
 
 export default async function DownloadPage() {

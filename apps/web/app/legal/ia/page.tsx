@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { LegalPage } from '@/components/legal/LegalPage'
-import { localizedAlternates } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 
 const documents = {
@@ -62,8 +62,11 @@ const documents = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { title, description } = documents[locale]
-  return { title, description, alternates: localizedAlternates('/legal/ia', locale) }
+  return publicPageMetadata({
+    locale,
+    pathname: '/legal/ia',
+    copy: { en: documents.en, es: documents.es },
+  })
 }
 
 export default async function AiTransparencyPage() {

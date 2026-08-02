@@ -4,14 +4,21 @@ import Link from 'next/link'
 import { ArrowRight, Compass, Layers3, Sparkles } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { metadata } = getSecondaryPublicContent(locale).company
-  return { ...metadata, alternates: localizedAlternates('/sobre-nosotros', locale) }
+  return publicPageMetadata({
+    locale,
+    pathname: '/sobre-nosotros',
+    copy: {
+      en: getSecondaryPublicContent('en').company.metadata,
+      es: getSecondaryPublicContent('es').company.metadata,
+    },
+  })
 }
 
 export default async function AboutPage() {

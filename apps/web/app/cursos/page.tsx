@@ -2,14 +2,21 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { metadata } = getSecondaryPublicContent(locale).courses
-  return { ...metadata, alternates: localizedAlternates('/cursos', locale) }
+  return publicPageMetadata({
+    locale,
+    pathname: '/cursos',
+    copy: {
+      en: getSecondaryPublicContent('en').courses.metadata,
+      es: getSecondaryPublicContent('es').courses.metadata,
+    },
+  })
 }
 
 export default async function CoursesPage() {

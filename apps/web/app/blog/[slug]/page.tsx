@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { EditorialArticle } from '@/components/editorial/EditorialArticle'
 import { getBlogPost, getEditorialPost, getInsightPosts, insightPosts } from '@/lib/blog-posts'
 import { getEditorialMetadataAlternates } from '@/lib/editorial-i18n'
-import { localizedHref } from '@/lib/i18n/routing'
+import { localizedHref, localizePathname } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 
 export function generateStaticParams() {
@@ -20,6 +20,7 @@ export async function generateMetadata({
   const post = getEditorialPost(slug, locale)
   if (!post) return {}
   const canonical = `${post.kind === 'news' ? '/news' : '/blog'}/${post.slug}`
+  const localizedCanonical = localizePathname(canonical, locale)
   return {
     title: post.seoTitle,
     description: post.excerpt,
@@ -28,11 +29,20 @@ export async function generateMetadata({
     alternates: getEditorialMetadataAlternates(canonical, locale),
     openGraph: {
       type: 'article',
+      locale: locale === 'es' ? 'es_ES' : 'en_GB',
+      url: localizedCanonical,
+      siteName: 'Akademate',
       title: post.seoTitle,
       description: post.excerpt,
       publishedTime: post.date,
       authors: [post.author],
       images: [{ url: post.image, alt: post.imageAlt }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.seoTitle,
+      description: post.excerpt,
+      images: [post.image],
     },
   }
 }

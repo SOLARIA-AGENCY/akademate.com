@@ -43,7 +43,7 @@ describe('secondary public i18n contract', () => {
     for (const route of legalRoutes) {
       const source = readFileSync(new URL(`../app/legal/${route}/page.tsx`, import.meta.url), 'utf8')
       expect(source, route).toContain('getRequestLocale')
-      expect(source, route).toContain('localizedAlternates')
+      expect(source, route).toMatch(/localizedAlternates|publicPageMetadata/)
       expect(source, route).toMatch(/\ben:\s*{/)
       expect(source, route).toMatch(/\bes:\s*{/)
     }
