@@ -13,6 +13,8 @@ checks:
       command: corepack pnpm --filter @akademate/mcp-server test && corepack pnpm --filter @akademate/mcp-server build
     - name: next-ui-inventory
       command: node --test scripts/__tests__/akademate-next-ui-inventory.test.mjs && corepack pnpm audit:ui
+    - name: next-signage-domain
+      command: corepack pnpm --filter @akademate/signage-domain typecheck && corepack pnpm --filter @akademate/signage-adapters typecheck && node --experimental-strip-types --test packages/signage-domain/src/*.test.ts packages/signage-adapters/src/*.test.ts
     - name: learning-membership-access
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
     - name: next-runtime-collection-boundary

@@ -1091,6 +1091,14 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(happy-dom@20.8.9(bufferutil@4.0.9))(jsdom@29.0.2(@noble/hashes@2.0.1))(vite@7.2.7(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.77.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/signage-adapters:
+    dependencies:
+      '@akademate/signage-domain':
+        specifier: workspace:*
+        version: link:../signage-domain
+
+  packages/signage-domain: {}
+
   packages/tenant:
     dependencies:
       '@akademate/types':

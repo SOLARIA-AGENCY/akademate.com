@@ -1,6 +1,6 @@
 # Connected Campus y Digital Signage
 
-**Estado:** roadmap aprobado; implementación de producto pendiente
+**Estado:** Fase 0 iniciada; contratos y compilador local verificados, runtime pendiente
 
 **Ámbito:** Akademate Next SaaS multitenant
 
@@ -89,9 +89,9 @@ operativas añaden `site_id` o un alcance equivalente cuando corresponda.
 
 ### Fase 0 — Contratos y prototipo
 
-- [ ] ADR del dominio y contrato de adaptadores.
+- [x] ADR del dominio y contrato de adaptadores.
 - [ ] Esquema multitenant con RLS y migración monotónica.
-- [ ] Compilador de playlists con tests deterministas y de solapamientos horarios.
+- [x] Compilador de playlists con tests deterministas y de solapamientos horarios.
 - [ ] Player web de referencia con caché de última programación válida.
 
 ### Fase 1 — MVP de una sede
@@ -132,3 +132,15 @@ operativas añaden `site_id` o un alcance equivalente cuando corresponda.
 1. Cruce de tenant, sede o zona mediante identificadores manipulados.
 2. Dispositivo sin conexión, credencial expirada o proveedor no disponible.
 3. Variación temporal: solapamiento, cambio horario, contenido caducado o reordenación concurrente.
+
+## Evidencia Fase 0 — 2026-08-02
+
+- ADR: `docs/adr/0009-connected-campus-signage-domain.md`.
+- Paquetes: `@akademate/signage-domain` y `@akademate/signage-adapters`.
+- 20 pruebas focalizadas y dos typechecks estrictos pasan localmente.
+- El compilador cubre repetibilidad estructural en el mismo runtime observado, IDs e instantes canónicos,
+  colisiones, solapamientos temporales, ventanas nocturnas y transiciones DST.
+- El gateway congela un snapshot de alcance y rechaza antes del dispatch el alcance inválido; el
+  decoder rechaza sustitución de alcance, transporte inseguro, digest inválido y recibos ambiguos.
+- No se ha creado esquema, migración, firma, player, proveedor, UI ni despliegue. CEP continúa
+  completamente fuera de esta implementación.
