@@ -10,6 +10,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref, stripLocalePrefix } from '@/lib/i18n/routing'
 import { publicNavigation } from '@/lib/public-navigation'
 import { verticals } from '@/lib/marketing-content'
+import { getLocalizedVertical } from '@/lib/vertical-i18n'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -30,7 +31,7 @@ export function Header() {
         {dictionary.header.skipToContent}
       </a>
       <nav
-        aria-label="Primary navigation"
+        aria-label={dictionary.header.primaryNavigation}
         className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
       >
         <Link
@@ -59,20 +60,23 @@ export function Header() {
                   </summary>
                   <div className="absolute left-1/2 top-9 w-[620px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(7,22,51,.16)]">
                     <div className="grid grid-cols-2 gap-1">
-                      {verticals.map((vertical) => (
-                        <Link
-                          key={vertical.slug}
-                          href={href(`/solutions/${vertical.slug}`)}
-                          className="rounded-xl p-3 transition hover:bg-blue-50"
-                        >
-                          <span className="block text-sm font-semibold text-[#071633]">
-                            {vertical.title}
-                          </span>
-                          <span className="mt-1 block text-xs leading-5 text-slate-500">
-                            {vertical.capabilities.join(' · ')}
-                          </span>
-                        </Link>
-                      ))}
+                      {verticals.map((vertical) => {
+                        const localizedVertical = getLocalizedVertical(vertical.slug, locale)!
+                        return (
+                          <Link
+                            key={vertical.slug}
+                            href={href(`/solutions/${vertical.slug}`)}
+                            className="rounded-xl p-3 transition hover:bg-blue-50"
+                          >
+                            <span className="block text-sm font-semibold text-[#071633]">
+                              {localizedVertical.title}
+                            </span>
+                            <span className="mt-1 block text-xs leading-5 text-slate-500">
+                              {localizedVertical.capabilities.join(' · ')}
+                            </span>
+                          </Link>
+                        )
+                      })}
                     </div>
                     <Link
                       href={href('/solutions')}
@@ -134,16 +138,19 @@ export function Header() {
                 </Link>
                 {item.href === '/solutions' ? (
                   <div className="grid grid-cols-2 gap-1 px-2 pb-3">
-                    {verticals.map((vertical) => (
-                      <Link
-                        key={vertical.slug}
-                        href={href(`/solutions/${vertical.slug}`)}
-                        className="rounded-lg px-2 py-2 text-xs font-medium text-slate-600 hover:bg-blue-50"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {vertical.title}
-                      </Link>
-                    ))}
+                    {verticals.map((vertical) => {
+                      const localizedVertical = getLocalizedVertical(vertical.slug, locale)!
+                      return (
+                        <Link
+                          key={vertical.slug}
+                          href={href(`/solutions/${vertical.slug}`)}
+                          className="rounded-lg px-2 py-2 text-xs font-medium text-slate-600 hover:bg-blue-50"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {localizedVertical.title}
+                        </Link>
+                      )
+                    })}
                   </div>
                 ) : null}
               </div>

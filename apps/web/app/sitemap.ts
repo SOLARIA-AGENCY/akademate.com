@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/solutions',
     ...verticals.map((vertical) => `/solutions/${vertical.slug}`),
     '/pricing',
+    '/cursos',
+    '/download',
     '/sobre-nosotros',
     '/blog',
     ...insightPosts.map((post) => `/blog/${post.slug}`),

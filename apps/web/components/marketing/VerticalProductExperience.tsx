@@ -30,6 +30,9 @@ export function VerticalProductExperience({ slug, locale }: { slug: string; loca
             aria-selected={item.id === moment.id}
             aria-controls={`vertical-panel-${item.id}`}
             onClick={() => setActiveId(item.id)}
+            onPointerEnter={() => setActiveId(item.id)}
+            onMouseEnter={() => setActiveId(item.id)}
+            onFocus={() => setActiveId(item.id)}
             className={`min-h-14 px-4 py-3 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 ${item.id === moment.id ? 'bg-[#071633] text-white' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-800'}`}
           >
             {item.label}
@@ -45,6 +48,9 @@ export function VerticalProductExperience({ slug, locale }: { slug: string; loca
         key={moment.id}
       >
         <div className="bg-[#071633] p-7 text-white sm:p-10">
+          <span className="inline-flex rounded-full border border-blue-300/30 bg-blue-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-blue-100">
+            {chrome.illustrativeExample}
+          </span>
           <p className="text-sm font-semibold text-blue-300">
             {chrome.designedFor} {story.noun}
           </p>
@@ -68,8 +74,8 @@ export function VerticalProductExperience({ slug, locale }: { slug: string; loca
                   defaultValue={field.options[0]}
                   className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 >
-                  {field.options.map((option) => (
-                    <option key={option}>{option}</option>
+                  {field.options.map((option, optionIndex) => (
+                    <option key={`${field.label}-${optionIndex}`}>{option}</option>
                   ))}
                 </select>
               </label>
@@ -78,9 +84,9 @@ export function VerticalProductExperience({ slug, locale }: { slug: string; loca
           <div className="mt-8 rounded-2xl bg-slate-50 p-5 sm:p-6">
             <p className="text-sm font-semibold text-slate-500">{chrome.operatingContext}</p>
             <div className="mt-4 grid gap-3">
-              {moment.activity.map((item) => (
+              {moment.activity.map((item, activityIndex) => (
                 <p
-                  key={item}
+                  key={`${moment.id}-activity-${activityIndex}`}
                   className="flex items-center gap-3 text-sm font-semibold text-slate-800"
                 >
                   <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" aria-hidden="true" />

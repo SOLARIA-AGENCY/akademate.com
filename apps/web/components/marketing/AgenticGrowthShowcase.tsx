@@ -70,7 +70,9 @@ export function AgenticGrowthShowcase() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-700">{t('Assisted operations and growth')}</p>
+            <p className="text-sm font-semibold text-blue-700">
+              {t('Assisted operations and growth')}
+            </p>
             <h2
               id="agentic-growth-title"
               className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl"
@@ -221,7 +223,7 @@ function McpPanel({ hidden, t }: { hidden: boolean; t: (source: string) => strin
             <div
               key={provider.id}
               className="flex min-h-16 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
-              title={`${provider.label}: ${provider.status}`}
+              title={`${provider.label}: ${t(provider.status)}`}
             >
               {provider.asset ? (
                 <span className="relative h-6 w-6 shrink-0">
@@ -261,7 +263,9 @@ function McpPanel({ hidden, t }: { hidden: boolean; t: (source: string) => strin
                   {t(control.title)}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[#071633]">{t(control.label)}</p>
+                  <p className="truncate text-sm font-semibold text-[#071633]">
+                    {t(control.label)}
+                  </p>
                   <p className="truncate text-xs text-slate-500">{t(control.detail)}</p>
                 </div>
               </div>
@@ -321,7 +325,9 @@ function GrowthPanel({ hidden, t }: { hidden: boolean; t: (source: string) => st
           </span>
         </div>
         <p className="mt-4 leading-7 text-slate-600">
-          {t('Bring paid media and CRM signals together with visible freshness and attribution rules.')}
+          {t(
+            'Bring paid media and CRM signals together with visible freshness and attribution rules.'
+          )}
         </p>
 
         <div className="mt-6 rounded-2xl bg-[#071633] p-5 text-white sm:p-6">
@@ -344,7 +350,9 @@ function GrowthPanel({ hidden, t }: { hidden: boolean; t: (source: string) => st
             ))}
           </div>
           <p className="mt-5 border-t border-white/10 pt-4 text-[11px] leading-5 text-blue-100/55">
-            {t('Reach is shown as N/D when the provider does not return it. Attribution follows your configured model.')}
+            {t(
+              'Reach is shown as N/D when the provider does not return it. Attribution follows your configured model.'
+            )}
           </p>
         </div>
 
@@ -383,7 +391,9 @@ function GrowthPanel({ hidden, t }: { hidden: boolean; t: (source: string) => st
         <div className="mt-6 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
           <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" aria-hidden="true" />
           <p className="text-xs leading-5 text-blue-950">
-            {t('Rules can prepare a follow-up or alert. Budget and campaign changes require approval.')}
+            {t(
+              'Rules can prepare a follow-up or alert. Budget and campaign changes require approval.'
+            )}
           </p>
         </div>
       </div>

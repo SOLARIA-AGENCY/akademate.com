@@ -1,5 +1,6 @@
 import type { Locale } from '@/lib/i18n/routing'
 import { solutionDetails, verticals } from '@/lib/marketing-content'
+import { spanishVerticalProductStories } from '@/lib/vertical-product-stories.es'
 import { verticalProductStories } from '@/lib/vertical-product-stories'
 
 export type LocalizedVertical = {
@@ -31,8 +32,10 @@ export const verticalPageChrome = {
     closingTitle: 'Build a better academy.',
     closingDescription: 'Map your programmes, people and locations.',
     closingCta: 'Book your walkthrough',
-    designedFor: 'Designed for this',
-    operatingContext: 'Live operating context',
+    designedFor: 'Designed for your',
+    operatingContext: 'Example operating context',
+    illustrativeExample: 'Illustrative product example',
+    exploreSolution: 'Explore this solution',
   },
   es: {
     heroPrefix: 'Akademate para',
@@ -45,56 +48,66 @@ export const verticalPageChrome = {
     closingTitle: 'Construye una academia mejor.',
     closingDescription: 'Conecta tus programas, personas y sedes.',
     closingCta: 'Reserva tu recorrido',
-    designedFor: 'Diseñado para esta',
-    operatingContext: 'Contexto operativo en tiempo real',
+    designedFor: 'Diseñado para tu',
+    operatingContext: 'Ejemplo de contexto operativo',
+    illustrativeExample: 'Ejemplo ilustrativo de producto',
+    exploreSolution: 'Explorar esta solución',
   },
 } as const
 
 const spanishVerticalMeta: Record<
   string,
-  Pick<LocalizedVertical, 'title' | 'description' | 'imageAlt'>
+  Pick<LocalizedVertical, 'title' | 'description' | 'imageAlt' | 'capabilities'>
 > = {
   'professional-training': {
     title: 'Formación profesional y regulada',
     description: 'Admisiones, cohortes, cumplimiento y progreso del alumnado.',
     imageAlt:
       'Personas adultas en formación profesional trabajando con su docente en un centro moderno',
+    capabilities: ['Admisiones', 'Cohortes', 'Progreso académico'],
   },
   wellness: {
     title: 'Estudios de yoga, pilates y bienestar',
     description: 'Clases, membresías, aforo y reservas recurrentes.',
     imageAlt: 'Clase de yoga coordinada por una instructora que usa una tableta',
+    capabilities: ['Membresías', 'Bonos de sesiones', 'Clases recurrentes'],
   },
   sports: {
     title: 'Academias y clubes deportivos',
     description: 'Equipos, tutores, temporadas y desarrollo del deportista.',
     imageAlt:
       'Niños participando en una academia deportiva al aire libre organizada profesionalmente',
+    capabilities: ['Tutores', 'Equipos', 'Temporadas'],
   },
   seasonal: {
     title: 'Campamentos de temporada',
     description: 'Lanza, llena y opera programas con fechas definidas.',
     imageAlt: 'Campus deportivo de verano con registro de participantes y actividades dirigidas',
+    capabilities: ['Lanzamiento ágil', 'Depósitos', 'Aforo'],
   },
   'performing-arts': {
     title: 'Música, danza y artes escénicas',
     description: 'Coordina estudios, clases, actuaciones y familias.',
     imageAlt: 'Academia de danza y música que organiza varias clases en un estudio compartido',
+    capabilities: ['Estudios', 'Docentes', 'Clases recurrentes'],
   },
   'online-cohorts': {
     title: 'Escuelas online y programas por cohortes',
     description: 'Conecta cohortes, aprendizaje, comunidad y progreso.',
     imageAlt: 'Docente impartiendo una clase online en directo desde un estudio profesional',
+    capabilities: ['Campus virtual', 'Tareas', 'Comunidad'],
   },
   languages: {
     title: 'Academias de idiomas',
     description: 'Nivelación, grupos, facturación e impartición híbrida.',
     imageAlt: 'Personas adultas aprendiendo en una clase colaborativa de idiomas',
+    capabilities: ['Nivelación', 'Niveles', 'Facturación mensual'],
   },
   networks: {
     title: 'Grupos multisede y franquicias',
     description: 'Estándares compartidos con control operativo local.',
     imageAlt: 'Líderes de un grupo educativo coordinando una organización de formación multisede',
+    capabilities: ['Marcas', 'Sedes', 'Finanzas locales'],
   },
 }
 
@@ -222,84 +235,6 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
   },
 }
 
-const spanishTerms: Record<string, string> = {
-  'training centre': 'centro de formación',
-  'wellness studio': 'estudio de bienestar',
-  'sports academy': 'academia deportiva',
-  'seasonal programme': 'programa de temporada',
-  'performing arts academy': 'academia de artes escénicas',
-  'online academy': 'academia online',
-  'language academy': 'academia de idiomas',
-  'academy network': 'red de academias',
-  Programme: 'Programa',
-  Admissions: 'Admisiones',
-  Delivery: 'Impartición',
-  Finance: 'Finanzas',
-  Classes: 'Clases',
-  Studios: 'Estudios',
-  Members: 'Socios',
-  Payments: 'Pagos',
-  Trials: 'Pruebas',
-  Teams: 'Equipos',
-  Facilities: 'Instalaciones',
-  Fees: 'Cuotas',
-  Launch: 'Lanzamiento',
-  Families: 'Familias',
-  'Check-in': 'Check-in',
-  Deposits: 'Depósitos',
-  Disciplines: 'Disciplinas',
-  Progress: 'Progreso',
-  Billing: 'Facturación',
-  Cohort: 'Cohorte',
-  'Live learning': 'Aprendizaje en directo',
-  Community: 'Comunidad',
-  Payment: 'Pago',
-  Placement: 'Nivelación',
-  Groups: 'Grupos',
-  Learning: 'Aprendizaje',
-  'Monthly billing': 'Facturación mensual',
-  Structure: 'Estructura',
-  Permissions: 'Permisos',
-  'Local operation': 'Operación local',
-  'Group finance': 'Finanzas del grupo',
-}
-
-function translateStoryText(source: string): string {
-  const exact = spanishTerms[source]
-  if (exact) return exact
-  // Labels are presentation copy. A missing term is a data-contract defect, never an English fallback.
-  throw new Error(`Missing Spanish vertical product copy: ${source}`)
-}
-
-function localizeStory(
-  story: LocalizedVerticalProductStory,
-  locale: Locale
-): LocalizedVerticalProductStory {
-  if (locale === 'en') return story
-  return {
-    noun: translateStoryText(story.noun),
-    moments: story.moments.map((moment) => ({
-      ...moment,
-      label: translateStoryText(moment.label),
-      // The interaction model remains stable while Spanish presentation copy stays explicit.
-      title: `Organiza ${translateStoryText(moment.label).toLowerCase()} con claridad.`,
-      text: `Conecta la información, las personas y las decisiones de ${translateStoryText(moment.label).toLowerCase()} en un mismo flujo.`,
-      metricLabel: 'indicador operativo',
-      fields: moment.fields.map((field, index) => ({
-        label: ['Configuración', 'Asignación', 'Seguimiento'][index]!,
-        options: field.options.map((option) =>
-          /^(?:€|\d|[A-Z]{2,}|Stripe|PayPal|SEPA|Zoom|Google Meet|YouTube|Vimeo|Visa|Mastercard|Apple Pay|Google Pay|[A-Z][a-z]+(?: [A-Z][a-z]+)+)/.test(
-            option
-          )
-            ? option
-            : 'Opción disponible'
-        ),
-      })),
-      activity: moment.activity.map(() => 'Actualización operativa disponible'),
-    })),
-  }
-}
-
 export function getLocalizedVertical(slug: string, locale: Locale): LocalizedVertical | undefined {
   const vertical = verticals.find((item) => item.slug === slug)
   if (!vertical) return undefined
@@ -325,6 +260,5 @@ export function getLocalizedVerticalProductStory(
   slug: string,
   locale: Locale
 ): LocalizedVerticalProductStory | undefined {
-  const story = verticalProductStories[slug]
-  return story ? localizeStory(story, locale) : undefined
+  return locale === 'es' ? spanishVerticalProductStories[slug] : verticalProductStories[slug]
 }

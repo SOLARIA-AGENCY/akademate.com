@@ -10,6 +10,7 @@ import { getRequestLocale } from '@/lib/i18n/server'
 import { localizedHref } from '@/lib/i18n/routing'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { verticals } from '@/lib/marketing-content'
+import { getVerticalExperienceContent } from '@/lib/vertical-experience-content'
 import {
   getLocalizedSolutionDetail,
   getLocalizedVertical,
@@ -43,12 +44,12 @@ export async function generateMetadata({
     image: vertical.image,
     copy: {
       en: {
-        title: `${englishVertical.title} software`,
-        description: englishDetail.promise,
+        title: `${englishVertical.title} management software`,
+        description: `${englishDetail.promise} Manage ${englishDetail.modules.join(', ').toLowerCase()} with Akademate.`,
       },
       es: {
-        title: `Software para ${spanishVertical.title}`,
-        description: spanishDetail.promise,
+        title: `Software de gestión para ${spanishVertical.title.toLowerCase()}`,
+        description: `${spanishDetail.promise} Gestiona ${spanishDetail.modules.join(', ').toLowerCase()} con Akademate.`,
       },
     },
   })
@@ -62,6 +63,9 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
   const detail = getLocalizedSolutionDetail(slug, locale)
   if (!detail) notFound()
   const chrome = verticalPageChrome[locale]
+  const experience = getVerticalExperienceContent(slug, locale)
+  if (!experience) notFound()
+  const mediaFirst = verticals.findIndex((item) => item.slug === slug) % 2 === 0
   const href = (path: string) => localizedHref(path, locale)
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -105,6 +109,41 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
         </section>
+        <section className="overflow-hidden bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div
+            className={`mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-16 ${mediaFirst ? '' : 'lg:[&>*:first-child]:order-2'}`}
+          >
+            <div className="relative aspect-[3/2] overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_26px_80px_rgba(7,22,51,.13)]">
+              <Image
+                src={experience.image}
+                alt={experience.imageAlt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-blue-700">{experience.eyebrow}</p>
+              <h2 className="mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+                {experience.title}
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                {experience.description}
+              </p>
+              <div className="mt-9 grid gap-3 sm:grid-cols-3">
+                {experience.roles.map((role) => (
+                  <article
+                    key={role.title}
+                    className="rounded-2xl border border-blue-200 bg-white p-5"
+                  >
+                    <h3 className="font-semibold text-[#071633]">{role.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{role.text}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <p className="text-sm font-semibold text-blue-700">{chrome.experienceEyebrow}</p>
@@ -139,7 +178,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               {chrome.closingDescription}
             </p>
             <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-8">
-              {chrome.closingCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {experience.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>

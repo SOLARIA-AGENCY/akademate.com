@@ -6,6 +6,22 @@ import type { Locale } from '@/lib/i18n/routing'
  * registries and component contracts do not need locale-specific duplicates.
  */
 export const spanishMarketingCopy = {
+  'Academy team publishing a course website and online enrolment experience':
+    'Equipo de academia publicando una web de cursos y una experiencia de matrícula online',
+  'Academy admissions team coordinating enquiries and applications':
+    'Equipo de admisiones coordinando consultas y solicitudes',
+  'Academy operations team coordinating courses, rooms and schedules':
+    'Equipo de operaciones coordinando cursos, aulas y horarios',
+  'Teachers and academy staff coordinating their work together':
+    'Docentes y personal de la academia coordinando su trabajo',
+  'Teacher and learners taking part in a connected hybrid class':
+    'Docente y alumnado participando en una clase híbrida conectada',
+  'Academy finance team reviewing billing and payment performance':
+    'Equipo financiero revisando facturación y cobros de la academia',
+  'Academy library and equipment resources being organised for learners':
+    'Biblioteca y recursos de la academia organizados para el alumnado',
+  'Academy leadership reviewing connected performance insights':
+    'Dirección de la academia revisando indicadores conectados de rendimiento',
   'One connected academy operation': 'Una operación académica conectada',
   'One connected learner journey.': 'Un recorrido conectado para cada alumno.',
   'Bring every academy workflow into one connected learner record.':

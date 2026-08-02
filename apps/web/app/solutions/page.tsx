@@ -8,7 +8,12 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
-import { solutionDetails, verticals } from '@/lib/marketing-content'
+import { verticals } from '@/lib/marketing-content'
+import {
+  getLocalizedSolutionDetail,
+  getLocalizedVertical,
+  verticalPageChrome,
+} from '@/lib/vertical-i18n'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
@@ -54,7 +59,11 @@ export default async function SolutionsPage() {
             <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">
               <Image
                 src="/images/marketing/akademate-multisite-network.jpg"
-                alt="Academy teams coordinating courses across in-person, online and multi-site learning models"
+                alt={
+                  locale === 'es'
+                    ? 'Equipos de academia coordinando cursos presenciales, online y en varias sedes'
+                    : 'Academy teams coordinating courses across in-person, online and multi-site learning models'
+                }
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 58vw"
@@ -66,7 +75,8 @@ export default async function SolutionsPage() {
         <section className="px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
           <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2">
             {verticals.map((vertical, index) => {
-              const detail = solutionDetails[vertical.slug]
+              const localizedVertical = getLocalizedVertical(vertical.slug, locale)!
+              const detail = getLocalizedSolutionDetail(vertical.slug, locale)!
               return (
                 <Link
                   key={vertical.slug}
@@ -75,8 +85,8 @@ export default async function SolutionsPage() {
                 >
                   <div className="relative min-h-[300px] overflow-hidden">
                     <Image
-                      src={vertical.image}
-                      alt={vertical.imageAlt}
+                      src={localizedVertical.image}
+                      alt={localizedVertical.imageAlt}
                       fill
                       sizes={
                         index % 3 === 0
@@ -87,7 +97,9 @@ export default async function SolutionsPage() {
                     />
                   </div>
                   <div className="p-7 sm:p-9">
-                    <h2 className="text-3xl font-semibold tracking-tight">{vertical.title}</h2>
+                    <h2 className="text-3xl font-semibold tracking-tight">
+                      {localizedVertical.title}
+                    </h2>
                     <p className="mt-4 text-lg leading-7 text-slate-600">{detail.headline}</p>
                     <ul className="mt-7 grid gap-3 sm:grid-cols-2">
                       {detail.outcomes.slice(0, 4).map((item) => (
@@ -101,7 +113,7 @@ export default async function SolutionsPage() {
                       ))}
                     </ul>
                     <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
-                      Explore this solution{' '}
+                      {verticalPageChrome[locale].exploreSolution}{' '}
                       <ArrowRight
                         className="h-4 w-4 transition group-hover:translate-x-1"
                         aria-hidden="true"

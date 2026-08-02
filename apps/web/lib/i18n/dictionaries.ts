@@ -19,6 +19,7 @@ type Dictionary = {
     closeMenu: string
     chooseLanguage: string
     exploreCustomers: string
+    primaryNavigation: string
   }
   footer: {
     product: string
@@ -106,6 +107,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       closeMenu: 'Close menu',
       chooseLanguage: 'Choose language',
       exploreCustomers: 'Explore every customer type',
+      primaryNavigation: 'Primary navigation',
     },
     footer: {
       product: 'Product',
@@ -210,6 +212,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       closeMenu: 'Cerrar menú',
       chooseLanguage: 'Elegir idioma',
       exploreCustomers: 'Explora cada tipo de centro',
+      primaryNavigation: 'Navegación principal',
     },
     footer: {
       product: 'Producto',

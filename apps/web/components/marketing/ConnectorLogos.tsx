@@ -49,14 +49,14 @@ export function ConnectorLogos({
                 }}
               />
             )}
-            <span className="min-w-0 truncate text-xs font-semibold text-slate-800">
-              {brand.label}
-            </span>
-            {!compact && (
-              <span className="hidden text-[11px] text-slate-400 xl:inline">
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-semibold text-slate-800">
+                {brand.label}
+              </span>
+              <span className="block truncate text-[10px] leading-4 text-slate-400">
                 {copy.connectors.status[brand.status]}
               </span>
-            )}
+            </span>
           </div>
         )
       })}

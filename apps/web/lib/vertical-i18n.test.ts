@@ -57,7 +57,8 @@ describe('localized vertical product stories', () => {
       const spanishStory = getLocalizedVerticalProductStory(vertical.slug, 'es')!
       expect(spanish.slug).toBe(vertical.slug)
       expect(spanish.image).toBe(vertical.image)
-      expect(spanish.capabilities).toEqual(vertical.capabilities)
+      expect(spanish.capabilities).toHaveLength(vertical.capabilities.length)
+      expect(spanish.capabilities).not.toEqual(vertical.capabilities)
       expect(spanishStory.moments.map((moment) => moment.id)).toEqual(
         englishStory.moments.map((moment) => moment.id)
       )
@@ -118,5 +119,42 @@ describe('localized vertical product stories', () => {
     expect(getLocalizedVerticalProductStory('unknown', 'es')).toBeUndefined()
     for (const locale of supportedLocales)
       expect(Object.values(verticalPageChrome[locale]).every(Boolean)).toBe(true)
+  })
+
+  it('rejects heuristic placeholders and duplicate Spanish controls', () => {
+    const forbidden = [
+      'Actualización operativa disponible',
+      'Opción disponible',
+      'indicador operativo',
+      'Organiza clases con claridad',
+    ]
+
+    for (const { slug } of verticals) {
+      const story = getLocalizedVerticalProductStory(slug, 'es')!
+      const serialized = JSON.stringify(story)
+      for (const placeholder of forbidden) expect(serialized).not.toContain(placeholder)
+      for (const moment of story.moments) {
+        expect(new Set(moment.activity).size).toBe(moment.activity.length)
+        for (const field of moment.fields)
+          expect(new Set(field.options).size).toBe(field.options.length)
+      }
+    }
+  })
+
+  it('keeps every Spanish vertical recognisable by its own operational vocabulary', () => {
+    const signatures: Record<string, RegExp> = {
+      'professional-training': /convocatoria|admisiones|portafolio/i,
+      wellness: /vinyasa|reformer|membresía/i,
+      sports: /deportista|entrenador|temporada/i,
+      seasonal: /campamento|alergias|recogida/i,
+      'performing-arts': /danza|piano|recital/i,
+      'online-cohorts': /cohorte|grabación|comunidad/i,
+      languages: /mcer|nivelación|idioma/i,
+      networks: /sedes|operador local|grupo consolidado/i,
+    }
+    for (const { slug } of verticals)
+      expect(JSON.stringify(getLocalizedVerticalProductStory(slug, 'es'))).toMatch(
+        signatures[slug]!
+      )
   })
 })
