@@ -192,35 +192,45 @@ export const spanishMarketingCopy = {
   'Built around every academy model': 'Diseñado para cada modelo de academia',
   'Akademate trust signals': 'Señales de confianza de Akademate',
   'Learner-rated experience': 'Experiencia valorada por alumnos',
-  'See public feedback from a live Akademate academy': 'Consulta opiniones públicas de una academia Akademate activa',
+  'See public feedback from a live Akademate academy':
+    'Consulta opiniones públicas de una academia Akademate activa',
   'Consent-aware enquiries': 'Consultas con consentimiento',
-  'Clear privacy choices before people share their details': 'Opciones de privacidad claras antes de compartir datos',
+  'Clear privacy choices before people share their details':
+    'Opciones de privacidad claras antes de compartir datos',
   'Built for every classroom': 'Diseñado para cada aula',
-  'One flow for in-person, online and hybrid delivery': 'Un único flujo para formación presencial, online e híbrida',
+  'One flow for in-person, online and hybrid delivery':
+    'Un único flujo para formación presencial, online e híbrida',
   'Configure your operating stack': 'Configura tu operación',
-  'Activate the modules, roles and integrations you need': 'Activa los módulos, roles e integraciones que necesitas',
+  'Activate the modules, roles and integrations you need':
+    'Activa los módulos, roles e integraciones que necesitas',
   'View source': 'Ver fuente',
   'Public reviews, part of the experience': 'Reseñas públicas, parte de la experiencia',
   'Let every academy voice be heard.': 'Deja que se escuche la voz de cada academia.',
-  'Bring verified learner feedback into every course journey.': 'Incorpora opiniones verificadas de alumnos en cada recorrido formativo.',
+  'Bring verified learner feedback into every course journey.':
+    'Incorpora opiniones verificadas de alumnos en cada recorrido formativo.',
   'Five star public review': 'Reseña pública de cinco estrellas',
-  'Public learner review presented by CEP Formación': 'Reseña pública de alumno presentada por CEP Formación',
-  'These learner reviews are published on CEP Formación’s public academy website.': 'Estas reseñas de alumnos se publican en la web pública de CEP Formación.',
+  'Public learner review presented by CEP Formación':
+    'Reseña pública de alumno presentada por CEP Formación',
+  'These learner reviews are published on CEP Formación’s public academy website.':
+    'Estas reseñas de alumnos se publican en la web pública de CEP Formación.',
   'View public academy experience': 'Ver la experiencia de la academia pública',
   'Running with Akademate': 'Funciona con Akademate',
   'Built for modern academy models': 'Diseñado para modelos de academia modernos',
   'Trust by design': 'Confianza desde el diseño',
   'Grow with confidence.': 'Crece con confianza.',
-  'Privacy, security and responsible AI belong inside the product.': 'La privacidad, la seguridad y una IA responsable forman parte del producto.',
+  'Privacy, security and responsible AI belong inside the product.':
+    'La privacidad, la seguridad y una IA responsable forman parte del producto.',
   'Governance reference': 'Referencia de gobierno',
-  'Framework references shaping our privacy, security and responsible AI roadmap.': 'Referencias que orientan nuestra hoja de ruta de privacidad, seguridad e IA responsable.',
+  'Framework references shaping our privacy, security and responsible AI roadmap.':
+    'Referencias que orientan nuestra hoja de ruta de privacidad, seguridad e IA responsable.',
   'Explore responsible AI at Akademate': 'Explora la IA responsable en Akademate',
   'Optional AI connection': 'Conexión de IA opcional',
   'Connect your AI agent to Akademate.': 'Conecta tu agente de IA a Akademate.',
-  'Manage and configure your academy with MCP assistance.': 'Gestiona y configura tu academia con asistencia MCP.',
+  'Manage and configure your academy with MCP assistance.':
+    'Gestiona y configura tu academia con asistencia MCP.',
   'Explore the MCP roadmap': 'Explora la hoja de ruta de MCP',
   'Planned AI client connections': 'Conexiones previstas con clientes de IA',
-  'Connect': 'Conectar',
+  Connect: 'Conectar',
   'Choose an approved AI client.': 'Elige un cliente de IA aprobado.',
   Ask: 'Pedir',
   'Request help with academy work.': 'Solicita ayuda con el trabajo de la academia.',
@@ -228,20 +238,28 @@ export const spanishMarketingCopy = {
   'Confirm actions in Akademate.': 'Confirma acciones en Akademate.',
   'The connected physical campus': 'El campus físico conectado',
   'Connect every academy space.': 'Conecta cada espacio de la academia.',
-  'Link arrivals, rooms, schedules and on-site communications to the academy day.': 'Conecta llegadas, espacios, horarios y comunicación presencial con la jornada académica.',
-  'Welcome every learner. Record every arrival.': 'Da la bienvenida a cada alumno. Registra cada llegada.',
-  'Sync QR, NFC and RFID arrivals to learner records.': 'Sincroniza llegadas QR, NFC y RFID con los expedientes de alumnos.',
-  'Learners checking into an academy with QR and NFC access readers': 'Alumnos registrándose en una academia con lectores de acceso QR y NFC',
+  'Link arrivals, rooms, schedules and on-site communications to the academy day.':
+    'Conecta llegadas, espacios, horarios y comunicación presencial con la jornada académica.',
+  'Welcome every learner. Record every arrival.':
+    'Da la bienvenida a cada alumno. Registra cada llegada.',
+  'Sync QR, NFC and RFID arrivals to learner records.':
+    'Sincroniza llegadas QR, NFC y RFID con los expedientes de alumnos.',
+  'Learners checking into an academy with QR and NFC access readers':
+    'Alumnos registrándose en una academia con lectores de acceso QR y NFC',
   'QR check-in': 'Check-in con QR',
   'NFC and RFID cards': 'Tarjetas NFC y RFID',
   'Live attendance record': 'Registro de asistencia en directo',
-  'Turn every academy screen into a live channel.': 'Convierte cada pantalla de la academia en un canal activo.',
-  'Schedule calendars, announcements and promotions by site.': 'Programa calendarios, anuncios y promociones por sede.',
-  'Digital signage screens showing academy schedules and announcements across a campus': 'Pantallas de señalización digital con horarios y anuncios de la academia',
+  'Turn every academy screen into a live channel.':
+    'Convierte cada pantalla de la academia en un canal activo.',
+  'Schedule calendars, announcements and promotions by site.':
+    'Programa calendarios, anuncios y promociones por sede.',
+  'Digital signage screens showing academy schedules and announcements across a campus':
+    'Pantallas de señalización digital con horarios y anuncios de la academia',
   'Scheduled content': 'Contenido programado',
   'Display status 24/7': 'Estado de pantallas 24/7',
   'Multi-site publishing': 'Publicación multisedes',
-  'Display players, access readers and sensors connect through validated provider adapters.': 'Los reproductores, lectores de acceso y sensores se conectan mediante adaptadores validados de proveedores.',
+  'Display players, access readers and sensors connect through validated provider adapters.':
+    'Los reproductores, lectores de acceso y sensores se conectan mediante adaptadores validados de proveedores.',
   'Explore campus operations': 'Explora la operación del campus',
   'Academy models': 'Modelos de academia',
   'Explore solution': 'Explorar solución',
@@ -255,11 +273,14 @@ export const spanishMarketingCopy = {
   'AI transparency': 'Transparencia de IA',
   'Human oversight and transparent AI use.': 'Supervisión humana y uso transparente de la IA.',
   'Security management': 'Gestión de seguridad',
-  'Structured information-security controls.': 'Controles estructurados de seguridad de la información.',
+  'Structured information-security controls.':
+    'Controles estructurados de seguridad de la información.',
   'Trust controls': 'Controles de confianza',
-  'Security, availability and confidentiality controls.': 'Controles de seguridad, disponibilidad y confidencialidad.',
+  'Security, availability and confidentiality controls.':
+    'Controles de seguridad, disponibilidad y confidencialidad.',
   'Application security': 'Seguridad de aplicaciones',
-  'Modern web-application security practices.': 'Prácticas modernas de seguridad para aplicaciones web.',
+  'Modern web-application security practices.':
+    'Prácticas modernas de seguridad para aplicaciones web.',
   'Professional training': 'Formación profesional',
   'Language academies': 'Academias de idiomas',
   'Yoga and wellness': 'Yoga y bienestar',

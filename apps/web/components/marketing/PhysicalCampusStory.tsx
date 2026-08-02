@@ -52,7 +52,9 @@ export function PhysicalCampusStory() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-4xl">
-          <p className="text-sm font-semibold text-blue-200">{t('The connected physical campus')}</p>
+          <p className="text-sm font-semibold text-blue-200">
+            {t('The connected physical campus')}
+          </p>
           <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
             {t('Connect every academy space.')}
           </h2>
@@ -86,7 +88,8 @@ export function PhysicalCampusStory() {
                       key={label}
                       className="flex items-center gap-2 rounded-lg bg-white/[.07] px-3 py-3 text-sm font-semibold"
                     >
-                      <Icon className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" /> {t(label)}
+                      <Icon className="h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />{' '}
+                      {t(label)}
                     </li>
                   ))}
                 </ul>
@@ -95,7 +98,9 @@ export function PhysicalCampusStory() {
           ))}
         </div>
         <p className="mt-6 max-w-3xl text-sm leading-6 text-blue-100/60">
-          {t('Display players, access readers and sensors connect through validated provider adapters.')}
+          {t(
+            'Display players, access readers and sensors connect through validated provider adapters.'
+          )}
         </p>
         <Link
           href={localizedHref('/features', locale)}

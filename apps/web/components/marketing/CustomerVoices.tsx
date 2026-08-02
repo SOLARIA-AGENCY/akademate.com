@@ -40,7 +40,10 @@ export function CustomerVoices() {
               className={`relative min-h-[280px] p-7 sm:p-9 ${index < reviews.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}
             >
               <Quote className="h-7 w-7 text-blue-200" aria-hidden="true" />
-              <div className="mt-10 flex gap-1 text-amber-400" aria-label={t('Five star public review')}>
+              <div
+                className="mt-10 flex gap-1 text-amber-400"
+                aria-label={t('Five star public review')}
+              >
                 {Array.from({ length: 5 }).map((_, star) => (
                   <Star key={star} className="h-4 w-4 fill-current" aria-hidden="true" />
                 ))}
@@ -57,14 +60,17 @@ export function CustomerVoices() {
         </div>
 
         <div className="mt-7 flex flex-col gap-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>{t('These learner reviews are published on CEP Formación’s public academy website.')}</p>
+          <p>
+            {t('These learner reviews are published on CEP Formación’s public academy website.')}
+          </p>
           <Link
             href="https://cepformacion.akademate.com/"
             target="_blank"
             rel="noreferrer"
             className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
           >
-            {t('View public academy experience')} <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            {t('View public academy experience')}{' '}
+            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
       </div>

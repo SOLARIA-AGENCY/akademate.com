@@ -73,7 +73,9 @@ export function GovernanceFrameworks() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>{t('Framework references shaping our privacy, security and responsible AI roadmap.')}</p>
+          <p>
+            {t('Framework references shaping our privacy, security and responsible AI roadmap.')}
+          </p>
           <Link
             href={localizedHref('/legal/ia', locale)}
             className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"

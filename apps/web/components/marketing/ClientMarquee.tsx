@@ -20,7 +20,7 @@ export function ClientMarquee() {
         <p id="client-marquee-title" className="text-sm font-semibold text-slate-500">
           {t('Built around every academy model')}
         </p>
-      <p className="sr-only">{academyModelCoverage.map(t).join(', ')}</p>
+        <p className="sr-only">{academyModelCoverage.map(t).join(', ')}</p>
       </div>
       <div className="space-y-4" aria-hidden="true">
         {rows.map((row, rowIndex) => (

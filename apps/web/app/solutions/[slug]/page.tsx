@@ -10,7 +10,11 @@ import { getRequestLocale } from '@/lib/i18n/server'
 import { localizedHref } from '@/lib/i18n/routing'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { verticals } from '@/lib/marketing-content'
-import { getLocalizedSolutionDetail, getLocalizedVertical, verticalPageChrome } from '@/lib/vertical-i18n'
+import {
+  getLocalizedSolutionDetail,
+  getLocalizedVertical,
+  verticalPageChrome,
+} from '@/lib/vertical-i18n'
 
 export function generateStaticParams() {
   return verticals.map(({ slug }) => ({ slug }))
@@ -74,7 +78,9 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,15,39,.95),rgba(3,15,39,.72)_45%,rgba(3,15,39,.12))]" />
           <div className="relative mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 lg:px-8 lg:pb-20">
-            <p className="text-sm font-semibold text-blue-200">{chrome.heroPrefix} {vertical.title}</p>
+            <p className="text-sm font-semibold text-blue-200">
+              {chrome.heroPrefix} {vertical.title}
+            </p>
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">
               {detail.headline}
             </h1>
@@ -101,9 +107,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
         </section>
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <p className="text-sm font-semibold text-blue-700">
-              {chrome.experienceEyebrow}
-            </p>
+            <p className="text-sm font-semibold text-blue-700">{chrome.experienceEyebrow}</p>
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
               {chrome.experienceTitle}
             </h2>

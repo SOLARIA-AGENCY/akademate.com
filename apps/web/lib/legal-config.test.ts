@@ -17,16 +17,28 @@ import {
 describe('central legal contract', () => {
   it('keeps SOLARIA identity centralized and unresolved fields explicit', () => {
     expect(legalCompany.name).toBe('SOLARIA AGENCY OÜ')
-    for (const field of [legalCompany.registryCode, legalCompany.vatId, legalCompany.registeredOffice, legalCompany.operatingAddress, legalCompany.privacyContact]) {
+    for (const field of [
+      legalCompany.registryCode,
+      legalCompany.vatId,
+      legalCompany.registeredOffice,
+      legalCompany.operatingAddress,
+      legalCompany.privacyContact,
+    ]) {
       expect(field.value).toBeNull()
       expect(formatLegalField(field)).toMatch(/pending/i)
     }
-    expect(JSON.stringify(legalCompany)).not.toMatch(/FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i)
+    expect(JSON.stringify(legalCompany)).not.toMatch(
+      /FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i
+    )
   })
 
   it('exposes all required legal routes without legacy paths', () => {
     expect(legalLinks.map((link) => link.href)).toEqual([
-      '/legal/privacidad', '/legal/terminos', '/legal/cookies', '/legal/subencargados', '/legal/ia',
+      '/legal/privacidad',
+      '/legal/terminos',
+      '/legal/cookies',
+      '/legal/subencargados',
+      '/legal/ia',
     ])
   })
 
@@ -49,7 +61,9 @@ describe('central legal contract', () => {
     const english = getLegalContent('en')
     const spanish = getLegalContent('es')
 
-    expect(getLegalLinks('es').map((link) => link.href)).toEqual(legalLinks.map((link) => link.href))
+    expect(getLegalLinks('es').map((link) => link.href)).toEqual(
+      legalLinks.map((link) => link.href)
+    )
     expect(spanish.draftNotice).toMatch(/revisión profesional/i)
     expect(spanish.trackingPolicy.currentStatus).toBe(english.trackingPolicy.currentStatus)
 

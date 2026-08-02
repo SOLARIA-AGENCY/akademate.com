@@ -47,9 +47,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
             </h2>
           </div>
           <div className="lg:justify-self-end">
-            <p className="max-w-xl text-lg leading-8 text-slate-600">
-              {content.description}
-            </p>
+            <p className="max-w-xl text-lg leading-8 text-slate-600">{content.description}</p>
             {compact ? (
               <Link
                 href={localizedHref('/download', locale)}
@@ -143,9 +141,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
                     </li>
                   ))}
                 </ul>
-                <p className="mt-8 text-xs leading-5 text-blue-100/50">
-                  {content.previewOnly}
-                </p>
+                <p className="mt-8 text-xs leading-5 text-blue-100/50">{content.previewOnly}</p>
               </div>
             </div>
 

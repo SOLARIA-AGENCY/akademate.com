@@ -2,10 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import {
-  formatLegalField,
-  getLegalContent,
-} from '@/lib/legal-config'
+import { formatLegalField, getLegalContent } from '@/lib/legal-config'
 import { localizedHref, type Locale } from '@/lib/i18n/routing'
 
 type LegalSection = { title: string; content: ReactNode }

@@ -4,13 +4,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { getSecondaryPublicContent, secondaryPublicContent } from '@/lib/secondary-public-content'
 
-const legalRoutes = [
-  'cookies',
-  'ia',
-  'privacidad',
-  'subencargados',
-  'terminos',
-] as const
+const legalRoutes = ['cookies', 'ia', 'privacidad', 'subencargados', 'terminos'] as const
 
 describe('secondary public i18n contract', () => {
   it('keeps company, courses and download metadata/content present in English and Spanish', () => {
@@ -25,8 +19,12 @@ describe('secondary public i18n contract', () => {
       expect(content.apps.previewOnly).not.toHaveLength(0)
     }
 
-    expect(secondaryPublicContent.es.company.title).not.toBe(secondaryPublicContent.en.company.title)
-    expect(secondaryPublicContent.es.courses.title).not.toBe(secondaryPublicContent.en.courses.title)
+    expect(secondaryPublicContent.es.company.title).not.toBe(
+      secondaryPublicContent.en.company.title
+    )
+    expect(secondaryPublicContent.es.courses.title).not.toBe(
+      secondaryPublicContent.en.courses.title
+    )
   })
 
   it('keeps every app as a forthcoming preview across locales without changing asset identity', () => {
@@ -41,7 +39,10 @@ describe('secondary public i18n contract', () => {
 
   it('requires every legal route to select locale-aware content and localized alternates', () => {
     for (const route of legalRoutes) {
-      const source = readFileSync(new URL(`../app/legal/${route}/page.tsx`, import.meta.url), 'utf8')
+      const source = readFileSync(
+        new URL(`../app/legal/${route}/page.tsx`, import.meta.url),
+        'utf8'
+      )
       expect(source, route).toContain('getRequestLocale')
       expect(source, route).toMatch(/localizedAlternates|publicPageMetadata/)
       expect(source, route).toMatch(/\ben:\s*{/)

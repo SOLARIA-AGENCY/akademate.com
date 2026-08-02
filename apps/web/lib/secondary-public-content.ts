@@ -225,7 +225,8 @@ export const secondaryPublicContent: Record<Locale, SecondaryPublicContent> = {
           id: 'mac',
           label: 'Mac',
           title: 'Akademate para Mac',
-          description: 'Un espacio de trabajo de escritorio centrado para los equipos de la academia.',
+          description:
+            'Un espacio de trabajo de escritorio centrado para los equipos de la academia.',
           image: '/images/download/akademate-mac-app-v1.jpg',
           imageAlt: 'Espacio de trabajo de escritorio de Akademate mostrado en un portátil',
           capabilities: ['Operación diaria', 'Horarios y personas', 'Vista financiera'],

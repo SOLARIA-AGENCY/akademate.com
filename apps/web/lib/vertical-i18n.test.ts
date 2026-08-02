@@ -18,17 +18,34 @@ describe('localized vertical product stories', () => {
       expect(english).toBeDefined()
       expect(spanish).toBeDefined()
       expect(spanish!.moments).toHaveLength(english!.moments.length)
-      expect(spanish!.moments.map((moment) => moment.id)).toEqual(english!.moments.map((moment) => moment.id))
-      expect(spanish!.moments.map((moment) => moment.connectors ?? [])).toEqual(english!.moments.map((moment) => moment.connectors ?? []))
+      expect(spanish!.moments.map((moment) => moment.id)).toEqual(
+        english!.moments.map((moment) => moment.id)
+      )
+      expect(spanish!.moments.map((moment) => moment.connectors ?? [])).toEqual(
+        english!.moments.map((moment) => moment.connectors ?? [])
+      )
       for (const [index, moment] of english!.moments.entries()) {
         const localized = spanish!.moments[index]!
         expect(localized.fields).toHaveLength(moment.fields.length)
         expect(localized.activity).toHaveLength(moment.activity.length)
-        expect([localized.label, localized.title, localized.text, localized.metricLabel, ...localized.activity].every(Boolean)).toBe(true)
-        expect(localized.fields.flatMap((field) => [field.label, ...field.options]).every(Boolean)).toBe(true)
-        expect([localized.label, localized.title, localized.text, localized.metricLabel]).not.toEqual(
-          [moment.label, moment.title, moment.text, moment.metricLabel]
-        )
+        expect(
+          [
+            localized.label,
+            localized.title,
+            localized.text,
+            localized.metricLabel,
+            ...localized.activity,
+          ].every(Boolean)
+        ).toBe(true)
+        expect(
+          localized.fields.flatMap((field) => [field.label, ...field.options]).every(Boolean)
+        ).toBe(true)
+        expect([
+          localized.label,
+          localized.title,
+          localized.text,
+          localized.metricLabel,
+        ]).not.toEqual([moment.label, moment.title, moment.text, moment.metricLabel])
       }
     }
   })
@@ -41,23 +58,35 @@ describe('localized vertical product stories', () => {
       expect(spanish.slug).toBe(vertical.slug)
       expect(spanish.image).toBe(vertical.image)
       expect(spanish.capabilities).toEqual(vertical.capabilities)
-      expect(spanishStory.moments.map((moment) => moment.id)).toEqual(englishStory.moments.map((moment) => moment.id))
-      expect(spanishStory.moments.map((moment) => moment.metric)).toEqual(englishStory.moments.map((moment) => moment.metric))
-      expect(spanishStory.moments.map((moment) => moment.connectors)).toEqual(englishStory.moments.map((moment) => moment.connectors))
+      expect(spanishStory.moments.map((moment) => moment.id)).toEqual(
+        englishStory.moments.map((moment) => moment.id)
+      )
+      expect(spanishStory.moments.map((moment) => moment.metric)).toEqual(
+        englishStory.moments.map((moment) => moment.metric)
+      )
+      expect(spanishStory.moments.map((moment) => moment.connectors)).toEqual(
+        englishStory.moments.map((moment) => moment.connectors)
+      )
       expect(spanishStory).not.toBe(englishStory)
     }
   })
 
   it('uses complete localized metadata, alternates and internal links for every solution', () => {
-    for (const locale of supportedLocales) for (const { slug } of verticals) {
-      const detail = getLocalizedSolutionDetail(slug, locale)!
-      const path = `/solutions/${slug}`
-      expect(detail.headline).toBeTruthy()
-      expect(detail.promise).toBeTruthy()
-      expect(detail.outcomes).toHaveLength(solutionDetails[slug].outcomes.length)
-      expect(localizedHref('/contacto?asunto=demo', locale)).toBe(`/${locale}/contacto?asunto=demo`)
-      expect(localizedAlternates(path, locale)).toEqual({ canonical: `/${locale}${path}`, languages: { en: `/en${path}`, es: `/es${path}`, 'x-default': `/en${path}` } })
-    }
+    for (const locale of supportedLocales)
+      for (const { slug } of verticals) {
+        const detail = getLocalizedSolutionDetail(slug, locale)!
+        const path = `/solutions/${slug}`
+        expect(detail.headline).toBeTruthy()
+        expect(detail.promise).toBeTruthy()
+        expect(detail.outcomes).toHaveLength(solutionDetails[slug].outcomes.length)
+        expect(localizedHref('/contacto?asunto=demo', locale)).toBe(
+          `/${locale}/contacto?asunto=demo`
+        )
+        expect(localizedAlternates(path, locale)).toEqual({
+          canonical: `/${locale}${path}`,
+          languages: { en: `/en${path}`, es: `/es${path}`, 'x-default': `/en${path}` },
+        })
+      }
   })
 
   it('keeps each locale metadata copy and alternate URL distinct', () => {
@@ -76,9 +105,7 @@ describe('localized vertical product stories', () => {
 
     expect(metadata.title).toBe('Solución en español')
     expect(metadata.description).toBe(spanish.promise)
-    expect(metadata.alternates).toEqual(
-      localizedAlternates(`/solutions/${slug}`, 'es')
-    )
+    expect(metadata.alternates).toEqual(localizedAlternates(`/solutions/${slug}`, 'es'))
     expect(metadata.openGraph).toMatchObject({
       locale: 'es_ES',
       url: `/es/solutions/${slug}`,
@@ -89,6 +116,7 @@ describe('localized vertical product stories', () => {
 
   it('does not invent an unknown vertical and keeps all rendered chrome non-empty', () => {
     expect(getLocalizedVerticalProductStory('unknown', 'es')).toBeUndefined()
-    for (const locale of supportedLocales) expect(Object.values(verticalPageChrome[locale]).every(Boolean)).toBe(true)
+    for (const locale of supportedLocales)
+      expect(Object.values(verticalPageChrome[locale]).every(Boolean)).toBe(true)
   })
 })

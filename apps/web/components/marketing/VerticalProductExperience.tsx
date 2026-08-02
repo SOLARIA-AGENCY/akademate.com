@@ -45,7 +45,9 @@ export function VerticalProductExperience({ slug, locale }: { slug: string; loca
         key={moment.id}
       >
         <div className="bg-[#071633] p-7 text-white sm:p-10">
-          <p className="text-sm font-semibold text-blue-300">{chrome.designedFor} {story.noun}</p>
+          <p className="text-sm font-semibold text-blue-300">
+            {chrome.designedFor} {story.noun}
+          </p>
           <h3 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
             {moment.title}
           </h3>

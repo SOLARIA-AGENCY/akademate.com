@@ -159,7 +159,8 @@ const legalContent: Record<Locale, LegalContent> = {
       privacy: 'Privacidad y RGPD',
       responsibleAi: 'IA responsable',
       information: 'Información sobre privacidad e IA responsable',
-      detail: 'Descubre cómo aborda Akademate la privacidad, la transparencia y la supervisión humana.',
+      detail:
+        'Descubre cómo aborda Akademate la privacidad, la transparencia y la supervisión humana.',
       gdprAlt: 'RGPD',
       euAiActAlt: 'Reglamento de Inteligencia Artificial de la Unión Europea',
     },
