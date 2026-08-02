@@ -3,19 +3,23 @@
 import Image from 'next/image'
 import { Check, GraduationCap, Presentation, UsersRound } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { academyExperiences } from '@/lib/marketing-content'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { getHomeExperienceContent } from '@/lib/home-experience-i18n'
 
 const icons = [UsersRound, Presentation, GraduationCap] as const
 
 export function ConnectedExperiences() {
-  const [activeId, setActiveId] = useState<(typeof academyExperiences)[number]['id']>('operations')
+  const locale = useLocale()
+  const { experiences } = getHomeExperienceContent(locale)
+  const [activeId, setActiveId] = useState<(typeof experiences.items)[number]['id']>('operations')
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
-  const activeIndex = academyExperiences.findIndex((experience) => experience.id === activeId)
-  const active = academyExperiences[activeIndex] ?? academyExperiences[0]
+  const activeIndex = experiences.items.findIndex((experience) => experience.id === activeId)
+  const active = experiences.items[activeIndex]
+  if (!active) return null
 
   const selectTab = (index: number) => {
-    const next = (index + academyExperiences.length) % academyExperiences.length
-    const experience = academyExperiences[next]
+    const next = (index + experiences.items.length) % experiences.items.length
+    const experience = experiences.items[next]
     if (!experience) return
     setActiveId(experience.id)
     tabs.current[next]?.focus()
@@ -26,16 +30,12 @@ export function ConnectedExperiences() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-700">
-              One academy, connected around its people
-            </p>
+            <p className="text-sm font-semibold text-blue-700">{experiences.eyebrow}</p>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              One workspace for every role.
+              {experiences.title}
             </h2>
           </div>
-          <p className="max-w-2xl text-lg leading-8 text-slate-600">
-            One academy record. A focused workspace for every role.
-          </p>
+          <p className="max-w-2xl text-lg leading-8 text-slate-600">{experiences.description}</p>
         </div>
 
         <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-[#071633] shadow-[0_28px_80px_rgba(7,22,51,.16)]">
@@ -43,10 +43,10 @@ export function ConnectedExperiences() {
             <div className="flex flex-col p-6 text-white sm:p-9 lg:min-h-[640px] lg:p-10">
               <div
                 role="tablist"
-                aria-label="Akademate experiences"
+                aria-label={experiences.tabsLabel}
                 className="grid grid-cols-3 gap-2 border-b border-white/15 pb-6 lg:grid-cols-1 lg:gap-1"
               >
-                {academyExperiences.map((experience, index) => {
+                {experiences.items.map((experience, index) => {
                   const Icon = icons[index] ?? UsersRound
                   const selected = experience.id === active.id
                   return (
@@ -77,7 +77,7 @@ export function ConnectedExperiences() {
                         }
                         if (event.key === 'End') {
                           event.preventDefault()
-                          selectTab(academyExperiences.length - 1)
+                          selectTab(experiences.items.length - 1)
                         }
                       }}
                       className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 lg:justify-start lg:px-4 ${selected ? 'bg-white text-[#071633]' : 'text-blue-100/70 hover:bg-white/10 hover:text-white'}`}
