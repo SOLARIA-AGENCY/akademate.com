@@ -269,7 +269,9 @@ function DemoField({
         <input
           id={id}
           type={field.type}
-          defaultValue={'value' in field ? t(field.value) : ''}
+          defaultValue={
+            'value' in field ? (field.type === 'date' ? field.value : t(field.value)) : ''
+          }
           className="min-h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 font-normal text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
       )}

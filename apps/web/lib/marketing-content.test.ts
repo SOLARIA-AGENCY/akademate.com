@@ -603,6 +603,7 @@ describe('public marketing architecture', () => {
       expect(productMoments).toContain(label)
     expect(productMoments).toContain('<select')
     expect(productMoments).toContain('<input')
+    expect(productMoments).toContain("field.type === 'date' ? field.value : t(field.value)")
   })
 
   it('keeps the complete feature catalogue visible and previews modules on pointer and focus intent', () => {

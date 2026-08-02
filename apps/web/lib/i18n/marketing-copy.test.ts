@@ -35,6 +35,8 @@ describe('marketing copy registry', () => {
       'Public learner review presented by CEP Formación',
       'Explore responsible AI at Akademate',
       'Explore campus operations',
+      'AI workspace and MCP',
+      'Campaign intelligence',
     ] as const
 
     for (const source of sources) {

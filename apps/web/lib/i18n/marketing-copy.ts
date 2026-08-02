@@ -446,6 +446,8 @@ export const spanishMarketingCopy = {
   'Connect governed AI workflows and paid growth signals to the academy record.':
     'Conecta flujos de IA gobernados y señales de crecimiento de pago al expediente de la academia.',
   'Agentic and growth examples': 'Ejemplos de IA y crecimiento',
+  'AI workspace and MCP': 'Espacio de IA y MCP',
+  'Campaign intelligence': 'Inteligencia de campañas',
   'Ask Akademate': 'Pregunta a Akademate',
   'MCP workspace preview': 'Vista previa del espacio MCP',
   'Illustrative roadmap': 'Hoja de ruta ilustrativa',
@@ -490,6 +492,7 @@ export const spanishMarketingCopy = {
   Impressions: 'Impresiones',
   Reach: 'Alcance',
   Clicks: 'Clics',
+  CTR: 'CTR',
   Spend: 'Inversión',
   Leads: 'Leads',
   Applications: 'Solicitudes',
