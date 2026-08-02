@@ -18,9 +18,9 @@ describe('public locale routing', () => {
     expect(localizedHref('/en/features?source=nav#overview', 'es')).toBe(
       '/es/features?source=nav#overview'
     )
-    expect(localizedAlternates('/es/pricing')).toEqual({
-      canonical: '/pricing',
-      languages: { en: '/en/pricing', es: '/es/pricing', 'x-default': '/pricing' },
+    expect(localizedAlternates('/es/pricing', 'es')).toEqual({
+      canonical: '/es/pricing',
+      languages: { en: '/en/pricing', es: '/es/pricing', 'x-default': '/en/pricing' },
     })
   })
 

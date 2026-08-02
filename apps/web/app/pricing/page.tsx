@@ -22,7 +22,8 @@ import {
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { plans } from '@/lib/marketing-content'
 import {
@@ -34,11 +35,25 @@ import {
   type PlanEntitlement,
 } from '@/lib/pricing-content'
 
-export const metadata: Metadata = {
-  title: 'Pricing',
-  description:
-    'Launch, Business and Enterprise operating models for seasonal programmes, growing academies and multi-site organisations.',
-  alternates: localizedAlternates('/pricing'),
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  return publicPageMetadata({
+    locale,
+    pathname: '/pricing',
+    image: '/images/marketing/akademate-finance-accounting-v2.png',
+    copy: {
+      en: {
+        title: 'Akademate pricing and plans',
+        description:
+          'Compare Launch, Business and Enterprise operating scopes for programmes, academies and multi-site organisations.',
+      },
+      es: {
+        title: 'Planes y precios de Akademate',
+        description:
+          'Compara los alcances Launch, Business y Enterprise para programas, academias y organizaciones multisedes.',
+      },
+    },
+  })
 }
 
 const planIcons = [Rocket, Cloud, Server] as const

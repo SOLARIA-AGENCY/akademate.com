@@ -18,7 +18,9 @@ import {
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { marketingText } from '@/lib/i18n/marketing-copy'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { AcademySetupJourney } from '@/components/marketing/AcademySetupJourney'
 import { AgenticGrowthShowcase } from '@/components/marketing/AgenticGrowthShowcase'
@@ -31,11 +33,25 @@ import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistri
 import { integrationPillarBrands } from '@/lib/integration-brands'
 import { integrationPillars, platformPillars, roadmapModules } from '@/lib/marketing-content'
 
-export const metadata: Metadata = {
-  title: 'Features',
-  description:
-    'Explore Akademate across public websites, growth, admissions, academic operations, campus, people, finance, accounting, resources and integrations.',
-  alternates: localizedAlternates('/features'),
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  return publicPageMetadata({
+    locale,
+    pathname: '/features',
+    image: '/images/marketing/akademate-product-ecosystem-v2.png',
+    copy: {
+      en: {
+        title: 'Academy management features',
+        description:
+          'Explore websites, growth, admissions, academic operations, campus, people, finance, resources and integrations.',
+      },
+      es: {
+        title: 'Funciones para gestionar academias',
+        description:
+          'Explora web, captación, admisiones, operación académica, campus, personas, finanzas, recursos e integraciones.',
+      },
+    },
+  })
 }
 
 const pillarIcons = [
@@ -61,6 +77,26 @@ export default async function FeaturesPage() {
   const locale = await getRequestLocale()
   const dictionary = getDictionary(locale)
   const href = (path: string) => localizedHref(path, locale)
+  const tx = (source: string) => marketingText(locale, source)
+  const pillars = platformPillars.map((pillar) => ({
+    ...pillar,
+    sourceTitle: pillar.title,
+    title: tx(pillar.title),
+    text: tx(pillar.text),
+    capabilities: pillar.capabilities.map(tx),
+  }))
+  const roadmap = roadmapModules.map((module) => ({
+    ...module,
+    title: tx(module.title),
+    phase: tx(module.phase),
+    text: tx(module.text),
+  }))
+  const integrations = integrationPillars.map((pillar) => ({
+    ...pillar,
+    sourceTitle: pillar.title,
+    title: tx(pillar.title),
+    text: tx(pillar.text),
+  }))
 
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -104,10 +140,10 @@ export default async function FeaturesPage() {
           className="sticky top-[72px] z-30 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8"
         >
           <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto py-4">
-            {platformPillars.map((pillar) => (
+            {pillars.map((pillar) => (
               <Link
                 key={pillar.title}
-                href={`#platform-${slugify(pillar.title)}`}
+                href={`#platform-${slugify(pillar.sourceTitle)}`}
                 className="shrink-0 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-blue-300 hover:text-blue-700"
               >
                 {pillar.title}
@@ -122,19 +158,19 @@ export default async function FeaturesPage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                One connected academy system.
+                {tx('One connected academy system.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Eight layers connect discovery, learning, operations and decisions.
+                {tx('Eight layers connect discovery, learning, operations and decisions.')}
               </p>
             </div>
             <div className="mt-14 grid border border-blue-200 md:grid-cols-2 lg:grid-cols-4">
-              {platformPillars.map((pillar, index) => {
+              {pillars.map((pillar, index) => {
                 const Icon = pillarIcons[index] ?? Network
                 return (
                   <article
-                    id={`platform-${slugify(pillar.title)}`}
-                    key={pillar.title}
+                    id={`platform-${slugify(pillar.sourceTitle)}`}
+                    key={pillar.sourceTitle}
                     className="scroll-mt-44 border-b border-blue-200 px-6 py-8 lg:min-h-[360px] lg:border-r"
                   >
                     <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
@@ -161,10 +197,10 @@ export default async function FeaturesPage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                Publish a complete academy experience.
+                {tx('Publish a complete academy experience.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Publish through your website, domain or embedded modules.
+                {tx('Publish through your website, domain or embedded modules.')}
               </p>
             </div>
             <div className="scroll-depth mt-12">
@@ -177,17 +213,17 @@ export default async function FeaturesPage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                Explore an example operating flow.
+                {tx('Explore an example operating flow.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                See reservations, CRM, campus and payments working together.
+                {tx('See reservations, CRM, campus and payments working together.')}
               </p>
             </div>
             <div className="mt-12">
               <ProductMoments />
             </div>
             <p className="mt-5 text-sm leading-6 text-slate-500">
-              Illustrative product flow; configuration depends on each academy.
+              {tx('Illustrative product flow; configuration depends on each academy.')}
             </p>
           </div>
         </section>
@@ -202,14 +238,14 @@ export default async function FeaturesPage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                The roadmap extends beyond the core.
+                {tx('The roadmap extends beyond the core.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                The roadmap connects finance, people, resources and learning.
+                {tx('The roadmap connects finance, people, resources and learning.')}
               </p>
             </div>
             <div className="mt-14 grid overflow-hidden rounded-2xl border border-slate-200 md:grid-cols-2 lg:grid-cols-3">
-              {roadmapModules.map((module, index) => {
+              {roadmap.map((module, index) => {
                 const Icon = roadmapIcons[index] ?? Code2
                 return (
                   <article
@@ -230,10 +266,10 @@ export default async function FeaturesPage() {
         <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              Connect your academy ecosystem.
+              {tx('Connect your academy ecosystem.')}
             </h2>
             <div className="mt-12 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
-              {integrationPillars.map((pillar) => (
+              {integrations.map((pillar) => (
                 <article
                   key={pillar.title}
                   className="border-b border-blue-200 px-6 py-8 lg:border-b-0 lg:border-r last:lg:border-r-0"
@@ -244,13 +280,16 @@ export default async function FeaturesPage() {
                   </p>
                   <p className="mt-5 text-sm leading-6 text-slate-600">{pillar.text}</p>
                   <div className="mt-6">
-                    <ConnectorLogos ids={integrationPillarBrands[pillar.title] ?? []} compact />
+                    <ConnectorLogos
+                      ids={integrationPillarBrands[pillar.sourceTitle] ?? []}
+                      compact
+                    />
                   </div>
                 </article>
               ))}
             </div>
             <p className="mt-7 max-w-3xl text-sm leading-6 text-slate-600">
-              Provider availability and scope are agreed during onboarding.
+              {tx('Provider availability and scope are agreed during onboarding.')}
             </p>
           </div>
         </section>
@@ -258,13 +297,13 @@ export default async function FeaturesPage() {
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-5xl text-center">
             <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              See how Akademate fits your operation.
+              {tx('See how Akademate fits your operation.')}
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              Map your academy into one connected operating model.
+              {tx('Map your academy into one connected operating model.')}
             </p>
-            <Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">
-              Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <Link href={href('/contacto?asunto=demo')} className="button-primary-dark mt-9">
+              {tx('Book a demo')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>

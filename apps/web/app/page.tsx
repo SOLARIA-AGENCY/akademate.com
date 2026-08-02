@@ -19,7 +19,9 @@ import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistri
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { marketingText } from '@/lib/i18n/marketing-copy'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { insightPosts, newsPosts } from '@/lib/blog-posts'
 import { homeIntegrationBrands } from '@/lib/integration-brands'
@@ -30,17 +32,48 @@ import {
   platformPillars,
 } from '@/lib/marketing-content'
 
-export const metadata: Metadata = {
-  title: 'The operating system for academies',
-  description:
-    'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
-  alternates: localizedAlternates('/'),
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  return publicPageMetadata({
+    locale,
+    pathname: '/',
+    copy: {
+      en: {
+        title: 'The operating system for academies',
+        description:
+          'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
+      },
+      es: {
+        title: 'El sistema operativo para academias',
+        description:
+          'Publica, matricula, enseña, cobra y crece en academias presenciales, online e híbridas.',
+      },
+    },
+  })
 }
 
 export default async function HomePage() {
   const locale = await getRequestLocale()
   const dictionary = getDictionary(locale)
   const href = (path: string) => localizedHref(path, locale)
+  const tx = (source: string) => marketingText(locale, source)
+  const journey = operatingJourney.map((item) => ({
+    ...item,
+    title: tx(item.title),
+    text: tx(item.text),
+  }))
+  const distribution = distributionModes.map((mode) => ({
+    ...mode,
+    title: tx(mode.title),
+    text: tx(mode.text),
+  }))
+  const homePillars = platformPillars.map((pillar) => ({
+    ...pillar,
+    sourceTitle: pillar.title,
+    title: tx(pillar.title),
+    text: tx(pillar.text),
+    capabilities: pillar.capabilities.map(tx),
+  }))
 
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -85,16 +118,18 @@ export default async function HomePage() {
         <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold text-blue-700">One connected academy operation</p>
+              <p className="text-sm font-semibold text-blue-700">
+                {tx('One connected academy operation')}
+              </p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                One connected learner journey.
+                {tx('One connected learner journey.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Bring every academy workflow into one connected learner record.
+                {tx('Bring every academy workflow into one connected learner record.')}
               </p>
             </div>
             <ol className="mt-10 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
-              {operatingJourney.map((item) => (
+              {journey.map((item) => (
                 <li
                   key={item.step}
                   className="journey-step border-b border-blue-200 px-5 py-7 lg:border-b-0 lg:border-r last:lg:border-r-0"
@@ -115,16 +150,16 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                One platform. Every part of the academy.
+                {tx('One platform. Every part of the academy.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Choose the modules your academy needs. Keep every role connected.
+                {tx('Choose the modules your academy needs. Keep every role connected.')}
               </p>
             </div>
             <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-              {platformPillars.map((pillar) => (
+              {homePillars.map((pillar) => (
                 <article
-                  key={pillar.title}
+                  key={pillar.sourceTitle}
                   className="group overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_14px_40px_rgba(7,22,51,.06)]"
                 >
                   <div className="relative aspect-[3/2] overflow-hidden">
@@ -155,10 +190,10 @@ export default async function HomePage() {
               ))}
             </div>
             <Link
-              href="/features"
+              href={href('/features')}
               className="mt-9 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
-              Explore every module <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {tx('Explore every module')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>
@@ -171,20 +206,20 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <p className="text-sm font-semibold text-blue-700">
-                Your public academy, connected to operations
+                {tx('Your public academy, connected to operations')}
               </p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                From discovery to enrolment.
+                {tx('From discovery to enrolment.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Launch, connect your domain or embed live Akademate modules.
+                {tx('Launch, connect your domain or embed live Akademate modules.')}
               </p>
             </div>
             <div className="scroll-depth mt-10">
               <WebsiteDistributionPreview />
             </div>
             <div className="mt-10 grid border border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
-              {distributionModes.map((mode, index) => (
+              {distribution.map((mode, index) => (
                 <article
                   key={mode.title}
                   className="border-b border-blue-200 px-6 py-8 lg:border-b-0 lg:border-r last:lg:border-r-0"
@@ -203,14 +238,14 @@ export default async function HomePage() {
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
               <div>
                 <p className="text-sm font-semibold text-blue-700">
-                  Built to convert interest into action
+                  {tx('Built to convert interest into action')}
                 </p>
                 <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-                  A shareable page for every course.
+                  {tx('A shareable page for every course.')}
                 </h2>
               </div>
               <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                Give every offer one shareable page for discovery and booking.
+                {tx('Give every offer one shareable page for discovery and booking.')}
               </p>
             </div>
             <div className="scroll-depth mt-10">
@@ -228,7 +263,7 @@ export default async function HomePage() {
               ].map((item) => (
                 <span key={item} className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-blue-700" aria-hidden="true" />
-                  {item}
+                  {tx(item)}
                 </span>
               ))}
             </div>
@@ -238,21 +273,24 @@ export default async function HomePage() {
         <section className="border-y border-blue-200 bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.42fr_.58fr] lg:items-center">
             <div>
-              <p className="text-sm font-semibold text-blue-700">A connected academy ecosystem</p>
+              <p className="text-sm font-semibold text-blue-700">
+                {tx('A connected academy ecosystem')}
+              </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
-                Connect every tool. Keep one flow.
+                {tx('Connect every tool. Keep one flow.')}
               </h2>
               <p className="mt-4 max-w-xl leading-7 text-slate-600">
-                Connect payments, campaigns, delivery, domains and automation.
+                {tx('Connect payments, campaigns, delivery, domains and automation.')}
               </p>
             </div>
             <div>
               <ConnectorLogos ids={homeIntegrationBrands} />
               <Link
-                href="/features"
+                href={href('/features')}
                 className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
               >
-                Explore integrations by module <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                {tx('Explore integrations by module')}{' '}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
@@ -266,10 +304,10 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                Built around your academy model.
+                {tx('Built around your academy model.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Run every academy model on one connected foundation.
+                {tx('Run every academy model on one connected foundation.')}
               </p>
             </div>
             <SolutionCarousel />
@@ -280,10 +318,10 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                Choose the operating scope you need.
+                {tx('Choose the operating scope you need.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Launch one programme, grow an academy or run a network.
+                {tx('Launch one programme, grow an academy or run a network.')}
               </p>
             </div>
             <div className="mt-10 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
@@ -315,7 +353,7 @@ export default async function HomePage() {
                     ))}
                   </ul>
                   <Link
-                    href={`/contacto?asunto=${plan.subject}`}
+                    href={href(`/contacto?asunto=${plan.subject}`)}
                     className={
                       index === 1 ? 'button-primary-light mt-9' : 'button-primary-dark mt-9'
                     }
@@ -326,10 +364,10 @@ export default async function HomePage() {
               ))}
             </div>
             <Link
-              href="/pricing"
+              href={href('/pricing')}
               className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
-              Compare plans <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {tx('Compare plans')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>
@@ -340,14 +378,14 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-                Insights and product news.
+                {tx('Insights and product news.')}
               </h2>
               <div className="flex gap-5 text-sm font-semibold text-blue-700">
-                <Link href="/blog" className="inline-flex min-h-11 items-center gap-2">
-                  Explore insights <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                <Link href={href('/blog')} className="inline-flex min-h-11 items-center gap-2">
+                  {tx('Explore insights')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <Link href="/news" className="inline-flex min-h-11 items-center gap-2">
-                  Read news <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                <Link href={href('/news')} className="inline-flex min-h-11 items-center gap-2">
+                  {tx('Read news')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
             </div>
@@ -355,11 +393,11 @@ export default async function HomePage() {
               {[
                 { label: 'Latest insight', href: '/blog', post: insightPosts[0] },
                 { label: 'Latest news', href: '/news', post: newsPosts.at(-1) },
-              ].map(({ label, href, post }) =>
+              ].map(({ label, href: basePath, post }) =>
                 post ? (
                   <Link
                     key={post.slug}
-                    href={`${href}/${post.slug}`}
+                    href={href(`${basePath}/${post.slug}`)}
                     className="group block rounded-2xl border border-slate-200 bg-white p-3"
                   >
                     <div className="media-reveal relative aspect-[16/9] overflow-hidden rounded-xl">
@@ -373,7 +411,7 @@ export default async function HomePage() {
                     </div>
                     <div className="p-4 sm:p-5">
                       <p className="text-sm font-semibold text-blue-700">
-                        {label} · {post.readingTime}
+                        {tx(label)} · {post.readingTime}
                       </p>
                       <h3 className="mt-3 text-2xl font-semibold tracking-tight transition-colors group-hover:text-blue-700 sm:text-3xl">
                         {post.title}
@@ -395,13 +433,13 @@ export default async function HomePage() {
               aria-hidden="true"
             />
             <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              Build the academy people want to join.
+              {tx('Build the academy people want to join.')}
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100/75">
-              Connect your public experience, operation and learning journey.
+              {tx('Connect your public experience, operation and learning journey.')}
             </p>
-            <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">
-              Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
+              {tx('Book a demo')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>

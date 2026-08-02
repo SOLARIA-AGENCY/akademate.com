@@ -5,20 +5,36 @@ import { ArrowRight, Check } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { localizedAlternates } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { solutionDetails, verticals } from '@/lib/marketing-content'
 
-export const metadata: Metadata = {
-  title: 'Who Akademate is for',
-  description:
-    'Explore how Akademate adapts to professional training, languages, wellness, sport, camps, performing arts, online education and multi-site groups.',
-  alternates: localizedAlternates('/solutions'),
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  return publicPageMetadata({
+    locale,
+    pathname: '/solutions',
+    image: '/images/marketing/akademate-multisite-network.jpg',
+    copy: {
+      en: {
+        title: 'Academy software for every learning model',
+        description:
+          'Explore Akademate for professional training, languages, wellness, sport, camps, performing arts, online education and multi-site groups.',
+      },
+      es: {
+        title: 'Software para cada modelo de academia',
+        description:
+          'Descubre Akademate para formación profesional, idiomas, bienestar, deporte, campamentos, artes, educación online y redes multisedes.',
+      },
+    },
+  })
 }
 
 export default async function SolutionsPage() {
   const locale = await getRequestLocale()
   const dictionary = getDictionary(locale)
+  const href = (path: string) => localizedHref(path, locale)
 
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -54,7 +70,7 @@ export default async function SolutionsPage() {
               return (
                 <Link
                   key={vertical.slug}
-                  href={`/solutions/${vertical.slug}`}
+                  href={href(`/solutions/${vertical.slug}`)}
                   className={`group overflow-hidden rounded-2xl bg-white shadow-sm ${index % 3 === 0 ? 'md:col-span-2 md:grid md:grid-cols-2' : ''}`}
                 >
                   <div className="relative min-h-[300px] overflow-hidden">

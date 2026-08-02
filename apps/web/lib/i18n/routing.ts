@@ -137,17 +137,20 @@ export function localizedHref(href: string, locale: Locale): string {
   return `${localizePathname(pathname, locale)}${suffix}`
 }
 
-export function localizedAlternates(pathname: string): {
+export function localizedAlternates(
+  pathname: string,
+  locale: Locale = defaultLocale
+): {
   canonical: string
   languages: Record<'en' | 'es' | 'x-default', string>
 } {
-  const { pathname: canonical } = stripLocalePrefix(pathname)
+  const { pathname: canonicalPathname } = stripLocalePrefix(pathname)
   return {
-    canonical,
+    canonical: localizePathname(canonicalPathname, locale),
     languages: {
-      en: localizePathname(canonical, 'en'),
-      es: localizePathname(canonical, 'es'),
-      'x-default': canonical,
+      en: localizePathname(canonicalPathname, 'en'),
+      es: localizePathname(canonicalPathname, 'es'),
+      'x-default': localizePathname(canonicalPathname, defaultLocale),
     },
   }
 }
