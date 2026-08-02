@@ -9,6 +9,7 @@ import {
   campaignMetrics,
 } from '@/lib/agentic-growth-content'
 import { appDownloadOptions } from '@/lib/app-download-content'
+import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 import { blogPosts, insightPosts, newsPosts } from '@/lib/blog-posts'
 import { featureModuleDetails } from '@/lib/feature-module-details'
 import { integrationBrands, integrationPillarBrands } from '@/lib/integration-brands'
@@ -186,14 +187,18 @@ describe('public marketing architecture', () => {
       )
     ).toBe(true)
 
-    const download = readFileSync(new URL('../app/download/page.tsx', import.meta.url), 'utf8')
-    const showcase = readFileSync(
-      new URL('../components/marketing/AppDownloadShowcase.tsx', import.meta.url),
-      'utf8'
+    for (const locale of ['en', 'es'] as const) {
+      const apps = getSecondaryPublicContent(locale).apps
+      expect(apps.options.map((option) => option.id)).toEqual(['mac', 'iphone', 'ipad'])
+      expect(apps.previewOnly).toMatch(/coming soon|próximamente/i)
+      expect(apps.options.every((option) => /coming soon|próximamente/i.test(option.status))).toBe(
+        true
+      )
+    }
+
+    expect(JSON.stringify(getSecondaryPublicContent('en').apps)).not.toMatch(
+      /App Store|Download now|Install now/
     )
-    expect(`${download}${showcase}`).toMatch(/Coming soon/)
-    expect(showcase).toContain('Applications are coming soon')
-    expect(`${download}${showcase}`).not.toMatch(/App Store|Download now|Install now/)
   })
 
   it('makes connected role experiences and the operating dashboard first-class Home stories', () => {

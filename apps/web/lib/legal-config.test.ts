@@ -4,7 +4,15 @@ import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
-import { formatLegalField, legalCompany, legalDraftNotice, legalLinks, trackingPolicy } from '@/lib/legal-config'
+import {
+  formatLegalField,
+  getLegalContent,
+  getLegalLinks,
+  legalCompany,
+  legalDraftNotice,
+  legalLinks,
+  trackingPolicy,
+} from '@/lib/legal-config'
 
 describe('central legal contract', () => {
   it('keeps SOLARIA identity centralized and unresolved fields explicit', () => {
@@ -35,5 +43,29 @@ describe('central legal contract', () => {
   it('documents why no consent manager is installed', () => {
     expect(trackingPolicy.currentStatus).toBe('no-non-essential-trackers')
     expect(trackingPolicy.activationGate).toMatch(/granular fail-closed consent/i)
+  })
+
+  it('keeps the Spanish trust contract aligned without resolving placeholder identity facts', () => {
+    const english = getLegalContent('en')
+    const spanish = getLegalContent('es')
+
+    expect(getLegalLinks('es').map((link) => link.href)).toEqual(legalLinks.map((link) => link.href))
+    expect(spanish.draftNotice).toMatch(/revisión profesional/i)
+    expect(spanish.trackingPolicy.currentStatus).toBe(english.trackingPolicy.currentStatus)
+
+    for (const field of [
+      spanish.company.registryCode,
+      spanish.company.vatId,
+      spanish.company.registeredOffice,
+      spanish.company.operatingAddress,
+      spanish.company.privacyContact,
+    ]) {
+      expect(field.value).toBeNull()
+      expect(formatLegalField(field)).toMatch(/pendiente/i)
+    }
+
+    expect(JSON.stringify(spanish.company)).not.toMatch(
+      /FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i
+    )
   })
 })

@@ -4,33 +4,25 @@ import Link from 'next/link'
 import { ArrowRight, Compass, Layers3, Sparkles } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
+import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
-export const metadata: Metadata = {
-  title: 'Company',
-  description:
-    'Meet Akademate, the academy operating system built to create better learning businesses and better learner experiences.',
-  alternates: { canonical: '/sobre-nosotros' },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const { metadata } = getSecondaryPublicContent(locale).company
+  return { ...metadata, alternates: localizedAlternates('/sobre-nosotros') }
 }
 
-const principles = [
-  {
-    icon: Compass,
-    title: 'Operate with context',
-    text: 'Connect the decisions, people and learner journeys behind the academy.',
-  },
-  {
-    icon: Layers3,
-    title: 'One system, clear responsibility',
-    text: 'Bring teams together while keeping roles and organisational boundaries meaningful.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Automate the work around teaching',
-    text: 'Automate repetitive work with clear human oversight.',
-  },
-] as const
+export default async function AboutPage() {
+  const locale = await getRequestLocale()
+  const content = getSecondaryPublicContent(locale).company
+  const href = (path: string) => localizedHref(path, locale)
+  const principles = content.principles.map((principle, index) => ({
+    ...principle,
+    icon: [Compass, Layers3, Sparkles][index] ?? Compass,
+  }))
 
-export default function AboutPage() {
   return (
     <div className="marketing-page min-h-screen bg-white text-[#071633]">
       <Header />
@@ -38,22 +30,22 @@ export default function AboutPage() {
         <section className="grid min-h-[calc(100dvh-73px)] items-stretch bg-[#071633] text-white lg:grid-cols-[.82fr_1.18fr]">
           <div className="flex items-center px-4 py-20 sm:px-8 lg:px-[max(2rem,calc((100vw-80rem)/2))]">
             <div className="max-w-xl">
-              <p className="section-kicker">Meet Akademate</p>
+              <p className="section-kicker">{content.kicker}</p>
               <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em]">
-                Built for academy growth.
+                {content.title}
               </h1>
               <p className="mt-7 text-lg leading-8 text-blue-100/75">
-                Akademate connects growth, learning and daily operations.
+                {content.description}
               </p>
-              <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">
-                Build the future with us <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
+                {content.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
           <div className="scroll-depth relative min-h-[480px] overflow-hidden">
             <Image
               src="/images/marketing/akademate-company-blueprint-v2.png"
-              alt="Akademate product blueprint connecting websites, admissions, courses, campus, finance and insights"
+              alt={content.imageAlt}
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 58vw"
@@ -63,9 +55,9 @@ export default function AboutPage() {
         </section>
         <section className="bg-[#071633] px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <p className="text-sm font-semibold text-blue-200">Why we exist</p>
+            <p className="text-sm font-semibold text-blue-200">{content.whyWeExist}</p>
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              Better operations. More space for teaching.
+              {content.sectionTitle}
             </h2>
             <div className="mt-14 grid border border-white/15 md:grid-cols-3">
               {principles.map(({ icon: Icon, title, text }) => (

@@ -4,15 +4,24 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Check, Laptop, Smartphone, Tablet } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { appDownloadOptions, type AppDownloadId } from '@/lib/app-download-content'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { getSecondaryPublicContent, type AppDownloadId } from '@/lib/secondary-public-content'
+import { localizedHref } from '@/lib/i18n/routing'
 
 const icons = [Laptop, Smartphone, Tablet] as const
 
 export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) {
+  const locale = useLocale()
+  const content = getSecondaryPublicContent(locale).apps
+  const appDownloadOptions = content.options
   const [activeId, setActiveId] = useState<AppDownloadId>('mac')
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
   const activeIndex = appDownloadOptions.findIndex((option) => option.id === activeId)
   const active = appDownloadOptions[activeIndex] ?? appDownloadOptions[0]
+
+  if (!active) {
+    throw new Error('App download content must provide at least one application preview.')
+  }
 
   const selectApp = (id: AppDownloadId, focus = false) => {
     setActiveId(id)
@@ -29,24 +38,24 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-700">A workspace for every screen</p>
+            <p className="text-sm font-semibold text-blue-700">{content.kicker}</p>
             <h2
               id="apps-download-title"
               className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl"
             >
-              Akademate apps are coming.
+              {content.title}
             </h2>
           </div>
           <div className="lg:justify-self-end">
             <p className="max-w-xl text-lg leading-8 text-slate-600">
-              Native experiences for academy teams, teachers and learners.
+              {content.description}
             </p>
             {compact ? (
               <Link
-                href="/download"
+                href={localizedHref('/download', locale)}
                 className="mt-5 inline-flex min-h-11 items-center font-semibold text-blue-700 hover:text-blue-900"
               >
-                Explore the app roadmap
+                {content.roadmapLink}
               </Link>
             ) : null}
           </div>
@@ -57,7 +66,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
             <div className="flex flex-col p-5 text-white sm:p-8 lg:min-h-[620px] lg:p-10">
               <div
                 role="tablist"
-                aria-label="Future Akademate applications"
+                aria-label={content.tabListLabel}
                 className="grid grid-cols-3 gap-2 border-b border-white/15 pb-6 lg:grid-cols-1"
               >
                 {appDownloadOptions.map((option, index) => {
@@ -135,7 +144,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
                   ))}
                 </ul>
                 <p className="mt-8 text-xs leading-5 text-blue-100/50">
-                  Preview only. Applications are coming soon.
+                  {content.previewOnly}
                 </p>
               </div>
             </div>

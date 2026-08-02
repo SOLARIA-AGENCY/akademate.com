@@ -2,37 +2,40 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
+import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
-export const metadata: Metadata = {
-  title: 'Course discovery and academy catalogues',
-  description:
-    'Discover how Akademate helps each academy publish programmes, dates, places and booking journeys.',
-  alternates: { canonical: '/cursos' },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const { metadata } = getSecondaryPublicContent(locale).courses
+  return { ...metadata, alternates: localizedAlternates('/cursos') }
 }
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const locale = await getRequestLocale()
+  const content = getSecondaryPublicContent(locale).courses
+
   return (
     <div className="marketing-page flex min-h-screen flex-col">
       <Header />
-      <main id="contenido" className="flex flex-1 items-center px-4 py-20 sm:px-6">
+      <main id="content" className="flex flex-1 items-center px-4 py-20 sm:px-6">
         <section className="mx-auto max-w-3xl">
-          <p className="text-sm font-semibold text-primary">Academy-powered catalogues</p>
+          <p className="text-sm font-semibold text-primary">{content.kicker}</p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight">
-            Turn programmes into enrolment.
+            {content.title}
           </h1>
           <p className="mt-5 text-lg leading-8 text-muted-foreground">
-            Publish courses, schedules and bookings in one academy space.
+            {content.description}
           </p>
           <div className="mt-8 rounded-2xl border bg-muted/30 p-6 text-sm leading-7 text-muted-foreground">
-            Looking for a specific course? Visit the academy that provides it. Planning your own
-            catalogue? We&apos;ll show you how discovery, admissions, payments and learning delivery
-            connect in one operating flow.
+            {content.detail}
           </div>
           <Link
-            href="/contacto?asunto=demo"
+            href={localizedHref('/contacto?asunto=demo', locale)}
             className="mt-8 inline-flex min-h-11 items-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90"
           >
-            See the catalogue experience
+            {content.cta}
           </Link>
         </section>
       </main>

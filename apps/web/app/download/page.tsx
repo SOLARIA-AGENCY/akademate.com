@@ -5,15 +5,21 @@ import { ArrowRight, Laptop, Smartphone, Tablet } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
+import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { getRequestLocale } from '@/lib/i18n/server'
+import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
-export const metadata: Metadata = {
-  title: 'Download Akademate apps — Coming soon',
-  description:
-    'Preview the upcoming Akademate apps for Mac, iPhone and iPad. Native applications are coming soon.',
-  alternates: { canonical: '/download' },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const { metadata } = getSecondaryPublicContent(locale).download
+  return { ...metadata, alternates: localizedAlternates('/download') }
 }
 
-export default function DownloadPage() {
+export default async function DownloadPage() {
+  const locale = await getRequestLocale()
+  const content = getSecondaryPublicContent(locale).download
+  const href = (path: string) => localizedHref(path, locale)
+
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
       <Header />
@@ -21,12 +27,12 @@ export default function DownloadPage() {
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-12 text-white sm:px-6 lg:px-8 lg:py-16">
           <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[.9fr_1.1fr]">
             <div className="max-w-xl">
-              <p className="text-sm font-semibold text-blue-200">Coming soon</p>
+              <p className="text-sm font-semibold text-blue-200">{content.comingSoon}</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl">
-                Akademate on every screen.
+                {content.title}
               </h1>
               <p className="mt-6 text-lg leading-8 text-blue-100/75">
-                Future native apps for academy teams, teachers and learners.
+                {content.description}
               </p>
               <div className="mt-8 flex flex-wrap gap-2 text-sm font-semibold text-blue-100/80">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2">
@@ -43,7 +49,7 @@ export default function DownloadPage() {
             <div className="relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_32px_100px_rgba(2,12,34,.45)]">
               <Image
                 src="/images/download/akademate-apps-device-family-v1.jpg"
-                alt="Future Akademate experiences presented across laptop, tablet and smartphone"
+                alt={content.imageAlt}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 60vw"
@@ -57,15 +63,15 @@ export default function DownloadPage() {
 
         <section className="px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
           <div className="product-texture mx-auto max-w-7xl rounded-2xl bg-[#071633] px-6 py-14 text-center text-white sm:px-12">
-            <p className="text-sm font-semibold text-blue-200">Product roadmap</p>
+            <p className="text-sm font-semibold text-blue-200">{content.roadmap}</p>
             <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-              Bring Akademate to your academy.
+              {content.roadmapTitle}
             </h2>
             <p className="mx-auto mt-5 max-w-xl leading-7 text-blue-100/70">
-              Talk to us about web access today and native app priorities.
+              {content.roadmapDescription}
             </p>
-            <Link href="/contacto?asunto=apps" className="button-primary-light mt-8">
-              Discuss your workflow <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <Link href={href('/contacto?asunto=apps')} className="button-primary-light mt-8">
+              {content.roadmapCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>
