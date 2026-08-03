@@ -43,18 +43,22 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Unit and structural adversarial tests.
 - [x] Real PostgreSQL constraint and guarded-rollback QA using the exact migration SQL.
 - [x] Physical `migrations-next` discovery integrated after the Signage migration.
-- [x] Fresh PostgreSQL 16 run applying exactly eight Next migrations.
+- [x] Fresh PostgreSQL 16 run applying exactly nine Next migrations.
 - [x] Dedicated authenticated GET/PATCH configuration command, default-off outside Akademate Next.
 - [x] Tenant-scoped PostgreSQL RLS and column-level grants for the runtime application role.
 - [x] Operator configuration UI with conditional Shadcn fields and a stable preview.
 - [x] Adversarial route, handler, UI and real-database access tests.
 - [x] Public share-page renderer and tenant theming, default-off behind a Next-only flag.
 - [x] Host-and-slug-scoped read-only projection with no direct public table grants.
-- [x] Real external-link action and honest contact fallback while internal write commands remain closed.
-- [ ] Command endpoints for lead, application, enrollment and checkout creation.
+- [x] Real external-link action and honest contact fallback for information and unimplemented paid flows.
+- [x] Next-native public command for interest, application and enrolment requests.
+- [x] Desktop and mobile browser QA for the public request flow, including persistence, console,
+  network, tracker and horizontal-overflow checks.
+- [ ] Confirmed enrollment and checkout creation commands.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
-- [ ] Public publishing action and browser QA after the share-page renderer exists.
+- [ ] Authenticated operator inbox and lifecycle commands for received submissions.
+- [ ] Bot challenge and configurable retention/erasure jobs for public submission data.
 
 ## PostgreSQL evidence — 2026-08-03
 
@@ -78,12 +82,22 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - The projection resolves an exact custom domain or tenant subdomain plus share slug. Real PostgreSQL
   checks rejected a wrong host and a draft offer, and resolved the same slug independently for two
   tenants.
+- A ninth append-only migration creates the tenant-scoped public submission ledger and the only
+  permitted write command for interest, approval and enrolment requests. It stores consent version,
+  separates optional marketing consent, supports safe idempotent replay and enforces a distributed
+  five-per-hour contact/offer limit in PostgreSQL.
+- The application role has no direct insert permission on the submission ledger. It can invoke only
+  the bounded command and managers can read submissions only inside their active tenant context.
 - The public API and `/o/[slug]` renderer are unavailable unless
   `AKADEMATE_NEXT_PUBLIC_OFFERS_ENABLED=true`. Public offers may be indexed; unlisted offers emit
   `noindex,nofollow` metadata.
-- Internal lead, application, enrollment and checkout modes intentionally do not post to CEP's lead
-  endpoint. Until their Next-native commands exist, the page uses the academy's configured contact
-  destination and never simulates registration or payment success.
+- Interest, application and free-registration modes submit to the Next-native ledger and return a
+  request state only; they never simulate a confirmed place. Information-only and paid modes use the
+  academy's configured contact destination until a bounded Next checkout command exists. No mode
+  posts to CEP's lead endpoint.
+- Isolated production-build QA rendered the page at 1440x1000 and 390x844, submitted a real
+  approval request with HTTP 201 and verified one persisted record, zero console errors, zero failed
+  requests, zero tracker requests and no mobile horizontal overflow.
 
 ## Operator workflow
 
@@ -99,6 +113,11 @@ course-run endpoint or a generic Payload mutation.
 The read-only public route is `GET /api/next/public/offers/:slug`. It additionally requires
 `AKADEMATE_NEXT_PUBLIC_OFFERS_ENABLED=true`, validates the request host before querying and returns
 the same not-found boundary for malformed, private, draft and cross-tenant requests.
+
+The public submission route is `POST /api/next/public/offers/:slug/submissions`. It additionally
+requires `AKADEMATE_NEXT_PUBLIC_SUBMISSIONS_ENABLED=true`, a valid HTTPS privacy-notice URL, a
+versioned notice identifier and a server-only HMAC pepper. It accepts only bounded consented requests
+for interest, approval-required and free-registration offers. Paid checkout remains fail-closed.
 
 ## Runtime boundary
 

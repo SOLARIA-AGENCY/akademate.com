@@ -13,6 +13,7 @@ const layout = readFileSync(path.join(
   root,
   'apps/tenant-admin/app/(next-public)/layout.tsx',
 ), 'utf8')
+const middleware = readFileSync(path.join(root, 'apps/tenant-admin/middleware.ts'), 'utf8')
 
 test('keeps the public offer route default-off and read-only', () => {
   assert.match(route, /AKADEMATE_NEXT_PUBLIC_OFFERS_ENABLED !== 'true'/)
@@ -30,4 +31,10 @@ test('does not import CEP public runtime, branding or trackers', () => {
     'publicconsentmanager',
     '@payload-config',
   ]) assert.equal(combined.includes(forbidden), false)
+})
+
+test('allows only the bounded Next offer page and API prefixes through authentication middleware', () => {
+  assert.match(middleware, /'\/o\/'[^\n]*Next tenant-scoped shareable offer pages/)
+  assert.match(middleware, /'\/api\/next\/public\/offers\/'[^\n]*host, runtime and feature flags/)
+  assert.doesNotMatch(middleware, /'\/api\/next\/'[^\n]*public/)
 })

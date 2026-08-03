@@ -6,6 +6,7 @@ import { NextLearningInfrastructureError } from '../learning/next-learning-trans
 import {
   resolveNextPublicOfferDatabaseConfig,
   withNextPublicOfferTransaction,
+  withNextPublicOfferWriteTransaction,
 } from './public-offer-database.ts'
 
 type Row = Record<string, unknown>
@@ -58,6 +59,21 @@ test('uses a read-only transaction under a non-owner non-bypass role', async () 
   })
   assert.equal(result, 'public-offer')
   assert.match(calls[0] ?? '', /SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY/)
+})
+
+test('uses a serializable write transaction for the bounded submission command only', async () => {
+  const { calls, pool } = fakePool({
+    current_user: 'akademate_next_app',
+    rolsuper: false,
+    rolbypassrls: false,
+  })
+  const result = await withNextPublicOfferWriteTransaction(async () => 'submission', {
+    pool,
+    expectedRole: 'akademate_next_app',
+    runtime: 'next',
+  })
+  assert.equal(result, 'submission')
+  assert.match(calls[0] ?? '', /SET TRANSACTION ISOLATION LEVEL SERIALIZABLE, READ WRITE/)
 })
 
 test('rejects superuser, bypass-RLS and mismatched connections before the projection', async () => {

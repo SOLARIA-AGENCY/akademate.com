@@ -9,6 +9,7 @@ import {
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@akademate/ui'
 
 import type { NextPublicOffer } from '@/src/lib/offers/public-offer-query'
+import { PublicOfferSubmissionForm } from './PublicOfferSubmissionForm'
 
 const modalityLabels: Record<string, string> = {
   presencial: 'In person',
@@ -42,9 +43,20 @@ function fallbackActionLabel(mode: NextPublicOffer['conversionMode']) {
   }
 }
 
-export function PublicOfferPageView({ offer }: { offer: NextPublicOffer }) {
+export function PublicOfferPageView({
+  offer,
+  privacyNoticeUrl,
+}: {
+  offer: NextPublicOffer
+  privacyNoticeUrl?: string | null
+}) {
   const externalAction = offer.conversionMode === 'external_link' && offer.externalActionUrl
-  const contactAction = !externalAction && offer.tenantContactEmail
+  const internalSubmission = privacyNoticeUrl && (
+    offer.conversionMode === 'interest_form'
+    || offer.conversionMode === 'approval_required'
+    || offer.conversionMode === 'free_registration'
+  )
+  const contactAction = !externalAction && !internalSubmission && offer.tenantContactEmail
   const actionHref = externalAction
     || (contactAction
       ? `mailto:${encodeURIComponent(contactAction)}?subject=${encodeURIComponent(`Information about ${offer.courseName}`)}`
@@ -153,7 +165,13 @@ export function PublicOfferPageView({ offer }: { offer: NextPublicOffer }) {
                 ) : null}
               </div>
             ) : null}
-            {actionHref ? (
+            {internalSubmission ? (
+              <PublicOfferSubmissionForm
+                mode={offer.conversionMode as 'interest_form' | 'approval_required' | 'free_registration'}
+                shareSlug={offer.shareSlug}
+                privacyNoticeUrl={privacyNoticeUrl!}
+              />
+            ) : actionHref ? (
               <Button asChild size="lg" className="w-full bg-[var(--offer-accent)] text-white hover:opacity-90">
                 <a href={actionHref} rel={externalAction ? 'noopener noreferrer' : undefined}>
                   {actionLabel}

@@ -12,6 +12,7 @@
     "app/(next-public)/layout.tsx",
     "app/(next-public)/o/[slug]/**/*.tsx",
     "app/api/next/public/offers/[slug]/route.ts",
+    "app/api/next/public/offers/[slug]/submissions/route.ts",
     "src/lib/offers/**/*.ts",
     "src/lib/learning/next-learning-auth.ts",
     "src/lib/learning/next-learning-transaction.ts"

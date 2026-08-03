@@ -6,8 +6,16 @@ import {
   updateNextOfferConfiguration,
 } from '../src/lib/offers/offer-configuration-command.ts'
 import { withNextLearningTransaction } from '../src/lib/learning/next-learning-transaction.ts'
-import { withNextPublicOfferTransaction } from '../src/lib/offers/public-offer-database.ts'
+import {
+  withNextPublicOfferTransaction,
+  withNextPublicOfferWriteTransaction,
+} from '../src/lib/offers/public-offer-database.ts'
 import { NextPublicOfferError, getNextPublicOffer } from '../src/lib/offers/public-offer-query.ts'
+import {
+  NextPublicOfferSubmissionError,
+  parseNextPublicOfferSubmission,
+  submitNextPublicOffer,
+} from '../src/lib/offers/public-offer-submission.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -298,6 +306,88 @@ try {
   `
   assert.equal(projectionPrivilege?.can_execute, true)
 
+  const submissionInput = parseNextPublicOfferSubmission({
+    idempotencyKey: '018f6f52-86a7-7c8f-a477-01b9c6407a11',
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.test',
+    phone: '+46 70 123 45 67',
+    message: 'Application proof',
+    privacyAccepted: true,
+    marketingConsent: false,
+    companyWebsite: '',
+  })
+  const submit = (input = submissionInput, host = 'tenant-b.akademate.com') => (
+    withNextPublicOfferWriteTransaction((tx) => submitNextPublicOffer({
+      tx,
+      host,
+      shareSlug: 'shared-offer',
+      input,
+      privacyNoticeVersion: '2026-08-03',
+      fingerprintPepper: 'public-submission-proof-pepper-32-bytes-minimum',
+    }))
+  )
+  const createdSubmission = await submit()
+  assert.deepEqual(createdSubmission, {
+    submissionId: createdSubmission.submissionId,
+    kind: 'application',
+    status: 'pending_review',
+    replayed: false,
+  })
+  assert.equal((await submit()).replayed, true)
+  adversarialChecks.add('submission-idempotent-replay')
+
+  await assert.rejects(
+    submit({ ...submissionInput, message: 'Conflicting replay' }),
+    (error: unknown) => error instanceof NextPublicOfferSubmissionError
+      && error.code === 'submission_idempotency_conflict',
+  )
+  adversarialChecks.add('submission-conflicting-replay-rejected')
+
+  await assert.rejects(
+    submit({ ...submissionInput, idempotencyKey: '018f6f52-86a7-7c8f-a477-01b9c6407a12' }, 'tenant-a.akademate.com'),
+    (error: unknown) => error instanceof NextPublicOfferSubmissionError
+      && error.code === 'submission_not_available',
+  )
+  adversarialChecks.add('paid-offer-cannot-use-submission-command')
+
+  for (let index = 2; index <= 5; index += 1) {
+    await submit({
+      ...submissionInput,
+      idempotencyKey: `018f6f52-86a7-7c8f-a477-01b9c6407a1${index}`,
+      message: `Application proof ${index}`,
+    })
+  }
+  await assert.rejects(
+    submit({
+      ...submissionInput,
+      idempotencyKey: '018f6f52-86a7-7c8f-a477-01b9c6407a16',
+      message: 'Application proof 6',
+    }),
+    (error: unknown) => error instanceof NextPublicOfferSubmissionError
+      && error.code === 'submission_rate_limited',
+  )
+  adversarialChecks.add('submission-rate-limit-is-database-enforced')
+
+  const [submissionPrivileges] = await sql<{ can_select: boolean; can_insert: boolean }[]>`
+    SELECT
+      has_table_privilege(${appRole}, 'offer_submissions', 'SELECT') AS can_select,
+      has_table_privilege(${appRole}, 'offer_submissions', 'INSERT') AS can_insert
+  `
+  assert.deepEqual(submissionPrivileges, { can_select: true, can_insert: false })
+  const tenantSubmissionCounts = await app.begin(async (transaction) => {
+    await transaction`SELECT set_config('app.tenant_id', ${String(tenantB!.id)}, true)`
+    await transaction`SELECT set_config('app.user_id', ${String(userB.id)}, true)`
+    await transaction`SELECT set_config('app.role', 'admin', true)`
+    return transaction<{ tenant_id: number; count: number }[]>`
+      SELECT tenant_id, count(*)::integer AS count
+      FROM offer_submissions
+      GROUP BY tenant_id
+    `
+  })
+  assert.deepEqual([...tenantSubmissionCounts], [{ tenant_id: tenantB!.id, count: 5 }])
+  adversarialChecks.add('submission-manager-read-remains-tenant-scoped')
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
@@ -305,6 +395,7 @@ try {
     priceColumn: 'offer_price_amount',
     operatorCommand: 'app-role-rls-verified',
     publicProjection: 'host-scoped-read-only',
+    publicSubmissions: 'consented-idempotent-rate-limited',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

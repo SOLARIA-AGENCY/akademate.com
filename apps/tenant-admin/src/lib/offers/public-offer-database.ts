@@ -104,3 +104,33 @@ export async function withNextPublicOfferTransaction<T>(
     return callback(tx)
   })
 }
+
+export async function withNextPublicOfferWriteTransaction<T>(
+  callback: (tx: LearningSqlClient) => Promise<T>,
+  options: TransactionOptions = {},
+): Promise<T> {
+  const runtime = options.runtime ?? process.env.AKADEMATE_RUNTIME
+  if (runtime !== 'next') fail('next_runtime_required')
+  const connection = options.pool && options.expectedRole
+    ? { pool: options.pool, expectedRole: safeRoleIdentifier(options.expectedRole) }
+    : defaults()
+
+  return connection.pool.begin(async (tx) => {
+    await tx.unsafe('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE, READ WRITE')
+    const roles = await tx.unsafe<RoleRow>(`
+      SELECT current_user, rolsuper, rolbypassrls
+      FROM pg_roles
+      WHERE rolname = current_user
+      LIMIT 1
+    `)
+    const role = roles[0]
+    if (
+      !role
+      || role.current_user !== connection.expectedRole
+      || role.rolsuper
+      || role.rolbypassrls
+    ) fail('database_role_unsafe')
+
+    return callback(tx)
+  })
+}

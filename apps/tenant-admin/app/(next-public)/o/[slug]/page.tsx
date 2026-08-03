@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 
 import { withNextPublicOfferTransaction } from '@/src/lib/offers/public-offer-database'
 import { NextPublicOfferError, getNextPublicOffer } from '@/src/lib/offers/public-offer-query'
+import { currentNextPublicSubmissionConfig } from '@/src/lib/offers/public-offer-submission-config'
 import { PublicOfferPageView } from './PublicOfferPageView'
 
 export const dynamic = 'force-dynamic'
@@ -69,5 +70,8 @@ export default async function PublicOfferPage({
   const [{ slug }, host] = await Promise.all([params, requestHost()])
   const offer = await loadOffer(host, slug)
   if (!offer) notFound()
-  return <PublicOfferPageView offer={offer} />
+  return <PublicOfferPageView
+    offer={offer}
+    privacyNoticeUrl={currentNextPublicSubmissionConfig()?.privacyNoticeUrl}
+  />
 }

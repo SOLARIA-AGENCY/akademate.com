@@ -114,7 +114,7 @@ export function normalizePublicOfferHost(value: string): string {
   return normalized
 }
 
-function normalizeShareSlug(value: string): string {
+export function normalizeShareSlug(value: string): string {
   if (value.length < 3 || value.length > 160 || !SLUG_PATTERN.test(value)) {
     fail('public_offer_slug_invalid')
   }
