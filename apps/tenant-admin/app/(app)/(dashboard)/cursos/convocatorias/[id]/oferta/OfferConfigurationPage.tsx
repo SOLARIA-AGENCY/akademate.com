@@ -210,6 +210,20 @@ export function OfferConfigurationForm({
     setState((current) => ({ ...current, [key]: value }))
   }
 
+  const selectMode = (conversionMode: ConversionMode) => {
+    setSaved(false)
+    setError(null)
+    setState((current) => ({
+      ...current,
+      conversionMode,
+      formTemplateKey: conversionMode === 'interest_form'
+        ? 'lead-standard'
+        : conversionMode === 'approval_required'
+          ? 'application-standard'
+          : current.formTemplateKey,
+    }))
+  }
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!parsed.success) {
@@ -292,7 +306,7 @@ export function OfferConfigurationForm({
                         name="conversion-mode"
                         value={mode.value}
                         checked={selected}
-                        onChange={() => update('conversionMode', mode.value)}
+                        onChange={() => selectMode(mode.value)}
                         className="mt-1 size-4 accent-primary"
                       />
                       <span className="flex min-w-0 flex-1 gap-3">
@@ -313,20 +327,27 @@ export function OfferConfigurationForm({
               </div>
             </FieldSet>
 
-            {(state.conversionMode === 'interest_form' || state.conversionMode === 'approval_required') ? (
-              <Field data-invalid={Boolean(!state.formTemplateKey.trim())}>
-                <FieldLabel htmlFor="offer-form-template">Formulario conectado</FieldLabel>
-                <Input
-                  id="offer-form-template"
-                  value={state.formTemplateKey}
-                  onChange={(event) => update('formTemplateKey', event.target.value)}
-                  placeholder={state.conversionMode === 'approval_required' ? 'application-standard' : 'lead-standard'}
-                  aria-invalid={!state.formTemplateKey.trim()}
-                />
-                <FieldDescription>
-                  Selecciona el formulario que recogerá los datos sin iniciar pagos ni confirmar plazas automáticamente.
-                </FieldDescription>
-              </Field>
+            {(state.conversionMode === 'interest_form'
+              || state.conversionMode === 'approval_required'
+              || state.conversionMode === 'free_registration') ? (
+              <Alert>
+                <ClipboardCheck aria-hidden="true" />
+                <AlertTitle>
+                  {state.conversionMode === 'approval_required'
+                    ? 'Formulario estándar de solicitud'
+                    : state.conversionMode === 'free_registration'
+                      ? 'Formulario estándar de inscripción'
+                      : 'Formulario estándar de contacto'}
+                </AlertTitle>
+                <AlertDescription>
+                  <span className="block font-medium text-foreground">
+                    Nombre y apellidos · Email · Teléfono · Mensaje
+                  </span>
+                  <span className="mt-1 block">
+                    Incluye aceptación de privacidad y consentimiento de marketing separado. El constructor de campos personalizados se añadirá como una capacidad independiente.
+                  </span>
+                </AlertDescription>
+              </Alert>
             ) : null}
 
             {state.conversionMode === 'external_link' ? (

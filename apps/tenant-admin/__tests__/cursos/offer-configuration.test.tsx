@@ -88,9 +88,9 @@ describe('OfferConfigurationForm', () => {
     render(<OfferConfigurationForm record={record} onSave={onSave} />)
 
     fireEvent.click(screen.getByRole('radio', { name: /Formulario de interés/i }))
-    fireEvent.change(screen.getByLabelText('Formulario conectado'), {
-      target: { value: 'lead-standard' },
-    })
+    expect(screen.getByText('Formulario estándar de contacto')).toBeInTheDocument()
+    expect(screen.getByText('Nombre y apellidos · Email · Teléfono · Mensaje')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Formulario conectado')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Guardar recorrido' }))
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1))
@@ -98,6 +98,29 @@ describe('OfferConfigurationForm', () => {
       publicationAccess: 'private',
       conversionMode: 'interest_form',
       formTemplateKey: 'lead-standard',
+      capacityPolicy: 'limited',
+    })
+  })
+
+  it('connects the review application preset automatically and does not expose its technical key', async () => {
+    const onSave = vi.fn(async (input) => ({
+      ...record,
+      conversionMode: input.conversionMode,
+      formTemplateKey: input.formTemplateKey ?? null,
+    }))
+    render(<OfferConfigurationForm record={record} onSave={onSave} />)
+
+    fireEvent.click(screen.getByRole('radio', { name: /Solicitud con aprobación/i }))
+
+    expect(screen.getByText('Formulario estándar de solicitud')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Formulario conectado')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar recorrido' }))
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1))
+    expect(onSave).toHaveBeenCalledWith({
+      publicationAccess: 'private',
+      conversionMode: 'approval_required',
+      formTemplateKey: 'application-standard',
       capacityPolicy: 'limited',
     })
   })

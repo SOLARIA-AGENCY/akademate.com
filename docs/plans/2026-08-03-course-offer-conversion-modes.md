@@ -7,7 +7,7 @@ Akademate configures public conversion per `course-run` (convocatoria/edition), 
 ## Supported modes
 
 - `information_only`: public or shareable information with no form, enrollment or payment action.
-- `interest_form`: a configurable form creates a lead for academy follow-up; it does not reserve a
+- `interest_form`: the standard contact form creates a lead for academy follow-up; it does not reserve a
   place or initiate payment.
 - `free_registration`: collects a registration request without checkout. Confirmation remains an
   explicit academy action and cannot silently become a paid flow.
@@ -25,7 +25,10 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 The configuration UI asks one bounded question: **what should the visitor be able to do?** The
 selected answer is exclusive. A manager cannot combine a passive information page with a hidden
 form, attach payment settings to a free registration, or attach an external redirect to an internal
-submission. Visibility and the shareable page remain independent from this decision.
+submission. Visibility and the shareable page remain independent from this decision. Selecting
+contact or approval automatically connects the supported standard preset; the operator never needs
+to enter its internal key. The current standard form collects name, surname, email, optional phone
+and message, with privacy acceptance and marketing consent separated.
 
 ## Independent policies
 
