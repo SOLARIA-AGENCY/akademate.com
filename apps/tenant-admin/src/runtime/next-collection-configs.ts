@@ -150,6 +150,117 @@ export const NextStaff: CollectionConfig = {
   ],
 }
 
+export const NextCampuses: CollectionConfig = {
+  ...timestamped,
+  slug: 'campuses',
+  fields: [
+    relation('tenant', 'tenants'),
+    { name: 'slug', type: 'text', required: true, index: true, maxLength: 100 },
+    { name: 'name', type: 'text', required: true, maxLength: 200 },
+    { name: 'city', type: 'text', required: true, maxLength: 100 },
+    { name: 'address', type: 'text' },
+    { name: 'postal_code', type: 'text' },
+    { name: 'phone', type: 'text' },
+    { name: 'email', type: 'email' },
+    { name: 'maps_url', type: 'text' },
+  ],
+}
+
+export const SignageDisplays: CollectionConfig = {
+  ...timestamped,
+  slug: 'signage-displays',
+  fields: [
+    relation('tenant', 'tenants'),
+    relation('site', 'campuses'),
+    { name: 'display_key', type: 'text', required: true, index: true, maxLength: 128 },
+    { name: 'name', type: 'text', required: true, maxLength: 200 },
+    { name: 'status', type: 'select', required: true, defaultValue: 'provisioning', options: ['provisioning', 'active', 'suspended', 'revoked'] },
+    { name: 'orientation', type: 'select', required: true, defaultValue: 'landscape', options: ['landscape', 'portrait'] },
+    { name: 'resolution_width', type: 'number', min: 1, max: 32_768 },
+    { name: 'resolution_height', type: 'number', min: 1, max: 32_768 },
+    { name: 'provider_key', type: 'text' },
+    { name: 'provider_display_reference', type: 'text' },
+    { name: 'last_seen_at', type: 'date' },
+    { name: 'lock_version', type: 'number', required: true, defaultValue: 0, min: 0, max: 2_147_483_647 },
+  ],
+}
+
+export const SignagePlaylists: CollectionConfig = {
+  ...timestamped,
+  slug: 'signage-playlists',
+  fields: [
+    relation('tenant', 'tenants'),
+    relation('site', 'campuses'),
+    { name: 'playlist_key', type: 'text', required: true, index: true, maxLength: 128 },
+    { name: 'name', type: 'text', required: true, maxLength: 200 },
+    { name: 'timezone', type: 'text', required: true, maxLength: 100 },
+    { name: 'revision', type: 'number', required: true, defaultValue: 1, min: 1, max: 2_147_483_647 },
+    { name: 'status', type: 'select', required: true, defaultValue: 'draft', options: ['draft', 'published', 'archived'] },
+    relation('created_by_user', 'users'),
+    { name: 'lock_version', type: 'number', required: true, defaultValue: 0, min: 0, max: 2_147_483_647 },
+  ],
+}
+
+export const SignagePlaylistItems: CollectionConfig = {
+  ...timestamped,
+  slug: 'signage-playlist-items',
+  fields: [
+    relation('tenant', 'tenants'),
+    relation('site', 'campuses'),
+    relation('playlist', 'signage-playlists'),
+    { name: 'item_key', type: 'text', required: true, index: true, maxLength: 128 },
+    { name: 'asset_key', type: 'text', required: true, maxLength: 128 },
+    { name: 'duration_seconds', type: 'number', required: true, min: 1, max: 86_400 },
+    { name: 'priority', type: 'number', required: true, defaultValue: 0, min: -2_147_483_647, max: 2_147_483_647 },
+    { name: 'position', type: 'number', required: true, min: 0, max: 2_147_483_647 },
+    { name: 'valid_from', type: 'date' },
+    { name: 'valid_until', type: 'date' },
+    { name: 'schedule_days_mask', type: 'number', min: 1, max: 127 },
+    { name: 'start_minute', type: 'number', min: 0, max: 1_439 },
+    { name: 'end_minute', type: 'number', min: 0, max: 1_439 },
+  ],
+}
+
+export const SignagePublications: CollectionConfig = {
+  ...timestamped,
+  slug: 'signage-publications',
+  fields: [
+    relation('tenant', 'tenants'),
+    relation('site', 'campuses'),
+    relation('display', 'signage-displays'),
+    relation('playlist', 'signage-playlists'),
+    { name: 'playlist_revision', type: 'number', required: true, min: 1, max: 2_147_483_647 },
+    { name: 'publication_key', type: 'text', required: true, index: true, maxLength: 128 },
+    { name: 'manifest_url', type: 'text', required: true },
+    { name: 'manifest_digest', type: 'text', required: true, maxLength: 71 },
+    { name: 'expires_at', type: 'date', required: true },
+    { name: 'status', type: 'select', required: true, defaultValue: 'queued', options: ['queued', 'accepted', 'rejected', 'unavailable', 'revoked'] },
+    { name: 'provider_reference', type: 'text' },
+    { name: 'failure_reason', type: 'text' },
+    { name: 'retry_after_seconds', type: 'number', min: 0, max: 2_147_483_647 },
+    { name: 'revoked_at', type: 'date' },
+    relation('created_by_user', 'users'),
+    { name: 'lock_version', type: 'number', required: true, defaultValue: 0, min: 0, max: 2_147_483_647 },
+  ],
+}
+
+export const SignageDevicePrincipals: CollectionConfig = {
+  ...timestamped,
+  slug: 'signage-device-principals',
+  fields: [
+    relation('tenant', 'tenants'),
+    relation('site', 'campuses'),
+    relation('display', 'signage-displays'),
+    { name: 'credential_key', type: 'text', required: true, index: true, maxLength: 128 },
+    { name: 'credential_version', type: 'number', required: true, min: 1, max: 2_147_483_647 },
+    { name: 'secret_hint', type: 'text', required: true, maxLength: 8 },
+    { name: 'status', type: 'select', required: true, defaultValue: 'active', options: ['active', 'revoked'] },
+    { name: 'expires_at', type: 'date', required: true },
+    { name: 'last_used_at', type: 'date' },
+    { name: 'revoked_at', type: 'date' },
+  ],
+}
+
 export const LearningMemberships: CollectionConfig = {
   ...timestamped,
   slug: 'learning-memberships',
@@ -290,6 +401,12 @@ export const nextCollectionConfigs: CollectionConfig[] = [
   NextCourseRuns,
   NextStudents,
   NextStaff,
+  NextCampuses,
+  SignageDisplays,
+  SignagePlaylists,
+  SignagePlaylistItems,
+  SignagePublications,
+  SignageDevicePrincipals,
   LearningMemberships,
   LearningConversations,
   LearningConversationParticipants,

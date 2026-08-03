@@ -165,7 +165,10 @@ export const getPayloadConfig = async () => {
       statement_timeout: 30000,   // 30s max query time
     },
     push: process.env.PAYLOAD_DB_PUSH === 'true',
-    migrationDir: path.resolve(__dirname, '../migrations'),
+    migrationDir: path.resolve(
+      __dirname,
+      isAkademateNextRuntime(runtime) ? '../migrations-next' : '../migrations',
+    ),
   }),
   plugins: [
     // S3 storage only if MINIO_ENDPOINT is explicitly configured

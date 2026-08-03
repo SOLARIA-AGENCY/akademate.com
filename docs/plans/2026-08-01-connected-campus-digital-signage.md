@@ -1,6 +1,6 @@
 # Connected Campus y Digital Signage
 
-**Estado:** Fase 0 iniciada; contratos y compilador local verificados, runtime pendiente
+**Estado:** Fase 0 avanzada; contratos, compilador, esquema PostgreSQL y aislamiento RLS verificados; runtime de dispositivo pendiente
 
 **Ámbito:** Akademate Next SaaS multitenant
 
@@ -80,17 +80,30 @@ operativas añaden `site_id` o un alcance equivalente cuando corresponda.
 - Scopes separados para crear contenido, aprobar publicaciones, gestionar dispositivos y emitir
   alertas urgentes.
 - Credenciales de dispositivo hasheadas, de mínimo privilegio y sin acceso a APIs administrativas.
+- La revocación de una publicación o credencial es terminal; no puede reactivarse modificando la fila.
 - Manifiestos firmados, URLs de activos con expiración y protección frente a replay.
 - Auditoría de emparejamiento, aprobación, publicación, anulación y revocación.
 - Ningún nombre, nota, asistencia individual u otro dato personal aparece en pantalla por defecto.
 - Plantillas con datos personales requieren un propósito documentado y una configuración explícita.
+
+### Frontera de confianza del backend
+
+Las políticas PostgreSQL consumen `app.tenant_id`, `app.site_id`, `app.user_id` y `app.role` como
+contexto transaccional. Solo el backend autenticado puede establecerlos y debe derivarlos de la sesión
+verificada, nunca de parámetros libres del cliente. Las credenciales del rol de aplicación no se
+entregan a navegadores, players, integradores ni consultas SQL genéricas.
+
+RLS protege frente a cruces accidentales o manipulados dentro del rol de aplicación, pero no frente a
+la apropiación total de esas credenciales: un atacante con acceso directo a ese rol podría establecer
+los GUC de sesión. La custodia del secreto, la autenticación del comando y el establecimiento atómico
+del contexto forman, por tanto, la frontera de confianza complementaria a RLS.
 
 ## Fases y checklist
 
 ### Fase 0 — Contratos y prototipo
 
 - [x] ADR del dominio y contrato de adaptadores.
-- [ ] Esquema multitenant con RLS y migración monotónica.
+- [x] Esquema multitenant con RLS y migración monotónica.
 - [x] Compilador de playlists con tests deterministas y de solapamientos horarios.
 - [ ] Player web de referencia con caché de última programación válida.
 
@@ -126,6 +139,8 @@ operativas añaden `site_id` o un alcance equivalente cuando corresponda.
 - El override urgente caduca y restaura la programación anterior de forma auditable.
 - La UI diferencia claramente software incluido en la extensión de hardware y costes externos.
 - Ninguna prueba o release de este módulo ejecuta comandos contra CEP Formación.
+- El rollback con datos operativos falla cerrado; el rollback vacío revoca primero los privilegios de
+  `campuses`, elimina Signage y no deja RLS o grants huérfanos.
 
 ## Tres intentos adversariales obligatorios por cambio
 
@@ -142,5 +157,16 @@ operativas añaden `site_id` o un alcance equivalente cuando corresponda.
   colisiones, solapamientos temporales, ventanas nocturnas y transiciones DST.
 - El gateway congela un snapshot de alcance y rechaza antes del dispatch el alcance inválido; el
   decoder rechaza sustitución de alcance, transporte inseguro, digest inválido y recibos ambiguos.
-- No se ha creado esquema, migración, firma, player, proveedor, UI ni despliegue. CEP continúa
-  completamente fuera de esta implementación.
+- Migración Next-only: `apps/tenant-admin/migrations/20260802_akademate_next_signage.ts`.
+- Descubrimiento físico aislado: `apps/tenant-admin/migrations-next/`, con cinco wrappers exactos y sin
+  imports CEP/legacy.
+- PostgreSQL 16 aplicó las cinco migraciones Next sobre una base efímera limpia.
+- El verificador real confirmó 6 tablas con RLS forzada, 12 políticas, rol de aplicación no-owner,
+  no-superuser y sin `BYPASSRLS`, secretos de dispositivo no legibles y 28 intentos adversariales.
+- El rollback con datos operativos fue rechazado y conservó la migración y sus cinco tablas.
+- El rollback vacío eliminó las cinco tablas Signage, desactivó RLS de `campuses`, revocó sus cuatro
+  privilegios DML al rol de aplicación y restauró `tenant_id` nullable.
+- Una sede histórica con `tenant_id = NULL` hizo fallar la migración de forma transaccional: no se
+  registró la migración, no quedó ninguna tabla Signage parcial y el registro incompatible se conservó.
+- No se ha creado firma, player, proveedor, command API, UI ni despliegue. CEP continúa completamente
+  fuera de esta implementación.
