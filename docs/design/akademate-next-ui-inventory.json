@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "totalPages": 239,
+  "totalPages": 240,
   "totalLayouts": 18,
   "totalLocalPrimitiveFiles": 84,
-  "totalSharedUiConsumers": 10,
+  "totalSharedUiConsumers": 12,
   "totalSidebarFiles": 5,
   "pageSignals": {
-    "sharedUiPages": 6,
+    "sharedUiPages": 7,
     "localPrimitiveImports": 668,
     "hardcodedColorTokens": 166
   },
   "auditProgress": {
-    "desktopVerified": 4,
-    "mobileVerified": 4,
-    "accessibilityVerified": 4,
-    "statesVerified": 1
+    "desktopVerified": 5,
+    "mobileVerified": 5,
+    "accessibilityVerified": 5,
+    "statesVerified": 2
   },
   "apps": {
     "admin-client": {
@@ -53,10 +53,10 @@
       "sidebarFiles": 0
     },
     "tenant-admin": {
-      "pages": 170,
+      "pages": 171,
       "layouts": 10,
       "localPrimitiveFiles": 63,
-      "sharedUiConsumers": 4,
+      "sharedUiConsumers": 6,
       "sidebarFiles": 3
     },
     "web": {
@@ -1791,6 +1791,21 @@
         "accessibility": "pending",
         "states": "pending",
         "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/solicitudes/page.tsx",
+      "route": "/cursos/solicitudes",
+      "sharedUiImport": true,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "verified-browser-1440x1000",
+        "mobile": "verified-browser-390x844",
+        "accessibility": "verified-static-and-browser",
+        "states": "verified-adversarial",
+        "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-inbox,mobile-inbox,mobile-inbox-list}.png"
       }
     },
     {

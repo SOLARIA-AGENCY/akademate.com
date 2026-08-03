@@ -78,11 +78,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     const loadSession = async () => {
       try {
-        const response = await fetch('/api/auth/session', {
+        let response = await fetch('/api/next/session', {
           method: 'GET',
           credentials: 'include',
           cache: 'no-store',
         })
+        // CEP does not expose the Next session route and keeps its historical
+        // session contract unchanged. Other failures remain fail-closed.
+        if (response.status === 404) {
+          response = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+          })
+        }
         if (!response.ok) {
           router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
           return

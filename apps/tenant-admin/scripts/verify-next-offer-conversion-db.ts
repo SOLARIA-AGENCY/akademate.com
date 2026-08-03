@@ -16,6 +16,10 @@ import {
   parseNextPublicOfferSubmission,
   submitNextPublicOffer,
 } from '../src/lib/offers/public-offer-submission.ts'
+import {
+  listNextOfferSubmissions,
+  parseOfferSubmissionInboxQuery,
+} from '../src/lib/offers/offer-submission-inbox-command.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -388,6 +392,33 @@ try {
   assert.deepEqual([...tenantSubmissionCounts], [{ tenant_id: tenantB!.id, count: 5 }])
   adversarialChecks.add('submission-manager-read-remains-tenant-scoped')
 
+  const inboxQuery = parseOfferSubmissionInboxQuery(new URLSearchParams({
+    kind: 'application',
+    status: 'pending_review',
+    search: 'Ada',
+  }))
+  const tenantBInbox = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => listNextOfferSubmissions({ tx, principal, query: inboxQuery }),
+  )
+  assert.equal(tenantBInbox.total, 5)
+  assert.equal(tenantBInbox.items.length, 5)
+  assert.equal(tenantBInbox.items.every((item) => item.courseRunId === tenantBRun.id), true)
+  assert.equal(tenantBInbox.items.every((item) => item.email === 'ada@example.test'), true)
+
+  const tenantAInbox = await withNextLearningTransaction(
+    { userId: userA.id, tenantId: tenantA!.id },
+    (tx, principal) => listNextOfferSubmissions({ tx, principal, query: inboxQuery }),
+  )
+  assert.deepEqual(tenantAInbox, {
+    items: [],
+    page: 1,
+    pageSize: 25,
+    total: 0,
+    totalPages: 0,
+  })
+  adversarialChecks.add('submission-inbox-command-cannot-cross-tenants')
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
@@ -396,6 +427,7 @@ try {
     operatorCommand: 'app-role-rls-verified',
     publicProjection: 'host-scoped-read-only',
     publicSubmissions: 'consented-idempotent-rate-limited',
+    submissionInbox: 'manager-only-tenant-scoped',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

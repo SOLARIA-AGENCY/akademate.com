@@ -61,4 +61,33 @@ describe('Dashboard namespace middleware compatibility', () => {
     expect(response.status).toBe(307)
     expect(getHeader(response, 'location')).toContain('/auth/login?redirect=%2Fdashboard%2Fcursos')
   })
+
+  it('passes a Next session cookie to the cryptographically verified dashboard APIs', () => {
+    const request = new NextRequest('https://north-star.akademate.com/dashboard/cursos/solicitudes', {
+      headers: {
+        cookie: 'akademate_next_session=signed-next-jwt',
+        host: 'north-star.akademate.com',
+      },
+    })
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'x-middleware-rewrite')).toBe(
+      'https://north-star.akademate.com/cursos/solicitudes',
+    )
+  })
+
+  it('does not redirect the internal target of a dashboard rewrite back into a loop', () => {
+    const request = new NextRequest('https://north-star.akademate.com/cursos/solicitudes', {
+      headers: {
+        cookie: 'akademate_next_session=signed-next-jwt',
+        host: 'north-star.akademate.com',
+        'x-akademate-dashboard-rewrite': '1',
+      },
+    })
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
 })

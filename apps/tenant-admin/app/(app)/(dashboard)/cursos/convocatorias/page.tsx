@@ -583,6 +583,9 @@ function ConvocatoriasContent() {
             actions={
               <div className="flex flex-wrap gap-2">
                 <Button asChild variant="outline">
+                  <Link href="/cursos/solicitudes">Ver solicitudes</Link>
+                </Button>
+                <Button asChild variant="outline">
                   <Link href="/dashboard/programacion">Ver calendario</Link>
                 </Button>
                 <Button

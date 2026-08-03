@@ -52,12 +52,15 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Host-and-slug-scoped read-only projection with no direct public table grants.
 - [x] Real external-link action and honest contact fallback for information and unimplemented paid flows.
 - [x] Next-native public command for interest, application and enrolment requests.
+- [x] Authenticated tenant-scoped inbox with bounded search, status and request-kind filters.
+- [x] Dedicated Next session profile and dashboard middleware compatibility without changing CEP's
+  historical session contract.
 - [x] Desktop and mobile browser QA for the public request flow, including persistence, console,
   network, tracker and horizontal-overflow checks.
 - [ ] Confirmed enrollment and checkout creation commands.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
-- [ ] Authenticated operator inbox and lifecycle commands for received submissions.
+- [ ] Audited lifecycle commands for reviewing, rejecting and approving received submissions.
 - [ ] Bot challenge and configurable retention/erasure jobs for public submission data.
 
 ## PostgreSQL evidence — 2026-08-03
@@ -98,6 +101,10 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - Isolated production-build QA rendered the page at 1440x1000 and 390x844, submitted a real
   approval request with HTTP 201 and verified one persisted record, zero console errors, zero failed
   requests, zero tracker requests and no mobile horizontal overflow.
+- The same production artifact authenticated a real Next manager session, returned the submission
+  inbox with HTTP 200 and rendered the stored request in a desktop table and a mobile card. The
+  command returned five tenant-B requests and zero rows for tenant A under the same filters in real
+  PostgreSQL 16.
 
 ## Operator workflow
 
@@ -118,6 +125,16 @@ The public submission route is `POST /api/next/public/offers/:slug/submissions`.
 requires `AKADEMATE_NEXT_PUBLIC_SUBMISSIONS_ENABLED=true`, a valid HTTPS privacy-notice URL, a
 versioned notice identifier and a server-only HMAC pepper. It accepts only bounded consented requests
 for interest, approval-required and free-registration offers. Paid checkout remains fail-closed.
+
+The manager inbox route is `GET /api/next/offer-submissions`. It accepts only canonical bounded
+filters, derives tenant and role from the dedicated signed Next session, runs through the
+non-superuser application role and returns a restricted PII projection. The dashboard destination
+is `/dashboard/cursos/solicitudes`, with a responsive shared-Shadcn table/card presentation.
+
+The dashboard resolves `/api/next/session` first. CEP receives a runtime-scoped 404 and continues to
+its historical `/api/auth/session` contract; Akademate Next never falls back after an authentication
+or infrastructure failure. The dashboard rewrite carries an internal marker to prevent canonical
+`/dashboard/*` and internal route aliases from redirecting in a loop.
 
 ## Runtime boundary
 

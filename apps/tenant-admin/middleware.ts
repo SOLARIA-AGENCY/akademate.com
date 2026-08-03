@@ -252,6 +252,9 @@ function getCorsHeaders(origin: string | null) {
 
 function hasSessionCookie(request: NextRequest): boolean {
   if (request.cookies.get('payload-token')?.value) return true
+  // Presence only unlocks the dashboard shell. Every Next API verifies this JWT's
+  // signature, issuer, audience and tenant claims before returning protected data.
+  if (request.cookies.get('akademate_next_session')?.value) return true
 
   for (const cookieName of SESSION_COOKIE_NAMES) {
     const rawSession = request.cookies.get(cookieName)?.value
@@ -446,12 +449,14 @@ export function middleware(request: NextRequest) {
 
   // Accept both Payload token cookie and session cookies that wrap the token.
   const isAuthenticatedByCookie = hasSessionCookie(request)
+  const isDashboardRewriteTarget = request.headers.get('x-akademate-dashboard-rewrite') === '1'
 
   if (
     !pathname.startsWith('/api/') &&
     request.method === 'GET' &&
     !isCepHost(host) &&
     isAuthenticatedByCookie &&
+    !isDashboardRewriteTarget &&
     INTERNAL_CATALOG_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   ) {
     const dashboardUrl = request.nextUrl.clone()
@@ -487,7 +492,9 @@ export function middleware(request: NextRequest) {
     if (dashboardRewriteTarget) {
       const rewriteUrl = request.nextUrl.clone()
       rewriteUrl.pathname = dashboardRewriteTarget
-      return NextResponse.rewrite(rewriteUrl)
+      const requestHeaders = new Headers(request.headers)
+      requestHeaders.set('x-akademate-dashboard-rewrite', '1')
+      return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
     }
   }
 

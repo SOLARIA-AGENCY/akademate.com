@@ -39,6 +39,7 @@ import {
   PiggyBank,
   HandCoins,
   ClipboardList,
+  Inbox,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -127,6 +128,7 @@ const menuItems: MenuItemWithSection[] = [
     icon: FileText,
     items: [
       { title: 'Leads', icon: FileText, url: '/leads' },
+      { title: 'Solicitudes de cursos', icon: Inbox, url: '/cursos/solicitudes' },
       { title: 'Inscripciones', icon: UserPlus, url: '/inscripciones' },
       { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
       { title: 'Calendario citas', icon: CalendarDays, url: '/calendario-citas' },
