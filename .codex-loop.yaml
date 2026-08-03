@@ -34,7 +34,7 @@ checks:
     - name: next-learning-route-boundary
       command: node --test scripts/__tests__/akademate-next-learning-route.test.mjs
     - name: next-compose
-      command: docker compose --env-file infrastructure/akademate-next/.env.example -f infrastructure/akademate-next/compose.yaml config --quiet
+      command: node --test scripts/__tests__/akademate-next-payment-release-contract.test.mjs scripts/__tests__/akademate-next-payment-sandbox-preflight.test.mjs && docker compose --env-file infrastructure/akademate-next/.env.example -f infrastructure/akademate-next/compose.yaml config --quiet
     - name: campus-canonical-session
       command: corepack pnpm --filter @akademate/ui build && corepack pnpm --filter @akademate/campus test && corepack pnpm --filter @akademate/campus exec tsc --noEmit
     - name: diff-integrity

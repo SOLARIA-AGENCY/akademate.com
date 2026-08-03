@@ -110,6 +110,8 @@ confirmed enrollment count. Unlimited offers do not use holds.
 - [x] PostgreSQL concurrency and rollback proof.
 - [x] Provider contract tests using deterministic fakes.
 - [x] Browser QA without real charges.
+- [x] Docker egress and default-off secret transport contract.
+- [x] Redacted sandbox-only configuration preflight and runbook.
 - [ ] Provider sandbox QA with dedicated credentials.
 
 ## Local verification evidence
