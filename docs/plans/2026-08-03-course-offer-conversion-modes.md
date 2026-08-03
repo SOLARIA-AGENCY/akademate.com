@@ -60,10 +60,11 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Reversible approve, reject, archive and reopen decisions with an append-only actor ledger.
 - [x] Least-privilege review boundary: marketing can read; superadmin, admin and gestor can decide.
 - [x] Real PostgreSQL transition, replay, cross-tenant, role and guarded-rollback verification.
+- [x] Reviewer-only bounded timeline with actor identifiers, current names, notes and received state.
 - [ ] Confirmed enrollment and checkout creation commands.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
-- [ ] Full review-history viewer and retention/export controls for internal decision notes.
+- [ ] Retention and export controls for internal decision notes.
 - [ ] Bot challenge and configurable retention/erasure jobs for public submission data.
 
 ## PostgreSQL evidence — 2026-08-03
@@ -114,6 +115,9 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - Real PostgreSQL rejected a cross-tenant review, a marketing-role decision and a direct terminal
   rewrite. Approve, reopen and reject produced exactly three ledger events, and rollback was refused
   until review data was removed and extended statuses were restored.
+- Review history is fetched only on demand and returns at most 100 newest-first events. Real RLS
+  verification hid all review notes from marketing, rejected cross-tenant history access and kept
+  the immutable actor identifier separate from the actor's current display name.
 
 ## Operator workflow
 
@@ -144,6 +148,11 @@ The decision route is `PATCH /api/next/offer-submissions/:id/decision`. It accep
 rejected, archived or pending-review targets, requires a bounded internal reason for rejection and
 runs a single tenant-scoped PostgreSQL command that updates the request and appends its event
 atomically. These decisions never create enrollment, capacity reservations or payment operations.
+
+The internal history route is `GET /api/next/offer-submissions/:id/reviews`. It is reviewer-only,
+accepts no tenant or filter parameters, validates the tenant-owned request before reading its ledger
+and returns at most 100 newest-first events plus the original received timestamp. Marketing users
+can read the inbox but cannot retrieve internal notes or actor history.
 
 The dashboard resolves `/api/next/session` first. CEP receives a runtime-scoped 404 and continues to
 its historical `/api/auth/session` contract; Akademate Next never falls back after an authentication

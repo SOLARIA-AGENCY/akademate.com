@@ -24,6 +24,10 @@ import {
   NextOfferSubmissionReviewError,
   reviewNextOfferSubmission,
 } from '../src/lib/offers/offer-submission-review-command.ts'
+import {
+  NextOfferSubmissionHistoryError,
+  getNextOfferSubmissionHistory,
+} from '../src/lib/offers/offer-submission-review-history-command.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -573,6 +577,47 @@ try {
   assert.equal(ledgerCount?.count, 3)
   adversarialChecks.add('submission-review-reopen-preserves-complete-ledger')
 
+  const history = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => getNextOfferSubmissionHistory({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+    }),
+  )
+  assert.equal(history.events.length, 3)
+  assert.equal(history.events[0]?.toStatus, 'rejected')
+  assert.equal(history.events[0]?.actorUserId, userB.id)
+  assert.equal(history.events[0]?.note, 'Required prerequisite is missing')
+  assert.equal(history.truncated, false)
+  adversarialChecks.add('submission-review-history-is-newest-first-and-bounded')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userA.id, tenantId: tenantA!.id },
+      (tx, principal) => getNextOfferSubmissionHistory({
+        tx,
+        principal,
+        submissionId: createdSubmission.submissionId,
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionHistoryError
+      && error.code === 'submission_history_not_found',
+  )
+  adversarialChecks.add('submission-review-history-cannot-cross-tenants')
+
+  const marketingHistoryRows = await app.begin(async (transaction) => {
+    await transaction`SELECT set_config('app.tenant_id', ${String(tenantB!.id)}, true)`
+    await transaction`SELECT set_config('app.user_id', ${String(userB.id)}, true)`
+    await transaction`SELECT set_config('app.role', 'marketing', true)`
+    return transaction<{ id: number }[]>`
+      SELECT id FROM offer_submission_review_events
+      WHERE submission_id = ${createdSubmission.submissionId}
+    `
+  })
+  assert.equal(marketingHistoryRows.length, 0)
+  adversarialChecks.add('submission-review-history-not-readable-by-marketing-role')
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
@@ -583,6 +628,7 @@ try {
     publicSubmissions: 'consented-idempotent-rate-limited',
     submissionInbox: 'manager-only-tenant-scoped',
     submissionReview: 'audited-reversible-no-enrollment',
+    submissionHistory: 'reviewer-only-bounded-timeline',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

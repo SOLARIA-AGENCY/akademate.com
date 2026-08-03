@@ -7,6 +7,7 @@ const pagePath = 'apps/tenant-admin/app/(app)/(dashboard)/cursos/solicitudes/pag
 const sessionRoutePath = 'apps/tenant-admin/app/api/next/session/route.ts'
 const dashboardLayoutPath = 'apps/tenant-admin/app/(app)/(dashboard)/layout.tsx'
 const decisionRoutePath = 'apps/tenant-admin/app/api/next/offer-submissions/[id]/decision/route.ts'
+const historyRoutePath = 'apps/tenant-admin/app/api/next/offer-submissions/[id]/reviews/route.ts'
 
 test('registers a dedicated authenticated Next route without importing CEP APIs', async () => {
   const source = await readFile(routePath, 'utf8')
@@ -43,6 +44,15 @@ test('registers decisions through the isolated transactional Next command', asyn
   assert.match(source, /authenticateNextLearningRequest/)
   assert.match(source, /withNextLearningTransaction/)
   assert.match(source, /reviewNextOfferSubmission/)
+  assert.match(source, /AKADEMATE_NEXT_OFFERS_ENABLED/)
+  assert.doesNotMatch(source, /api\/leads|api\/matriculas|stripe|paypal|cep/i)
+})
+
+test('loads internal review history through a reviewer-only Next transaction', async () => {
+  const source = await readFile(historyRoutePath, 'utf8')
+  assert.match(source, /authenticateNextLearningRequest/)
+  assert.match(source, /withNextLearningTransaction/)
+  assert.match(source, /getNextOfferSubmissionHistory/)
   assert.match(source, /AKADEMATE_NEXT_OFFERS_ENABLED/)
   assert.doesNotMatch(source, /api\/leads|api\/matriculas|stripe|paypal|cep/i)
 })

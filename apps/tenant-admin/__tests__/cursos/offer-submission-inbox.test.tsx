@@ -114,5 +114,38 @@ describe('OfferSubmissionInbox', () => {
     expect(screen.queryByRole('button', { name: 'Aprobar' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Rechazar' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Archivar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Historial' })).not.toBeInTheDocument()
+  })
+
+  it('loads the bounded actor timeline only when an authorized reviewer requests it', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(response), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        submissionId: 91,
+        status: 'rejected',
+        receivedAt: '2026-08-03T10:00:00.000Z',
+        events: [{
+          id: 501,
+          actorUserId: 41,
+          actorName: 'QA Manager',
+          fromStatus: 'pending_review',
+          toStatus: 'rejected',
+          note: 'Missing prerequisite',
+          createdAt: '2026-08-03T14:00:00.000Z',
+        }],
+        truncated: false,
+      }), { status: 200 }))
+    render(<OfferSubmissionInbox />)
+    await screen.findAllByText('Ada Lovelace')
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Historial' })[0])
+    expect(await screen.findByText('Historial de Ada Lovelace')).toBeInTheDocument()
+    expect(await screen.findByText('QA Manager · actor #41')).toBeInTheDocument()
+    expect(screen.getByText('Missing prerequisite')).toBeInTheDocument()
+    expect(screen.getByText('Pendiente de revisión → Rechazada')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenNthCalledWith(2,
+      '/api/next/offer-submissions/91/reviews',
+      expect.objectContaining({ cache: 'no-store', credentials: 'same-origin' }),
+    )
   })
 })

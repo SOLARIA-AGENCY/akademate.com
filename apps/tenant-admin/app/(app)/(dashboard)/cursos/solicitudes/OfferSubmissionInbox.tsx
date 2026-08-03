@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Archive, CalendarDays, CheckCircle2, Inbox, RotateCcw, Search, UsersRound, XCircle } from 'lucide-react'
+import { Archive, CalendarDays, CheckCircle2, History as HistoryIcon, Inbox, RotateCcw, Search, UsersRound, XCircle } from 'lucide-react'
 import {
   Alert,
   AlertDescription,
@@ -52,6 +52,22 @@ type InboxResponse = {
   pageSize: number
   total: number
   totalPages: number
+}
+
+type HistoryResponse = {
+  submissionId: number
+  status: SubmissionStatus
+  receivedAt: string
+  events: Array<{
+    id: number
+    actorUserId: number
+    actorName: string
+    fromStatus: SubmissionStatus
+    toStatus: DecisionStatus
+    note: string | null
+    createdAt: string
+  }>
+  truncated: boolean
 }
 
 const STATUS_LABELS: Record<InboxItem['status'], string> = {
@@ -124,10 +140,12 @@ function SubmissionCard({
   item,
   canReview,
   onDecision,
+  onHistory,
 }: {
   item: InboxItem
   canReview: boolean
   onDecision: (item: InboxItem, status: DecisionStatus) => void
+  onHistory: (item: InboxItem) => void
 }) {
   return (
     <Card>
@@ -151,6 +169,11 @@ function SubmissionCard({
           <span>Privacidad: {item.privacyNoticeVersion} · Marketing: {item.marketingConsent ? 'Sí' : 'No'}</span>
           <div className="flex flex-wrap gap-2">
             <DecisionButtons item={item} canReview={canReview} onSelect={(status) => onDecision(item, status)} />
+            {canReview ? (
+              <Button type="button" size="sm" variant="outline" onClick={() => onHistory(item)}>
+                <HistoryIcon className="h-4 w-4" aria-hidden="true" /> Historial
+              </Button>
+            ) : null}
             <Button asChild size="sm" variant="outline">
               <Link href={`/cursos/convocatorias/${item.courseRunId}/oferta`}>Ver convocatoria</Link>
             </Button>
@@ -176,6 +199,10 @@ export function OfferSubmissionInbox() {
   const [decisionPending, setDecisionPending] = React.useState(false)
   const [decisionError, setDecisionError] = React.useState(false)
   const [decisionNotice, setDecisionNotice] = React.useState('')
+  const [historyItem, setHistoryItem] = React.useState<InboxItem | null>(null)
+  const [history, setHistory] = React.useState<HistoryResponse | null>(null)
+  const [historyLoading, setHistoryLoading] = React.useState(false)
+  const [historyError, setHistoryError] = React.useState(false)
 
   React.useEffect(() => {
     const controller = new AbortController()
@@ -217,6 +244,28 @@ export function OfferSubmissionInbox() {
     setDecisionNote('')
     setDecisionError(false)
     setDecisionNotice('')
+    setHistoryItem(null)
+    setHistory(null)
+  }
+
+  async function loadHistory(item: InboxItem) {
+    setDecision(null)
+    setHistoryItem(item)
+    setHistory(null)
+    setHistoryLoading(true)
+    setHistoryError(false)
+    try {
+      const response = await fetch(`/api/next/offer-submissions/${item.id}/reviews`, {
+        cache: 'no-store',
+        credentials: 'same-origin',
+      })
+      if (!response.ok) throw new Error('submission_history_unavailable')
+      setHistory(await response.json() as HistoryResponse)
+    } catch {
+      setHistoryError(true)
+    } finally {
+      setHistoryLoading(false)
+    }
   }
 
   async function submitDecision() {
@@ -290,6 +339,55 @@ export function OfferSubmissionInbox() {
         </Card>
       ) : null}
 
+      {historyItem ? (
+        <Card>
+          <CardContent className="space-y-5 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold">Historial de {historyItem.firstName} {historyItem.lastName}</p>
+                <p className="text-sm text-muted-foreground">Decisiones internas registradas para esta solicitud.</p>
+              </div>
+              <Button type="button" size="sm" variant="outline" onClick={() => { setHistoryItem(null); setHistory(null) }}>
+                Cerrar historial
+              </Button>
+            </div>
+            {historyLoading ? <p className="text-sm text-muted-foreground">Cargando historial…</p> : null}
+            {historyError ? <Alert variant="destructive"><AlertDescription>No se pudo cargar el historial</AlertDescription></Alert> : null}
+            {history ? (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Estado actual</span>
+                  <Badge variant="secondary">{STATUS_LABELS[history.status]}</Badge>
+                </div>
+                {history.events.length ? (
+                  <ol className="space-y-3 border-l border-border pl-5">
+                    {history.events.map((event) => (
+                      <li key={event.id} className="relative rounded-lg border border-border bg-background p-4">
+                        <span className="absolute -left-[1.62rem] top-5 h-3 w-3 rounded-full border-2 border-background bg-primary" aria-hidden="true" />
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-medium">{STATUS_LABELS[event.fromStatus]} → {STATUS_LABELS[event.toStatus]}</p>
+                          <time className="text-xs text-muted-foreground" dateTime={event.createdAt}>{formatDate(event.createdAt)}</time>
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">{event.actorName} · actor #{event.actorUserId}</p>
+                        {event.note ? <p className="mt-3 rounded-md bg-muted p-3 text-sm">{event.note}</p> : null}
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">Aún no se han registrado decisiones internas.</p>
+                )}
+                <div className="rounded-lg bg-muted p-4 text-sm">
+                  <p className="font-medium">Solicitud recibida</p>
+                  <p className="text-muted-foreground">{formatDate(history.receivedAt)}</p>
+                </div>
+                {history.truncated ? <Alert><AlertDescription>Se muestran las 100 decisiones más recientes.</AlertDescription></Alert> : null}
+                <p className="text-xs text-muted-foreground">El identificador del actor queda registrado; el nombre mostrado corresponde a su perfil actual.</p>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_12rem_13rem_auto] md:items-end">
           <label className="grid gap-2 text-sm font-medium">
@@ -358,6 +456,7 @@ export function OfferSubmissionInbox() {
                 item={item}
                 canReview={data.canReview}
                 onDecision={selectDecision}
+                onHistory={(item) => void loadHistory(item)}
               />
             ))}
           </div>
@@ -391,6 +490,11 @@ export function OfferSubmissionInbox() {
                     <TableCell className="text-right">
                       <div className="flex flex-wrap justify-end gap-2">
                         <DecisionButtons item={item} canReview={data.canReview} onSelect={(status) => selectDecision(item, status)} />
+                        {data.canReview ? (
+                          <Button type="button" size="sm" variant="outline" onClick={() => void loadHistory(item)}>
+                            <HistoryIcon className="h-4 w-4" aria-hidden="true" /> Historial
+                          </Button>
+                        ) : null}
                         <Button asChild size="sm" variant="outline">
                           <Link href={`/cursos/convocatorias/${item.courseRunId}/oferta`}>Ver convocatoria</Link>
                         </Button>
