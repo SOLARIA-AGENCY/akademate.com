@@ -13,6 +13,7 @@ export { Progress } from './components/progress'
 export { Pill, type PillProps, type PillTone } from './components/pill'
 export { Skeleton } from './components/skeleton'
 export { Input } from './components/input'
+export { Textarea } from './components/textarea'
 export { NativeSelect } from './components/native-select'
 export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/table'
 export {

@@ -6,7 +6,16 @@ import type {
 } from '../learning/next-learning-transaction.ts'
 
 const MANAGER_ROLES = new Set(['superadmin', 'admin', 'gestor', 'marketing'])
-const STATUSES = ['all', 'new', 'pending_review', 'pending_registration'] as const
+const REVIEWER_ROLES = new Set(['superadmin', 'admin', 'gestor'])
+const STATUSES = [
+  'all',
+  'new',
+  'pending_review',
+  'pending_registration',
+  'approved',
+  'rejected',
+  'archived',
+] as const
 const KINDS = ['all', 'interest', 'application', 'registration_request'] as const
 const PAGE_SIZES = new Set([10, 25, 50])
 const ALLOWED_QUERY_KEYS = new Set(['status', 'kind', 'page', 'pageSize', 'search'])
@@ -43,6 +52,7 @@ export type OfferSubmissionInboxItem = {
 
 export type OfferSubmissionInboxResult = {
   items: OfferSubmissionInboxItem[]
+  canReview: boolean
   page: number
   pageSize: number
   total: number
@@ -75,7 +85,7 @@ const persistedRowSchema = z.object({
   course_name: z.string().min(1).max(240),
   course_run_code: z.string().min(1).max(120),
   submission_kind: z.enum(['interest', 'application', 'registration_request']),
-  status: z.enum(['new', 'pending_review', 'pending_registration']),
+  status: z.enum(['new', 'pending_review', 'pending_registration', 'approved', 'rejected', 'archived']),
   first_name: z.string().min(1).max(80),
   last_name: z.string().min(1).max(120),
   email: z.email().max(254),
@@ -259,6 +269,7 @@ export async function listNextOfferSubmissions({
   }
   return {
     items: mapped.map(({ total: _total, ...item }) => item),
+    canReview: REVIEWER_ROLES.has(principal.platformRole),
     page: query.page,
     pageSize: query.pageSize,
     total,

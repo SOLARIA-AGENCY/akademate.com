@@ -6,6 +6,7 @@ const routePath = 'apps/tenant-admin/app/api/next/offer-submissions/route.ts'
 const pagePath = 'apps/tenant-admin/app/(app)/(dashboard)/cursos/solicitudes/page.tsx'
 const sessionRoutePath = 'apps/tenant-admin/app/api/next/session/route.ts'
 const dashboardLayoutPath = 'apps/tenant-admin/app/(app)/(dashboard)/layout.tsx'
+const decisionRoutePath = 'apps/tenant-admin/app/api/next/offer-submissions/[id]/decision/route.ts'
 
 test('registers a dedicated authenticated Next route without importing CEP APIs', async () => {
   const source = await readFile(routePath, 'utf8')
@@ -35,4 +36,13 @@ test('renders an authenticated dashboard destination backed by the canonical sha
   assert.match(source, /@akademate\/ui/)
   assert.match(source, /OfferSubmissionInbox/)
   assert.doesNotMatch(source, /@payload-config\/components\/ui/)
+})
+
+test('registers decisions through the isolated transactional Next command', async () => {
+  const source = await readFile(decisionRoutePath, 'utf8')
+  assert.match(source, /authenticateNextLearningRequest/)
+  assert.match(source, /withNextLearningTransaction/)
+  assert.match(source, /reviewNextOfferSubmission/)
+  assert.match(source, /AKADEMATE_NEXT_OFFERS_ENABLED/)
+  assert.doesNotMatch(source, /api\/leads|api\/matriculas|stripe|paypal|cep/i)
 })

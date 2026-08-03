@@ -22,6 +22,7 @@ const failedRequests = []
 let abortedRequests = 0
 const trackerRequests = []
 const submissionStatuses = []
+const decisionStatuses = []
 
 function observe(page) {
   page.on('console', (message) => {
@@ -94,6 +95,18 @@ try {
   assert.deepEqual(inboxApiStatuses, [200])
   assert.equal(inboxPage.url(), `${dashboardOrigin}/dashboard/cursos/solicitudes`)
   await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox.png`, fullPage: true })
+  await inboxPage.getByRole('button', { name: 'Aprobar' }).filter({ visible: true }).first().click()
+  await inboxPage.getByText('Esta decisión no crea matrícula, plaza ni cobro.').waitFor()
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-decision.png`, fullPage: true })
+  await inboxPage.getByLabel('Nota interna (opcional)').fill('Verified by the admissions manager')
+  const decisionResponse = inboxPage.waitForResponse((response) => (
+    response.url().includes('/decision') && response.request().method() === 'PATCH'
+  ))
+  await inboxPage.getByRole('button', { name: 'Confirmar: Aprobada' }).click()
+  decisionStatuses.push((await decisionResponse).status())
+  await inboxPage.getByText('Solicitud actualizada: aprobada.').waitFor()
+  await inboxPage.getByText('Aprobada', { exact: true }).filter({ visible: true }).first().waitFor()
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-approved.png`, fullPage: true })
   await inboxDesktop.close()
 
   const mobile = await browser.newContext({
@@ -137,6 +150,7 @@ try {
   await inboxMobile.close()
 
   assert.deepEqual(submissionStatuses, [201])
+  assert.deepEqual(decisionStatuses, [200])
   assert.deepEqual(consoleErrors, [])
   assert.deepEqual(failedRequests, [])
   assert.deepEqual(trackerRequests, [])
@@ -150,7 +164,8 @@ try {
     trackerRequests: 0,
     horizontalOverflow: false,
     authenticatedInboxStatus: 200,
-    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png'],
+    decisionStatus: 200,
+    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png'],
   })}\n`)
 } finally {
   await browser.close()

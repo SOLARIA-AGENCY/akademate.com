@@ -76,7 +76,7 @@ test('parses a bounded canonical query and rejects unknown or abusive values', (
 
   for (const params of [
     new URLSearchParams({ tenantId: '999' }),
-    new URLSearchParams({ status: 'approved' }),
+    new URLSearchParams({ status: 'deleted' }),
     new URLSearchParams({ kind: 'payment' }),
     new URLSearchParams({ page: '1e3' }),
     new URLSearchParams({ pageSize: '100' }),
@@ -109,6 +109,7 @@ test('lists only the authenticated tenant with fixed filters and pagination', as
   })
 
   assert.equal(result.items.length, 1)
+  assert.equal(result.canReview, true)
   assert.equal(result.items[0]?.id, 91)
   assert.equal(result.items[0]?.courseName, 'Creative Leadership')
   assert.equal(result.total, 1)
@@ -163,7 +164,7 @@ test('preserves the filtered total for an empty out-of-range page', async () => 
     principal,
     query: { ...parseOfferSubmissionInboxQuery(new URLSearchParams()), page: 2 },
   })
-  assert.deepEqual(result, { items: [], page: 2, pageSize: 25, total: 1, totalPages: 1 })
+  assert.deepEqual(result, { items: [], canReview: true, page: 2, pageSize: 25, total: 1, totalPages: 1 })
   assert.equal(calls.length, 2)
   assert.deepEqual(calls[1]?.params, [7, 'all', 'all', ''])
 })

@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { CalendarDays, Inbox, Search, UsersRound } from 'lucide-react'
+import { Archive, CalendarDays, CheckCircle2, Inbox, RotateCcw, Search, UsersRound, XCircle } from 'lucide-react'
 import {
   Alert,
   AlertDescription,
@@ -20,7 +20,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Textarea,
 } from '@akademate/ui'
+
+type SubmissionStatus = 'new' | 'pending_review' | 'pending_registration' | 'approved' | 'rejected' | 'archived'
+type DecisionStatus = 'pending_review' | 'approved' | 'rejected' | 'archived'
 
 type InboxItem = {
   id: number
@@ -28,7 +32,7 @@ type InboxItem = {
   courseName: string
   courseRunCode: string
   kind: 'interest' | 'application' | 'registration_request'
-  status: 'new' | 'pending_review' | 'pending_registration'
+  status: SubmissionStatus
   firstName: string
   lastName: string
   email: string
@@ -43,6 +47,7 @@ type InboxItem = {
 
 type InboxResponse = {
   items: InboxItem[]
+  canReview: boolean
   page: number
   pageSize: number
   total: number
@@ -53,6 +58,9 @@ const STATUS_LABELS: Record<InboxItem['status'], string> = {
   new: 'Nueva consulta',
   pending_review: 'Pendiente de revisión',
   pending_registration: 'Inscripción pendiente',
+  approved: 'Aprobada',
+  rejected: 'Rechazada',
+  archived: 'Archivada',
 }
 
 const KIND_LABELS: Record<InboxItem['kind'], string> = {
@@ -80,7 +88,47 @@ function buildQuery(filters: { status: string; kind: string; page: number; searc
   return `/api/next/offer-submissions${query ? `?${query}` : ''}`
 }
 
-function SubmissionCard({ item }: { item: InboxItem }) {
+function DecisionButtons({
+  item,
+  canReview,
+  onSelect,
+}: {
+  item: InboxItem
+  canReview: boolean
+  onSelect: (status: DecisionStatus) => void
+}) {
+  if (!canReview) return null
+  if (['approved', 'rejected', 'archived'].includes(item.status)) {
+    return (
+      <Button type="button" size="sm" variant="outline" onClick={() => onSelect('pending_review')}>
+        <RotateCcw className="h-4 w-4" aria-hidden="true" /> Reabrir
+      </Button>
+    )
+  }
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button type="button" size="sm" onClick={() => onSelect('approved')}>
+        <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Aprobar
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={() => onSelect('rejected')}>
+        <XCircle className="h-4 w-4" aria-hidden="true" /> Rechazar
+      </Button>
+      <Button type="button" size="sm" variant="ghost" onClick={() => onSelect('archived')}>
+        <Archive className="h-4 w-4" aria-hidden="true" /> Archivar
+      </Button>
+    </div>
+  )
+}
+
+function SubmissionCard({
+  item,
+  canReview,
+  onDecision,
+}: {
+  item: InboxItem
+  canReview: boolean
+  onDecision: (item: InboxItem, status: DecisionStatus) => void
+}) {
   return (
     <Card>
       <CardContent className="space-y-4 p-5">
@@ -101,9 +149,12 @@ function SubmissionCard({ item }: { item: InboxItem }) {
         {item.message ? <p className="rounded-lg bg-muted p-3 text-sm">{item.message}</p> : null}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
           <span>Privacidad: {item.privacyNoticeVersion} · Marketing: {item.marketingConsent ? 'Sí' : 'No'}</span>
-          <Button asChild size="sm" variant="outline">
-            <Link href={`/cursos/convocatorias/${item.courseRunId}/oferta`}>Ver convocatoria</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <DecisionButtons item={item} canReview={canReview} onSelect={(status) => onDecision(item, status)} />
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/cursos/convocatorias/${item.courseRunId}/oferta`}>Ver convocatoria</Link>
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -119,6 +170,12 @@ export function OfferSubmissionInbox() {
   const [data, setData] = React.useState<InboxResponse | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState(false)
+  const [reloadToken, setReloadToken] = React.useState(0)
+  const [decision, setDecision] = React.useState<{ item: InboxItem; status: DecisionStatus } | null>(null)
+  const [decisionNote, setDecisionNote] = React.useState('')
+  const [decisionPending, setDecisionPending] = React.useState(false)
+  const [decisionError, setDecisionError] = React.useState(false)
+  const [decisionNotice, setDecisionNotice] = React.useState('')
 
   React.useEffect(() => {
     const controller = new AbortController()
@@ -143,7 +200,7 @@ export function OfferSubmissionInbox() {
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [kind, page, search, status])
+  }, [kind, page, reloadToken, search, status])
 
   function updateStatus(value: string) {
     setPage(1)
@@ -155,12 +212,83 @@ export function OfferSubmissionInbox() {
     setKind(value)
   }
 
+  function selectDecision(item: InboxItem, nextStatus: DecisionStatus) {
+    setDecision({ item, status: nextStatus })
+    setDecisionNote('')
+    setDecisionError(false)
+    setDecisionNotice('')
+  }
+
+  async function submitDecision() {
+    if (!decision || (decision.status === 'rejected' && !decisionNote.trim())) return
+    setDecisionPending(true)
+    setDecisionError(false)
+    try {
+      const response = await fetch(`/api/next/offer-submissions/${decision.item.id}/decision`, {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: decision.status, note: decisionNote.trim() || null }),
+      })
+      if (!response.ok) throw new Error('submission_decision_unavailable')
+      const label = STATUS_LABELS[decision.status]
+      setDecisionNotice(`Solicitud actualizada: ${label.toLocaleLowerCase('es-ES')}.`)
+      setDecision(null)
+      setDecisionNote('')
+      setReloadToken((current) => current + 1)
+    } catch {
+      setDecisionError(true)
+    } finally {
+      setDecisionPending(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <MetricCard label="Solicitudes encontradas" value={data?.total ?? '—'} hint="Según los filtros activos" icon={<UsersRound className="h-5 w-5" />} />
-        <MetricCard label="Estado operativo" value="Pendientes" hint="Una solicitud todavía no confirma matrícula ni plaza" icon={<Inbox className="h-5 w-5" />} />
+        <MetricCard label="Flujo operativo" value="Revisión auditada" hint="Cada decisión conserva actor e historial" icon={<Inbox className="h-5 w-5" />} />
       </div>
+
+      {decisionNotice ? (
+        <Alert><AlertDescription>{decisionNotice}</AlertDescription></Alert>
+      ) : null}
+
+      {decision ? (
+        <Card>
+          <CardContent className="grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)] lg:items-end">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">Revisar solicitud de {decision.item.firstName} {decision.item.lastName}</p>
+              <p className="text-sm text-muted-foreground">
+                Nuevo estado: {STATUS_LABELS[decision.status]}. Esta decisión no crea matrícula, plaza ni cobro.
+              </p>
+              <label className="grid gap-2 text-sm font-medium">
+                Nota interna {decision.status === 'rejected' ? '(obligatoria)' : '(opcional)'}
+                <Textarea
+                  value={decisionNote}
+                  onChange={(event) => setDecisionNote(event.target.value)}
+                  maxLength={500}
+                  placeholder="Contexto para el equipo de la academia"
+                />
+              </label>
+            </div>
+            <div className="space-y-3">
+              {decisionError ? <Alert variant="destructive"><AlertDescription>No se pudo guardar la decisión</AlertDescription></Alert> : null}
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button type="button" variant="outline" disabled={decisionPending} onClick={() => setDecision(null)}>Cancelar</Button>
+                <Button
+                  type="button"
+                  disabled={decisionPending || (decision.status === 'rejected' && !decisionNote.trim())}
+                  onClick={() => void submitDecision()}
+                >
+                  {decisionPending ? 'Guardando…' : `Confirmar: ${STATUS_LABELS[decision.status]}`}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_12rem_13rem_auto] md:items-end">
@@ -180,6 +308,9 @@ export function OfferSubmissionInbox() {
               <option value="new">Nueva consulta</option>
               <option value="pending_review">Pendiente de revisión</option>
               <option value="pending_registration">Inscripción pendiente</option>
+              <option value="approved">Aprobada</option>
+              <option value="rejected">Rechazada</option>
+              <option value="archived">Archivada</option>
             </NativeSelect>
           </label>
           <label className="grid gap-2 text-sm font-medium">
@@ -221,7 +352,14 @@ export function OfferSubmissionInbox() {
       {!loading && !error && data?.items.length ? (
         <>
           <div className="grid gap-4 md:hidden">
-            {data.items.map((item) => <SubmissionCard key={item.id} item={item} />)}
+            {data.items.map((item) => (
+              <SubmissionCard
+                key={item.id}
+                item={item}
+                canReview={data.canReview}
+                onDecision={selectDecision}
+              />
+            ))}
           </div>
           <Card className="hidden overflow-hidden md:block">
             <Table>
@@ -251,9 +389,12 @@ export function OfferSubmissionInbox() {
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(item.createdAt)}</TableCell>
                     <TableCell className="text-right">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/cursos/convocatorias/${item.courseRunId}/oferta`}>Ver convocatoria</Link>
-                      </Button>
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <DecisionButtons item={item} canReview={data.canReview} onSelect={(status) => selectDecision(item, status)} />
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/cursos/convocatorias/${item.courseRunId}/oferta`}>Ver convocatoria</Link>
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -9,7 +9,7 @@ import {
 import { NextOfferSubmissionInboxError } from './offer-submission-inbox-command.ts'
 
 const identity = { userId: 41, tenantId: 7 }
-const result = { items: [], page: 1, pageSize: 25, total: 0, totalPages: 0 }
+const result = { items: [], canReview: true, page: 1, pageSize: 25, total: 0, totalPages: 0 }
 
 function setup(overrides: Partial<OfferSubmissionInboxHandlerDependencies> = {}) {
   const calls = { authenticated: 0, list: 0 }
@@ -47,7 +47,7 @@ test('requires the verified server session before listing PII', async () => {
 })
 
 test('rejects client identity and malformed filters before authentication', async () => {
-  for (const query of ['tenantId=999', 'status=approved', 'page=1e3', 'extra=value']) {
+  for (const query of ['tenantId=999', 'status=deleted', 'page=1e3', 'extra=value']) {
     const current = setup()
     const response = await current.handlers.GET(new Request(`http://localhost/api/next/offer-submissions?${query}`))
     assert.equal(response.status, 400)

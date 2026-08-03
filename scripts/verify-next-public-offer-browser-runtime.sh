@@ -130,4 +130,6 @@ env \
 
 SUBMISSIONS="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc 'SELECT count(*) FROM offer_submissions')"
 [[ "${SUBMISSIONS}" = "1" ]] || { echo "Expected one browser-created submission, got ${SUBMISSIONS}" >&2; exit 1; }
-printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"evidence\":\"${OUTPUT_DIR}\"}"
+REVIEW_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT os.status || '|' || count(e.id) FROM offer_submissions os LEFT JOIN offer_submission_review_events e ON e.tenant_id=os.tenant_id AND e.submission_id=os.id GROUP BY os.status")"
+[[ "${REVIEW_STATE}" = "approved|1" ]] || { echo "Expected one audited approved decision, got ${REVIEW_STATE}" >&2; exit 1; }
+printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"evidence\":\"${OUTPUT_DIR}\"}"

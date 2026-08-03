@@ -20,6 +20,10 @@ import {
   listNextOfferSubmissions,
   parseOfferSubmissionInboxQuery,
 } from '../src/lib/offers/offer-submission-inbox-command.ts'
+import {
+  NextOfferSubmissionReviewError,
+  reviewNextOfferSubmission,
+} from '../src/lib/offers/offer-submission-review-command.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -412,12 +416,162 @@ try {
   )
   assert.deepEqual(tenantAInbox, {
     items: [],
+    canReview: true,
     page: 1,
     pageSize: 25,
     total: 0,
     totalPages: 0,
   })
   adversarialChecks.add('submission-inbox-command-cannot-cross-tenants')
+
+  const approved = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => reviewNextOfferSubmission({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+      decision: { status: 'approved', note: 'Meets the academy requirements' },
+    }),
+  )
+  assert.equal(approved.previousStatus, 'pending_review')
+  assert.equal(approved.status, 'approved')
+  assert.equal(approved.changed, true)
+
+  const replayedDecision = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => reviewNextOfferSubmission({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+      decision: { status: 'approved', note: 'Ignored replay note' },
+    }),
+  )
+  assert.equal(replayedDecision.changed, false)
+  const [eventCount] = await sql<{ count: number }[]>`
+    SELECT count(*)::integer AS count
+    FROM offer_submission_review_events
+    WHERE submission_id = ${createdSubmission.submissionId}
+  `
+  assert.equal(eventCount?.count, 1)
+  adversarialChecks.add('submission-review-replay-does-not-duplicate-ledger')
+
+  const [reviewPrivileges] = await sql<{
+    can_update_submission: boolean
+    can_insert_event: boolean
+    can_delete_event: boolean
+    can_execute_review: boolean
+  }[]>`
+    SELECT
+      has_table_privilege(${appRole}, 'offer_submissions', 'UPDATE') AS can_update_submission,
+      has_table_privilege(${appRole}, 'offer_submission_review_events', 'INSERT') AS can_insert_event,
+      has_table_privilege(${appRole}, 'offer_submission_review_events', 'DELETE') AS can_delete_event,
+      has_function_privilege(
+        ${appRole},
+        'akademate_next_review_offer_submission(bigint, character varying, character varying)',
+        'EXECUTE'
+      ) AS can_execute_review
+  `
+  assert.deepEqual(reviewPrivileges, {
+    can_update_submission: false,
+    can_insert_event: false,
+    can_delete_event: false,
+    can_execute_review: true,
+  })
+  adversarialChecks.add('submission-review-app-role-has-command-only-write-access')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userA.id, tenantId: tenantA!.id },
+      (tx, principal) => reviewNextOfferSubmission({
+        tx,
+        principal,
+        submissionId: createdSubmission.submissionId,
+        decision: { status: 'archived', note: null },
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionReviewError
+      && error.code === 'submission_not_found',
+  )
+  adversarialChecks.add('submission-review-command-cannot-cross-tenants')
+
+  await assert.rejects(
+    app.begin(async (transaction) => {
+      await transaction`SELECT set_config('app.tenant_id', ${String(tenantB!.id)}, true)`
+      await transaction`SELECT set_config('app.user_id', ${String(userB.id)}, true)`
+      await transaction`SELECT set_config('app.role', 'marketing', true)`
+      return transaction`
+        SELECT * FROM akademate_next_review_offer_submission(
+          ${createdSubmission.submissionId}, 'pending_review', NULL
+        )
+      `
+    }),
+    (error: unknown) => typeof error === 'object'
+      && error !== null
+      && 'code' in error
+      && error.code === 'P0001'
+      && 'message' in error
+      && typeof error.message === 'string'
+      && error.message.includes('offer_submission_review_forbidden'),
+  )
+  adversarialChecks.add('submission-review-database-rejects-marketing-role')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => reviewNextOfferSubmission({
+        tx,
+        principal: { ...principal, platformRole: 'marketing' },
+        submissionId: createdSubmission.submissionId,
+        decision: { status: 'pending_review', note: null },
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionReviewError
+      && error.code === 'submission_decision_forbidden',
+  )
+  adversarialChecks.add('submission-review-marketing-role-is-read-only')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => reviewNextOfferSubmission({
+        tx,
+        principal,
+        submissionId: createdSubmission.submissionId,
+        decision: { status: 'rejected', note: 'Direct terminal rewrite' },
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionReviewError
+      && error.code === 'submission_transition_invalid',
+  )
+  adversarialChecks.add('submission-review-terminal-state-requires-reopen')
+
+  const reopened = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => reviewNextOfferSubmission({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+      decision: { status: 'pending_review', note: 'Reopened for a second assessment' },
+    }),
+  )
+  assert.equal(reopened.status, 'pending_review')
+  const rejected = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => reviewNextOfferSubmission({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+      decision: { status: 'rejected', note: 'Required prerequisite is missing' },
+    }),
+  )
+  assert.equal(rejected.status, 'rejected')
+  const [ledgerCount] = await sql<{ count: number }[]>`
+    SELECT count(*)::integer AS count
+    FROM offer_submission_review_events
+    WHERE submission_id = ${createdSubmission.submissionId}
+  `
+  assert.equal(ledgerCount?.count, 3)
+  adversarialChecks.add('submission-review-reopen-preserves-complete-ledger')
 
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
@@ -428,6 +582,7 @@ try {
     publicProjection: 'host-scoped-read-only',
     publicSubmissions: 'consented-idempotent-rate-limited',
     submissionInbox: 'manager-only-tenant-scoped',
+    submissionReview: 'audited-reversible-no-enrollment',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

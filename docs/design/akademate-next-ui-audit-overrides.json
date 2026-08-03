@@ -32,6 +32,6 @@
     "mobile": "verified-browser-390x844",
     "accessibility": "verified-static-and-browser",
     "states": "verified-adversarial",
-    "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-inbox,mobile-inbox,mobile-inbox-list}.png"
+    "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-inbox,desktop-inbox-decision,desktop-inbox-approved,mobile-inbox,mobile-inbox-list}.png"
   }
 }

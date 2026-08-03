@@ -43,7 +43,7 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Unit and structural adversarial tests.
 - [x] Real PostgreSQL constraint and guarded-rollback QA using the exact migration SQL.
 - [x] Physical `migrations-next` discovery integrated after the Signage migration.
-- [x] Fresh PostgreSQL 16 run applying exactly nine Next migrations.
+- [x] Fresh PostgreSQL 16 run applying exactly ten Next migrations.
 - [x] Dedicated authenticated GET/PATCH configuration command, default-off outside Akademate Next.
 - [x] Tenant-scoped PostgreSQL RLS and column-level grants for the runtime application role.
 - [x] Operator configuration UI with conditional Shadcn fields and a stable preview.
@@ -57,15 +57,18 @@ All modes can use a Luma-style shareable page. The page format does not imply th
   historical session contract.
 - [x] Desktop and mobile browser QA for the public request flow, including persistence, console,
   network, tracker and horizontal-overflow checks.
+- [x] Reversible approve, reject, archive and reopen decisions with an append-only actor ledger.
+- [x] Least-privilege review boundary: marketing can read; superadmin, admin and gestor can decide.
+- [x] Real PostgreSQL transition, replay, cross-tenant, role and guarded-rollback verification.
 - [ ] Confirmed enrollment and checkout creation commands.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
-- [ ] Audited lifecycle commands for reviewing, rejecting and approving received submissions.
+- [ ] Full review-history viewer and retention/export controls for internal decision notes.
 - [ ] Bot challenge and configurable retention/erasure jobs for public submission data.
 
 ## PostgreSQL evidence — 2026-08-03
 
-- The exact Payload runtime applied seven migrations from `apps/tenant-admin/migrations-next`.
+- The exact Payload runtime applied ten migrations from `apps/tenant-admin/migrations-next`.
 - Valid information-only, paid and approval-required offers were persisted on separate course runs.
 - Six database-bypass attempts were rejected with their exact constraint: public offer without slug,
   form without template, insecure external URL, payment without frozen price, invalid deposit and
@@ -105,6 +108,12 @@ All modes can use a Luma-style shareable page. The page format does not imply th
   inbox with HTTP 200 and rendered the stored request in a desktop table and a mobile card. The
   command returned five tenant-B requests and zero rows for tenant A under the same filters in real
   PostgreSQL 16.
+- A tenth append-only migration extends requests with approved, rejected and archived states and
+  records every transition in a tenant-scoped actor ledger. Repeating the same decision does not
+  duplicate the ledger; changing one terminal decision requires an explicit reopen.
+- Real PostgreSQL rejected a cross-tenant review, a marketing-role decision and a direct terminal
+  rewrite. Approve, reopen and reject produced exactly three ledger events, and rollback was refused
+  until review data was removed and extended statuses were restored.
 
 ## Operator workflow
 
@@ -130,6 +139,11 @@ The manager inbox route is `GET /api/next/offer-submissions`. It accepts only ca
 filters, derives tenant and role from the dedicated signed Next session, runs through the
 non-superuser application role and returns a restricted PII projection. The dashboard destination
 is `/dashboard/cursos/solicitudes`, with a responsive shared-Shadcn table/card presentation.
+
+The decision route is `PATCH /api/next/offer-submissions/:id/decision`. It accepts only approved,
+rejected, archived or pending-review targets, requires a bounded internal reason for rejection and
+runs a single tenant-scoped PostgreSQL command that updates the request and appends its event
+atomically. These decisions never create enrollment, capacity reservations or payment operations.
 
 The dashboard resolves `/api/next/session` first. CEP receives a runtime-scoped 404 and continues to
 its historical `/api/auth/session` contract; Akademate Next never falls back after an authentication
