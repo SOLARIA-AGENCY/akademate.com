@@ -27,8 +27,11 @@ describe('OfferConfigurationForm', () => {
     render(<OfferConfigurationForm record={record} onSave={vi.fn()} />)
 
     expect(screen.getByRole('group', { name: '¿Qué debe poder hacer el visitante?' })).toBeInTheDocument()
+    expect(screen.getByText('Publicar o captar')).toBeInTheDocument()
+    expect(screen.getByText('Gestionar inscripciones')).toBeInTheDocument()
+    expect(screen.getByText('Conectar un servicio externo')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Página informativa/i })).toBeInTheDocument()
-    expect(screen.getByRole('radio', { name: /Formulario de interés/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Solo formulario/i })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Inscripción sin pago/i })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Solicitud con aprobación/i })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Inscripción con pago/i })).toBeInTheDocument()
@@ -40,9 +43,11 @@ describe('OfferConfigurationForm', () => {
     render(<OfferConfigurationForm record={record} onSave={vi.fn()} />)
 
     expect(screen.queryByLabelText('Precio total')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Gestión de plazas')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('radio', { name: /Inscripción con pago/i }))
     expect(screen.getByLabelText('Precio total')).toBeInTheDocument()
     expect(screen.getByLabelText('Modalidad')).toBeInTheDocument()
+    expect(screen.getByLabelText('Gestión de plazas')).toBeInTheDocument()
     expect(screen.queryByLabelText('Destino HTTPS')).not.toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Modalidad'), { target: { value: 'deposit' } })
@@ -50,6 +55,7 @@ describe('OfferConfigurationForm', () => {
 
     fireEvent.click(screen.getByRole('radio', { name: /Enlace externo/i }))
     expect(screen.getByLabelText('Destino HTTPS')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Gestión de plazas')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Precio total')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Depósito')).not.toBeInTheDocument()
   })
@@ -87,7 +93,7 @@ describe('OfferConfigurationForm', () => {
     }))
     render(<OfferConfigurationForm record={record} onSave={onSave} />)
 
-    fireEvent.click(screen.getByRole('radio', { name: /Formulario de interés/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /Solo formulario/i }))
     expect(screen.getByText('Formulario estándar de contacto')).toBeInTheDocument()
     expect(screen.getByText('Nombre y apellidos · Email · Teléfono · Mensaje')).toBeInTheDocument()
     expect(screen.queryByLabelText('Formulario conectado')).not.toBeInTheDocument()

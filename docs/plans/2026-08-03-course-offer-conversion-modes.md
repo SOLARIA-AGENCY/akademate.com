@@ -30,6 +30,17 @@ contact or approval automatically connects the supported standard preset; the op
 to enter its internal key. The current standard form collects name, surname, email, optional phone
 and message, with privacy acceptance and marketing consent separated.
 
+The operator UI groups those outcomes by intent without changing the exclusive domain contract:
+
+- **Publish or capture:** information-only page or a simple contact form.
+- **Manage registrations:** request a free place, review an application or start paid checkout.
+- **Connect an external service:** continue through a validated Luma, Eventbrite or academy-owned
+  HTTPS destination.
+
+Capacity controls are shown only for the three registration-oriented modes. Informational pages,
+simple contact forms and external destinations keep their interface focused on the action they
+actually perform.
+
 ## Independent policies
 
 - Visibility: `private`, `public` or `unlisted`.

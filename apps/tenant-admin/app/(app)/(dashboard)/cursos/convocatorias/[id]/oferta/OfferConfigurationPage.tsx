@@ -92,9 +92,9 @@ const modes = [
   },
   {
     value: 'interest_form',
-    title: 'Formulario de interés',
-    description: 'Recoge un lead para que el equipo del centro haga seguimiento.',
-    outcome: 'Crea una solicitud',
+    title: 'Solo formulario',
+    description: 'Recoge una consulta para que el equipo del centro haga seguimiento.',
+    outcome: 'Recibe contactos',
     icon: Send,
   },
   {
@@ -128,6 +128,27 @@ const modes = [
 ] as const
 
 const modeByValue = new Map(modes.map((mode) => [mode.value, mode]))
+const modeGroups = [
+  {
+    title: 'Publicar o captar',
+    description: 'Comparte la convocatoria sin abrir todavía una inscripción.',
+    values: ['information_only', 'interest_form'],
+  },
+  {
+    title: 'Gestionar inscripciones',
+    description: 'Recibe solicitudes de plaza, con revisión o con pago.',
+    values: ['free_registration', 'approval_required', 'paid_registration'],
+  },
+  {
+    title: 'Conectar un servicio externo',
+    description: 'Mantén la página en Akademate y continúa el proceso en otra plataforma.',
+    values: ['external_link'],
+  },
+] as const satisfies ReadonlyArray<{
+  title: string
+  description: string
+  values: readonly ConversionMode[]
+}>
 
 function initialState(record: OfferRecord): FormState {
   return {
@@ -289,41 +310,54 @@ export function OfferConfigurationForm({
               <FieldDescription>
                 Elige un único resultado. Akademate mostrará solamente los campos y acciones de ese recorrido.
               </FieldDescription>
-              <div className="grid gap-3 md:grid-cols-2">
-                {modes.map((mode) => {
-                  const Icon = mode.icon
-                  const selected = state.conversionMode === mode.value
-                  return (
-                    <FieldLabel
-                      key={mode.value}
-                      className={cn(
-                        'items-start rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 ease-in-out hover:border-primary/60 hover:shadow-md',
-                        selected && 'border-primary ring-2 ring-primary/15',
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="conversion-mode"
-                        value={mode.value}
-                        checked={selected}
-                        onChange={() => selectMode(mode.value)}
-                        className="mt-1 size-4 accent-primary"
-                      />
-                      <span className="flex min-w-0 flex-1 gap-3">
-                        <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-                        <span className="flex min-w-0 flex-col gap-1">
-                          <span className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-semibold">{mode.title}</span>
-                            <Badge variant="secondary" className="font-normal">{mode.outcome}</Badge>
-                          </span>
-                          <span className="text-sm font-normal leading-5 text-muted-foreground">
-                            {mode.description}
-                          </span>
-                        </span>
-                      </span>
-                    </FieldLabel>
-                  )
-                })}
+              <div className="grid gap-5">
+                {modeGroups.map((group) => (
+                  <section key={group.title} aria-labelledby={`offer-mode-${group.values[0]}`}>
+                    <div className="mb-3">
+                      <h3 id={`offer-mode-${group.values[0]}`} className="text-sm font-semibold text-foreground">
+                        {group.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-5 text-muted-foreground">{group.description}</p>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {group.values.map((value) => {
+                        const mode = modeByValue.get(value)!
+                        const Icon = mode.icon
+                        const selected = state.conversionMode === mode.value
+                        return (
+                          <FieldLabel
+                            key={mode.value}
+                            className={cn(
+                              'items-start rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 ease-in-out hover:border-primary/60 hover:shadow-md',
+                              selected && 'border-primary ring-2 ring-primary/15',
+                            )}
+                          >
+                            <input
+                              type="radio"
+                              name="conversion-mode"
+                              value={mode.value}
+                              checked={selected}
+                              onChange={() => selectMode(mode.value)}
+                              className="mt-1 size-4 accent-primary"
+                            />
+                            <span className="flex min-w-0 flex-1 gap-3">
+                              <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+                              <span className="flex min-w-0 flex-col gap-1">
+                                <span className="flex flex-wrap items-center gap-2">
+                                  <span className="text-sm font-semibold">{mode.title}</span>
+                                  <Badge variant="secondary" className="font-normal">{mode.outcome}</Badge>
+                                </span>
+                                <span className="text-sm font-normal leading-5 text-muted-foreground">
+                                  {mode.description}
+                                </span>
+                              </span>
+                            </span>
+                          </FieldLabel>
+                        )
+                      })}
+                    </div>
+                  </section>
+                ))}
               </div>
             </FieldSet>
 
@@ -413,18 +447,22 @@ export function OfferConfigurationForm({
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="offer-capacity">Gestión de plazas</FieldLabel>
-                <NativeSelect
-                  id="offer-capacity"
-                  value={state.capacityPolicy}
-                  onChange={(event) => update('capacityPolicy', event.target.value as FormState['capacityPolicy'])}
-                >
-                  <option value="limited">Plazas limitadas</option>
-                  <option value="waitlist">Lista de espera</option>
-                  <option value="unlimited">Sin límite</option>
-                </NativeSelect>
-              </Field>
+              {(state.conversionMode === 'free_registration'
+                || state.conversionMode === 'approval_required'
+                || state.conversionMode === 'paid_registration') ? (
+                <Field>
+                  <FieldLabel htmlFor="offer-capacity">Gestión de plazas</FieldLabel>
+                  <NativeSelect
+                    id="offer-capacity"
+                    value={state.capacityPolicy}
+                    onChange={(event) => update('capacityPolicy', event.target.value as FormState['capacityPolicy'])}
+                  >
+                    <option value="limited">Plazas limitadas</option>
+                    <option value="waitlist">Lista de espera</option>
+                    <option value="unlimited">Sin límite</option>
+                  </NativeSelect>
+                </Field>
+              ) : null}
               <Field>
                 <FieldLabel htmlFor="offer-cta">Texto del botón</FieldLabel>
                 <Input
