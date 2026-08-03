@@ -9,6 +9,9 @@
     "app/api/next/course-runs/[id]/offer/route.ts",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/page.tsx",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/OfferConfigurationPage.tsx",
+    "app/(next-public)/layout.tsx",
+    "app/(next-public)/o/[slug]/**/*.tsx",
+    "app/api/next/public/offers/[slug]/route.ts",
     "src/lib/offers/**/*.ts",
     "src/lib/learning/next-learning-auth.ts",
     "src/lib/learning/next-learning-transaction.ts"

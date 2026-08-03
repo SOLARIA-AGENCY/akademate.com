@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "totalPages": 238,
-  "totalLayouts": 17,
+  "totalPages": 239,
+  "totalLayouts": 18,
   "totalLocalPrimitiveFiles": 84,
-  "totalSharedUiConsumers": 8,
+  "totalSharedUiConsumers": 9,
   "totalSidebarFiles": 5,
   "pageSignals": {
     "sharedUiPages": 6,
@@ -53,10 +53,10 @@
       "sidebarFiles": 0
     },
     "tenant-admin": {
-      "pages": 169,
-      "layouts": 9,
+      "pages": 170,
+      "layouts": 10,
       "localPrimitiveFiles": 63,
-      "sharedUiConsumers": 2,
+      "sharedUiConsumers": 3,
       "sidebarFiles": 3
     },
     "web": {
@@ -2862,6 +2862,21 @@
       "app": "tenant-admin",
       "file": "apps/tenant-admin/app/(app)/users/page.tsx",
       "route": "/users",
+      "sharedUiImport": false,
+      "localPrimitiveImportCount": 0,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(next-public)/o/[slug]/page.tsx",
+      "route": "/o/[slug]",
       "sharedUiImport": false,
       "localPrimitiveImportCount": 0,
       "hardcodedColorTokenCount": 0,

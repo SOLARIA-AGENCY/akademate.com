@@ -6,6 +6,8 @@ import {
   updateNextOfferConfiguration,
 } from '../src/lib/offers/offer-configuration-command.ts'
 import { withNextLearningTransaction } from '../src/lib/learning/next-learning-transaction.ts'
+import { withNextPublicOfferTransaction } from '../src/lib/offers/public-offer-database.ts'
+import { NextPublicOfferError, getNextPublicOffer } from '../src/lib/offers/public-offer-query.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -37,6 +39,15 @@ try {
   `
   assert.equal(tenantA?.slug, 'tenant-a')
   assert.equal(tenantB?.slug, 'tenant-b')
+  await sql`
+    UPDATE tenants
+    SET domain = CASE slug
+      WHEN 'tenant-a' THEN 'learn.tenant-a.example'
+      WHEN 'tenant-b' THEN 'learn.tenant-b.example'
+      ELSE domain
+    END
+    WHERE slug IN ('tenant-a', 'tenant-b')
+  `
 
   const [area] = await sql<{ id: number }[]>`
     INSERT INTO areas_formativas (nombre, codigo)
@@ -117,6 +128,7 @@ try {
       'public', 'shared-offer', 'paid_registration', 'full_amount', 149.50
     )
   `
+  await sql`UPDATE course_runs SET status = 'published' WHERE codigo = 'PAID-A'`
 
   await rejectsConstraint('share-slug-is-unique-inside-tenant', () => sql`
     INSERT INTO course_runs (
@@ -138,6 +150,7 @@ try {
       'admissions_form', 'waitlist'
     )
   `
+  await sql`UPDATE course_runs SET status = 'enrollment_open' WHERE codigo = 'FORM-B'`
 
   const configured = await sql<{ conversion_mode: string; share_slug: string }[]>`
     SELECT conversion_mode, share_slug
@@ -243,12 +256,55 @@ try {
   assert.equal(crossTenantRows.length, 0)
   adversarialChecks.add('database-rls-hides-cross-tenant-update')
 
+  const publicOfferA = await withNextPublicOfferTransaction(
+    (tx) => getNextPublicOffer({
+      tx,
+      host: 'learn.tenant-a.example',
+      shareSlug: 'shared-offer',
+    }),
+  )
+  assert.equal(publicOfferA.tenantSlug, 'tenant-a')
+  assert.equal(publicOfferA.conversionMode, 'paid_registration')
+
+  const publicOfferB = await withNextPublicOfferTransaction(
+    (tx) => getNextPublicOffer({
+      tx,
+      host: 'tenant-b.akademate.com',
+      shareSlug: 'shared-offer',
+    }),
+  )
+  assert.equal(publicOfferB.tenantSlug, 'tenant-b')
+  assert.equal(publicOfferB.conversionMode, 'approval_required')
+  adversarialChecks.add('same-slug-resolves-by-exact-host')
+
+  for (const attempt of [
+    { host: 'other.akademate.com', shareSlug: 'shared-offer' },
+    { host: 'tenant-a.akademate.com', shareSlug: 'operator-configured-offer' },
+  ]) {
+    await assert.rejects(
+      withNextPublicOfferTransaction((tx) => getNextPublicOffer({ tx, ...attempt })),
+      (error: unknown) => error instanceof NextPublicOfferError
+        && error.code === 'public_offer_not_found',
+    )
+  }
+  adversarialChecks.add('wrong-host-and-draft-offer-hidden')
+
+  const [projectionPrivilege] = await sql<{ can_execute: boolean }[]>`
+    SELECT has_function_privilege(
+      ${appRole},
+      'akademate_next_get_public_offer(character varying, character varying)',
+      'EXECUTE'
+    ) AS can_execute
+  `
+  assert.equal(projectionPrivilege?.can_execute, true)
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
     tenantScopedSlug: true,
     priceColumn: 'offer_price_amount',
     operatorCommand: 'app-role-rls-verified',
+    publicProjection: 'host-scoped-read-only',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

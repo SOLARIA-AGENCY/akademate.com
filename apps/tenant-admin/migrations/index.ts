@@ -22,6 +22,7 @@ import * as migration_20260731_akademate_next_message_consistency from './202607
 import * as migration_20260802_akademate_next_signage from './20260802_akademate_next_signage'
 import * as migration_20260803_akademate_next_offer_conversion_modes from './20260803_akademate_next_offer_conversion_modes'
 import * as migration_20260803_akademate_next_offer_runtime_access from './20260803_akademate_next_offer_runtime_access'
+import * as migration_20260803_akademate_next_public_offer_projection from './20260803_akademate_next_public_offer_projection'
 import { selectRuntimeMigrations } from '../src/runtime/select-runtime-migrations'
 
 const legacyMigrations = [
@@ -157,6 +158,11 @@ const nextMigrations = [
     up: migration_20260803_akademate_next_offer_runtime_access.up,
     down: migration_20260803_akademate_next_offer_runtime_access.down,
     name: '20260803_akademate_next_offer_runtime_access',
+  },
+  {
+    up: migration_20260803_akademate_next_public_offer_projection.up,
+    down: migration_20260803_akademate_next_public_offer_projection.down,
+    name: '20260803_akademate_next_public_offer_projection',
   },
 ]
 

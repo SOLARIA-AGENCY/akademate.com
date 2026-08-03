@@ -123,7 +123,12 @@ capture_payload "${LOG_DIR}/migrate-with-data.log" migrate
     AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
     node_modules/.bin/tsx scripts/verify-next-offer-conversion-db.ts
 )
-psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=5 WHERE name='20260803_akademate_next_offer_runtime_access';" >/dev/null
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=6 WHERE name='20260803_akademate_next_public_offer_projection';" >/dev/null
+capture_payload "${LOG_DIR}/public-offer-projection-rollback.log" migrate:down
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_public_offer_projection';" "0"
+assert_query "SELECT count(*) FROM pg_proc WHERE proname='akademate_next_get_public_offer';" "0"
+
+psql_owner -c "UPDATE payload_migrations SET batch=5 WHERE name='20260803_akademate_next_offer_runtime_access';" >/dev/null
 
 if capture_payload "${LOG_DIR}/offer-access-rollback-with-data.log" migrate:down; then
   echo "Offer access rollback unexpectedly succeeded with academy offer data" >&2
@@ -166,6 +171,11 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 
 start_database
 capture_payload "${LOG_DIR}/migrate-empty.log" migrate
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=5 WHERE name='20260803_akademate_next_public_offer_projection';" >/dev/null
+capture_payload "${LOG_DIR}/public-offer-projection-rollback-clean.log" migrate:down
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_public_offer_projection';" "0"
+assert_query "SELECT count(*) FROM pg_proc WHERE proname='akademate_next_get_public_offer';" "0"
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=4 WHERE name='20260803_akademate_next_offer_runtime_access';" >/dev/null
 capture_payload "${LOG_DIR}/offer-access-rollback-clean.log" migrate:down
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_runtime_access';" "0"
@@ -180,10 +190,12 @@ assert_query "SELECT has_table_privilege('${APP_USER}','campuses','SELECT')::tex
 assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='campuses' AND column_name='tenant_id';" "YES"
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260802_akademate_next_signage';" "0"
 
-psql_owner -c "UPDATE payload_migrations SET batch=3 WHERE name='20260803_akademate_next_offer_conversion_modes';" >/dev/null
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=3 WHERE name='20260803_akademate_next_offer_conversion_modes';" >/dev/null
 capture_payload "${LOG_DIR}/offer-rollback-empty.log" migrate:down
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_conversion_modes';" "0"
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name IN ('publication_access','conversion_mode','offer_price_amount');" "0"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection');" "0"
+assert_query "SELECT count(*) FROM payload_migrations;" "4"
 
 psql_owner -c "INSERT INTO tenants(name,slug) VALUES ('Legacy tenant','legacy-tenant'); INSERT INTO campuses(slug,name,city,tenant_id) VALUES ('legacy-null-campus','Legacy null campus','Tallinn',NULL);" >/dev/null
 if psql_owner -c 'ALTER TABLE campuses ALTER COLUMN tenant_id SET NOT NULL;' \
@@ -204,4 +216,4 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name='offer_price_amount';" "0"
 assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='campuses' AND column_name='tenant_id';" "YES"
 
-printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'
+printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'

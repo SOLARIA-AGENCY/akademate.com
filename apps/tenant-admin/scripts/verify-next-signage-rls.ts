@@ -85,6 +85,7 @@ try {
     '20260802_akademate_next_signage',
     '20260803_akademate_next_offer_conversion_modes',
     '20260803_akademate_next_offer_runtime_access',
+    '20260803_akademate_next_public_offer_projection',
   ])
 
   const rlsRows = await owner<{ relname: string; relrowsecurity: boolean; relforcerowsecurity: boolean }[]>`
@@ -117,11 +118,26 @@ try {
       )
     ORDER BY tablename, policyname
   `
-  assert.equal(policyRows.length, 12)
+  assert.equal(policyRows.length, 13)
   for (const table of rlsRows.map(({ relname }) => relname)) {
     const policies = policyRows.filter(({ tablename }) => tablename === table)
-    assert.equal(policies.length, 2, `${table} must have restrictive scope plus management policies`)
-    assert.equal(policies.every(({ cmd }) => cmd === 'ALL'), true)
+    const expectedCount = table === 'campuses' ? 3 : 2
+    assert.equal(
+      policies.length,
+      expectedCount,
+      `${table} must have restrictive scope plus its bounded access policies`,
+    )
+    assert.equal(
+      policies.filter(({ cmd }) => cmd === 'ALL').length,
+      2,
+      `${table} must retain restrictive tenant scope plus management policies`,
+    )
+    if (table === 'campuses') {
+      assert.deepEqual(
+        policies.filter(({ cmd }) => cmd === 'SELECT').map(({ policyname }) => policyname),
+        ['campuses_public_offer_read'],
+      )
+    }
   }
 
   const [role] = await owner<{ rolsuper: boolean; rolbypassrls: boolean; ownerTables: number }[]>`
