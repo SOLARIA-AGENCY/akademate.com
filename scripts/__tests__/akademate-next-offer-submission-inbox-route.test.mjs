@@ -8,6 +8,7 @@ const sessionRoutePath = 'apps/tenant-admin/app/api/next/session/route.ts'
 const dashboardLayoutPath = 'apps/tenant-admin/app/(app)/(dashboard)/layout.tsx'
 const decisionRoutePath = 'apps/tenant-admin/app/api/next/offer-submissions/[id]/decision/route.ts'
 const historyRoutePath = 'apps/tenant-admin/app/api/next/offer-submissions/[id]/reviews/route.ts'
+const enrollmentRoutePath = 'apps/tenant-admin/app/api/next/offer-submissions/[id]/enrollment/route.ts'
 
 test('registers a dedicated authenticated Next route without importing CEP APIs', async () => {
   const source = await readFile(routePath, 'utf8')
@@ -55,4 +56,13 @@ test('loads internal review history through a reviewer-only Next transaction', a
   assert.match(source, /getNextOfferSubmissionHistory/)
   assert.match(source, /AKADEMATE_NEXT_OFFERS_ENABLED/)
   assert.doesNotMatch(source, /api\/leads|api\/matriculas|stripe|paypal|cep/i)
+})
+
+test('converts approved submissions through the isolated transactional enrollment command', async () => {
+  const source = await readFile(enrollmentRoutePath, 'utf8')
+  assert.match(source, /authenticateNextLearningRequest/)
+  assert.match(source, /withNextLearningTransaction/)
+  assert.match(source, /convertNextOfferSubmissionToEnrollment/)
+  assert.match(source, /AKADEMATE_NEXT_OFFERS_ENABLED/)
+  assert.doesNotMatch(source, /api\/leads|api\/matriculas|stripe|paypal|cep|payload\.create/i)
 })

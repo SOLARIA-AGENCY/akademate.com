@@ -28,6 +28,10 @@ import {
   NextOfferSubmissionHistoryError,
   getNextOfferSubmissionHistory,
 } from '../src/lib/offers/offer-submission-review-history-command.ts'
+import {
+  NextOfferSubmissionEnrollmentError,
+  convertNextOfferSubmissionToEnrollment,
+} from '../src/lib/offers/offer-submission-enrollment-command.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -618,6 +622,283 @@ try {
   assert.equal(marketingHistoryRows.length, 0)
   adversarialChecks.add('submission-review-history-not-readable-by-marketing-role')
 
+  await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => reviewNextOfferSubmission({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+      decision: { status: 'pending_review', note: 'Reopened for enrollment conversion' },
+    }),
+  )
+  await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => reviewNextOfferSubmission({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+      decision: { status: 'approved', note: 'Approved for enrollment conversion' },
+    }),
+  )
+
+  const converted = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => convertNextOfferSubmissionToEnrollment({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+    }),
+  )
+  assert.equal(converted.status, 'confirmed')
+  assert.equal(converted.capacityReserved, true)
+  assert.equal(converted.replayed, false)
+
+  const [persistedConversion] = await sql<{
+    tenant_id: number
+    offer_submission_id: string
+    status: string
+    payment_status: string
+    created_by_id: number
+    current_enrollments: number
+    email: string
+    marketing_consent: boolean
+  }[]>`
+    SELECT enrollment.tenant_id, enrollment.offer_submission_id,
+      enrollment.status::text, enrollment.payment_status::text,
+      enrollment.created_by_id, run.current_enrollments::integer,
+      learner.email, learner.marketing_consent
+    FROM enrollments enrollment
+    JOIN course_runs run
+      ON run.tenant_id = enrollment.tenant_id AND run.id = enrollment.course_run_id
+    JOIN leads learner
+      ON learner.tenant_id = enrollment.tenant_id AND learner.id = enrollment.student_id
+    WHERE enrollment.id = ${converted.enrollmentId}
+  `
+  assert.deepEqual(persistedConversion, {
+    tenant_id: tenantB!.id,
+    offer_submission_id: String(createdSubmission.submissionId),
+    status: 'confirmed',
+    payment_status: 'pending',
+    created_by_id: userB.id,
+    current_enrollments: 1,
+    email: 'ada@example.test',
+    marketing_consent: false,
+  })
+  adversarialChecks.add('approved-submission-converts-atomically-with-consent-and-capacity')
+
+  const replayedEnrollment = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => convertNextOfferSubmissionToEnrollment({
+      tx,
+      principal,
+      submissionId: createdSubmission.submissionId,
+    }),
+  )
+  assert.equal(replayedEnrollment.replayed, true)
+  assert.equal(replayedEnrollment.enrollmentId, converted.enrollmentId)
+  const [replayCounts] = await sql<{ enrollments: number; current_enrollments: number }[]>`
+    SELECT count(enrollment.id)::integer AS enrollments,
+      max(run.current_enrollments)::integer AS current_enrollments
+    FROM course_runs run
+    LEFT JOIN enrollments enrollment
+      ON enrollment.tenant_id = run.tenant_id AND enrollment.course_run_id = run.id
+    WHERE run.id = ${tenantBRun.id}
+    GROUP BY run.id
+  `
+  assert.deepEqual(replayCounts, { enrollments: 1, current_enrollments: 1 })
+  adversarialChecks.add('submission-enrollment-replay-does-not-duplicate-seat-or-record')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userA.id, tenantId: tenantA!.id },
+      (tx, principal) => convertNextOfferSubmissionToEnrollment({
+        tx,
+        principal,
+        submissionId: createdSubmission.submissionId,
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionEnrollmentError
+      && error.code === 'submission_not_found',
+  )
+  adversarialChecks.add('submission-enrollment-command-cannot-cross-tenants')
+
+  await assert.rejects(
+    app.begin(async (transaction) => {
+      await transaction`SELECT set_config('app.tenant_id', ${String(tenantB!.id)}, true)`
+      await transaction`SELECT set_config('app.user_id', ${String(userB.id)}, true)`
+      await transaction`SELECT set_config('app.role', 'marketing', true)`
+      return transaction`
+        SELECT * FROM akademate_next_convert_offer_submission_to_enrollment(
+          ${createdSubmission.submissionId}
+        )
+      `
+    }),
+    (error: unknown) => typeof error === 'object'
+      && error !== null
+      && 'message' in error
+      && typeof error.message === 'string'
+      && error.message.includes('offer_submission_enrollment_forbidden'),
+  )
+  adversarialChecks.add('submission-enrollment-database-rejects-marketing-role')
+
+  const [enrollmentPrivileges] = await sql<{
+    can_select: boolean
+    can_insert: boolean
+    can_update: boolean
+    can_delete: boolean
+    can_execute: boolean
+  }[]>`
+    SELECT
+      has_table_privilege(${appRole}, 'enrollments', 'SELECT') AS can_select,
+      has_table_privilege(${appRole}, 'enrollments', 'INSERT') AS can_insert,
+      has_table_privilege(${appRole}, 'enrollments', 'UPDATE') AS can_update,
+      has_table_privilege(${appRole}, 'enrollments', 'DELETE') AS can_delete,
+      has_function_privilege(
+        ${appRole},
+        'akademate_next_convert_offer_submission_to_enrollment(bigint)',
+        'EXECUTE'
+      ) AS can_execute
+  `
+  assert.deepEqual(enrollmentPrivileges, {
+    can_select: true,
+    can_insert: false,
+    can_update: false,
+    can_delete: false,
+    can_execute: true,
+  })
+  adversarialChecks.add('submission-enrollment-app-role-has-command-only-write-access')
+
+  const capacityFixtureRows = await sql<{
+    run_id: number
+    run_code: string
+    submission_id: string
+  }[]>`
+    WITH inserted_runs AS (
+      INSERT INTO course_runs (
+        course_id, codigo, start_date, end_date, tenant_id, status,
+        conversion_mode, form_template_key, capacity_policy,
+        max_students, current_enrollments
+      ) VALUES
+        (${courseB.id}, 'FULL-LIMITED-B', '2099-03-01', '2099-03-02', ${tenantB!.id},
+          'enrollment_open', 'approval_required', 'admissions_form', 'limited', 1, 1),
+        (${courseB.id}, 'FULL-WAITLIST-B', '2099-03-03', '2099-03-04', ${tenantB!.id},
+          'enrollment_open', 'approval_required', 'admissions_form', 'waitlist', 1, 1),
+        (${courseB.id}, 'LAST-SEAT-B', '2099-03-05', '2099-03-06', ${tenantB!.id},
+          'enrollment_open', 'approval_required', 'admissions_form', 'limited', 1, 0)
+      RETURNING id, codigo
+    ), inserted_submissions AS (
+      INSERT INTO offer_submissions (
+        tenant_id, course_run_id, submission_kind, status,
+        first_name, last_name, email, phone, privacy_accepted,
+        privacy_notice_version, marketing_consent, source_host, source_slug,
+        idempotency_key, payload_fingerprint, contact_fingerprint
+      )
+      SELECT ${tenantB!.id}, run.id, 'application', 'approved',
+        'Capacity', suffix.label, lower(suffix.label) || '@example.test', '+46 700000000', true,
+        '2026-08-03', false, 'tenant-b.akademate.com', lower(run.codigo),
+        suffix.key::uuid, repeat(suffix.fingerprint, 64), repeat(suffix.contact, 64)
+      FROM inserted_runs run
+      JOIN LATERAL (
+        VALUES
+          ('Applicant A', '018f6f52-86a7-7c8f-a477-01b9c6407b01', 'a', '1'),
+          ('Applicant B', '018f6f52-86a7-7c8f-a477-01b9c6407b02', 'b', '2')
+      ) AS suffix(label, key, fingerprint, contact)
+        ON run.codigo = 'LAST-SEAT-B' OR suffix.label = 'Applicant A'
+      RETURNING id, course_run_id
+    )
+    SELECT run.id AS run_id, run.codigo AS run_code,
+      submission.id::text AS submission_id
+    FROM inserted_runs run
+    JOIN inserted_submissions submission ON submission.course_run_id = run.id
+    ORDER BY run.codigo, submission.id
+  `
+  const fullLimited = capacityFixtureRows.find((row) => row.run_code === 'FULL-LIMITED-B')
+  const fullWaitlist = capacityFixtureRows.find((row) => row.run_code === 'FULL-WAITLIST-B')
+  const lastSeat = capacityFixtureRows.filter((row) => row.run_code === 'LAST-SEAT-B')
+  assert.ok(fullLimited && fullWaitlist)
+  assert.equal(lastSeat.length, 2)
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => convertNextOfferSubmissionToEnrollment({
+        tx,
+        principal,
+        submissionId: fullLimited.submission_id,
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionEnrollmentError
+      && error.code === 'submission_capacity_full',
+  )
+  const [fullLimitedCount] = await sql<{ count: number }[]>`
+    SELECT count(*)::integer AS count FROM enrollments
+    WHERE course_run_id = ${fullLimited.run_id}
+  `
+  assert.equal(fullLimitedCount?.count, 0)
+  adversarialChecks.add('limited-capacity-refuses-full-run-without-partial-write')
+
+  const waitlisted = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => convertNextOfferSubmissionToEnrollment({
+      tx,
+      principal,
+      submissionId: fullWaitlist.submission_id,
+    }),
+  )
+  assert.equal(waitlisted.status, 'waitlisted')
+  assert.equal(waitlisted.capacityReserved, false)
+  const [waitlistState] = await sql<{ count: number; current_enrollments: number }[]>`
+    SELECT count(enrollment.id)::integer AS count,
+      max(run.current_enrollments)::integer AS current_enrollments
+    FROM course_runs run
+    LEFT JOIN enrollments enrollment
+      ON enrollment.tenant_id = run.tenant_id AND enrollment.course_run_id = run.id
+    WHERE run.id = ${fullWaitlist.run_id}
+    GROUP BY run.id
+  `
+  assert.deepEqual(waitlistState, { count: 1, current_enrollments: 1 })
+  adversarialChecks.add('waitlist-policy-creates-waitlisted-record-without-consuming-seat')
+
+  const raceAttempts = await Promise.allSettled(lastSeat.map((fixture) => (
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => convertNextOfferSubmissionToEnrollment({
+        tx,
+        principal,
+        submissionId: fixture.submission_id,
+      }),
+    )
+  )))
+  const raceSuccesses = raceAttempts.filter((attempt) => attempt.status === 'fulfilled')
+  const raceFailures = raceAttempts.filter((attempt) => attempt.status === 'rejected')
+  assert.equal(raceSuccesses.length, 1)
+  assert.equal(raceFailures.length, 1)
+  const failedFixture = lastSeat[raceAttempts.findIndex((attempt) => attempt.status === 'rejected')]
+  assert.ok(failedFixture)
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => convertNextOfferSubmissionToEnrollment({
+        tx,
+        principal,
+        submissionId: failedFixture.submission_id,
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferSubmissionEnrollmentError
+      && error.code === 'submission_capacity_full',
+  )
+  const [raceState] = await sql<{ count: number; current_enrollments: number }[]>`
+    SELECT count(enrollment.id)::integer AS count,
+      max(run.current_enrollments)::integer AS current_enrollments
+    FROM course_runs run
+    LEFT JOIN enrollments enrollment
+      ON enrollment.tenant_id = run.tenant_id AND enrollment.course_run_id = run.id
+    WHERE run.id = ${lastSeat[0]!.run_id}
+    GROUP BY run.id
+  `
+  assert.deepEqual(raceState, { count: 1, current_enrollments: 1 })
+  adversarialChecks.add('concurrent-last-seat-allows-exactly-one-confirmed-enrollment')
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
@@ -627,8 +908,9 @@ try {
     publicProjection: 'host-scoped-read-only',
     publicSubmissions: 'consented-idempotent-rate-limited',
     submissionInbox: 'manager-only-tenant-scoped',
-    submissionReview: 'audited-reversible-no-enrollment',
+    submissionReview: 'audited-reversible',
     submissionHistory: 'reviewer-only-bounded-timeline',
+    submissionEnrollment: 'approved-idempotent-tenant-scoped-capacity-reserved',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

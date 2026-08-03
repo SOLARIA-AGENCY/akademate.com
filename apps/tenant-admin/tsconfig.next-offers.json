@@ -10,6 +10,7 @@
     "app/api/next/offer-submissions/route.ts",
     "app/api/next/offer-submissions/[id]/decision/route.ts",
     "app/api/next/offer-submissions/[id]/reviews/route.ts",
+    "app/api/next/offer-submissions/[id]/enrollment/route.ts",
     "app/api/next/session/route.ts",
     "app/(app)/(dashboard)/cursos/solicitudes/**/*.tsx",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/page.tsx",

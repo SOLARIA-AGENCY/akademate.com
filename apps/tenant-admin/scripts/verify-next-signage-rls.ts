@@ -88,6 +88,7 @@ try {
     '20260803_akademate_next_public_offer_projection',
     '20260803_akademate_next_public_offer_submissions',
     '20260803_zz_akademate_next_offer_submission_review',
+    '20260803_zzz_akademate_next_offer_enrollment_conversion',
   ])
 
   const rlsRows = await owner<{ relname: string; relrowsecurity: boolean; relforcerowsecurity: boolean }[]>`

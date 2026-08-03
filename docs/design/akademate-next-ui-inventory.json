@@ -1805,7 +1805,7 @@
         "mobile": "verified-browser-390x844",
         "accessibility": "verified-static-and-browser",
         "states": "verified-adversarial",
-        "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-inbox,desktop-inbox-decision,desktop-inbox-approved,desktop-inbox-history,mobile-inbox,mobile-inbox-list,mobile-inbox-history}.png"
+        "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-inbox,desktop-inbox-decision,desktop-inbox-approved,desktop-inbox-history,desktop-inbox-enrollment-confirmation,desktop-inbox-enrolled,mobile-inbox,mobile-inbox-list,mobile-inbox-history}.png"
       }
     },
     {

@@ -43,7 +43,7 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Unit and structural adversarial tests.
 - [x] Real PostgreSQL constraint and guarded-rollback QA using the exact migration SQL.
 - [x] Physical `migrations-next` discovery integrated after the Signage migration.
-- [x] Fresh PostgreSQL 16 run applying exactly ten Next migrations.
+- [x] Fresh PostgreSQL 16 run applying exactly eleven Next migrations.
 - [x] Dedicated authenticated GET/PATCH configuration command, default-off outside Akademate Next.
 - [x] Tenant-scoped PostgreSQL RLS and column-level grants for the runtime application role.
 - [x] Operator configuration UI with conditional Shadcn fields and a stable preview.
@@ -61,7 +61,10 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Least-privilege review boundary: marketing can read; superadmin, admin and gestor can decide.
 - [x] Real PostgreSQL transition, replay, cross-tenant, role and guarded-rollback verification.
 - [x] Reviewer-only bounded timeline with actor identifiers, current names, notes and received state.
-- [ ] Confirmed enrollment and checkout creation commands.
+- [x] Reviewer-confirmed enrollment command with tenant ownership, submission idempotency, locked
+  capacity reservation and waitlist fallback.
+- [x] Explicit operator confirmation UI and canonical enrollment link in desktop/mobile inbox cards.
+- [ ] Checkout creation command; payment remains pending and separate from academic capacity.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
 - [ ] Retention and export controls for internal decision notes.
@@ -69,7 +72,7 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 
 ## PostgreSQL evidence — 2026-08-03
 
-- The exact Payload runtime applied ten migrations from `apps/tenant-admin/migrations-next`.
+- The exact Payload runtime applied eleven migrations from `apps/tenant-admin/migrations-next`.
 - Valid information-only, paid and approval-required offers were persisted on separate course runs.
 - Six database-bypass attempts were rejected with their exact constraint: public offer without slug,
   form without template, insecure external URL, payment without frozen price, invalid deposit and
@@ -118,6 +121,16 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - Review history is fetched only on demand and returns at most 100 newest-first events. Real RLS
   verification hid all review notes from marketing, rejected cross-tenant history access and kept
   the immutable actor identifier separate from the actor's current display name.
+- An eleventh append-only migration tenant-scopes canonical `enrollments`, links each conversion to
+  exactly one public submission and exposes only a reviewer-only `SECURITY DEFINER` command. The app
+  role can read its tenant's enrollment projection but cannot insert, update or delete enrollments.
+- The conversion locks both submission and course run inside the serializable transaction. A limited
+  full run produced no learner or enrollment partial write; a full waitlist run created one
+  `waitlisted` enrollment without incrementing capacity; two concurrent requests for the final seat
+  produced exactly one confirmed enrollment and a counter of one.
+- Replaying the same conversion returns the original enrollment without creating a second learner,
+  enrollment or seat. Cross-tenant and marketing-role conversion attempts are rejected in the
+  command and in PostgreSQL.
 
 ## Operator workflow
 
@@ -153,6 +166,12 @@ The internal history route is `GET /api/next/offer-submissions/:id/reviews`. It 
 accepts no tenant or filter parameters, validates the tenant-owned request before reading its ledger
 and returns at most 100 newest-first events plus the original received timestamp. Marketing users
 can read the inbox but cannot retrieve internal notes or actor history.
+
+The enrollment conversion route is `POST /api/next/offer-submissions/:id/enrollment`. It accepts no
+client body, tenant selector, price or payment state. Only an approved `approval_required` or
+`free_registration` request can be converted. The resulting enrollment is `confirmed` with one
+reserved place, or `waitlisted` without consuming capacity according to the course-run policy.
+Payment is always left `pending`; checkout and financial reconciliation remain a separate command.
 
 The dashboard resolves `/api/next/session` first. CEP receives a runtime-scoped 404 and continues to
 its historical `/api/auth/session` contract; Akademate Next never falls back after an authentication

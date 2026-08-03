@@ -24,6 +24,7 @@ const trackerRequests = []
 const submissionStatuses = []
 const decisionStatuses = []
 const historyStatuses = []
+const enrollmentStatuses = []
 
 function observe(page) {
   page.on('console', (message) => {
@@ -117,6 +118,18 @@ try {
   await inboxPage.getByText('Verified by the admissions manager').waitFor()
   await inboxPage.getByText(/QA Manager · actor #/).waitFor()
   await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-history.png`, fullPage: true })
+  await inboxPage.getByRole('button', { name: 'Cerrar historial' }).click()
+  await inboxPage.getByRole('button', { name: 'Crear matrícula' }).filter({ visible: true }).first().click()
+  await inboxPage.getByText(/reservará una plaza/i).waitFor()
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-enrollment-confirmation.png`, fullPage: true })
+  const enrollmentResponse = inboxPage.waitForResponse((response) => (
+    response.url().includes('/enrollment') && response.request().method() === 'POST'
+  ))
+  await inboxPage.getByRole('button', { name: 'Confirmar matrícula' }).click()
+  enrollmentStatuses.push((await enrollmentResponse).status())
+  await inboxPage.getByText('Matrícula confirmada y plaza reservada.').waitFor()
+  await inboxPage.getByRole('link', { name: 'Ver matrícula' }).filter({ visible: true }).first().waitFor()
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-enrolled.png`, fullPage: true })
   await inboxDesktop.close()
 
   const mobile = await browser.newContext({
@@ -151,6 +164,8 @@ try {
   assert.equal((await inboxMobilePage.goto(`${dashboardOrigin}/dashboard/cursos/solicitudes`, { waitUntil: 'domcontentloaded' }))?.status(), 200)
   await inboxMobilePage.getByRole('heading', { level: 1, name: 'Solicitudes de cursos' }).waitFor()
   await inboxMobilePage.getByText('Ada Lovelace', { exact: true }).filter({ visible: true }).waitFor()
+  await inboxMobilePage.getByRole('link', { name: 'Ver matrícula' }).filter({ visible: true }).first().waitFor()
+  await inboxMobilePage.getByText('Matrícula confirmada', { exact: true }).filter({ visible: true }).first().waitFor()
   assert.equal(await inboxMobilePage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
   const mobileMain = inboxMobilePage.locator('main').first()
   assert.equal(await mobileMain.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
@@ -171,6 +186,7 @@ try {
   assert.deepEqual(submissionStatuses, [201])
   assert.deepEqual(decisionStatuses, [200])
   assert.deepEqual(historyStatuses, [200, 200])
+  assert.deepEqual(enrollmentStatuses, [201])
   assert.deepEqual(consoleErrors, [])
   assert.deepEqual(failedRequests, [])
   assert.deepEqual(trackerRequests, [])
@@ -186,7 +202,8 @@ try {
     authenticatedInboxStatus: 200,
     decisionStatus: 200,
     historyStatuses,
-    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'desktop-inbox-history.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png', 'mobile-inbox-history.png'],
+    enrollmentStatuses,
+    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'desktop-inbox-history.png', 'desktop-inbox-enrollment-confirmation.png', 'desktop-inbox-enrolled.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png', 'mobile-inbox-history.png'],
   })}\n`)
 } finally {
   await browser.close()

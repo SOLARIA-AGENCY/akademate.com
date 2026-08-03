@@ -21,6 +21,8 @@ const response = {
     sourceHost: 'north-star.localhost',
     sourceSlug: 'creative-leadership-weekend',
     createdAt: '2026-08-03T10:00:00.000Z',
+    enrollmentId: null,
+    enrollmentStatus: null,
   }],
   canReview: true,
   page: 1,
@@ -147,5 +149,72 @@ describe('OfferSubmissionInbox', () => {
       '/api/next/offer-submissions/91/reviews',
       expect.objectContaining({ cache: 'no-store', credentials: 'same-origin' }),
     )
+  })
+
+  it('requires an explicit confirmation before converting an approved application', async () => {
+    const approvedResponse = {
+      ...response,
+      items: [{ ...response.items[0], status: 'approved' }],
+    }
+    const convertedResponse = {
+      ...approvedResponse,
+      items: [{
+        ...approvedResponse.items[0],
+        enrollmentId: 501,
+        enrollmentStatus: 'confirmed',
+      }],
+    }
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(approvedResponse), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        submissionId: 91,
+        enrollmentId: 501,
+        learnerId: 301,
+        status: 'confirmed',
+        replayed: false,
+        capacityReserved: true,
+      }), { status: 201 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(convertedResponse), { status: 200 }))
+    render(<OfferSubmissionInbox />)
+    await screen.findAllByText('Ada Lovelace')
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Crear matrícula' })[0])
+    expect(screen.getByText(/reservará una plaza/i)).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar matrícula' }))
+
+    expect(await screen.findByText('Matrícula confirmada y plaza reservada.')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenNthCalledWith(2,
+      '/api/next/offer-submissions/91/enrollment',
+      expect.objectContaining({ method: 'POST', credentials: 'same-origin' }),
+    )
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3))
+  })
+
+  it('shows the canonical enrollment link and never offers a duplicate conversion', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      ...response,
+      items: [{
+        ...response.items[0],
+        status: 'approved',
+        enrollmentId: 501,
+        enrollmentStatus: 'waitlisted',
+      }],
+    }), { status: 200 }))
+    render(<OfferSubmissionInbox />)
+    await screen.findAllByText('Ada Lovelace')
+    expect(screen.queryByRole('button', { name: 'Crear matrícula' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Ver matrícula' })[0]).toHaveAttribute('href', '/matriculas/501')
+    expect(screen.getAllByText('Lista de espera').length).toBeGreaterThan(0)
+  })
+
+  it('does not offer enrollment conversion for interest-only submissions', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      ...response,
+      items: [{ ...response.items[0], kind: 'interest', status: 'approved' }],
+    }), { status: 200 }))
+    render(<OfferSubmissionInbox />)
+    await screen.findAllByText('Ada Lovelace')
+    expect(screen.queryByRole('button', { name: 'Crear matrícula' })).not.toBeInTheDocument()
   })
 })

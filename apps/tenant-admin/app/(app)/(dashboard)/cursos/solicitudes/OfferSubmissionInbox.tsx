@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Archive, CalendarDays, CheckCircle2, History as HistoryIcon, Inbox, RotateCcw, Search, UsersRound, XCircle } from 'lucide-react'
+import { Archive, CalendarDays, CheckCircle2, History as HistoryIcon, Inbox, RotateCcw, Search, UserPlus, UsersRound, XCircle } from 'lucide-react'
 import {
   Alert,
   AlertDescription,
@@ -43,6 +43,8 @@ type InboxItem = {
   sourceHost: string
   sourceSlug: string
   createdAt: string
+  enrollmentId: number | null
+  enrollmentStatus: 'confirmed' | 'waitlisted' | null
 }
 
 type InboxResponse = {
@@ -68,6 +70,15 @@ type HistoryResponse = {
     createdAt: string
   }>
   truncated: boolean
+}
+
+type EnrollmentResponse = {
+  submissionId: number
+  enrollmentId: number
+  learnerId: number
+  status: 'confirmed' | 'waitlisted'
+  replayed: boolean
+  capacityReserved: boolean
 }
 
 const STATUS_LABELS: Record<InboxItem['status'], string> = {
@@ -114,6 +125,7 @@ function DecisionButtons({
   onSelect: (status: DecisionStatus) => void
 }) {
   if (!canReview) return null
+  if (item.enrollmentId) return null
   if (['approved', 'rejected', 'archived'].includes(item.status)) {
     return (
       <Button type="button" size="sm" variant="outline" onClick={() => onSelect('pending_review')}>
@@ -136,16 +148,42 @@ function DecisionButtons({
   )
 }
 
+function EnrollmentAction({
+  item,
+  canReview,
+  onSelect,
+}: {
+  item: InboxItem
+  canReview: boolean
+  onSelect: (item: InboxItem) => void
+}) {
+  if (item.enrollmentId) {
+    return (
+      <Button asChild type="button" size="sm" variant="outline">
+        <Link href={`/matriculas/${item.enrollmentId}`}>Ver matrícula</Link>
+      </Button>
+    )
+  }
+  if (!canReview || item.status !== 'approved' || item.kind === 'interest') return null
+  return (
+    <Button type="button" size="sm" onClick={() => onSelect(item)}>
+      <UserPlus className="h-4 w-4" aria-hidden="true" /> Crear matrícula
+    </Button>
+  )
+}
+
 function SubmissionCard({
   item,
   canReview,
   onDecision,
   onHistory,
+  onEnrollment,
 }: {
   item: InboxItem
   canReview: boolean
   onDecision: (item: InboxItem, status: DecisionStatus) => void
   onHistory: (item: InboxItem) => void
+  onEnrollment: (item: InboxItem) => void
 }) {
   return (
     <Card>
@@ -169,6 +207,7 @@ function SubmissionCard({
           <span>Privacidad: {item.privacyNoticeVersion} · Marketing: {item.marketingConsent ? 'Sí' : 'No'}</span>
           <div className="flex flex-wrap gap-2">
             <DecisionButtons item={item} canReview={canReview} onSelect={(status) => onDecision(item, status)} />
+            <EnrollmentAction item={item} canReview={canReview} onSelect={onEnrollment} />
             {canReview ? (
               <Button type="button" size="sm" variant="outline" onClick={() => onHistory(item)}>
                 <HistoryIcon className="h-4 w-4" aria-hidden="true" /> Historial
@@ -179,6 +218,9 @@ function SubmissionCard({
             </Button>
           </div>
         </div>
+        {item.enrollmentStatus ? (
+          <Badge variant="outline">{item.enrollmentStatus === 'confirmed' ? 'Matrícula confirmada' : 'Lista de espera'}</Badge>
+        ) : null}
       </CardContent>
     </Card>
   )
@@ -203,6 +245,9 @@ export function OfferSubmissionInbox() {
   const [history, setHistory] = React.useState<HistoryResponse | null>(null)
   const [historyLoading, setHistoryLoading] = React.useState(false)
   const [historyError, setHistoryError] = React.useState(false)
+  const [enrollmentItem, setEnrollmentItem] = React.useState<InboxItem | null>(null)
+  const [enrollmentPending, setEnrollmentPending] = React.useState(false)
+  const [enrollmentError, setEnrollmentError] = React.useState('')
 
   React.useEffect(() => {
     const controller = new AbortController()
@@ -246,10 +291,12 @@ export function OfferSubmissionInbox() {
     setDecisionNotice('')
     setHistoryItem(null)
     setHistory(null)
+    setEnrollmentItem(null)
   }
 
   async function loadHistory(item: InboxItem) {
     setDecision(null)
+    setEnrollmentItem(null)
     setHistoryItem(item)
     setHistory(null)
     setHistoryLoading(true)
@@ -265,6 +312,44 @@ export function OfferSubmissionInbox() {
       setHistoryError(true)
     } finally {
       setHistoryLoading(false)
+    }
+  }
+
+  function selectEnrollment(item: InboxItem) {
+    setDecision(null)
+    setHistoryItem(null)
+    setHistory(null)
+    setEnrollmentItem(item)
+    setEnrollmentError('')
+    setDecisionNotice('')
+  }
+
+  async function submitEnrollment() {
+    if (!enrollmentItem) return
+    setEnrollmentPending(true)
+    setEnrollmentError('')
+    try {
+      const response = await fetch(`/api/next/offer-submissions/${enrollmentItem.id}/enrollment`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        cache: 'no-store',
+      })
+      const result = await response.json() as EnrollmentResponse | { error?: string }
+      if (!response.ok || !('status' in result)) {
+        setEnrollmentError('error' in result && result.error === 'capacity_full'
+          ? 'La convocatoria ha completado sus plazas.'
+          : 'No se pudo crear la matrícula.')
+        return
+      }
+      setDecisionNotice(result.status === 'confirmed'
+        ? 'Matrícula confirmada y plaza reservada.'
+        : 'Matrícula creada en lista de espera.')
+      setEnrollmentItem(null)
+      setReloadToken((current) => current + 1)
+    } catch {
+      setEnrollmentError('No se pudo crear la matrícula.')
+    } finally {
+      setEnrollmentPending(false)
     }
   }
 
@@ -332,6 +417,29 @@ export function OfferSubmissionInbox() {
                   onClick={() => void submitDecision()}
                 >
                   {decisionPending ? 'Guardando…' : `Confirmar: ${STATUS_LABELS[decision.status]}`}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {enrollmentItem ? (
+        <Card>
+          <CardContent className="grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="space-y-2">
+              <p className="font-semibold">Crear matrícula para {enrollmentItem.firstName} {enrollmentItem.lastName}</p>
+              <p className="text-sm text-muted-foreground">
+                La operación creará la ficha académica y reservará una plaza si hay disponibilidad. Una convocatoria con lista de espera puede crearla sin consumir plaza.
+              </p>
+              <p className="text-sm text-muted-foreground">El pago permanece pendiente y se gestionará por separado.</p>
+            </div>
+            <div className="space-y-3">
+              {enrollmentError ? <Alert variant="destructive"><AlertDescription>{enrollmentError}</AlertDescription></Alert> : null}
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button type="button" variant="outline" disabled={enrollmentPending} onClick={() => setEnrollmentItem(null)}>Cancelar</Button>
+                <Button type="button" disabled={enrollmentPending} onClick={() => void submitEnrollment()}>
+                  {enrollmentPending ? 'Creando…' : 'Confirmar matrícula'}
                 </Button>
               </div>
             </div>
@@ -457,6 +565,7 @@ export function OfferSubmissionInbox() {
                 canReview={data.canReview}
                 onDecision={selectDecision}
                 onHistory={(item) => void loadHistory(item)}
+                onEnrollment={selectEnrollment}
               />
             ))}
           </div>
@@ -485,11 +594,15 @@ export function OfferSubmissionInbox() {
                     <TableCell>
                       <Badge variant="secondary">{STATUS_LABELS[item.status]}</Badge>
                       <p className="mt-1 text-xs text-muted-foreground">{KIND_LABELS[item.kind]}</p>
+                      {item.enrollmentStatus ? (
+                        <p className="mt-1 text-xs font-medium text-primary">{item.enrollmentStatus === 'confirmed' ? 'Matrícula confirmada' : 'Lista de espera'}</p>
+                      ) : null}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(item.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-wrap justify-end gap-2">
                         <DecisionButtons item={item} canReview={data.canReview} onSelect={(status) => selectDecision(item, status)} />
+                        <EnrollmentAction item={item} canReview={data.canReview} onSelect={selectEnrollment} />
                         {data.canReview ? (
                           <Button type="button" size="sm" variant="outline" onClick={() => void loadHistory(item)}>
                             <HistoryIcon className="h-4 w-4" aria-hidden="true" /> Historial

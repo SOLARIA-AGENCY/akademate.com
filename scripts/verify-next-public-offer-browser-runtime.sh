@@ -132,4 +132,6 @@ SUBMISSIONS="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE
 [[ "${SUBMISSIONS}" = "1" ]] || { echo "Expected one browser-created submission, got ${SUBMISSIONS}" >&2; exit 1; }
 REVIEW_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT os.status || '|' || count(e.id) FROM offer_submissions os LEFT JOIN offer_submission_review_events e ON e.tenant_id=os.tenant_id AND e.submission_id=os.id GROUP BY os.status")"
 [[ "${REVIEW_STATE}" = "approved|1" ]] || { echo "Expected one audited approved decision, got ${REVIEW_STATE}" >&2; exit 1; }
-printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"evidence\":\"${OUTPUT_DIR}\"}"
+ENROLLMENT_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT e.status || '|' || e.payment_status || '|' || cr.current_enrollments FROM enrollments e JOIN course_runs cr ON cr.tenant_id=e.tenant_id AND cr.id=e.course_run_id WHERE e.offer_submission_id IS NOT NULL")"
+[[ "${ENROLLMENT_STATE}" = "confirmed|pending|17" ]] || { echo "Expected one confirmed enrollment, one newly reserved seat (16 -> 17) and pending payment, got ${ENROLLMENT_STATE}" >&2; exit 1; }
+printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"enrollmentState\":\"confirmed\",\"paymentState\":\"pending\",\"currentEnrollments\":17,\"newlyReservedSeats\":1,\"evidence\":\"${OUTPUT_DIR}\"}"

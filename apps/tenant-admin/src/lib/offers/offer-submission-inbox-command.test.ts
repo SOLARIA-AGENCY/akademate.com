@@ -49,6 +49,8 @@ const storedSubmission = {
   source_host: 'north-star.localhost',
   source_slug: 'creative-leadership-weekend',
   created_at: '2026-08-03T10:00:00.000Z',
+  enrollment_id: null,
+  enrollment_status: null,
   total_count: 1,
 }
 
@@ -112,12 +114,14 @@ test('lists only the authenticated tenant with fixed filters and pagination', as
   assert.equal(result.canReview, true)
   assert.equal(result.items[0]?.id, 91)
   assert.equal(result.items[0]?.courseName, 'Creative Leadership')
+  assert.equal(result.items[0]?.enrollmentId, null)
   assert.equal(result.total, 1)
   assert.equal(result.page, 1)
   assert.equal(result.pageSize, 25)
   assert.match(calls[0]?.query ?? '', /os\.tenant_id = \$1/)
   assert.match(calls[0]?.query ?? '', /os\.status = \$2/)
   assert.match(calls[0]?.query ?? '', /os\.submission_kind = \$3/)
+  assert.match(calls[0]?.query ?? '', /LEFT JOIN enrollments enrollment/)
   assert.deepEqual(calls[0]?.params, [7, 'pending_review', 'application', '%ada%', 25, 0])
 })
 

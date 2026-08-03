@@ -48,6 +48,8 @@ export type OfferSubmissionInboxItem = {
   sourceHost: string
   sourceSlug: string
   createdAt: string
+  enrollmentId: number | null
+  enrollmentStatus: 'confirmed' | 'waitlisted' | null
 }
 
 export type OfferSubmissionInboxResult = {
@@ -76,6 +78,8 @@ type SubmissionRow = {
   source_host: string
   source_slug: string
   created_at: string | Date
+  enrollment_id: number | string | null
+  enrollment_status: string | null
   total_count: number | string
 }
 
@@ -96,6 +100,8 @@ const persistedRowSchema = z.object({
   source_host: z.string().min(1).max(253),
   source_slug: z.string().min(3).max(160),
   created_at: z.union([z.string(), z.date()]),
+  enrollment_id: z.coerce.number().int().positive().nullable(),
+  enrollment_status: z.enum(['confirmed', 'waitlisted']).nullable(),
   total_count: z.coerce.number().int().nonnegative(),
 }).strict()
 
@@ -180,6 +186,8 @@ function mapRow(raw: SubmissionRow): OfferSubmissionInboxItem & { total: number 
     sourceHost: row.source_host,
     sourceSlug: row.source_slug,
     createdAt: createdAt.toISOString(),
+    enrollmentId: row.enrollment_id,
+    enrollmentStatus: row.enrollment_status,
     total: row.total_count,
   }
 }
@@ -218,6 +226,8 @@ export async function listNextOfferSubmissions({
       os.source_host,
       os.source_slug,
       os.created_at,
+      enrollment.id AS enrollment_id,
+      enrollment.status::text AS enrollment_status,
       count(*) OVER() AS total_count
     FROM offer_submissions os
     INNER JOIN course_runs cr
@@ -226,6 +236,9 @@ export async function listNextOfferSubmissions({
     INNER JOIN courses c
       ON c.id = cr.course_id
       AND c.tenant_id = os.tenant_id
+    LEFT JOIN enrollments enrollment
+      ON enrollment.tenant_id = os.tenant_id
+      AND enrollment.offer_submission_id = os.id
     WHERE os.tenant_id = $1
       AND ($2::varchar = 'all' OR os.status = $2)
       AND ($3::varchar = 'all' OR os.submission_kind = $3)
