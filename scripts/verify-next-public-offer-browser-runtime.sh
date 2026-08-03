@@ -78,6 +78,15 @@ SELECT c.id, 'QA-RUN', '2099-09-12 09:00:00+00', '2099-09-13 17:00:00+00',
   '2099-09-10 23:59:59+00', c.tenant_id, 'public', 'applied-learning-lab',
   'approval_required', 'admissions_form', 'limited', 24, 16, 'enrollment_open'
 FROM courses c WHERE c.codigo = 'QA-COURSE';
+INSERT INTO course_runs (
+  course_id, codigo, start_date, end_date, enrollment_deadline, tenant_id,
+  publication_access, share_slug, conversion_mode, payment_plan, offer_price_amount,
+  capacity_policy, max_students, current_enrollments, status
+)
+SELECT c.id, 'QA-PAID-RUN', '2099-10-12 09:00:00+00', '2099-10-13 17:00:00+00',
+  '2099-10-10 23:59:59+00', c.tenant_id, 'public', 'applied-learning-lab-paid',
+  'paid_registration', 'full_amount', 249, 'limited', 12, 3, 'enrollment_open'
+FROM courses c WHERE c.codigo = 'QA-COURSE';
 INSERT INTO users (password, name, role, tenant_id, email)
 SELECT 'not-used', 'QA Manager', 'admin', t.id, 'manager@northstar.example'
 FROM tenants t WHERE t.slug = 'north-star';
@@ -130,6 +139,9 @@ NODE
     AKADEMATE_NEXT_PUBLIC_PRIVACY_NOTICE_URL=https://akademate.com/legal/privacy \
     AKADEMATE_NEXT_PUBLIC_PRIVACY_NOTICE_VERSION=2026-08-03 \
     AKADEMATE_NEXT_PUBLIC_SUBMISSION_PEPPER="${PEPPER}" \
+    AKADEMATE_NEXT_PAID_OFFERS_ENABLED=true \
+    AKADEMATE_NEXT_STRIPE_SECRET_KEY=sk_test_12345678901234567890 \
+    AKADEMATE_NEXT_STRIPE_WEBHOOK_SECRET=whsec_ssssssssssssssssssssssssssssssss \
     node_modules/.bin/next start --hostname 127.0.0.1 --port "${WEB_PORT}"
 ) >"${OUTPUT_DIR}/server.log" 2>&1 &
 SERVER_PID=$!
@@ -146,6 +158,7 @@ env \
   AKADEMATE_NEXT_PUBLIC_OFFER_QA_URL="http://north-star.localhost:${WEB_PORT}/o/applied-learning-lab" \
   AKADEMATE_NEXT_PUBLIC_OFFER_QA_OUTPUT="${OUTPUT_DIR}" \
   AKADEMATE_NEXT_PUBLIC_OFFER_QA_AUTH_TOKEN="${AUTH_TOKEN}" \
+  AKADEMATE_NEXT_PUBLIC_OFFER_QA_PAID_URL="http://north-star.localhost:${WEB_PORT}/o/applied-learning-lab-paid" \
   node "${ROOT_DIR}/scripts/verify-next-public-offer-browser.mjs"
 
 SUBMISSIONS="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc 'SELECT count(*) FROM offer_submissions')"

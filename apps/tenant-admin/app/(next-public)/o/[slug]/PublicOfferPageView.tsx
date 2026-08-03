@@ -6,10 +6,13 @@ import {
   MapPin,
   Users,
 } from 'lucide-react'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@akademate/ui'
+import { Alert, AlertDescription, Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@akademate/ui'
 
 import type { NextPublicOffer } from '@/src/lib/offers/public-offer-query'
 import { PublicOfferSubmissionForm } from './PublicOfferSubmissionForm'
+import { PublicOfferPaidRegistrationForm } from './PublicOfferPaidRegistrationForm'
+
+type PaymentMethod = 'card_or_wallet' | 'sepa_debit' | 'paypal'
 
 const modalityLabels: Record<string, string> = {
   presencial: 'In person',
@@ -46,9 +49,15 @@ function fallbackActionLabel(mode: NextPublicOffer['conversionMode']) {
 export function PublicOfferPageView({
   offer,
   privacyNoticeUrl,
+  availablePaymentMethods = [],
+  paymentStatus,
+  checkoutRedirect,
 }: {
   offer: NextPublicOffer
   privacyNoticeUrl?: string | null
+  availablePaymentMethods?: PaymentMethod[]
+  paymentStatus?: 'processing' | 'cancelled' | null
+  checkoutRedirect?: (url: string) => void
 }) {
   const externalAction = offer.conversionMode === 'external_link' && offer.externalActionUrl
   const internalSubmission = privacyNoticeUrl && (
@@ -56,7 +65,10 @@ export function PublicOfferPageView({
     || offer.conversionMode === 'approval_required'
     || offer.conversionMode === 'free_registration'
   )
-  const contactAction = !externalAction && !internalSubmission && offer.tenantContactEmail
+  const paidRegistration = offer.conversionMode === 'paid_registration'
+    && privacyNoticeUrl
+    && availablePaymentMethods.length > 0
+  const contactAction = !externalAction && !internalSubmission && !paidRegistration && offer.tenantContactEmail
   const actionHref = externalAction
     || (contactAction
       ? `mailto:${encodeURIComponent(contactAction)}?subject=${encodeURIComponent(`Information about ${offer.courseName}`)}`
@@ -157,6 +169,11 @@ export function PublicOfferPageView({
             <CardTitle>Join this course</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            {paymentStatus === 'processing' ? (
+              <Alert><AlertDescription>Payment is being verified. The academy will confirm your enrolment after the provider completes processing.</AlertDescription></Alert>
+            ) : paymentStatus === 'cancelled' ? (
+              <Alert><AlertDescription>Checkout was cancelled. No enrolment has been confirmed.</AlertDescription></Alert>
+            ) : null}
             {offer.priceAmount ? (
               <div>
                 <p className="text-3xl font-semibold tracking-tight">{formatCurrency(offer.priceAmount)}</p>
@@ -170,6 +187,13 @@ export function PublicOfferPageView({
                 mode={offer.conversionMode as 'interest_form' | 'approval_required' | 'free_registration'}
                 shareSlug={offer.shareSlug}
                 privacyNoticeUrl={privacyNoticeUrl!}
+              />
+            ) : paidRegistration ? (
+              <PublicOfferPaidRegistrationForm
+                shareSlug={offer.shareSlug}
+                privacyNoticeUrl={privacyNoticeUrl!}
+                availableMethods={availablePaymentMethods}
+                redirect={checkoutRedirect}
               />
             ) : actionHref ? (
               <Button asChild size="lg" className="w-full bg-[var(--offer-accent)] text-white hover:opacity-90">

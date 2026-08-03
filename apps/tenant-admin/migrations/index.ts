@@ -27,6 +27,7 @@ import * as migration_20260803_akademate_next_public_offer_submissions from './2
 import * as migration_20260803_zz_akademate_next_offer_submission_review from './20260803_zz_akademate_next_offer_submission_review'
 import * as migration_20260803_zzz_akademate_next_offer_enrollment_conversion from './20260803_zzz_akademate_next_offer_enrollment_conversion'
 import * as migration_20260803_zzzz_akademate_next_enrollment_lifecycle from './20260803_zzzz_akademate_next_enrollment_lifecycle'
+import * as migration_20260803_zzzzz_akademate_next_paid_offer_orders from './20260803_zzzzz_akademate_next_paid_offer_orders'
 import { selectRuntimeMigrations } from '../src/runtime/select-runtime-migrations'
 
 const legacyMigrations = [
@@ -187,6 +188,11 @@ const nextMigrations = [
     up: migration_20260803_zzzz_akademate_next_enrollment_lifecycle.up,
     down: migration_20260803_zzzz_akademate_next_enrollment_lifecycle.down,
     name: '20260803_zzzz_akademate_next_enrollment_lifecycle',
+  },
+  {
+    up: migration_20260803_zzzzz_akademate_next_paid_offer_orders.up,
+    down: migration_20260803_zzzzz_akademate_next_paid_offer_orders.down,
+    name: '20260803_zzzzz_akademate_next_paid_offer_orders',
   },
 ]
 

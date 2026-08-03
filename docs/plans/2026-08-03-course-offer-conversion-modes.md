@@ -7,13 +7,25 @@ Akademate configures public conversion per `course-run` (convocatoria/edition), 
 ## Supported modes
 
 - `information_only`: public or shareable information with no form, enrollment or payment action.
-- `interest_form`: a configurable form creates a lead for academy follow-up.
-- `free_registration`: direct registration without checkout.
-- `approval_required`: a configurable application form creates a reviewable request before a place is confirmed.
-- `paid_registration`: registration proceeds through full payment or a positive deposit.
-- `external_link`: the CTA redirects to a validated HTTPS destination when an academy must keep an external flow.
+- `interest_form`: a configurable form creates a lead for academy follow-up; it does not reserve a
+  place or initiate payment.
+- `free_registration`: collects a registration request without checkout. Confirmation remains an
+  explicit academy action and cannot silently become a paid flow.
+- `approval_required`: a configurable application form creates a reviewable request before a place
+  is confirmed.
+- `paid_registration`: registration proceeds through full payment or a positive deposit. Provider
+  evidence, never the browser redirect, authorizes enrollment confirmation.
+- `external_link`: the CTA redirects to a validated HTTPS destination such as Luma, Eventbrite or
+  an academy-owned form when the academy keeps the conversion flow outside Akademate.
 
 All modes can use a Luma-style shareable page. The page format does not imply that registration or payment is enabled.
+
+### Operator decision
+
+The configuration UI asks one bounded question: **what should the visitor be able to do?** The
+selected answer is exclusive. A manager cannot combine a passive information page with a hidden
+form, attach payment settings to a free registration, or attach an external redirect to an internal
+submission. Visibility and the shareable page remain independent from this decision.
 
 ## Independent policies
 

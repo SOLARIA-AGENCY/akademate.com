@@ -85,38 +85,44 @@ type FormState = {
 const modes = [
   {
     value: 'information_only',
-    title: 'Solo información',
-    description: 'Presenta la convocatoria y el contacto del centro.',
+    title: 'Página informativa',
+    description: 'Publica la convocatoria sin formulario, inscripción ni pago.',
+    outcome: 'Sin conversión',
     icon: FileText,
   },
   {
     value: 'interest_form',
-    title: 'Solicitar información',
-    description: 'Recoge datos mediante un formulario del centro.',
+    title: 'Formulario de interés',
+    description: 'Recoge un lead para que el equipo del centro haga seguimiento.',
+    outcome: 'Crea una solicitud',
     icon: Send,
   },
   {
     value: 'free_registration',
-    title: 'Inscripción gratuita',
-    description: 'Permite confirmar una plaza sin pasar por caja.',
+    title: 'Inscripción sin pago',
+    description: 'Recibe los datos de inscripción sin iniciar ningún cobro.',
+    outcome: 'Solicita una plaza',
     icon: TicketCheck,
   },
   {
     value: 'approval_required',
     title: 'Solicitud con aprobación',
-    description: 'Recibe solicitudes para revisar antes de confirmar.',
+    description: 'Revisa la solicitud antes de confirmar la admisión o la plaza.',
+    outcome: 'Requiere revisión',
     icon: ClipboardCheck,
   },
   {
     value: 'paid_registration',
     title: 'Inscripción con pago',
-    description: 'Configura importe completo o reserva con depósito.',
+    description: 'Cobra el importe completo o un depósito antes de confirmar.',
+    outcome: 'Inicia checkout',
     icon: BadgeEuro,
   },
   {
     value: 'external_link',
-    title: 'Enlace externo',
-    description: 'Continúa el recorrido en una URL HTTPS validada.',
+    title: 'Enlace externo · Luma y otros',
+    description: 'Continúa en Luma, Eventbrite, un formulario o una web externa.',
+    outcome: 'Abre otro servicio',
     icon: Link2,
   },
 ] as const
@@ -227,9 +233,9 @@ export function OfferConfigurationForm({
     <form onSubmit={submit} className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
       <Card>
         <CardHeader>
-          <CardTitle>Recorrido de la convocatoria</CardTitle>
+          <CardTitle>Publicación e inscripción</CardTitle>
           <CardDescription>
-            Decide qué verá cada visitante y qué acción podrá completar.
+            Decide cómo se comparte la convocatoria y qué podrá hacer cada visitante.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -265,9 +271,9 @@ export function OfferConfigurationForm({
             ) : null}
 
             <FieldSet>
-              <FieldLegend>Acción principal</FieldLegend>
+              <FieldLegend>¿Qué debe poder hacer el visitante?</FieldLegend>
               <FieldDescription>
-                Elige un único recorrido. Los campos se adaptan al modo seleccionado.
+                Elige un único resultado. Akademate mostrará solamente los campos y acciones de ese recorrido.
               </FieldDescription>
               <div className="grid gap-3 md:grid-cols-2">
                 {modes.map((mode) => {
@@ -292,7 +298,10 @@ export function OfferConfigurationForm({
                       <span className="flex min-w-0 flex-1 gap-3">
                         <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
                         <span className="flex min-w-0 flex-col gap-1">
-                          <span className="text-sm font-semibold">{mode.title}</span>
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold">{mode.title}</span>
+                            <Badge variant="secondary" className="font-normal">{mode.outcome}</Badge>
+                          </span>
                           <span className="text-sm font-normal leading-5 text-muted-foreground">
                             {mode.description}
                           </span>
@@ -315,7 +324,7 @@ export function OfferConfigurationForm({
                   aria-invalid={!state.formTemplateKey.trim()}
                 />
                 <FieldDescription>
-                  Clave de una plantilla de formulario custodiada por la academia.
+                  Selecciona el formulario que recogerá los datos sin iniciar pagos ni confirmar plazas automáticamente.
                 </FieldDescription>
               </Field>
             ) : null}
@@ -328,10 +337,12 @@ export function OfferConfigurationForm({
                   type="url"
                   value={state.externalActionUrl}
                   onChange={(event) => update('externalActionUrl', event.target.value)}
-                  placeholder="https://events.example.com/course"
+                  placeholder="https://lu.ma/tu-convocatoria"
                   aria-invalid={Boolean(state.externalActionUrl && !state.externalActionUrl.startsWith('https://'))}
                 />
-                <FieldDescription>El enlace se valida antes de guardarse.</FieldDescription>
+                <FieldDescription>
+                  Puedes enlazar Luma, Eventbrite, un formulario propio u otro servicio con HTTPS.
+                </FieldDescription>
               </Field>
             ) : null}
 
@@ -404,6 +415,14 @@ export function OfferConfigurationForm({
                 />
               </Field>
             </div>
+
+            <Alert>
+              <Link2 aria-hidden="true" />
+              <AlertTitle>La página compartible es independiente</AlertTitle>
+              <AlertDescription>
+                Cualquier modo público o no listado puede tener una página tipo Luma. El modo elegido decide si esa página informa, recoge datos, solicita una plaza, cobra o deriva a otro servicio.
+              </AlertDescription>
+            </Alert>
 
             {error ? <FieldError>{error}</FieldError> : null}
             {saved ? (

@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import { withNextPublicOfferTransaction } from '@/src/lib/offers/public-offer-database'
 import { NextPublicOfferError, getNextPublicOffer } from '@/src/lib/offers/public-offer-query'
 import { currentNextPublicSubmissionConfig } from '@/src/lib/offers/public-offer-submission-config'
+import { currentNextPaidOfferConfig } from '@/src/lib/payments/paid-offer-config'
 import { PublicOfferPageView } from './PublicOfferPageView'
 
 export const dynamic = 'force-dynamic'
@@ -64,14 +65,22 @@ export async function generateMetadata({
 
 export default async function PublicOfferPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ payment?: string }>
 }) {
-  const [{ slug }, host] = await Promise.all([params, requestHost()])
+  const [{ slug }, host, query] = await Promise.all([params, requestHost(), searchParams])
   const offer = await loadOffer(host, slug)
   if (!offer) notFound()
+  const paidConfig = currentNextPaidOfferConfig()
+  const paymentStatus = query.payment === 'processing' || query.payment === 'cancelled'
+    ? query.payment
+    : null
   return <PublicOfferPageView
     offer={offer}
     privacyNoticeUrl={currentNextPublicSubmissionConfig()?.privacyNoticeUrl}
+    availablePaymentMethods={paidConfig?.availableMethods ?? []}
+    paymentStatus={paymentStatus}
   />
 }

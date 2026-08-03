@@ -133,4 +133,39 @@ describe('PublicOfferPageView', () => {
     expect(screen.queryByRole('link', { name: /apply|register|reserve/i })).not.toBeInTheDocument()
     expect(screen.getByText('Contact North Star Academy to continue with this course.')).toBeInTheDocument()
   })
+
+  it('starts a bounded paid checkout and reports only processing after return', async () => {
+    vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('018f6f52-86a7-7c8f-a477-01b9c6407a11')
+    const redirect = vi.fn()
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      orderId: '62d22ec7-6f99-41b0-86c9-d14dd28964cf',
+      status: 'awaiting_payment',
+      checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_123',
+    }), { status: 201 }))
+    render(<PublicOfferPageView
+      offer={{
+        ...offer,
+        conversionMode: 'paid_registration',
+        externalActionUrl: null,
+        paymentPlan: 'full_amount',
+        priceAmount: 249,
+      }}
+      privacyNoticeUrl="https://akademate.com/legal/privacy"
+      availablePaymentMethods={['card_or_wallet', 'sepa_debit']}
+      paymentStatus="processing"
+      checkoutRedirect={redirect}
+    />)
+    expect(screen.getByText(/Payment is being verified/i)).toBeInTheDocument()
+    expect(screen.queryByText(/enrolment confirmed/i)).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Ada' } })
+    fireEvent.change(screen.getByLabelText('Last name'), { target: { value: 'Lovelace' } })
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ada@example.test' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: /privacy notice for registration and payment/i }))
+    fireEvent.submit(screen.getByRole('form', { name: 'Paid course registration' }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(JSON.parse(String(init?.body))).not.toHaveProperty('amountCents')
+    expect(JSON.parse(String(init?.body))).not.toHaveProperty('tenantId')
+    await waitFor(() => expect(redirect).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_test_123'))
+  })
 })

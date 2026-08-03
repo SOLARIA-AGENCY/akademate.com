@@ -119,6 +119,7 @@ test('registers the migration only through the exact runtime selector', () => {
       '20260803_zz_akademate_next_offer_submission_review',
       '20260803_zzz_akademate_next_offer_enrollment_conversion',
       '20260803_zzzz_akademate_next_enrollment_lifecycle',
+      '20260803_zzzzz_akademate_next_paid_offer_orders',
     ],
   )
   for (const forbidden of ['cep_planning', 'campus_virtual_internal', 'staging_']) {

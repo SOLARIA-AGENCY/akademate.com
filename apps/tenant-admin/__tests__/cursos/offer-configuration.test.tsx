@@ -23,6 +23,19 @@ const record = {
 }
 
 describe('OfferConfigurationForm', () => {
+  it('offers one explicit outcome for information, forms, registration, payment and external links', () => {
+    render(<OfferConfigurationForm record={record} onSave={vi.fn()} />)
+
+    expect(screen.getByRole('group', { name: '¿Qué debe poder hacer el visitante?' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Página informativa/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Formulario de interés/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Inscripción sin pago/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Solicitud con aprobación/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Inscripción con pago/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Enlace externo · Luma y otros/i })).toBeInTheDocument()
+    expect(screen.getByText('La página compartible es independiente')).toBeInTheDocument()
+  })
+
   it('reveals only the fields belonging to the selected conversion mode', () => {
     render(<OfferConfigurationForm record={record} onSave={vi.fn()} />)
 
@@ -62,6 +75,29 @@ describe('OfferConfigurationForm', () => {
       publicationAccess: 'private',
       conversionMode: 'external_link',
       externalActionUrl: 'https://events.example.com/creative-leadership',
+      capacityPolicy: 'limited',
+    })
+  })
+
+  it('submits an interest form without hidden registration, payment or redirect settings', async () => {
+    const onSave = vi.fn(async (input) => ({
+      ...record,
+      conversionMode: input.conversionMode,
+      formTemplateKey: input.formTemplateKey ?? null,
+    }))
+    render(<OfferConfigurationForm record={record} onSave={onSave} />)
+
+    fireEvent.click(screen.getByRole('radio', { name: /Formulario de interés/i }))
+    fireEvent.change(screen.getByLabelText('Formulario conectado'), {
+      target: { value: 'lead-standard' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar recorrido' }))
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1))
+    expect(onSave).toHaveBeenCalledWith({
+      publicationAccess: 'private',
+      conversionMode: 'interest_form',
+      formTemplateKey: 'lead-standard',
       capacityPolicy: 'limited',
     })
   })

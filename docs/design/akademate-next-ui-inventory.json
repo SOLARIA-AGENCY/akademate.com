@@ -3,7 +3,7 @@
   "totalPages": 240,
   "totalLayouts": 18,
   "totalLocalPrimitiveFiles": 84,
-  "totalSharedUiConsumers": 13,
+  "totalSharedUiConsumers": 14,
   "totalSidebarFiles": 5,
   "pageSignals": {
     "sharedUiPages": 7,
@@ -56,7 +56,7 @@
       "pages": 171,
       "layouts": 10,
       "localPrimitiveFiles": 63,
-      "sharedUiConsumers": 7,
+      "sharedUiConsumers": 8,
       "sidebarFiles": 3
     },
     "web": {

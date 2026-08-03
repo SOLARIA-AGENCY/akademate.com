@@ -22,7 +22,12 @@
     "app/(next-public)/o/[slug]/**/*.tsx",
     "app/api/next/public/offers/[slug]/route.ts",
     "app/api/next/public/offers/[slug]/submissions/route.ts",
+    "app/api/next/public/offers/[slug]/checkout/route.ts",
+    "app/api/next/public/payments/webhooks/stripe/route.ts",
+    "app/api/next/public/payments/webhooks/paypal/route.ts",
+    "app/api/next/public/payments/paypal/return/route.ts",
     "src/lib/offers/**/*.ts",
+    "src/lib/payments/**/*.ts",
     "src/lib/enrollments/**/*.ts",
     "src/lib/learning/next-learning-auth.ts",
     "src/lib/learning/next-learning-transaction.ts"

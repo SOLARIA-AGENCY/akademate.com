@@ -141,6 +141,50 @@ capture_payload "${LOG_DIR}/migrate-with-data.log" migrate
     AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
     node_modules/.bin/tsx scripts/verify-next-offer-conversion-db.ts
 )
+(
+  cd "${TENANT_ADMIN_DIR}"
+  env \
+    AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL="$(owner_url)" \
+    AKADEMATE_NEXT_TEST_APP_DATABASE_URL="$(app_url)" \
+    AKADEMATE_RUNTIME=next \
+    DATABASE_URL="$(app_url)" \
+    AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
+    node_modules/.bin/tsx scripts/verify-next-paid-offer-db.ts
+)
+psql_owner -c "
+  INSERT INTO paid_offer_orders (
+    tenant_id, course_run_id, idempotency_key, payload_fingerprint, contact_fingerprint,
+    first_name, last_name, email, privacy_accepted, privacy_notice_version,
+    source_host, source_slug, provider, payment_method, payment_plan, offer_title,
+    offer_total_cents, amount_cents, currency, status, hold_active, expires_at
+  )
+  SELECT tenant_id, id, gen_random_uuid(), repeat('a', 64), repeat('b', 64),
+    'Rollback', 'Guard', 'rollback.guard@example.com', true, 'proof-v1',
+    'proof.localhost', share_slug, 'stripe', 'card_or_wallet', payment_plan, 'Rollback proof offer',
+    round(offer_price_amount * 100)::integer,
+    round((CASE WHEN payment_plan = 'deposit' THEN deposit_amount ELSE offer_price_amount END) * 100)::integer,
+    'EUR', 'failed', false, now() + interval '30 minutes'
+  FROM course_runs
+  WHERE conversion_mode = 'paid_registration'
+  ORDER BY id
+  LIMIT 1;
+" >/dev/null
+assert_query "SELECT count(*) FROM paid_offer_orders;" "1"
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=11 WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" >/dev/null
+if capture_payload_down "${LOG_DIR}/paid-offer-orders-rollback-with-data.log" '20260803_zzzzz_akademate_next_paid_offer_orders'; then
+  echo "Paid offer order rollback unexpectedly succeeded with financial evidence" >&2
+  exit 1
+fi
+grep -q 'Cannot roll back paid offer orders while payment evidence exists' \
+  "${LOG_DIR}/paid-offer-orders-rollback-with-data.log"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" "1"
+assert_query "SELECT count(*) FROM paid_offer_orders;" "1"
+
+psql_owner -c "DELETE FROM paid_offer_payment_events; DELETE FROM paid_offer_orders;" >/dev/null
+capture_payload_down "${LOG_DIR}/paid-offer-orders-rollback.log" '20260803_zzzzz_akademate_next_paid_offer_orders'
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" "0"
+assert_query "SELECT count(*) FROM pg_class WHERE relname IN ('paid_offer_orders','paid_offer_payment_events');" "0"
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=10 WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" >/dev/null
 if capture_payload_down "${LOG_DIR}/enrollment-lifecycle-rollback-with-data.log" '20260803_zzzz_akademate_next_enrollment_lifecycle'; then
   echo "Enrollment lifecycle rollback unexpectedly succeeded with ledger data" >&2
@@ -249,6 +293,11 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 
 start_database
 capture_payload "${LOG_DIR}/migrate-empty.log" migrate
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=10 WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" >/dev/null
+capture_payload_down "${LOG_DIR}/paid-offer-orders-rollback-clean.log" '20260803_zzzzz_akademate_next_paid_offer_orders'
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" "0"
+assert_query "SELECT count(*) FROM pg_class WHERE relname IN ('paid_offer_orders','paid_offer_payment_events');" "0"
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=9 WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" >/dev/null
 capture_payload_down "${LOG_DIR}/enrollment-lifecycle-rollback-clean.log" '20260803_zzzz_akademate_next_enrollment_lifecycle'
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" "0"
@@ -293,7 +342,7 @@ psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations 
 capture_payload_down "${LOG_DIR}/offer-rollback-empty.log" '20260803_akademate_next_offer_conversion_modes'
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_conversion_modes';" "0"
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name IN ('publication_access','conversion_mode','offer_price_amount');" "0"
-assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection','20260803_akademate_next_public_offer_submissions','20260803_zz_akademate_next_offer_submission_review','20260803_zzz_akademate_next_offer_enrollment_conversion','20260803_zzzz_akademate_next_enrollment_lifecycle');" "0"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection','20260803_akademate_next_public_offer_submissions','20260803_zz_akademate_next_offer_submission_review','20260803_zzz_akademate_next_offer_enrollment_conversion','20260803_zzzz_akademate_next_enrollment_lifecycle','20260803_zzzzz_akademate_next_paid_offer_orders');" "0"
 assert_query "SELECT count(*) FROM payload_migrations;" "4"
 
 psql_owner -c "INSERT INTO tenants(name,slug) VALUES ('Legacy tenant','legacy-tenant'); INSERT INTO campuses(slug,name,city,tenant_id) VALUES ('legacy-null-campus','Legacy null campus','Tallinn',NULL);" >/dev/null
@@ -315,4 +364,4 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name='offer_price_amount';" "0"
 assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='campuses' AND column_name='tenant_id';" "YES"
 
-printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","publicOfferSubmissions":"idempotent-rate-limited-and-rollback-guarded","submissionReview":"audited-reversible-and-rollback-guarded","submissionEnrollment":"tenant-scoped-idempotent-capacity-and-rollback-guarded","enrollmentLifecycle":"audited-capacity-reconciled-and-rollback-guarded","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'
+printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","publicOfferSubmissions":"idempotent-rate-limited-and-rollback-guarded","submissionReview":"audited-reversible-and-rollback-guarded","submissionEnrollment":"tenant-scoped-idempotent-capacity-and-rollback-guarded","enrollmentLifecycle":"audited-capacity-reconciled-and-rollback-guarded","paidOfferOrders":"financial-evidence-guarded-and-rollback-clean","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'

@@ -5,7 +5,8 @@ import { chromium } from 'playwright'
 const url = process.env.AKADEMATE_NEXT_PUBLIC_OFFER_QA_URL
 const outputDirectory = process.env.AKADEMATE_NEXT_PUBLIC_OFFER_QA_OUTPUT
 const authToken = process.env.AKADEMATE_NEXT_PUBLIC_OFFER_QA_AUTH_TOKEN
-if (!url || !outputDirectory || !authToken) throw new Error('QA URL, output directory and auth token are required')
+const paidUrl = process.env.AKADEMATE_NEXT_PUBLIC_OFFER_QA_PAID_URL
+if (!url || !paidUrl || !outputDirectory || !authToken) throw new Error('QA URLs, output directory and auth token are required')
 const qaUrl = new URL(url)
 const origin = qaUrl.origin
 const dashboardUrl = new URL(origin)
@@ -26,6 +27,7 @@ const decisionStatuses = []
 const historyStatuses = []
 const enrollmentStatuses = []
 const cancellationStatuses = []
+const checkoutStatuses = []
 
 function observe(page) {
   page.on('console', (message) => {
@@ -67,6 +69,43 @@ try {
   await page.getByText('Your application has been received for review.').waitFor()
   await page.screenshot({ path: `${outputDirectory}/desktop-success.png`, fullPage: true })
   await desktop.close()
+
+  const paidDesktop = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
+  const paidPage = await paidDesktop.newPage()
+  observe(paidPage)
+  let checkoutPayload = null
+  await paidPage.route('**/api/next/public/offers/*/checkout', async (route) => {
+    checkoutPayload = JSON.parse(route.request().postData() ?? '{}')
+    checkoutStatuses.push(201)
+    await route.fulfill({
+      status: 201,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        orderId: '62d22ec7-6f99-41b0-86c9-d14dd28964cf',
+        status: 'awaiting_payment',
+        checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_browser',
+      }),
+    })
+  })
+  await paidPage.route('https://checkout.stripe.com/**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'text/html',
+    body: '<!doctype html><title>Secure checkout test destination</title><h1>Secure checkout test destination</h1>',
+  }))
+  assert.equal((await paidPage.goto(paidUrl, { waitUntil: 'networkidle' }))?.status(), 200)
+  await paidPage.getByRole('form', { name: 'Paid course registration' }).waitFor()
+  await paidPage.screenshot({ path: `${outputDirectory}/desktop-paid-form.png`, fullPage: true })
+  await paidPage.getByLabel('First name').fill('Ada')
+  await paidPage.getByLabel('Last name').fill('Lovelace')
+  await paidPage.getByLabel('Email').fill('ada.paid.browser@example.test')
+  await paidPage.getByRole('checkbox', { name: /privacy notice for registration and payment/i }).check()
+  await paidPage.getByRole('button', { name: 'Continue to secure payment' }).click()
+  await paidPage.getByRole('heading', { name: 'Secure checkout test destination' }).waitFor()
+  assert.equal(checkoutPayload.amountCents, undefined)
+  assert.equal(checkoutPayload.tenantId, undefined)
+  assert.equal(checkoutPayload.paymentMethod, 'card_or_wallet')
+  await paidPage.screenshot({ path: `${outputDirectory}/desktop-paid-checkout-redirect.png`, fullPage: true })
+  await paidDesktop.close()
 
   const inboxDesktop = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
   await inboxDesktop.addCookies([{
@@ -136,7 +175,7 @@ try {
   await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-enrolled.png`, fullPage: true })
   const enrollmentHref = await inboxPage.getByRole('link', { name: 'Ver matrícula' }).filter({ visible: true }).first().getAttribute('href')
   assert.equal(enrollmentHref, `/matriculas/${enrollmentResult.enrollmentId}`)
-  assert.equal((await inboxPage.goto(`${dashboardOrigin}${enrollmentHref}`, { waitUntil: 'networkidle' }))?.status(), 200)
+  assert.equal((await inboxPage.goto(`${dashboardOrigin}${enrollmentHref}`, { waitUntil: 'domcontentloaded' }))?.status(), 200)
   await inboxPage.getByText(`Matrícula #${enrollmentResult.enrollmentId}`, { exact: true }).first().waitFor()
   await inboxPage.getByRole('button', { name: 'Gestionar baja' }).waitFor()
   await inboxPage.screenshot({ path: `${outputDirectory}/desktop-enrollment-detail.png`, fullPage: true })
@@ -174,6 +213,17 @@ try {
   await mobilePage.screenshot({ path: `${outputDirectory}/mobile-form.png`, fullPage: true })
   assert.equal(await mobilePage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
   await mobile.close()
+
+  const paidMobile = await browser.newContext({
+    viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true,
+  })
+  const paidMobilePage = await paidMobile.newPage()
+  observe(paidMobilePage)
+  assert.equal((await paidMobilePage.goto(paidUrl, { waitUntil: 'networkidle' }))?.status(), 200)
+  await paidMobilePage.getByRole('form', { name: 'Paid course registration' }).waitFor()
+  assert.equal(await paidMobilePage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
+  await paidMobilePage.screenshot({ path: `${outputDirectory}/mobile-paid-form.png`, fullPage: true })
+  await paidMobile.close()
 
   const inboxMobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -256,6 +306,7 @@ try {
   assert.deepEqual(historyStatuses, [200, 200])
   assert.deepEqual(enrollmentStatuses, [201])
   assert.deepEqual(cancellationStatuses, [200])
+  assert.deepEqual(checkoutStatuses, [201])
   assert.deepEqual(consoleErrors, [])
   assert.deepEqual(failedRequests, [])
   assert.deepEqual(trackerRequests, [])
@@ -273,7 +324,8 @@ try {
     historyStatuses,
     enrollmentStatuses,
     cancellationStatuses,
-    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'desktop-inbox-history.png', 'desktop-inbox-enrollment-confirmation.png', 'desktop-inbox-enrolled.png', 'desktop-enrollment-detail.png', 'desktop-enrollment-cancellation-confirmation.png', 'desktop-enrollment-cancelled.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png', 'mobile-inbox-history.png', 'mobile-enrollment-cancelled.png'],
+    checkoutStatuses,
+    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-paid-form.png', 'desktop-paid-checkout-redirect.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'desktop-inbox-history.png', 'desktop-inbox-enrollment-confirmation.png', 'desktop-inbox-enrolled.png', 'desktop-enrollment-detail.png', 'desktop-enrollment-cancellation-confirmation.png', 'desktop-enrollment-cancelled.png', 'mobile-form.png', 'mobile-paid-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png', 'mobile-inbox-history.png', 'mobile-enrollment-cancelled.png'],
   })}\n`)
 } finally {
   await browser.close()
