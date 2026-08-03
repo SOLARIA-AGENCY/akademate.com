@@ -60,3 +60,16 @@ export {
   calculateDuration,
   type AttendanceServiceConfig,
 } from './attendance.js'
+
+// Public offer and conversion configuration
+export {
+  OfferPublicationAccess,
+  OfferConversionMode,
+  OfferCapacityPolicy,
+  OfferPaymentPlan,
+  OfferPublicationInputSchema,
+  OfferPublicationSchema,
+  resolveOfferAction,
+  type OfferPublication,
+  type OfferAction,
+} from './offer-publication.js'

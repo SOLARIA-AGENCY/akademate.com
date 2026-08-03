@@ -111,6 +111,7 @@ test('registers the migration only through the exact runtime selector', () => {
       '20260428_students_tenant',
       '20260730_akademate_next_learning',
       '20260731_akademate_next_message_consistency',
+      '20260803_akademate_next_offer_conversion_modes',
     ],
   )
   for (const forbidden of ['cep_planning', 'campus_virtual_internal', 'staging_']) {

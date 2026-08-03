@@ -1,4 +1,5 @@
 import type { Access, CollectionConfig, Field } from 'payload'
+import { OfferPublicationSchema } from '@akademate/operations/offer-publication'
 
 const denyAll: Access = () => false
 
@@ -78,6 +79,27 @@ export const NextCourses: CollectionConfig = {
 export const NextCourseRuns: CollectionConfig = {
   ...timestamped,
   slug: 'course-runs',
+  hooks: {
+    beforeValidate: [
+      ({ data, originalDoc }) => {
+        if (!data) return data
+        const completeData = { ...originalDoc, ...data }
+        OfferPublicationSchema.parse({
+          publicationAccess: completeData.publication_access,
+          conversionMode: completeData.conversion_mode,
+          shareSlug: completeData.share_slug || undefined,
+          formTemplateKey: completeData.form_template_key || undefined,
+          externalActionUrl: completeData.external_action_url || undefined,
+          paymentPlan: completeData.payment_plan || undefined,
+          priceAmount: completeData.price_snapshot ?? undefined,
+          depositAmount: completeData.deposit_amount ?? undefined,
+          ctaLabel: completeData.cta_label || undefined,
+          capacityPolicy: completeData.capacity_policy,
+        })
+        return data
+      },
+    ],
+  },
   fields: [
     relation('course', 'courses'),
     relation('tenant', 'tenants'),
@@ -90,6 +112,41 @@ export const NextCourseRuns: CollectionConfig = {
       required: true,
       defaultValue: 'draft',
       options: ['draft', 'published', 'enrollment_open', 'enrollment_closed', 'in_progress', 'completed', 'cancelled'],
+    },
+    {
+      name: 'publication_access',
+      type: 'select',
+      required: true,
+      defaultValue: 'private',
+      options: ['private', 'public', 'unlisted'],
+    },
+    {
+      name: 'conversion_mode',
+      type: 'select',
+      required: true,
+      defaultValue: 'information_only',
+      options: [
+        'information_only',
+        'interest_form',
+        'free_registration',
+        'approval_required',
+        'paid_registration',
+        'external_link',
+      ],
+    },
+    { name: 'share_slug', type: 'text', index: true, minLength: 3, maxLength: 160 },
+    { name: 'form_template_key', type: 'text', minLength: 3, maxLength: 128 },
+    { name: 'external_action_url', type: 'text', maxLength: 2_048 },
+    { name: 'payment_plan', type: 'select', options: ['full_amount', 'deposit'] },
+    { name: 'price_snapshot', type: 'number', min: 0.01 },
+    { name: 'deposit_amount', type: 'number', min: 0.01 },
+    { name: 'cta_label', type: 'text', maxLength: 80 },
+    {
+      name: 'capacity_policy',
+      type: 'select',
+      required: true,
+      defaultValue: 'limited',
+      options: ['limited', 'waitlist', 'unlimited'],
     },
   ],
 }

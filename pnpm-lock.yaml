@@ -394,6 +394,9 @@ importers:
       '@akademate/learning':
         specifier: workspace:*
         version: link:../../packages/learning
+      '@akademate/operations':
+        specifier: workspace:*
+        version: link:../../packages/operations
       '@akademate/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
@@ -787,6 +790,9 @@ importers:
       '@akademate/db':
         specifier: workspace:*
         version: link:../db
+      '@akademate/operations':
+        specifier: workspace:*
+        version: link:../operations
       '@akademate/types':
         specifier: workspace:*
         version: link:../types
