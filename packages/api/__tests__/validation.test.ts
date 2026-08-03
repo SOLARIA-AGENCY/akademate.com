@@ -222,6 +222,7 @@ describe('CreateCourseRunSchema', () => {
     expect(result.courseId).toBe('550e8400-e29b-41d4-a716-446655440001')
     expect(result.modality).toBe('online')
     expect(result.startDate).toBeInstanceOf(Date)
+    expect(result.offer.conversionMode).toBe('information_only')
   })
 
   it('should apply defaults', () => {
@@ -236,6 +237,81 @@ describe('CreateCourseRunSchema', () => {
 
     expect(result.modality).toBe('presential')
     expect(result.currency).toBe('EUR')
+    expect(result.offer.publicationAccess).toBe('private')
+  })
+
+  it('accepts an interest form without creating an enrollment or payment contract', () => {
+    const result = CreateCourseRunSchema.parse({
+      courseId: '550e8400-e29b-41d4-a716-446655440001',
+      name: 'Subsidised Training Call',
+      startDate: '2026-09-01',
+      endDate: '2026-10-01',
+      offer: {
+        publicationAccess: 'public',
+        shareSlug: 'subsidised-training-call',
+        conversionMode: 'interest_form',
+        formTemplateKey: 'cep-style-interest-form',
+        capacityPolicy: 'waitlist',
+      },
+    })
+
+    expect(result.offer.conversionMode).toBe('interest_form')
+    expect(result.offer).not.toHaveProperty('paymentPlan')
+  })
+
+  it('requires a positive price for paid registration', () => {
+    const base = {
+      courseId: '550e8400-e29b-41d4-a716-446655440001',
+      name: 'Paid Workshop',
+      startDate: '2026-09-01',
+      endDate: '2026-10-01',
+    }
+
+    expect(() =>
+      CreateCourseRunSchema.parse({
+        ...base,
+        offer: { conversionMode: 'paid_registration', paymentPlan: 'full_amount' },
+      })
+    ).toThrow()
+
+    const result = CreateCourseRunSchema.parse({
+      ...base,
+      offer: {
+        conversionMode: 'paid_registration',
+        paymentPlan: 'deposit',
+        priceAmount: 249,
+        depositAmount: 50,
+      },
+    })
+    expect(result.offer.priceAmount).toBe(249)
+  })
+
+  it('fails closed on contradictory public conversion settings', () => {
+    const base = {
+      courseId: '550e8400-e29b-41d4-a716-446655440001',
+      name: 'Invalid Run',
+      startDate: '2026-09-01',
+      endDate: '2026-10-01',
+    }
+
+    expect(() =>
+      CreateCourseRunSchema.parse({
+        ...base,
+        offer: { conversionMode: 'free_registration', paymentPlan: 'full_amount' },
+      })
+    ).toThrow()
+    expect(() =>
+      CreateCourseRunSchema.parse({
+        ...base,
+        offer: { publicationAccess: 'public', conversionMode: 'information_only' },
+      })
+    ).toThrow()
+    expect(() =>
+      CreateCourseRunSchema.parse({
+        ...base,
+        offer: { conversionMode: 'external_link', externalActionUrl: 'javascript:alert(1)' },
+      })
+    ).toThrow()
   })
 })
 

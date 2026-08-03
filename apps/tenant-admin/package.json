@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@akademate/learning": "workspace:*",
+    "@akademate/operations": "workspace:*",
     "@akademate/realtime": "workspace:*",
     "@payloadcms/db-postgres": "3.81.0",
     "@payloadcms/drizzle": "3.81.0",

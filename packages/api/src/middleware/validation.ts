@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod'
+import { OfferPublicationSchema } from '@akademate/operations/offer-publication'
 import { ApiError } from '../errors'
 
 // ============================================================================
@@ -144,6 +145,11 @@ export const CreateCourseRunSchema = z.object({
   centerId: UuidSchema.optional(),
   instructorId: UuidSchema.optional(),
   cycleId: UuidSchema.optional(),
+  offer: OfferPublicationSchema.default({
+    publicationAccess: 'private',
+    conversionMode: 'information_only',
+    capacityPolicy: 'limited',
+  }),
 })
 
 export type CreateCourseRunInput = z.infer<typeof CreateCourseRunSchema>

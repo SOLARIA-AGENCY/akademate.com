@@ -20,6 +20,7 @@ import * as migration_20260714_staging_users_auth_compat from './20260714_stagin
 import * as migration_20260730_akademate_next_learning from './20260730_akademate_next_learning'
 import * as migration_20260731_akademate_next_message_consistency from './20260731_akademate_next_message_consistency'
 import * as migration_20260802_akademate_next_signage from './20260802_akademate_next_signage'
+import * as migration_20260803_akademate_next_offer_conversion_modes from './20260803_akademate_next_offer_conversion_modes'
 import { selectRuntimeMigrations } from '../src/runtime/select-runtime-migrations'
 
 const legacyMigrations = [
@@ -145,6 +146,11 @@ const nextMigrations = [
     up: migration_20260802_akademate_next_signage.up,
     down: migration_20260802_akademate_next_signage.down,
     name: '20260802_akademate_next_signage',
+  },
+  {
+    up: migration_20260803_akademate_next_offer_conversion_modes.up,
+    down: migration_20260803_akademate_next_offer_conversion_modes.down,
+    name: '20260803_akademate_next_offer_conversion_modes',
   },
 ]
 

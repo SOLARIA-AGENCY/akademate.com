@@ -17,6 +17,7 @@ const EXPECTED_NEXT_MIGRATIONS = [
   '20260730_akademate_next_learning.ts',
   '20260731_akademate_next_message_consistency.ts',
   '20260802_akademate_next_signage.ts',
+  '20260803_akademate_next_offer_conversion_modes.ts',
 ]
 
 test('exposes an exact physical migration directory to the Payload Next runtime', () => {

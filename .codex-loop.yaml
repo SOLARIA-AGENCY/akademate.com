@@ -19,6 +19,8 @@ checks:
       command: node --test scripts/__tests__/akademate-next-migration-discovery.test.mjs scripts/__tests__/akademate-next-signage-migration.test.mjs && node --experimental-strip-types --test apps/tenant-admin/src/runtime/next-only-collections.test.ts apps/tenant-admin/src/runtime/select-runtime-migrations.test.ts
     - name: next-signage-postgres-runtime
       command: bash scripts/verify-next-signage-migration-runtime.sh
+    - name: next-offer-conversion
+      command: (cd packages/operations && ../../node_modules/.bin/vitest run __tests__/offer-publication.test.ts) && (cd packages/api && ../../node_modules/.bin/vitest run __tests__/validation.test.ts) && node --test scripts/__tests__/akademate-next-offer-conversion-migration.test.mjs
     - name: learning-membership-access
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
     - name: next-runtime-collection-boundary

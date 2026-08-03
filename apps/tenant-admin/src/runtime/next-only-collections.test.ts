@@ -26,7 +26,10 @@ const EXPECTED_SLUGS = [
 ]
 
 test('registers the exact minimal Next collection manifest', () => {
-  assert.deepEqual(nextOnlyCollections.map(({ slug }) => slug), EXPECTED_SLUGS)
+  assert.deepEqual(
+    nextOnlyCollections.map(({ slug }) => slug),
+    EXPECTED_SLUGS
+  )
   assert.equal(new Set(EXPECTED_SLUGS).size, EXPECTED_SLUGS.length)
 })
 
@@ -38,7 +41,7 @@ test('keeps every generic collection operation deny-all until command endpoints 
       assert.equal(
         await access?.({ req: { user: { id: 1 } } } as never),
         false,
-        `${collection.slug}.${operation} must fail closed`,
+        `${collection.slug}.${operation} must fail closed`
       )
     }
   }
@@ -64,7 +67,7 @@ test('declares the identity links required by learning memberships', () => {
   const staff = nextOnlyCollections.find(({ slug }) => slug === 'staff')
 
   for (const collection of [students, staff]) {
-    const names = collection?.fields.map((field) => 'name' in field ? field.name : null)
+    const names = collection?.fields.map((field) => ('name' in field ? field.name : null))
     assert.ok(names?.includes('tenant'))
     assert.ok(names?.includes('user_account'))
   }
@@ -72,7 +75,52 @@ test('declares the identity links required by learning memberships', () => {
 
 test('uses the physical baseline course name column instead of a shadow title field', () => {
   const courses = nextOnlyCollections.find(({ slug }) => slug === 'courses')
-  const names = courses?.fields.map((field) => 'name' in field ? field.name : null)
+  const names = courses?.fields.map((field) => ('name' in field ? field.name : null))
   assert.ok(names?.includes('name'))
   assert.equal(names?.includes('title'), false)
+})
+
+test('models offer conversion on each course run, not on the reusable course master', () => {
+  const courses = nextOnlyCollections.find(({ slug }) => slug === 'courses')
+  const courseRuns = nextOnlyCollections.find(({ slug }) => slug === 'course-runs')
+  const courseFields = new Set(
+    courses?.fields.map((field) => ('name' in field ? field.name : null))
+  )
+  const runFields = new Set(
+    courseRuns?.fields.map((field) => ('name' in field ? field.name : null))
+  )
+
+  for (const field of [
+    'publication_access',
+    'conversion_mode',
+    'share_slug',
+    'form_template_key',
+    'external_action_url',
+    'payment_plan',
+    'offer_price_amount',
+    'deposit_amount',
+    'cta_label',
+    'capacity_policy',
+  ]) {
+    assert.equal(runFields.has(field), true, `course-runs must declare ${field}`)
+    assert.equal(courseFields.has(field), false, `courses must not declare ${field}`)
+  }
+})
+
+test('fails closed when a partial course-run update conflicts with stored offer settings', async () => {
+  const courseRuns = nextOnlyCollections.find(({ slug }) => slug === 'course-runs')
+  const hook = courseRuns?.hooks?.beforeValidate?.[0]
+  assert.equal(typeof hook, 'function')
+
+  await assert.rejects(async () =>
+    hook?.({
+      data: { payment_plan: 'full_amount' },
+      originalDoc: {
+        publication_access: 'public',
+        share_slug: 'free-workshop',
+        conversion_mode: 'free_registration',
+        capacity_policy: 'limited',
+      },
+    } as never)
+  )
 })
