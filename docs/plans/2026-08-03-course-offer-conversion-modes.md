@@ -43,17 +43,20 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Unit and structural adversarial tests.
 - [x] Real PostgreSQL constraint and guarded-rollback QA using the exact migration SQL.
 - [x] Physical `migrations-next` discovery integrated after the Signage migration.
-- [x] Fresh PostgreSQL 16 run applying exactly six Next migrations.
+- [x] Fresh PostgreSQL 16 run applying exactly seven Next migrations.
+- [x] Dedicated authenticated GET/PATCH configuration command, default-off outside Akademate Next.
+- [x] Tenant-scoped PostgreSQL RLS and column-level grants for the runtime application role.
+- [x] Operator configuration UI with conditional Shadcn fields and a stable preview.
+- [x] Adversarial route, handler, UI and real-database access tests.
 - [ ] Public share-page renderer and tenant theming.
 - [ ] Command endpoints for lead, application, enrollment and checkout creation.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
-- [ ] Operator UI for previewing and publishing each mode.
-- [ ] Browser QA after the operator UI and public share-page renderer exist.
+- [ ] Public publishing action and browser QA after the share-page renderer exists.
 
 ## PostgreSQL evidence — 2026-08-03
 
-- The exact Payload runtime applied six migrations from `apps/tenant-admin/migrations-next`.
+- The exact Payload runtime applied seven migrations from `apps/tenant-admin/migrations-next`.
 - Valid information-only, paid and approval-required offers were persisted on separate course runs.
 - Six database-bypass attempts were rejected with their exact constraint: public offer without slug,
   form without template, insecure external URL, payment without frozen price, invalid deposit and
@@ -64,6 +67,21 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - The Next-only price column is `offer_price_amount`; no CEP `price_snapshot` dependency is imported.
 - The runtime verifier keeps logs bounded to the last 200 lines and generates ephemeral credentials
   for every run.
+- A second append-only migration makes `courses.tenant_id` and `course_runs.tenant_id` mandatory,
+  forces tenant RLS and grants the app role updates only on the bounded offer configuration columns.
+- The real application role can read and update its own tenant through the production command, while
+  cross-tenant reads, `tenant_id` updates, inserts and deletes are rejected.
+
+## Operator workflow
+
+The course-run list links to **Inscripción y publicación**. The detail screen keeps visibility,
+conversion and capacity independent, reveals only fields belonging to the selected mode, validates
+the same shared domain schema as the command and previews the resulting CTA without pretending that
+the public page already exists.
+
+The authenticated route is `GET/PATCH /api/next/course-runs/:id/offer`. It is available only when
+`AKADEMATE_RUNTIME=next` and `AKADEMATE_NEXT_OFFERS_ENABLED=true`; it does not reuse the legacy CEP
+course-run endpoint or a generic Payload mutation.
 
 ## Runtime boundary
 

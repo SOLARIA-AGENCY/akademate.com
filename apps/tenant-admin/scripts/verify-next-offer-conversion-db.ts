@@ -1,10 +1,19 @@
 import assert from 'node:assert/strict'
 import postgres from 'postgres'
+import {
+  NextOfferConfigurationError,
+  getNextOfferConfiguration,
+  updateNextOfferConfiguration,
+} from '../src/lib/offers/offer-configuration-command.ts'
+import { withNextLearningTransaction } from '../src/lib/learning/next-learning-transaction.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
+const appUrl = process.env.AKADEMATE_NEXT_TEST_APP_DATABASE_URL
+if (!appUrl) throw new Error('Isolated app-role test database URL is required')
 
 const sql = postgres(ownerUrl, { max: 1, onnotice: () => undefined })
+const app = postgres(appUrl, { max: 1, onnotice: () => undefined })
 const adversarialChecks = new Set<string>()
 
 async function rejectsConstraint(
@@ -141,12 +150,106 @@ try {
     { conversion_mode: 'approval_required', share_slug: 'shared-offer' },
   ])
 
+  const [userA, userB] = await sql<{ id: number; tenant_id: number }[]>`
+    SELECT id, tenant_id
+    FROM users
+    WHERE email IN ('admin-a@example.test', 'admin-b@example.test')
+    ORDER BY email
+  `
+  assert.ok(userA && userB)
+  const [infoRun] = await sql<{ id: number }[]>`
+    SELECT id FROM course_runs WHERE codigo = 'INFO-A'
+  `
+  const [tenantBRun] = await sql<{ id: number }[]>`
+    SELECT id FROM course_runs WHERE codigo = 'FORM-B'
+  `
+  assert.ok(infoRun && tenantBRun)
+
+  const updated = await withNextLearningTransaction(
+    { userId: userA.id, tenantId: tenantA!.id },
+    (tx, principal) => updateNextOfferConfiguration({
+      tx,
+      principal,
+      courseRunId: infoRun.id,
+      input: {
+        publicationAccess: 'unlisted',
+        conversionMode: 'external_link',
+        shareSlug: 'operator-configured-offer',
+        externalActionUrl: 'https://events.example.test/operator-configured-offer',
+        ctaLabel: 'Continue to registration',
+        capacityPolicy: 'unlimited',
+      },
+    }),
+  )
+  assert.equal(updated.courseRunId, infoRun.id)
+  assert.equal(updated.conversionMode, 'external_link')
+  assert.equal(updated.shareSlug, 'operator-configured-offer')
+
+  const loaded = await withNextLearningTransaction(
+    { userId: userA.id, tenantId: tenantA!.id },
+    (tx, principal) => getNextOfferConfiguration({
+      tx,
+      principal,
+      courseRunId: infoRun.id,
+    }),
+  )
+  assert.equal(loaded.externalActionUrl, 'https://events.example.test/operator-configured-offer')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userA.id, tenantId: tenantA!.id },
+      (tx, principal) => getNextOfferConfiguration({
+        tx,
+        principal,
+        courseRunId: tenantBRun.id,
+      }),
+    ),
+    (error: unknown) => error instanceof NextOfferConfigurationError
+      && error.code === 'offer_not_found',
+  )
+  adversarialChecks.add('command-cannot-read-cross-tenant-offer')
+
+  const appRole = process.env.AKADEMATE_NEXT_DB_APP_USER!
+  const [columnPrivileges] = await sql<{
+    can_update_offer: boolean
+    can_update_tenant: boolean
+    can_insert: boolean
+    can_delete: boolean
+  }[]>`
+    SELECT
+      has_column_privilege(${appRole}, 'course_runs', 'conversion_mode', 'UPDATE') AS can_update_offer,
+      has_column_privilege(${appRole}, 'course_runs', 'tenant_id', 'UPDATE') AS can_update_tenant,
+      has_table_privilege(${appRole}, 'course_runs', 'INSERT') AS can_insert,
+      has_table_privilege(${appRole}, 'course_runs', 'DELETE') AS can_delete
+  `
+  assert.deepEqual(columnPrivileges, {
+    can_update_offer: true,
+    can_update_tenant: false,
+    can_insert: false,
+    can_delete: false,
+  })
+
+  const crossTenantRows = await app.begin(async (transaction) => {
+    await transaction`SELECT set_config('app.tenant_id', ${String(tenantA!.id)}, true)`
+    await transaction`SELECT set_config('app.user_id', ${String(userA.id)}, true)`
+    await transaction`SELECT set_config('app.role', 'admin', true)`
+    return transaction<{ id: number }[]>`
+      UPDATE course_runs
+      SET cta_label = 'Cross tenant attempt'
+      WHERE tenant_id = ${tenantB!.id} AND id = ${tenantBRun.id}
+      RETURNING id
+    `
+  })
+  assert.equal(crossTenantRows.length, 0)
+  adversarialChecks.add('database-rls-hides-cross-tenant-update')
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
     tenantScopedSlug: true,
     priceColumn: 'offer_price_amount',
+    operatorCommand: 'app-role-rls-verified',
   })}\n`)
 } finally {
-  await sql.end()
+  await Promise.allSettled([sql.end(), app.end()])
 }

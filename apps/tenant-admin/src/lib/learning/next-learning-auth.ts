@@ -43,7 +43,10 @@ function positiveIntegerClaim(value: unknown): number | null {
 
 export async function authenticateNextLearningRequest(
   request: Request,
-  environment: AuthEnvironment = process.env,
+  environment: AuthEnvironment = {
+    AKADEMATE_RUNTIME: process.env.AKADEMATE_RUNTIME,
+    AKADEMATE_NEXT_AUTH_SECRET: process.env.AKADEMATE_NEXT_AUTH_SECRET,
+  },
 ): Promise<NextLearningIdentity | null> {
   if (environment.AKADEMATE_RUNTIME !== 'next') return null
   const secret = environment.AKADEMATE_NEXT_AUTH_SECRET

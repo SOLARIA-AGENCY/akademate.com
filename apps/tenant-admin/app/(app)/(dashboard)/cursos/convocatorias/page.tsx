@@ -15,6 +15,7 @@ import {
   MapPin,
   Plus,
   Search,
+  Send,
   SlidersHorizontal,
   Users,
 } from 'lucide-react'
@@ -308,6 +309,9 @@ function ConvocatoriaCard({ run }: { run: Convocatoria }) {
                   <Link href={`/dashboard/cursos/${run.cursoId}`}>Ver curso</Link>
                 </Button>
               ) : null}
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/cursos/convocatorias/${run.id}/oferta`}>Inscripción y publicación</Link>
+              </Button>
               <Button
                 asChild
                 size="sm"
@@ -415,6 +419,11 @@ function ConvocatoriasTable({ runs }: { runs: Convocatoria[] }) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button asChild size="icon" variant="outline" title="Configurar inscripción y publicación">
+                        <Link href={`/cursos/convocatorias/${run.id}/oferta`}>
+                          <Send className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <Button asChild size="icon" variant="outline" title="Ver convocatoria">
                         <Link href={`/dashboard/programacion/${run.id}`}>
                           <Eye className="h-4 w-4" />

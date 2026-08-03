@@ -84,6 +84,7 @@ try {
     '20260731_akademate_next_message_consistency',
     '20260802_akademate_next_signage',
     '20260803_akademate_next_offer_conversion_modes',
+    '20260803_akademate_next_offer_runtime_access',
   ])
 
   const rlsRows = await owner<{ relname: string; relrowsecurity: boolean; relforcerowsecurity: boolean }[]>`

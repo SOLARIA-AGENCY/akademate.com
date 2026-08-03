@@ -117,9 +117,31 @@ capture_payload "${LOG_DIR}/migrate-with-data.log" migrate
   cd "${TENANT_ADMIN_DIR}"
   env \
     AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL="$(owner_url)" \
+    AKADEMATE_NEXT_TEST_APP_DATABASE_URL="$(app_url)" \
+    AKADEMATE_RUNTIME=next \
+    DATABASE_URL="$(app_url)" \
+    AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
     node_modules/.bin/tsx scripts/verify-next-offer-conversion-db.ts
 )
-psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=3 WHERE name='20260802_akademate_next_signage'; UPDATE payload_migrations SET batch=4 WHERE name='20260803_akademate_next_offer_conversion_modes';" >/dev/null
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=5 WHERE name='20260803_akademate_next_offer_runtime_access';" >/dev/null
+
+if capture_payload "${LOG_DIR}/offer-access-rollback-with-data.log" migrate:down; then
+  echo "Offer access rollback unexpectedly succeeded with academy offer data" >&2
+  exit 1
+fi
+grep -q 'Cannot roll back offer runtime access while academy offer data exists' \
+  "${LOG_DIR}/offer-access-rollback-with-data.log"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_runtime_access';" "1"
+assert_query "SELECT relrowsecurity::text || '|' || relforcerowsecurity::text FROM pg_class WHERE relname='course_runs';" "true|true"
+
+psql_owner -c "DELETE FROM course_runs; DELETE FROM courses; DELETE FROM areas_formativas WHERE codigo='OFFER-PROOF';" >/dev/null
+capture_payload "${LOG_DIR}/offer-access-rollback-empty.log" migrate:down
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_runtime_access';" "0"
+assert_query "SELECT relrowsecurity::text || '|' || relforcerowsecurity::text FROM pg_class WHERE relname='course_runs';" "false|false"
+
+psql_owner -c "INSERT INTO areas_formativas(nombre,codigo) VALUES ('Rollback offer area','ROLLBACK-OFFER'); INSERT INTO courses(codigo,slug,name,area_formativa_id,tenant_id) SELECT 'ROLLBACK-OFFER','rollback-offer','Rollback offer',id,(SELECT id FROM tenants WHERE slug='tenant-a') FROM areas_formativas WHERE codigo='ROLLBACK-OFFER'; INSERT INTO course_runs(course_id,codigo,start_date,end_date,tenant_id,publication_access,share_slug) SELECT id,'ROLLBACK-OFFER-RUN','2099-02-01','2099-02-02',tenant_id,'public','rollback-offer' FROM courses WHERE codigo='ROLLBACK-OFFER'; UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=4 WHERE name='20260803_akademate_next_offer_conversion_modes';" >/dev/null
+assert_query "SELECT max(batch)::text FROM payload_migrations;" "4"
+assert_query "SELECT count(*) FROM course_runs WHERE publication_access='public' AND share_slug='rollback-offer';" "1"
 
 if capture_payload "${LOG_DIR}/offer-rollback-with-data.log" migrate:down; then
   echo "Offer rollback unexpectedly succeeded with configured course offers" >&2
@@ -130,7 +152,7 @@ grep -q 'Cannot roll back offer conversion modes while configured course offers 
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_conversion_modes';" "1"
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name='offer_price_amount';" "1"
 
-psql_owner -c "UPDATE payload_migrations SET batch=2 WHERE name='20260803_akademate_next_offer_conversion_modes'; UPDATE payload_migrations SET batch=3 WHERE name='20260802_akademate_next_signage';" >/dev/null
+psql_owner -c "DELETE FROM course_runs; DELETE FROM courses; DELETE FROM areas_formativas WHERE codigo='ROLLBACK-OFFER'; UPDATE payload_migrations SET batch=2 WHERE name='20260803_akademate_next_offer_conversion_modes'; UPDATE payload_migrations SET batch=3 WHERE name='20260802_akademate_next_signage';" >/dev/null
 
 if capture_payload "${LOG_DIR}/rollback-with-data.log" migrate:down; then
   echo "Rollback unexpectedly succeeded with operational signage data" >&2
@@ -144,6 +166,12 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 
 start_database
 capture_payload "${LOG_DIR}/migrate-empty.log" migrate
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=4 WHERE name='20260803_akademate_next_offer_runtime_access';" >/dev/null
+capture_payload "${LOG_DIR}/offer-access-rollback-clean.log" migrate:down
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_runtime_access';" "0"
+assert_query "SELECT relrowsecurity::text || '|' || relforcerowsecurity::text FROM pg_class WHERE relname='course_runs';" "false|false"
+assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='course_runs' AND column_name='tenant_id';" "YES"
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=2 WHERE name='20260803_akademate_next_offer_conversion_modes'; UPDATE payload_migrations SET batch=3 WHERE name='20260802_akademate_next_signage';" >/dev/null
 capture_payload "${LOG_DIR}/rollback-empty.log" migrate:down
 assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND relkind='r';" "0"
@@ -176,4 +204,4 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name='offer_price_amount';" "0"
 assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='campuses' AND column_name='tenant_id';" "YES"
 
-printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'
+printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'

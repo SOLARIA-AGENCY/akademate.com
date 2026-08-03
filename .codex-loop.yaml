@@ -20,7 +20,7 @@ checks:
     - name: next-signage-postgres-runtime
       command: bash scripts/verify-next-signage-migration-runtime.sh
     - name: next-offer-conversion
-      command: (cd packages/operations && ../../node_modules/.bin/vitest run __tests__/offer-publication.test.ts) && (cd packages/api && ../../node_modules/.bin/vitest run __tests__/validation.test.ts) && node --test scripts/__tests__/akademate-next-offer-conversion-migration.test.mjs
+      command: (cd packages/operations && ../../node_modules/.bin/vitest run __tests__/offer-publication.test.ts) && (cd packages/api && ../../node_modules/.bin/vitest run __tests__/validation.test.ts) && node --test scripts/__tests__/akademate-next-offer-conversion-migration.test.mjs scripts/__tests__/akademate-next-offer-runtime-access-migration.test.mjs scripts/__tests__/akademate-next-offer-route.test.mjs && apps/tenant-admin/node_modules/.bin/tsx --test apps/tenant-admin/src/lib/offers/offer-configuration-command.test.ts apps/tenant-admin/src/lib/offers/offer-configuration-handler.test.ts && corepack pnpm --filter @akademate/ui build && corepack pnpm --filter @akademate/tenant-admin typecheck:next-offers && corepack pnpm --filter @akademate/tenant-admin exec vitest run __tests__/cursos/offer-configuration.test.tsx
     - name: learning-membership-access
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
     - name: next-runtime-collection-boundary

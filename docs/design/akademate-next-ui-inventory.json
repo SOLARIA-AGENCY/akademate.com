@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "totalPages": 237,
+  "totalPages": 238,
   "totalLayouts": 17,
   "totalLocalPrimitiveFiles": 84,
-  "totalSharedUiConsumers": 6,
+  "totalSharedUiConsumers": 8,
   "totalSidebarFiles": 5,
   "pageSignals": {
-    "sharedUiPages": 5,
+    "sharedUiPages": 6,
     "localPrimitiveImports": 668,
     "hardcodedColorTokens": 166
   },
@@ -53,10 +53,10 @@
       "sidebarFiles": 0
     },
     "tenant-admin": {
-      "pages": 168,
+      "pages": 169,
       "layouts": 9,
       "localPrimitiveFiles": 63,
-      "sharedUiConsumers": 0,
+      "sharedUiConsumers": 2,
       "sidebarFiles": 3
     },
     "web": {
@@ -1724,6 +1724,21 @@
       "route": "/cursos/[id]",
       "sharedUiImport": false,
       "localPrimitiveImportCount": 6,
+      "hardcodedColorTokenCount": 0,
+      "audit": {
+        "desktop": "pending",
+        "mobile": "pending",
+        "accessibility": "pending",
+        "states": "pending",
+        "evidence": null
+      }
+    },
+    {
+      "app": "tenant-admin",
+      "file": "apps/tenant-admin/app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/page.tsx",
+      "route": "/cursos/convocatorias/[id]/oferta",
+      "sharedUiImport": true,
+      "localPrimitiveImportCount": 0,
       "hardcodedColorTokenCount": 0,
       "audit": {
         "desktop": "pending",

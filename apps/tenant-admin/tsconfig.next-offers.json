@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "app/api/next/course-runs/[id]/offer/route.ts",
+    "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/page.tsx",
+    "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/OfferConfigurationPage.tsx",
+    "src/lib/offers/**/*.ts",
+    "src/lib/learning/next-learning-auth.ts",
+    "src/lib/learning/next-learning-transaction.ts"
+  ],
+  "exclude": ["node_modules"]
+}

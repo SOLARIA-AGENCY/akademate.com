@@ -72,7 +72,7 @@ export const NextCourses: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, index: true },
-    relation('tenant', 'tenants', false),
+    relation('tenant', 'tenants'),
   ],
 }
 
