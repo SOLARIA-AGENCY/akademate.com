@@ -25,6 +25,8 @@ const EXPECTED_NEXT_MIGRATIONS = [
   '20260803_zzz_akademate_next_offer_enrollment_conversion.ts',
   '20260803_zzzz_akademate_next_enrollment_lifecycle.ts',
   '20260803_zzzzz_akademate_next_paid_offer_orders.ts',
+  '20260803_zzzzzz_akademate_next_dashboard_projection.ts',
+  '20260803_zzzzzzz_akademate_next_dashboard_least_privilege.ts',
 ]
 
 test('exposes an exact physical migration directory to the Payload Next runtime', () => {

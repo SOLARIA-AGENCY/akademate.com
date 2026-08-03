@@ -40,5 +40,12 @@
     "accessibility": "verified-static-and-browser",
     "states": "verified-adversarial",
     "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-enrollment-detail,desktop-enrollment-cancellation-confirmation,desktop-enrollment-cancelled,mobile-enrollment-detail-loaded,mobile-enrollment-cancelled}.png"
+  },
+  "apps/tenant-admin/app/(app)/(dashboard)/dashboard/page.tsx": {
+    "desktop": "verified-browser-1440x1000",
+    "mobile": "verified-browser-390x844",
+    "accessibility": "verified-static-and-browser",
+    "states": "verified-adversarial",
+    "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-dashboard-baseline,mobile-dashboard-baseline,mobile-dashboard-priorities,mobile-dashboard-programming,mobile-dashboard-activity,mobile-dashboard-footer}.png"
   }
 }

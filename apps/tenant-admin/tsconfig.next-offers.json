@@ -14,6 +14,7 @@
     "app/api/next/enrollments/[id]/cancel/route.ts",
     "app/api/next/enrollments/[id]/route.ts",
     "app/api/next/session/route.ts",
+    "app/api/next/dashboard/route.ts",
     "app/(app)/(dashboard)/cursos/solicitudes/**/*.tsx",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/page.tsx",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/OfferConfigurationPage.tsx",
@@ -29,6 +30,7 @@
     "src/lib/offers/**/*.ts",
     "src/lib/payments/**/*.ts",
     "src/lib/enrollments/**/*.ts",
+    "src/lib/dashboard/**/*.ts",
     "src/lib/learning/next-learning-auth.ts",
     "src/lib/learning/next-learning-transaction.ts"
   ],

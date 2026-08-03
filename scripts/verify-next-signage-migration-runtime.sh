@@ -343,7 +343,8 @@ capture_payload_down "${LOG_DIR}/offer-rollback-empty.log" '20260803_akademate_n
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_conversion_modes';" "0"
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name IN ('publication_access','conversion_mode','offer_price_amount');" "0"
 assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection','20260803_akademate_next_public_offer_submissions','20260803_zz_akademate_next_offer_submission_review','20260803_zzz_akademate_next_offer_enrollment_conversion','20260803_zzzz_akademate_next_enrollment_lifecycle','20260803_zzzzz_akademate_next_paid_offer_orders');" "0"
-assert_query "SELECT count(*) FROM payload_migrations;" "4"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260803_zzzzzz_akademate_next_dashboard_projection','20260803_zzzzzzz_akademate_next_dashboard_least_privilege');" "2"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name NOT IN ('20260803_zzzzzz_akademate_next_dashboard_projection','20260803_zzzzzzz_akademate_next_dashboard_least_privilege');" "4"
 
 psql_owner -c "INSERT INTO tenants(name,slug) VALUES ('Legacy tenant','legacy-tenant'); INSERT INTO campuses(slug,name,city,tenant_id) VALUES ('legacy-null-campus','Legacy null campus','Tallinn',NULL);" >/dev/null
 if psql_owner -c 'ALTER TABLE campuses ALTER COLUMN tenant_id SET NOT NULL;' \

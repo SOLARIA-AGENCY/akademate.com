@@ -3,7 +3,7 @@
   "totalPages": 240,
   "totalLayouts": 18,
   "totalLocalPrimitiveFiles": 84,
-  "totalSharedUiConsumers": 14,
+  "totalSharedUiConsumers": 15,
   "totalSidebarFiles": 5,
   "pageSignals": {
     "sharedUiPages": 7,
@@ -11,10 +11,10 @@
     "hardcodedColorTokens": 166
   },
   "auditProgress": {
-    "desktopVerified": 6,
-    "mobileVerified": 6,
-    "accessibilityVerified": 6,
-    "statesVerified": 3
+    "desktopVerified": 7,
+    "mobileVerified": 7,
+    "accessibilityVerified": 7,
+    "statesVerified": 4
   },
   "apps": {
     "admin-client": {
@@ -56,7 +56,7 @@
       "pages": 171,
       "layouts": 10,
       "localPrimitiveFiles": 63,
-      "sharedUiConsumers": 8,
+      "sharedUiConsumers": 9,
       "sidebarFiles": 3
     },
     "web": {
@@ -1816,11 +1816,11 @@
       "localPrimitiveImportCount": 0,
       "hardcodedColorTokenCount": 0,
       "audit": {
-        "desktop": "pending",
-        "mobile": "pending",
-        "accessibility": "pending",
-        "states": "pending",
-        "evidence": null
+        "desktop": "verified-browser-1440x1000",
+        "mobile": "verified-browser-390x844",
+        "accessibility": "verified-static-and-browser",
+        "states": "verified-adversarial",
+        "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-dashboard-baseline,mobile-dashboard-baseline,mobile-dashboard-priorities,mobile-dashboard-programming,mobile-dashboard-activity,mobile-dashboard-footer}.png"
       }
     },
     {

@@ -183,6 +183,18 @@ body:not([data-payload-admin]) {
     --brand-accent-foreground: 0 0% 100%;
   }
 
+  /*
+   * Akademate Next adopts the shared workspace sidebar palette. Legacy/CEP
+   * keeps its existing light-mode variables unless its own runtime opts in.
+   */
+  html[data-akademate-runtime='next']:not([data-payload-admin]) {
+    --sidebar: 222 70% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-accent: 221 56% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 221 45% 24%;
+  }
+
   .dark:not([data-payload-admin]) {
     /* Base */
     --background: 222 47% 7%;

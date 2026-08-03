@@ -19,14 +19,9 @@ interface AuthData {
 
 interface RealtimeProviderProps {
   children: ReactNode
-  /** Default tenant ID if not found in auth */
-  tenantId?: number
 }
 
-export function RealtimeProvider({
-  children,
-  tenantId: defaultTenantId = 1,
-}: RealtimeProviderProps) {
+export function RealtimeProvider({ children }: RealtimeProviderProps) {
   const [authData, setAuthData] = useState<AuthData | null>(null)
   const [isReady, setIsReady] = useState(false)
   const [realtimeReady, setRealtimeReady] = useState(false)
@@ -40,12 +35,25 @@ export function RealtimeProvider({
         const response = await fetch('/api/auth/session', { credentials: 'include' })
         if (response.ok) {
           const data = await response.json()
-          if (data.authenticated && data.socketToken) {
+          const userId = data.user?.id
+          const role = data.user?.role
+          const tenantId = Number(data.user?.tenantId)
+          if (
+            data.authenticated
+            && typeof data.socketToken === 'string'
+            && data.socketToken.length > 0
+            && (typeof userId === 'string' || typeof userId === 'number')
+            && String(userId).length > 0
+            && typeof role === 'string'
+            && role.length > 0
+            && Number.isSafeInteger(tenantId)
+            && tenantId > 0
+          ) {
             setAuthData({
               token: data.socketToken,
-              userId: data.user?.id?.toString() || '1',
-              role: data.user?.role || 'admin',
-              tenantId: data.user?.tenantId || defaultTenantId,
+              userId: String(userId),
+              role,
+              tenantId,
             })
           }
         }
@@ -57,7 +65,7 @@ export function RealtimeProvider({
     }
 
     getAuthData()
-  }, [defaultTenantId])
+  }, [])
 
   // Probe socket server availability to avoid endless client reconnect loops
   useEffect(() => {

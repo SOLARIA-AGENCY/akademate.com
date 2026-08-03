@@ -94,6 +94,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const tenant = await getTenantHostBranding()
+  const runtime = process.env.AKADEMATE_RUNTIME === 'next' ? 'next' : 'legacy'
   const primaryHsl = hexToHSL(tenant.primaryColor)
   const tenantThemeVars = {
     '--primary': primaryHsl,
@@ -122,7 +123,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <html lang="es" style={tenantThemeVars} suppressHydrationWarning>
+    <html
+      lang="es"
+      style={tenantThemeVars}
+      data-akademate-runtime={runtime}
+      suppressHydrationWarning
+    >
       <body>
         <ClientLayout initialBranding={initialBranding}>{children}</ClientLayout>
       </body>

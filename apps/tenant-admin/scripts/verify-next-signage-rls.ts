@@ -77,7 +77,7 @@ try {
   const migrationRows = await owner<{ name: string }[]>`
     SELECT name FROM payload_migrations ORDER BY id
   `
-  assert.deepEqual(migrationRows.map(({ name }) => name), [
+  const expectedMigrationPrefix = [
     '20251207_081627',
     '20260428_students_tenant',
     '20260730_akademate_next_learning',
@@ -91,7 +91,18 @@ try {
     '20260803_zzz_akademate_next_offer_enrollment_conversion',
     '20260803_zzzz_akademate_next_enrollment_lifecycle',
     '20260803_zzzzz_akademate_next_paid_offer_orders',
-  ])
+  ]
+  const appliedMigrationNames = migrationRows.map(({ name }) => name)
+  assert.deepEqual(
+    appliedMigrationNames.slice(0, expectedMigrationPrefix.length),
+    expectedMigrationPrefix,
+    'the signage and offer migration chain must remain ordered and complete',
+  )
+  assert.equal(
+    new Set(appliedMigrationNames).size,
+    appliedMigrationNames.length,
+    'applied migration names must remain unique',
+  )
 
   const rlsRows = await owner<{ relname: string; relrowsecurity: boolean; relforcerowsecurity: boolean }[]>`
     SELECT relname, relrowsecurity, relforcerowsecurity

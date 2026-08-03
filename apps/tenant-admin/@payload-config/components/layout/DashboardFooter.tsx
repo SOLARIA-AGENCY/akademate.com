@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Shield, Cookie, FileText, Activity } from 'lucide-react'
+import { Shield, Cookie, FileText } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 
@@ -11,7 +11,7 @@ export function DashboardFooter() {
 
   return (
     <footer className="border-t bg-card/95 backdrop-blur mt-auto" data-oid="1za0nkc">
-      <div className="px-4 md:px-6 py-3" data-oid="52mhq5-">
+      <div className="py-3 pl-4 pr-20 md:pl-6 md:pr-20" data-oid="52mhq5-">
         <div
           className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between text-sm"
           data-oid="fa:mmw_"
@@ -51,24 +51,11 @@ export function DashboardFooter() {
 
           <div className="flex flex-wrap items-center gap-3" data-oid="ygn_pzg">
             <Badge variant="outline" className="text-[10px] tracking-wide" data-oid="x1u0p11">
-              TENANT DASHBOARD
+              AKADEMATE WORKSPACE
             </Badge>
             <span className="text-muted-foreground" data-oid="f7goqjy">
               © {year} {branding.academyName}
             </span>
-            <span className="text-muted-foreground/50" data-oid="mvf.cz5">
-              •
-            </span>
-            <Link
-              href="https://status.cepformacion.akademate.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
-              data-oid="86j8232"
-            >
-              <Activity className="h-3.5 w-3.5" data-oid=".t7h2iw" />
-              <span data-oid="z.devva">Estado del Sistema</span>
-            </Link>
           </div>
         </div>
       </div>

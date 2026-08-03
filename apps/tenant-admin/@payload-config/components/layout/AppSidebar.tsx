@@ -45,7 +45,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
-import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '../akademate/dashboard/DashboardSidebar'
+import {
+  DashboardSidebarGroup,
+  DashboardSidebarUpcomingBadge,
+} from '../akademate/dashboard/DashboardSidebar'
 import { Button } from '@payload-config/components/ui/button'
 import {
   DropdownMenu,
@@ -110,7 +113,7 @@ const menuItems: MenuItemWithSection[] = [
     url: '/dashboard/administrativo',
   },
   {
-    title: 'Matriculacion',
+    title: 'Matriculación',
     icon: UserPlus,
     url: '/matriculas',
   },
@@ -124,11 +127,11 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
-    title: 'Captacion',
+    title: 'Captación',
     icon: FileText,
     items: [
       { title: 'Leads', icon: FileText, url: '/leads' },
-      { title: 'Solicitudes de cursos', icon: Inbox, url: '/cursos/solicitudes' },
+      { title: 'Solicitudes de cursos', icon: Inbox, url: '/dashboard/cursos/solicitudes' },
       { title: 'Inscripciones', icon: UserPlus, url: '/inscripciones' },
       { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
       { title: 'Calendario citas', icon: CalendarDays, url: '/calendario-citas' },
@@ -167,8 +170,8 @@ const menuItems: MenuItemWithSection[] = [
     items: [
       { title: 'Resumen Financiero', icon: Wallet, url: '/finanzas', upcoming: true },
       { title: 'Cobros y Pagos', icon: HandCoins, url: '/finanzas/cobros-pagos', upcoming: true },
-      { title: 'Facturacion', icon: Receipt, url: '/finanzas/facturacion', upcoming: true },
-      { title: 'Nominas y Costes', icon: PiggyBank, url: '/finanzas/nominas', upcoming: true },
+      { title: 'Facturación', icon: Receipt, url: '/finanzas/facturacion', upcoming: true },
+      { title: 'Nóminas y costes', icon: PiggyBank, url: '/finanzas/nominas', upcoming: true },
       { title: 'Informes', icon: ClipboardList, url: '/finanzas/informes', upcoming: true },
     ],
   },
@@ -243,24 +246,24 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
           type="button"
           variant="ghost"
           onClick={() => setNestedOpen(!nestedOpen)}
-          className={`group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+          className={`group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/75 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${
             hasActiveNestedChild ? 'bg-sidebar-accent/50' : ''
           }`}
           data-oid="7nvqr6:"
         >
           <span
-            className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+            className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-sidebar-primary transition-opacity duration-200 ${
               hasActiveNestedChild ? 'opacity-60' : 'opacity-0 group-hover:opacity-100'
             }`}
             data-oid="bspggu-"
           />
 
-          <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" data-oid="z:_3-_d" />
+          <SubIcon className="h-4 w-4 shrink-0 text-sidebar-foreground/70" data-oid="z:_3-_d" />
           <span className="flex-1 text-left" data-oid="68y.1:a">
             {subItem.title}
           </span>
           <ChevronDown
-            className={`h-3 w-3 transition-transform text-foreground/50 ${
+            className={`h-3 w-3 transition-transform text-sidebar-foreground/50 ${
               nestedOpen || hasActiveNestedChild ? 'rotate-180' : ''
             }`}
             data-oid="wu7sv:t"
@@ -278,7 +281,7 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
                 <li key={nestedItem.title} data-oid="h6eshm5">
                   <Link
                     href={nestedItem.url!}
-                    className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                    className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/75 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${
                       isNestedActive
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         : ''
@@ -286,14 +289,14 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
                     data-oid="edf83fk"
                   >
                     <span
-                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-sidebar-primary transition-opacity duration-200 ${
                         isNestedActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                       }`}
                       data-oid="62xhu-b"
                     />
 
                     <NestedIcon
-                      className="h-3 w-3 shrink-0 text-foreground/60"
+                      className="h-3 w-3 shrink-0 text-sidebar-foreground/60"
                       data-oid="67suuti"
                     />
 
@@ -311,20 +314,28 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
   return (
     <Link
       href={subItem.url!}
-      className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+      className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/75 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${
         isSubActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : ''
       }`}
       data-oid="b-5u9jo"
     >
       <span
-        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-sidebar-primary transition-opacity duration-200 ${
           isSubActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}
         data-oid="c:6sgov"
       />
 
-      <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
-      <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
+      <SubIcon
+        className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-sidebar-foreground/35' : 'text-sidebar-foreground/70'}`}
+        data-oid=":he6p21"
+      />
+      <span
+        className={subItem.upcoming ? 'italic text-sidebar-foreground/55' : ''}
+        data-oid="-wiel.j"
+      >
+        {subItem.title}
+      </span>
       {subItem.upcoming ? <DashboardSidebarUpcomingBadge className="ml-auto" /> : null}
     </Link>
   )
@@ -396,9 +407,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     : 'w-full gap-3 px-3'
 
   const topLevelInteractionClass =
-    'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
+    'text-sidebar-foreground/80 transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring'
 
-  const renderCollapsedSubmenu = (item: MenuItemWithSection, Icon: React.ElementType, hasActiveChild: boolean) => (
+  const renderCollapsedSubmenu = (
+    item: MenuItemWithSection,
+    Icon: React.ElementType,
+    hasActiveChild: boolean
+  ) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
@@ -411,7 +426,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           aria-label={item.title}
         >
           <Icon
-            className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-muted-foreground/40' : 'text-foreground/80'}`}
+            className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-sidebar-foreground/35' : 'text-sidebar-foreground/80'}`}
           />
         </Button>
       </DropdownMenuTrigger>
@@ -457,7 +472,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
   return (
     <div
-      className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground"
+      className="flex h-full flex-col overflow-hidden bg-sidebar text-sidebar-foreground"
       data-oid="itwxk4a"
     >
       {/* Header - Logo + Text - Smooth transition */}
@@ -471,12 +486,23 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           data-oid="opzrczc"
         >
           {/* Logo — visible siempre, usa branding si disponible */}
-          <img
-            src={branding.logos.principal || branding.logos.favicon}
-            alt={academyName}
-            className="h-8 w-8 flex-shrink-0 rounded object-contain"
-            title={isCollapsed ? academyName : undefined}
-          />
+          {branding.logos.principal || branding.logos.favicon ? (
+            <img
+              src={branding.logos.principal || branding.logos.favicon}
+              alt={academyName}
+              className="h-8 w-8 flex-shrink-0 rounded object-contain"
+              title={isCollapsed ? academyName : undefined}
+            />
+          ) : (
+            <span
+              role="img"
+              aria-label={academyName}
+              className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"
+              title={isCollapsed ? academyName : undefined}
+            >
+              <GraduationCap className="h-4 w-4" aria-hidden="true" />
+            </span>
+          )}
 
           {/* Nombre academia — solo en expanded */}
           {!isCollapsed && (
@@ -517,7 +543,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       data-oid="5zqti0j"
                     >
                       <span
-                        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+                        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-sidebar-primary transition-opacity duration-200 ${
                           isActive
                             ? 'opacity-100'
                             : isCollapsed
@@ -528,7 +554,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       />
 
                       <Icon
-                        className="h-5 w-5 shrink-0 text-foreground/80 group-hover:text-foreground"
+                        className="h-5 w-5 shrink-0 text-sidebar-foreground/80 group-hover:text-sidebar-accent-foreground"
                         data-oid="vtc2v7g"
                       />
 
@@ -580,7 +606,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     data-oid="47oydbm"
                   >
                     <span
-                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-sidebar-primary transition-opacity duration-200 ${
                         isCollapsed
                           ? 'opacity-0'
                           : hasActiveChild
@@ -591,7 +617,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     />
 
                     <Icon
-                      className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-muted-foreground/40' : 'text-foreground/80'}`}
+                      className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-sidebar-foreground/35' : 'text-sidebar-foreground/80'}`}
                       data-oid="o_-brke"
                     />
 
@@ -600,7 +626,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                         isCollapsed
                           ? 'w-0 opacity-0 overflow-hidden'
                           : 'flex-1 w-auto opacity-100 text-left'
-                      } ${item.upcoming ? 'italic text-muted-foreground/60' : ''}`}
+                      } ${item.upcoming ? 'italic text-sidebar-foreground/55' : ''}`}
                       data-oid="eg9lgi8"
                     >
                       {item.title}
@@ -615,13 +641,15 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                   </Button>
                   {/* Submenu with smooth height transition */}
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      !isCollapsed && isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                      !isCollapsed && isOpen
+                        ? 'grid-rows-[1fr] opacity-100'
+                        : 'grid-rows-[0fr] opacity-0'
                     }`}
                     data-oid="33l6zag"
                   >
                     <ul
-                      className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4"
+                      className="min-h-0 overflow-hidden ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4"
                       data-oid="fu19cwt"
                     >
                       {item.items?.map((subItem) => (
@@ -656,7 +684,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={onToggle}
-              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent transition-colors text-foreground/70"
+              className="flex h-8 w-8 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring"
               title={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
               data-oid=".6.qflx"
             >
@@ -672,13 +700,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         {/* Help Section - Always visible with smooth transitions */}
         <Link
           href="/ayuda"
-          className={`flex items-center hover:bg-sidebar-accent transition-all duration-300 ease-in-out h-12 ${
+          className={`flex h-12 items-center text-sidebar-foreground/75 transition-all duration-300 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${
             isCollapsed ? 'justify-center' : 'gap-3 px-3'
           }`}
           title={isCollapsed ? 'Ayuda y Documentación' : undefined}
           data-oid="yyqlipb"
         >
-          <HelpCircle className="h-4 w-4 shrink-0 text-foreground/70" data-oid="jhy3iek" />
+          <HelpCircle className="h-4 w-4 shrink-0 text-sidebar-foreground/70" data-oid="jhy3iek" />
           <div
             className={`min-w-0 transition-all duration-300 ease-in-out ${
               isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100'
@@ -686,13 +714,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
             data-oid="1rnn:zw"
           >
             <p
-              className="text-sm text-muted-foreground truncate whitespace-nowrap"
+              className="truncate whitespace-nowrap text-sm text-sidebar-foreground/75"
               data-oid="10c0ke6"
             >
               Ayuda y Documentación
             </p>
             <p
-              className="text-xs text-muted-foreground/70 truncate whitespace-nowrap"
+              className="truncate whitespace-nowrap text-xs text-sidebar-foreground/50"
               data-oid=":jyoxpo"
             >
               Guías y soporte técnico

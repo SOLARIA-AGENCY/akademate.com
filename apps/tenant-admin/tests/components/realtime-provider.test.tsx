@@ -119,4 +119,41 @@ describe('RealtimeProvider', () => {
     })
     expect(screen.getByText('child content')).toBeInTheDocument()
   })
+
+  it('fails closed when the authenticated session has no tenant identity', async () => {
+    const requestedUrls: string[] = []
+    vi.mocked(global.fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input.toString()
+      requestedUrls.push(url)
+
+      if (url.includes('/api/auth/session')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              authenticated: true,
+              socketToken: 'socket-token',
+              user: { id: '2', role: 'superadmin' },
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          )
+        )
+      }
+
+      if (url.includes('/socket.io/?EIO=4')) {
+        return Promise.resolve(new Response('0{"sid":"abc123"}', { status: 200 }))
+      }
+
+      return Promise.resolve(new Response('{}', { status: 404 }))
+    })
+
+    render(
+      <RealtimeProvider>
+        <div>tenant-safe child</div>
+      </RealtimeProvider>
+    )
+
+    await waitFor(() => expect(screen.getByText('tenant-safe child')).toBeInTheDocument())
+    expect(screen.queryByTestId('socket-provider')).not.toBeInTheDocument()
+    expect(requestedUrls.some((url) => url.includes('/socket.io/?EIO=4'))).toBe(false)
+  })
 })

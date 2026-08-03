@@ -23,9 +23,9 @@ describe('DashboardFooter', () => {
     expect(screen.getByText(/2025 CEP Comunicación/)).toBeInTheDocument()
   })
 
-  it('renders system status link', () => {
+  it('does not expose a tenant-specific status service in the shared Next footer', () => {
     render(<DashboardFooter data-oid="w59t.wf" />)
-    expect(screen.getByText('Estado del Sistema')).toBeInTheDocument()
+    expect(screen.queryByText('Estado del Sistema')).not.toBeInTheDocument()
   })
 
   it('has correct link hrefs', () => {
@@ -40,10 +40,7 @@ describe('DashboardFooter', () => {
     const cookiesLink = screen.getByRole('link', { name: /Cookies/i })
     expect(cookiesLink).toHaveAttribute('href', '/legal/cookies')
 
-    const statusLink = screen.getByRole('link', { name: /Estado del Sistema/i })
-    expect(statusLink).toHaveAttribute('href', 'https://status.cepformacion.akademate.com')
-    expect(statusLink).toHaveAttribute('target', '_blank')
-    expect(statusLink).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.queryByRole('link', { name: /Estado del Sistema/i })).not.toBeInTheDocument()
   })
 
   it('renders as a footer element', () => {
@@ -57,7 +54,7 @@ describe('DashboardFooter', () => {
     const footer = document.querySelector('footer')
     const innerDiv = footer?.querySelector('div')
     // Should have px padding for left alignment, NOT container mx-auto
-    expect(innerDiv?.className).toContain('px-4')
+    expect(innerDiv?.className).toContain('pl-4')
     expect(innerDiv?.className).not.toContain('mx-auto')
   })
 })

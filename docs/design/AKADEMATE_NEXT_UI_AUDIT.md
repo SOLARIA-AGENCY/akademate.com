@@ -1,17 +1,18 @@
 # Akademate Next UI Audit and Migration Registry
 
-Date: 2026-08-01
+Date: 2026-08-03
 Preset: `saas-dashboard`
-Evidence boundary: deterministic source inventory and local Campus build; authenticated visual QA remains pending.
+Evidence boundary: deterministic source inventory, synthetic Campus QA and an isolated authenticated
+Akademate Next tenant-admin runtime. No production deployment or live-domain verification is implied.
 
 ## Inventory
 
-- 237 App Router pages and 17 layouts are tracked across seven apps.
-- `apps/tenant-admin` contains 168 pages; `admin-client` 27; `campus` 11; `ops` 10;
+- 240 App Router pages and 18 layouts are tracked across seven apps.
+- `apps/tenant-admin` contains 171 pages; `admin-client` 27; `campus` 11; `ops` 10;
   `payload` 4; `portal` 4; and public `web` 13.
 - 84 local primitive files remain across tenant-admin, admin-client, portal and web.
 - The page layer contains 668 local primitive imports and 166 hardcoded colour utilities.
-- Five pages currently import the shared `@akademate/ui` authority, up from two.
+- Fifteen source consumers use the shared `@akademate/ui` authority; seven are page files.
 - Five sidebar source files remain across admin-client and tenant-admin.
 
 Authoritative inventory: [akademate-next-ui-inventory.json](./akademate-next-ui-inventory.json).
@@ -62,7 +63,7 @@ The selected approach establishes tokens, primitives and composed workspace patt
 - [x] Migrate Campus progress, attendance and certificates to the shared workspace.
 - [x] Verify Campus desktop/mobile with synthetic authorized state; no overflow, console or request errors.
 - [ ] Verify Campus against an isolated real authenticated runtime.
-- [ ] Audit and migrate tenant-admin dashboard/navigation.
+- [x] Audit and migrate tenant-admin dashboard/navigation.
 - [ ] Audit and migrate student/staff/course/course-run record views.
 - [ ] Audit and migrate tables, filters, forms, dialogs and empty/error/loading states.
 - [ ] Audit admin-client and ops.
@@ -73,10 +74,10 @@ The selected approach establishes tokens, primitives and composed workspace patt
 
 | Evidence                                      | Verified | Total | Progress |
 | --------------------------------------------- | -------: | ----: | -------: |
-| Desktop                                       |        4 |   237 |     1.7% |
-| Mobile                                        |        4 |   237 |     1.7% |
-| Accessibility                                 |        4 |   237 |     1.7% |
-| Loading, empty, error and long-content states |        1 |   237 |     0.4% |
+| Desktop                                       |        7 |   240 |     2.9% |
+| Mobile                                        |        7 |   240 |     2.9% |
+| Accessibility                                 |        7 |   240 |     2.9% |
+| Loading, empty, error and long-content states |        4 |   240 |     1.7% |
 
 `verified-synthetic` means the route was inspected using a controlled local state. It does not
 prove real authentication, persisted data, sockets, external integrations or a deployed artifact.
@@ -101,6 +102,42 @@ prove real authentication, persisted data, sockets, external integrations or a d
 | Frontend implementation |    2/5 |   4/5 | Improved |
 | Production polish       |    2/5 |   4/5 | Improved |
 
-Pilot score: **4.0/5**. The full 229-screen programme remains at its structural baseline until further families migrate.
+Pilot score: **4.0/5**. The full 240-screen programme remains at its structural baseline until further families migrate.
 
 Visual evidence used a synthetic authorized browser state against the local production build. Desktop and mobile layouts had no horizontal overflow; the final console was empty and all observed network requests returned 200/304. This does not prove real authentication, data, socket or deployment behavior.
+
+## Tenant-admin re-audit: Next operations dashboard and shell
+
+| Area                    | Before | After | Status   |
+| ----------------------- | -----: | ----: | -------- |
+| Dashboard ergonomics    |    2/5 |   4/5 | Improved |
+| Layout and composition  |    3/5 |   4/5 | Improved |
+| Interaction design      |    2/5 |   4/5 | Improved |
+| Accessibility           |    2/5 |   4/5 | Improved |
+| Frontend implementation |    2/5 |   4/5 | Improved |
+| Production polish       |    2/5 |   4/5 | Improved |
+
+Batch score: **4.0/5**. The dashboard now consumes one Next-native, bounded projection; renders
+summary, operational priorities, upcoming runs, recent admissions and quick actions through shared
+`@akademate/ui` patterns; and uses the runtime-scoped navy sidebar requested for Akademate Next.
+Legacy runtime tokens remain unchanged.
+
+Authenticated browser evidence used a production Next build, PostgreSQL 16, an exact signed Next
+session and two isolated tenants. The two tenants returned deliberately different metric sets
+(`1|1|1` and `2|0|1` for active learners, teachers and courses). A learner role was rejected, and
+the application role could not read `students` or `staff` directly after the append-only hardening
+migration. Desktop and mobile returned zero console errors, failed HTTP responses, tracker requests
+or horizontal overflow. Ninety-two aborted requests were browser-cancelled Next prefetches and are
+reported separately rather than counted as successful or failed HTTP responses.
+
+Visual evidence:
+
+- `.codex-loop-runs/next-public-offer-browser/desktop-dashboard-baseline.png`
+- `.codex-loop-runs/next-public-offer-browser/mobile-dashboard-baseline.png`
+- `.codex-loop-runs/next-public-offer-browser/mobile-dashboard-priorities.png`
+- `.codex-loop-runs/next-public-offer-browser/mobile-dashboard-programming.png`
+- `.codex-loop-runs/next-public-offer-browser/mobile-dashboard-activity.png`
+- `.codex-loop-runs/next-public-offer-browser/mobile-dashboard-footer.png`
+
+This batch does not certify every tenant-admin screen, real external payment settlement, production
+realtime delivery or a deployed artifact. Those remain separate gates.

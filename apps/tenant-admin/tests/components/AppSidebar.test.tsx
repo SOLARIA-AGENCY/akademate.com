@@ -42,7 +42,7 @@ describe('AppSidebar', () => {
 
   it('renders the AKADEMATE logo', () => {
     render(<AppSidebar {...defaultProps} />)
-    expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Test Academy' })).toBeInTheDocument()
   })
 
   it('renders Dashboard menu item', () => {
@@ -79,7 +79,7 @@ describe('AppSidebar', () => {
 
   it('shows collapsed state correctly', () => {
     render(<AppSidebar {...defaultProps} isCollapsed={true} />)
-    expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Test Academy' })).toBeInTheDocument()
   })
 
   it('keeps submenu entries reachable when collapsed', () => {
@@ -91,16 +91,19 @@ describe('AppSidebar', () => {
     expect(screen.getByRole('button', { name: /Creatividades/i })).toBeInTheDocument()
   })
 
-  it('renders icons with brand color styles', () => {
+  it('uses the shared sidebar surface rather than a page card surface', () => {
     render(<AppSidebar {...defaultProps} />)
-    const sidebarContainer = document.querySelector('[class*="bg-card"]')
+    const sidebarContainer = document.querySelector('[class~="bg-sidebar"]')
     expect(sidebarContainer).toBeInTheDocument()
+    expect(sidebarContainer).toHaveClass('text-sidebar-foreground')
+    expect(sidebarContainer).not.toHaveClass('bg-card')
   })
 
-  it('has theme-aware background (bg-card)', () => {
+  it('keeps a visible focus ring on primary navigation', () => {
     render(<AppSidebar {...defaultProps} />)
-    const container = document.querySelector('[class*="bg-card"]')
-    expect(container).toBeInTheDocument()
+    const dashboard = screen.getByRole('link', { name: 'Dashboard' })
+    expect(dashboard).toHaveClass('focus-visible:ring-2', 'focus-visible:ring-sidebar-ring')
+    expect(dashboard).not.toHaveClass('focus-visible:ring-0')
   })
 
   // ── New tests for recent sidebar changes ────────────────────────────

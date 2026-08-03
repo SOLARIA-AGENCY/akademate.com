@@ -90,6 +90,42 @@ FROM courses c WHERE c.codigo = 'QA-COURSE';
 INSERT INTO users (password, name, role, tenant_id, email)
 SELECT 'not-used', 'QA Manager', 'admin', t.id, 'manager@northstar.example'
 FROM tenants t WHERE t.slug = 'north-star';
+INSERT INTO campuses (slug, name, city, tenant_id)
+SELECT 'central', 'Central Campus', 'Malmö', t.id
+FROM tenants t WHERE t.slug = 'north-star';
+INSERT INTO students (
+  first_name, last_name, email, phone, gdpr_consent,
+  privacy_policy_accepted, status, tenant_id
+)
+SELECT 'Katherine', 'Johnson', 'katherine.student@example.test', '+46700000001',
+  true, true, 'active', t.id
+FROM tenants t WHERE t.slug = 'north-star';
+INSERT INTO staff (
+  staff_type, first_name, last_name, email, position, contract_type,
+  employment_status, hire_date, is_active, tenant_id
+)
+SELECT 'profesor', 'Sofia', 'Andersson', 'sofia.teacher@example.test', 'Lead instructor',
+  'full_time', 'active', '2026-01-15 09:00:00+00', true, t.id
+FROM tenants t WHERE t.slug = 'north-star';
+INSERT INTO tenants (name, slug, domain, contact_email, branding_primary_color)
+VALUES ('South Point Academy', 'south-point', 'south.qa.example', 'hello@southpoint.example', '#0F766E');
+INSERT INTO courses (codigo, slug, name, short_description, modality, area_formativa_id, tenant_id)
+SELECT 'QA-COURSE-SOUTH', 'south-learning-lab', 'South Learning Lab',
+  'A separate tenant used to prove dashboard projection isolation.', 'online', a.id, t.id
+FROM areas_formativas a CROSS JOIN tenants t
+WHERE a.codigo = 'QA-LEADERSHIP' AND t.slug = 'south-point';
+INSERT INTO students (
+  first_name, last_name, email, phone, gdpr_consent,
+  privacy_policy_accepted, status, tenant_id
+)
+SELECT student.first_name, student.last_name, student.email, '', true, true, 'active', t.id
+FROM tenants t
+CROSS JOIN (
+  VALUES
+    ('Dorothy', 'Vaughan', 'dorothy.south@example.test'),
+    ('Mary', 'Jackson', 'mary.south@example.test')
+) AS student(first_name, last_name, email)
+WHERE t.slug = 'south-point';
 WITH inserted_lead AS (
   INSERT INTO leads (
     first_name, last_name, email, phone, gdpr_consent,
@@ -114,6 +150,56 @@ SQL
 MANAGER_USER_ID="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT id FROM users WHERE email = 'manager@northstar.example'")"
 TENANT_ID="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT id FROM tenants WHERE slug = 'north-star'")"
 [[ "${MANAGER_USER_ID}" =~ ^[1-9][0-9]*$ && "${TENANT_ID}" =~ ^[1-9][0-9]*$ ]] || { echo "Browser QA identity seed failed" >&2; exit 1; }
+SECOND_TENANT_ID="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT id FROM tenants WHERE slug = 'south-point'")"
+[[ "${SECOND_TENANT_ID}" =~ ^[1-9][0-9]*$ ]] || { echo "Second dashboard QA tenant seed failed" >&2; exit 1; }
+
+dashboard_metrics_for_tenant() {
+  local tenant_id="$1"
+  docker exec -e PGPASSWORD="${APP_PASSWORD}" "${CONTAINER}" \
+    psql -h 127.0.0.1 -U "${APP_USER}" -d "${DATABASE}" -v ON_ERROR_STOP=1 -qAtc \
+    "BEGIN; SELECT set_config('app.tenant_id', '${tenant_id}', true); SELECT set_config('app.role', 'admin', true); SELECT (akademate_next_get_dashboard()->'metrics'->>'activeStudents') || '|' || (akademate_next_get_dashboard()->'metrics'->>'activeTeachers') || '|' || (akademate_next_get_dashboard()->'metrics'->>'courses'); ROLLBACK;" \
+    | sed -n '3p'
+}
+
+TENANT_A_DASHBOARD="$(dashboard_metrics_for_tenant "${TENANT_ID}")"
+[[ "${TENANT_A_DASHBOARD}" = "1|1|1" ]] || {
+  echo "Tenant A dashboard projection leaked or omitted data: ${TENANT_A_DASHBOARD}" >&2
+  exit 1
+}
+TENANT_B_DASHBOARD="$(dashboard_metrics_for_tenant "${SECOND_TENANT_ID}")"
+[[ "${TENANT_B_DASHBOARD}" = "2|0|1" ]] || {
+  echo "Tenant B dashboard projection leaked or omitted data: ${TENANT_B_DASHBOARD}" >&2
+  exit 1
+}
+
+if docker exec -i -e PGPASSWORD="${APP_PASSWORD}" "${CONTAINER}" \
+  psql -h 127.0.0.1 -U "${APP_USER}" -d "${DATABASE}" -v ON_ERROR_STOP=1 >/dev/null 2>&1 <<SQL
+BEGIN;
+SELECT set_config('app.tenant_id', '${TENANT_ID}', true);
+SELECT set_config('app.role', 'student', true);
+SELECT akademate_next_get_dashboard();
+COMMIT;
+SQL
+then
+  echo "Dashboard projection accepted a student role" >&2
+  exit 1
+fi
+
+if docker exec -e PGPASSWORD="${APP_PASSWORD}" "${CONTAINER}" \
+  psql -h 127.0.0.1 -U "${APP_USER}" -d "${DATABASE}" -v ON_ERROR_STOP=1 \
+  -c 'SELECT count(*) FROM students' >/dev/null 2>&1
+then
+  echo "Dashboard application role obtained direct students access" >&2
+  exit 1
+fi
+
+if docker exec -e PGPASSWORD="${APP_PASSWORD}" "${CONTAINER}" \
+  psql -h 127.0.0.1 -U "${APP_USER}" -d "${DATABASE}" -v ON_ERROR_STOP=1 \
+  -c 'SELECT count(*) FROM staff' >/dev/null 2>&1
+then
+  echo "Dashboard application role obtained direct staff access" >&2
+  exit 1
+fi
 AUTH_TOKEN="$(cd "${TENANT_ADMIN_DIR}" && env AUTH_SECRET="${AUTH_SECRET}" USER_ID="${MANAGER_USER_ID}" TENANT_ID="${TENANT_ID}" node --input-type=module - <<'NODE'
 import { SignJWT } from 'jose'
 const token = await new SignJWT({ tenantId: Number(process.env.TENANT_ID), type: 'akademate-next-session' })
@@ -134,6 +220,7 @@ NODE
     AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" PAYLOAD_SECRET="${PAYLOAD_SECRET}" \
     AKADEMATE_NEXT_AUTH_SECRET="${AUTH_SECRET}" \
     AKADEMATE_NEXT_ENROLLMENTS_ENABLED=true \
+    AKADEMATE_NEXT_DASHBOARD_ENABLED=true \
     AKADEMATE_NEXT_OFFERS_ENABLED=true AKADEMATE_NEXT_PUBLIC_OFFERS_ENABLED=true \
     AKADEMATE_NEXT_PUBLIC_SUBMISSIONS_ENABLED=true \
     AKADEMATE_NEXT_PUBLIC_PRIVACY_NOTICE_URL=https://akademate.com/legal/privacy \
@@ -171,4 +258,4 @@ WAITLIST_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATAB
 [[ "${WAITLIST_STATE}" = "confirmed|1" ]] || { echo "Expected the oldest waiter to be promoted with one event, got ${WAITLIST_STATE}" >&2; exit 1; }
 LIFECYCLE_EVENTS="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc 'SELECT count(*) FROM enrollment_lifecycle_events')"
 [[ "${LIFECYCLE_EVENTS}" = "2" ]] || { echo "Expected two lifecycle events, got ${LIFECYCLE_EVENTS}" >&2; exit 1; }
-printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"enrollmentState\":\"withdrawn\",\"paymentState\":\"pending\",\"currentEnrollments\":17,\"promotedWaiters\":1,\"lifecycleEvents\":2,\"evidence\":\"${OUTPUT_DIR}\"}"
+printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"dashboardTenantA\":\"${TENANT_A_DASHBOARD}\",\"dashboardTenantB\":\"${TENANT_B_DASHBOARD}\",\"dashboardStudentRoleRejected\":true,\"dashboardDirectStudentsReadRejected\":true,\"dashboardDirectStaffReadRejected\":true,\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"enrollmentState\":\"withdrawn\",\"paymentState\":\"pending\",\"currentEnrollments\":17,\"promotedWaiters\":1,\"lifecycleEvents\":2,\"evidence\":\"${OUTPUT_DIR}\"}"
