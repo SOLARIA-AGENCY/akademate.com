@@ -8,6 +8,10 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import { Loader2, ArrowLeft, Edit, UserPlus, GraduationCap, CreditCard, User } from 'lucide-react'
+import {
+  EnrollmentCancellationPanel,
+  type EnrollmentCancellationResponse,
+} from './EnrollmentCancellationPanel'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -58,6 +62,37 @@ function formatDate(value?: string | null): string {
   return date.toLocaleDateString('es-ES')
 }
 
+const ENROLLMENT_LABELS: Record<string, string> = {
+  pending: 'Pendiente',
+  confirmed: 'Confirmada',
+  waitlisted: 'Lista de espera',
+  completed: 'Completada',
+  cancelled: 'Cancelada',
+  withdrawn: 'Baja voluntaria',
+}
+
+const PAYMENT_LABELS: Record<string, string> = {
+  pending: 'Pendiente',
+  partial: 'Pago parcial',
+  paid: 'Pagado',
+  refunded: 'Reembolsado',
+  waived: 'Exento',
+}
+
+const COURSE_RUN_LABELS: Record<string, string> = {
+  draft: 'Borrador',
+  interest_only: 'Solo interés',
+  application_open: 'Solicitudes abiertas',
+  enrollment_open: 'Inscripción abierta',
+  payment_open: 'Inscripción y pago abiertos',
+  closed: 'Cerrada',
+}
+
+function labelFor(labels: Record<string, string>, value?: string | null): string {
+  if (!value) return '—'
+  return labels[value] ?? value
+}
+
 export default function MatriculaDetailPage({ params }: Props) {
   const router = useRouter()
   const { id } = use(params)
@@ -72,7 +107,10 @@ export default function MatriculaDetailPage({ params }: Props) {
     const load = async () => {
       try {
         setError(null)
-        const res = await fetch(`/api/matriculas/${id}`, { cache: 'no-store' })
+        let res = await fetch(`/api/next/enrollments/${id}`, { cache: 'no-store' })
+        if (res.status === 404) {
+          res = await fetch(`/api/matriculas/${id}`, { cache: 'no-store' })
+        }
         const data = await res.json().catch(() => ({}))
         if (!res.ok) {
           throw new Error(typeof data?.error === 'string' ? data.error : 'No se pudo cargar la matrícula')
@@ -97,6 +135,10 @@ export default function MatriculaDetailPage({ params }: Props) {
   }, [id])
 
   const leadName = `${doc?.lead?.first_name ?? ''} ${doc?.lead?.last_name ?? ''}`.trim() || doc?.lead?.email || 'Alumno'
+
+  const completeCancellation = (result: EnrollmentCancellationResponse) => {
+    setDoc((current) => current ? { ...current, status: result.status } : current)
+  }
 
   if (loading) {
     return (
@@ -194,7 +236,7 @@ export default function MatriculaDetailPage({ params }: Props) {
                 <p><span className="font-medium">Inicio:</span> {formatDate(doc.course_run?.start_date ?? null)}</p>
                 <p><span className="font-medium">Fin:</span> {formatDate(doc.course_run?.end_date ?? null)}</p>
                 <div className="pt-1">
-                  <Badge variant="outline">{doc.course_run?.status ?? 'sin estado'}</Badge>
+                  <Badge variant="outline">{labelFor(COURSE_RUN_LABELS, doc.course_run?.status)}</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -207,8 +249,8 @@ export default function MatriculaDetailPage({ params }: Props) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
-                <p><span className="font-medium">Estado matrícula:</span> {doc.status ?? '—'}</p>
-                <p><span className="font-medium">Estado pago:</span> {doc.payment_status ?? '—'}</p>
+                <p><span className="font-medium">Estado matrícula:</span> {labelFor(ENROLLMENT_LABELS, doc.status)}</p>
+                <p><span className="font-medium">Estado pago:</span> {labelFor(PAYMENT_LABELS, doc.payment_status)}</p>
                 <p><span className="font-medium">Importe total:</span> {(doc.total_amount ?? 0).toLocaleString('es-ES')}€</p>
                 <p><span className="font-medium">Pagado:</span> {(doc.amount_paid ?? 0).toLocaleString('es-ES')}€</p>
                 <p><span className="font-medium">Ayuda financiera:</span> {doc.financial_aid_applied ? 'Sí' : 'No'}</p>
@@ -225,6 +267,12 @@ export default function MatriculaDetailPage({ params }: Props) {
               {doc.notes?.trim() || 'Sin notas registradas.'}
             </CardContent>
           </Card>
+
+          <EnrollmentCancellationPanel
+            enrollmentId={id}
+            status={doc.status}
+            onCompleted={completeCancellation}
+          />
         </>
       ) : null}
     </div>

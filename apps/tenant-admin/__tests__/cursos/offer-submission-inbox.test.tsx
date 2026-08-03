@@ -208,6 +208,22 @@ describe('OfferSubmissionInbox', () => {
     expect(screen.getAllByText('Lista de espera').length).toBeGreaterThan(0)
   })
 
+  it('keeps a withdrawn enrollment linked and labels its lifecycle state honestly', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      ...response,
+      items: [{
+        ...response.items[0],
+        status: 'approved',
+        enrollmentId: 501,
+        enrollmentStatus: 'withdrawn',
+      }],
+    }), { status: 200 }))
+    render(<OfferSubmissionInbox />)
+    await screen.findAllByText('Ada Lovelace')
+    expect(screen.getAllByRole('link', { name: 'Ver matrícula' })[0]).toHaveAttribute('href', '/matriculas/501')
+    expect(screen.getAllByText('Baja voluntaria').length).toBeGreaterThan(0)
+  })
+
   it('does not offer enrollment conversion for interest-only submissions', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
       ...response,

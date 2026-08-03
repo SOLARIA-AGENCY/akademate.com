@@ -25,6 +25,7 @@ const submissionStatuses = []
 const decisionStatuses = []
 const historyStatuses = []
 const enrollmentStatuses = []
+const cancellationStatuses = []
 
 function observe(page) {
   page.on('console', (message) => {
@@ -126,10 +127,38 @@ try {
     response.url().includes('/enrollment') && response.request().method() === 'POST'
   ))
   await inboxPage.getByRole('button', { name: 'Confirmar matrícula' }).click()
-  enrollmentStatuses.push((await enrollmentResponse).status())
+  const completedEnrollmentResponse = await enrollmentResponse
+  enrollmentStatuses.push(completedEnrollmentResponse.status())
+  const enrollmentResult = await completedEnrollmentResponse.json()
+  assert.match(String(enrollmentResult.enrollmentId), /^[1-9]\d*$/)
   await inboxPage.getByText('Matrícula confirmada y plaza reservada.').waitFor()
   await inboxPage.getByRole('link', { name: 'Ver matrícula' }).filter({ visible: true }).first().waitFor()
   await inboxPage.screenshot({ path: `${outputDirectory}/desktop-inbox-enrolled.png`, fullPage: true })
+  const enrollmentHref = await inboxPage.getByRole('link', { name: 'Ver matrícula' }).filter({ visible: true }).first().getAttribute('href')
+  assert.equal(enrollmentHref, `/matriculas/${enrollmentResult.enrollmentId}`)
+  assert.equal((await inboxPage.goto(`${dashboardOrigin}${enrollmentHref}`, { waitUntil: 'networkidle' }))?.status(), 200)
+  await inboxPage.getByText(`Matrícula #${enrollmentResult.enrollmentId}`, { exact: true }).first().waitFor()
+  await inboxPage.getByRole('button', { name: 'Gestionar baja' }).waitFor()
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-enrollment-detail.png`, fullPage: true })
+  await inboxPage.getByRole('button', { name: 'Gestionar baja' }).click()
+  await inboxPage.getByText(/Los pagos no se modificarán/i).waitFor()
+  await inboxPage.getByLabel('Motivo auditado').fill('Baja solicitada durante la verificación operativa')
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-enrollment-cancellation-confirmation.png`, fullPage: true })
+  const cancellationResponsePromise = inboxPage.waitForResponse((response) => (
+    response.url().includes('/cancel') && response.request().method() === 'POST'
+  ))
+  await inboxPage.getByRole('button', { name: 'Confirmar baja' }).click()
+  const cancellationResponse = await cancellationResponsePromise
+  const cancellationStatus = cancellationResponse.status()
+  const cancellationBody = await cancellationResponse.text().catch(() => '<unreadable response>')
+  cancellationStatuses.push(cancellationStatus)
+  if (cancellationStatus !== 200) {
+    await inboxPage.screenshot({ path: `${outputDirectory}/desktop-enrollment-cancellation-failure.png`, fullPage: true })
+    throw new Error(`Enrollment cancellation failed (${cancellationStatus}): ${cancellationBody}`)
+  }
+  await inboxPage.getByText('La matrícula se ha actualizado como baja voluntaria.').waitFor()
+  await inboxPage.getByText('La primera persona en lista de espera ha recibido la plaza.').waitFor()
+  await inboxPage.screenshot({ path: `${outputDirectory}/desktop-enrollment-cancelled.png`, fullPage: true })
   await inboxDesktop.close()
 
   const mobile = await browser.newContext({
@@ -165,7 +194,7 @@ try {
   await inboxMobilePage.getByRole('heading', { level: 1, name: 'Solicitudes de cursos' }).waitFor()
   await inboxMobilePage.getByText('Ada Lovelace', { exact: true }).filter({ visible: true }).waitFor()
   await inboxMobilePage.getByRole('link', { name: 'Ver matrícula' }).filter({ visible: true }).first().waitFor()
-  await inboxMobilePage.getByText('Matrícula confirmada', { exact: true }).filter({ visible: true }).first().waitFor()
+  await inboxMobilePage.getByText('Baja voluntaria', { exact: true }).filter({ visible: true }).first().waitFor()
   assert.equal(await inboxMobilePage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
   const mobileMain = inboxMobilePage.locator('main').first()
   assert.equal(await mobileMain.evaluate((element) => element.scrollWidth <= element.clientWidth), true)
@@ -183,10 +212,50 @@ try {
   await inboxMobilePage.screenshot({ path: `${outputDirectory}/mobile-inbox-history.png`, fullPage: true })
   await inboxMobile.close()
 
+  const enrollmentMobile = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  })
+  await enrollmentMobile.addCookies([{
+    name: 'akademate_next_session',
+    value: authToken,
+    url: dashboardOrigin,
+    httpOnly: true,
+    sameSite: 'Lax',
+  }])
+  const enrollmentMobilePage = await enrollmentMobile.newPage()
+  observe(enrollmentMobilePage)
+  const mobileEnrollmentDetailResponsePromise = enrollmentMobilePage.waitForResponse((response) => (
+    response.url().includes(`/api/next/enrollments/${enrollmentResult.enrollmentId}`)
+      && response.request().method() === 'GET'
+  ))
+  assert.equal((await enrollmentMobilePage.goto(
+    `${dashboardOrigin}/matriculas/${enrollmentResult.enrollmentId}`,
+    { waitUntil: 'domcontentloaded' },
+  ))?.status(), 200)
+  const mobileEnrollmentDetailResponse = await mobileEnrollmentDetailResponsePromise
+  const mobileEnrollmentDetailStatus = mobileEnrollmentDetailResponse.status()
+  const mobileEnrollmentDetailBody = await mobileEnrollmentDetailResponse.text().catch(() => '<unreadable response>')
+  if (mobileEnrollmentDetailStatus !== 200) {
+    await enrollmentMobilePage.screenshot({ path: `${outputDirectory}/mobile-enrollment-detail-failure.png`, fullPage: true })
+    throw new Error(`Mobile enrollment detail failed (${mobileEnrollmentDetailStatus}): ${mobileEnrollmentDetailBody}`)
+  }
+  await enrollmentMobilePage.screenshot({ path: `${outputDirectory}/mobile-enrollment-detail-loaded.png`, fullPage: true })
+  const mobileLifecycleStatus = enrollmentMobilePage.getByText(/Estado matrícula:\s*Baja voluntaria/)
+  await mobileLifecycleStatus.waitFor({ state: 'attached' })
+  await mobileLifecycleStatus.scrollIntoViewIfNeeded()
+  await mobileLifecycleStatus.waitFor({ state: 'visible' })
+  assert.equal(await enrollmentMobilePage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
+  await enrollmentMobilePage.screenshot({ path: `${outputDirectory}/mobile-enrollment-cancelled.png`, fullPage: true })
+  await enrollmentMobile.close()
+
   assert.deepEqual(submissionStatuses, [201])
   assert.deepEqual(decisionStatuses, [200])
   assert.deepEqual(historyStatuses, [200, 200])
   assert.deepEqual(enrollmentStatuses, [201])
+  assert.deepEqual(cancellationStatuses, [200])
   assert.deepEqual(consoleErrors, [])
   assert.deepEqual(failedRequests, [])
   assert.deepEqual(trackerRequests, [])
@@ -203,7 +272,8 @@ try {
     decisionStatus: 200,
     historyStatuses,
     enrollmentStatuses,
-    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'desktop-inbox-history.png', 'desktop-inbox-enrollment-confirmation.png', 'desktop-inbox-enrolled.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png', 'mobile-inbox-history.png'],
+    cancellationStatuses,
+    screenshots: ['desktop-form.png', 'desktop-success.png', 'desktop-inbox.png', 'desktop-inbox-decision.png', 'desktop-inbox-approved.png', 'desktop-inbox-history.png', 'desktop-inbox-enrollment-confirmation.png', 'desktop-inbox-enrolled.png', 'desktop-enrollment-detail.png', 'desktop-enrollment-cancellation-confirmation.png', 'desktop-enrollment-cancelled.png', 'mobile-form.png', 'mobile-inbox.png', 'mobile-inbox-list.png', 'mobile-inbox-history.png', 'mobile-enrollment-cancelled.png'],
   })}\n`)
 } finally {
   await browser.close()

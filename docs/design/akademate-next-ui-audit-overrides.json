@@ -33,5 +33,12 @@
     "accessibility": "verified-static-and-browser",
     "states": "verified-adversarial",
     "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-inbox,desktop-inbox-decision,desktop-inbox-approved,desktop-inbox-history,desktop-inbox-enrollment-confirmation,desktop-inbox-enrolled,mobile-inbox,mobile-inbox-list,mobile-inbox-history}.png"
+  },
+  "apps/tenant-admin/app/(app)/(dashboard)/matriculas/[id]/page.tsx": {
+    "desktop": "verified-browser-1440x1000",
+    "mobile": "verified-browser-390x844",
+    "accessibility": "verified-static-and-browser",
+    "states": "verified-adversarial",
+    "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-enrollment-detail,desktop-enrollment-cancellation-confirmation,desktop-enrollment-cancelled,mobile-enrollment-detail-loaded,mobile-enrollment-cancelled}.png"
   }
 }

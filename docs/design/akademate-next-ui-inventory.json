@@ -3,7 +3,7 @@
   "totalPages": 240,
   "totalLayouts": 18,
   "totalLocalPrimitiveFiles": 84,
-  "totalSharedUiConsumers": 12,
+  "totalSharedUiConsumers": 13,
   "totalSidebarFiles": 5,
   "pageSignals": {
     "sharedUiPages": 7,
@@ -11,10 +11,10 @@
     "hardcodedColorTokens": 166
   },
   "auditProgress": {
-    "desktopVerified": 5,
-    "mobileVerified": 5,
-    "accessibilityVerified": 5,
-    "statesVerified": 2
+    "desktopVerified": 6,
+    "mobileVerified": 6,
+    "accessibilityVerified": 6,
+    "statesVerified": 3
   },
   "apps": {
     "admin-client": {
@@ -56,7 +56,7 @@
       "pages": 171,
       "layouts": 10,
       "localPrimitiveFiles": 63,
-      "sharedUiConsumers": 6,
+      "sharedUiConsumers": 7,
       "sidebarFiles": 3
     },
     "web": {
@@ -2101,11 +2101,11 @@
       "localPrimitiveImportCount": 4,
       "hardcodedColorTokenCount": 0,
       "audit": {
-        "desktop": "pending",
-        "mobile": "pending",
-        "accessibility": "pending",
-        "states": "pending",
-        "evidence": null
+        "desktop": "verified-browser-1440x1000",
+        "mobile": "verified-browser-390x844",
+        "accessibility": "verified-static-and-browser",
+        "states": "verified-adversarial",
+        "evidence": ".codex-loop-runs/next-public-offer-browser/{desktop-enrollment-detail,desktop-enrollment-cancellation-confirmation,desktop-enrollment-cancelled,mobile-enrollment-detail-loaded,mobile-enrollment-cancelled}.png"
       }
     },
     {

@@ -43,7 +43,7 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Unit and structural adversarial tests.
 - [x] Real PostgreSQL constraint and guarded-rollback QA using the exact migration SQL.
 - [x] Physical `migrations-next` discovery integrated after the Signage migration.
-- [x] Fresh PostgreSQL 16 run applying exactly eleven Next migrations.
+- [x] Fresh PostgreSQL 16 run applying exactly twelve Next migrations.
 - [x] Dedicated authenticated GET/PATCH configuration command, default-off outside Akademate Next.
 - [x] Tenant-scoped PostgreSQL RLS and column-level grants for the runtime application role.
 - [x] Operator configuration UI with conditional Shadcn fields and a stable preview.
@@ -64,6 +64,9 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - [x] Reviewer-confirmed enrollment command with tenant ownership, submission idempotency, locked
   capacity reservation and waitlist fallback.
 - [x] Explicit operator confirmation UI and canonical enrollment link in desktop/mobile inbox cards.
+- [x] Audited cancellation and voluntary-withdrawal command with atomic capacity reconciliation.
+- [x] Deterministic FIFO promotion from the waitlist and append-only lifecycle events.
+- [x] Tenant-scoped enrollment detail route and persistent success state in desktop/mobile UI.
 - [ ] Checkout creation command; payment remains pending and separate from academic capacity.
 - [ ] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
@@ -72,7 +75,7 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 
 ## PostgreSQL evidence — 2026-08-03
 
-- The exact Payload runtime applied eleven migrations from `apps/tenant-admin/migrations-next`.
+- The exact Payload runtime applied twelve migrations from `apps/tenant-admin/migrations-next`.
 - Valid information-only, paid and approval-required offers were persisted on separate course runs.
 - Six database-bypass attempts were rejected with their exact constraint: public offer without slug,
   form without template, insecure external URL, payment without frozen price, invalid deposit and
@@ -131,6 +134,16 @@ All modes can use a Luma-style shareable page. The page format does not imply th
 - Replaying the same conversion returns the original enrollment without creating a second learner,
   enrollment or seat. Cross-tenant and marketing-role conversion attempts are rejected in the
   command and in PostgreSQL.
+- A twelfth append-only migration adds an immutable tenant-scoped enrollment lifecycle ledger and a
+  reviewer-only cancellation command. A confirmed cancellation releases one place and promotes the
+  oldest waitlisted enrollment by `enrolled_at` and stable identifier inside the same transaction.
+- Cancellation replay does not duplicate events or adjust capacity twice. Real PostgreSQL rejected
+  cross-tenant, marketing-role and inconsistent-capacity attempts without partial writes. Concurrent
+  cancellations used explicit serialization retry and left exactly one promoted waiter and a
+  reconciled course-run counter.
+- Financial amounts and payment state are never changed by academic cancellation. A paid or partial
+  record returns `financialFollowUpRequired`, preserving refunds and accounting for a separate
+  provider-aware workflow.
 
 ## Operator workflow
 
@@ -172,6 +185,11 @@ client body, tenant selector, price or payment state. Only an approved `approval
 `free_registration` request can be converted. The resulting enrollment is `confirmed` with one
 reserved place, or `waitlisted` without consuming capacity according to the course-run policy.
 Payment is always left `pending`; checkout and financial reconciliation remain a separate command.
+
+The enrollment detail route is `GET /api/next/enrollments/:id` and cancellation is
+`POST /api/next/enrollments/:id/cancel`. Both require the dedicated Next session and the
+`AKADEMATE_NEXT_ENROLLMENTS_ENABLED=true` flag. Cancellation accepts only an explicit lifecycle type
+and bounded audit reason; tenant, capacity and financial fields are never accepted from the client.
 
 The dashboard resolves `/api/next/session` first. CEP receives a runtime-scoped 404 and continues to
 its historical `/api/auth/session` contract; Akademate Next never falls back after an authentication

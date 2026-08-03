@@ -81,6 +81,25 @@ FROM courses c WHERE c.codigo = 'QA-COURSE';
 INSERT INTO users (password, name, role, tenant_id, email)
 SELECT 'not-used', 'QA Manager', 'admin', t.id, 'manager@northstar.example'
 FROM tenants t WHERE t.slug = 'north-star';
+WITH inserted_lead AS (
+  INSERT INTO leads (
+    first_name, last_name, email, phone, gdpr_consent,
+    privacy_policy_accepted, status, priority, tenant_id, updated_at, created_at
+  )
+  SELECT 'Grace', 'Hopper', 'grace.waitlist@example.test', '', true, true,
+    'converted', 'medium', t.id, now(), now()
+  FROM tenants t WHERE t.slug = 'north-star'
+  RETURNING id, tenant_id
+)
+INSERT INTO enrollments (
+  tenant_id, student_id, course_run_id, status, payment_status,
+  total_amount, amount_paid, enrolled_at, created_by_id, updated_at, created_at
+)
+SELECT lead.tenant_id, lead.id, run.id, 'waitlisted', 'pending',
+  0, 0, now(), users.id, now(), now()
+FROM inserted_lead lead
+JOIN course_runs run ON run.tenant_id = lead.tenant_id AND run.codigo = 'QA-RUN'
+JOIN users ON users.tenant_id = lead.tenant_id AND users.email = 'manager@northstar.example';
 SQL
 
 MANAGER_USER_ID="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT id FROM users WHERE email = 'manager@northstar.example'")"
@@ -105,6 +124,7 @@ NODE
   env NODE_ENV=production AKADEMATE_RUNTIME=next DATABASE_URL="${APP_URL}" \
     AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" PAYLOAD_SECRET="${PAYLOAD_SECRET}" \
     AKADEMATE_NEXT_AUTH_SECRET="${AUTH_SECRET}" \
+    AKADEMATE_NEXT_ENROLLMENTS_ENABLED=true \
     AKADEMATE_NEXT_OFFERS_ENABLED=true AKADEMATE_NEXT_PUBLIC_OFFERS_ENABLED=true \
     AKADEMATE_NEXT_PUBLIC_SUBMISSIONS_ENABLED=true \
     AKADEMATE_NEXT_PUBLIC_PRIVACY_NOTICE_URL=https://akademate.com/legal/privacy \
@@ -133,5 +153,9 @@ SUBMISSIONS="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE
 REVIEW_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT os.status || '|' || count(e.id) FROM offer_submissions os LEFT JOIN offer_submission_review_events e ON e.tenant_id=os.tenant_id AND e.submission_id=os.id GROUP BY os.status")"
 [[ "${REVIEW_STATE}" = "approved|1" ]] || { echo "Expected one audited approved decision, got ${REVIEW_STATE}" >&2; exit 1; }
 ENROLLMENT_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT e.status || '|' || e.payment_status || '|' || cr.current_enrollments FROM enrollments e JOIN course_runs cr ON cr.tenant_id=e.tenant_id AND cr.id=e.course_run_id WHERE e.offer_submission_id IS NOT NULL")"
-[[ "${ENROLLMENT_STATE}" = "confirmed|pending|17" ]] || { echo "Expected one confirmed enrollment, one newly reserved seat (16 -> 17) and pending payment, got ${ENROLLMENT_STATE}" >&2; exit 1; }
-printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"enrollmentState\":\"confirmed\",\"paymentState\":\"pending\",\"currentEnrollments\":17,\"newlyReservedSeats\":1,\"evidence\":\"${OUTPUT_DIR}\"}"
+[[ "${ENROLLMENT_STATE}" = "withdrawn|pending|17" ]] || { echo "Expected a withdrawn enrollment with payment unchanged and capacity reconciled to 17, got ${ENROLLMENT_STATE}" >&2; exit 1; }
+WAITLIST_STATE="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc "SELECT e.status || '|' || count(event.id) FROM enrollments e LEFT JOIN enrollment_lifecycle_events event ON event.tenant_id=e.tenant_id AND event.enrollment_id=e.id JOIN leads lead ON lead.tenant_id=e.tenant_id AND lead.id=e.student_id WHERE lead.email='grace.waitlist@example.test' GROUP BY e.status")"
+[[ "${WAITLIST_STATE}" = "confirmed|1" ]] || { echo "Expected the oldest waiter to be promoted with one event, got ${WAITLIST_STATE}" >&2; exit 1; }
+LIFECYCLE_EVENTS="$(docker exec "${CONTAINER}" psql -U "${OWNER_USER}" -d "${DATABASE}" -Atc 'SELECT count(*) FROM enrollment_lifecycle_events')"
+[[ "${LIFECYCLE_EVENTS}" = "2" ]] || { echo "Expected two lifecycle events, got ${LIFECYCLE_EVENTS}" >&2; exit 1; }
+printf '%s\n' "{\"postgres\":\"16\",\"nextPort\":${WEB_PORT},\"persistedSubmissions\":1,\"reviewState\":\"approved\",\"reviewEvents\":1,\"enrollmentState\":\"withdrawn\",\"paymentState\":\"pending\",\"currentEnrollments\":17,\"promotedWaiters\":1,\"lifecycleEvents\":2,\"evidence\":\"${OUTPUT_DIR}\"}"

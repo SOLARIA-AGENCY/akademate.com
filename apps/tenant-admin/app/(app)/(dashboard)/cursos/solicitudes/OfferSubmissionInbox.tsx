@@ -25,6 +25,7 @@ import {
 
 type SubmissionStatus = 'new' | 'pending_review' | 'pending_registration' | 'approved' | 'rejected' | 'archived'
 type DecisionStatus = 'pending_review' | 'approved' | 'rejected' | 'archived'
+type EnrollmentStatus = 'pending' | 'confirmed' | 'waitlisted' | 'completed' | 'cancelled' | 'withdrawn'
 
 type InboxItem = {
   id: number
@@ -44,7 +45,7 @@ type InboxItem = {
   sourceSlug: string
   createdAt: string
   enrollmentId: number | null
-  enrollmentStatus: 'confirmed' | 'waitlisted' | null
+  enrollmentStatus: EnrollmentStatus | null
 }
 
 type InboxResponse = {
@@ -94,6 +95,15 @@ const KIND_LABELS: Record<InboxItem['kind'], string> = {
   interest: 'Interés',
   application: 'Solicitud',
   registration_request: 'Inscripción solicitada',
+}
+
+const ENROLLMENT_STATUS_LABELS: Record<EnrollmentStatus, string> = {
+  pending: 'Matrícula pendiente',
+  confirmed: 'Matrícula confirmada',
+  waitlisted: 'Lista de espera',
+  completed: 'Formación completada',
+  cancelled: 'Matrícula cancelada',
+  withdrawn: 'Baja voluntaria',
 }
 
 function formatDate(value: string) {
@@ -219,7 +229,7 @@ function SubmissionCard({
           </div>
         </div>
         {item.enrollmentStatus ? (
-          <Badge variant="outline">{item.enrollmentStatus === 'confirmed' ? 'Matrícula confirmada' : 'Lista de espera'}</Badge>
+          <Badge variant="outline">{ENROLLMENT_STATUS_LABELS[item.enrollmentStatus]}</Badge>
         ) : null}
       </CardContent>
     </Card>
@@ -595,7 +605,7 @@ export function OfferSubmissionInbox() {
                       <Badge variant="secondary">{STATUS_LABELS[item.status]}</Badge>
                       <p className="mt-1 text-xs text-muted-foreground">{KIND_LABELS[item.kind]}</p>
                       {item.enrollmentStatus ? (
-                        <p className="mt-1 text-xs font-medium text-primary">{item.enrollmentStatus === 'confirmed' ? 'Matrícula confirmada' : 'Lista de espera'}</p>
+                        <p className="mt-1 text-xs font-medium text-primary">{ENROLLMENT_STATUS_LABELS[item.enrollmentStatus]}</p>
                       ) : null}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(item.createdAt)}</TableCell>

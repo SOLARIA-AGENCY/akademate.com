@@ -49,7 +49,7 @@ export type OfferSubmissionInboxItem = {
   sourceSlug: string
   createdAt: string
   enrollmentId: number | null
-  enrollmentStatus: 'confirmed' | 'waitlisted' | null
+  enrollmentStatus: 'pending' | 'confirmed' | 'waitlisted' | 'completed' | 'cancelled' | 'withdrawn' | null
 }
 
 export type OfferSubmissionInboxResult = {
@@ -101,7 +101,7 @@ const persistedRowSchema = z.object({
   source_slug: z.string().min(3).max(160),
   created_at: z.union([z.string(), z.date()]),
   enrollment_id: z.coerce.number().int().positive().nullable(),
-  enrollment_status: z.enum(['confirmed', 'waitlisted']).nullable(),
+  enrollment_status: z.enum(['pending', 'confirmed', 'waitlisted', 'completed', 'cancelled', 'withdrawn']).nullable(),
   total_count: z.coerce.number().int().nonnegative(),
 }).strict()
 

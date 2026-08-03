@@ -125,6 +125,26 @@ test('lists only the authenticated tenant with fixed filters and pagination', as
   assert.deepEqual(calls[0]?.params, [7, 'pending_review', 'application', '%ada%', 25, 0])
 })
 
+test('keeps terminal enrollment states visible after an audited cancellation', async () => {
+  const { client } = fakeClient((query) => {
+    if (query.startsWith('SELECT')) return [{
+      ...storedSubmission,
+      enrollment_id: 501,
+      enrollment_status: 'withdrawn',
+    }]
+    throw new Error(`unexpected query: ${query}`)
+  })
+
+  const result = await listNextOfferSubmissions({
+    tx: client,
+    principal,
+    query: { kind: 'all', page: 1, pageSize: 25, search: '', status: 'all' },
+  })
+
+  assert.equal(result.items[0]?.enrollmentId, 501)
+  assert.equal(result.items[0]?.enrollmentStatus, 'withdrawn')
+})
+
 test('rejects non-manager roles before any SQL executes', async () => {
   const { calls, client } = fakeClient(() => {
     throw new Error('query must not run')

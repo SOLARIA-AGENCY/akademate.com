@@ -32,6 +32,10 @@ import {
   NextOfferSubmissionEnrollmentError,
   convertNextOfferSubmissionToEnrollment,
 } from '../src/lib/offers/offer-submission-enrollment-command.ts'
+import {
+  NextEnrollmentCancellationError,
+  cancelNextEnrollment,
+} from '../src/lib/enrollments/enrollment-cancellation-command.ts'
 
 const ownerUrl = process.env.AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL
 if (!ownerUrl) throw new Error('Isolated owner test database URL is required')
@@ -899,6 +903,324 @@ try {
   assert.deepEqual(raceState, { count: 1, current_enrollments: 1 })
   adversarialChecks.add('concurrent-last-seat-allows-exactly-one-confirmed-enrollment')
 
+  await sql`
+    UPDATE enrollments
+    SET payment_status = 'partial', total_amount = 100, amount_paid = 40
+    WHERE id = ${converted.enrollmentId}
+  `
+  const lifecycleWaiters = await sql<{ id: number; enrolled_at: string }[]>`
+    WITH inserted_leads AS (
+      INSERT INTO leads (
+        first_name, last_name, email, phone, gdpr_consent,
+        privacy_policy_accepted, status, priority, tenant_id, updated_at, created_at
+      ) VALUES
+        ('First', 'Waiter', 'first.waiter@example.test', '', true, true,
+          'converted', 'medium', ${tenantB!.id}, now(), now()),
+        ('Second', 'Waiter', 'second.waiter@example.test', '', true, true,
+          'converted', 'medium', ${tenantB!.id}, now(), now())
+      RETURNING id, email
+    )
+    INSERT INTO enrollments (
+      tenant_id, student_id, course_run_id, status, payment_status,
+      total_amount, amount_paid, enrolled_at, created_by_id, updated_at, created_at
+    )
+    SELECT ${tenantB!.id}, lead.id, ${tenantBRun.id}, 'waitlisted', 'pending',
+      0, 0,
+      CASE WHEN lead.email = 'first.waiter@example.test'
+        THEN '2099-01-01 09:00:00+00'::timestamptz
+        ELSE '2099-01-02 09:00:00+00'::timestamptz END,
+      ${userB.id}, now(), now()
+    FROM inserted_leads lead
+    RETURNING id, enrolled_at
+  `
+  assert.equal(lifecycleWaiters.length, 2)
+
+  const cancelledWithPromotion = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => cancelNextEnrollment({
+      tx,
+      principal,
+      enrollmentId: converted.enrollmentId,
+      cancellationType: 'cancelled',
+      reason: 'Cancellation with automatic waitlist promotion proof.',
+    }),
+  )
+  assert.equal(cancelledWithPromotion.status, 'cancelled')
+  assert.equal(cancelledWithPromotion.promotedEnrollmentId, lifecycleWaiters[0]!.id)
+  assert.equal(cancelledWithPromotion.capacityReleased, true)
+  assert.equal(cancelledWithPromotion.financialFollowUpRequired, true)
+
+  const [lifecycleState] = await sql<{
+    cancelled_status: string
+    promoted_status: string
+    second_status: string
+    current_enrollments: number
+    payment_status: string
+    amount_paid: string
+    events: number
+  }[]>`
+    SELECT cancelled.status::text AS cancelled_status,
+      promoted.status::text AS promoted_status,
+      second_waiter.status::text AS second_status,
+      run.current_enrollments::integer,
+      cancelled.payment_status::text, cancelled.amount_paid::text,
+      count(event.id)::integer AS events
+    FROM enrollments cancelled
+    JOIN enrollments promoted ON promoted.id = ${lifecycleWaiters[0]!.id}
+    JOIN enrollments second_waiter ON second_waiter.id = ${lifecycleWaiters[1]!.id}
+    JOIN course_runs run ON run.id = cancelled.course_run_id
+    LEFT JOIN enrollment_lifecycle_events event
+      ON event.tenant_id = cancelled.tenant_id
+      AND event.enrollment_id IN (cancelled.id, promoted.id)
+    WHERE cancelled.id = ${converted.enrollmentId}
+    GROUP BY cancelled.id, promoted.id, second_waiter.id, run.id
+  `
+  assert.deepEqual(lifecycleState, {
+    cancelled_status: 'cancelled',
+    promoted_status: 'confirmed',
+    second_status: 'waitlisted',
+    current_enrollments: 1,
+    payment_status: 'partial',
+    amount_paid: '40',
+    events: 2,
+  })
+  adversarialChecks.add('cancellation-promotes-oldest-waiter-and-preserves-finance')
+
+  const cancellationReplay = await withNextLearningTransaction(
+    { userId: userB.id, tenantId: tenantB!.id },
+    (tx, principal) => cancelNextEnrollment({
+      tx,
+      principal,
+      enrollmentId: converted.enrollmentId,
+      cancellationType: 'cancelled',
+      reason: 'A replay cannot rewrite the original audit event.',
+    }),
+  )
+  assert.equal(cancellationReplay.replayed, true)
+  assert.equal(cancellationReplay.promotedEnrollmentId, lifecycleWaiters[0]!.id)
+  const [replayLifecycleCount] = await sql<{ count: number }[]>`
+    SELECT count(*)::integer AS count FROM enrollment_lifecycle_events
+    WHERE enrollment_id IN (${converted.enrollmentId}, ${lifecycleWaiters[0]!.id})
+  `
+  assert.equal(replayLifecycleCount?.count, 2)
+  adversarialChecks.add('cancellation-replay-does-not-rewrite-ledger-or-capacity')
+
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userA.id, tenantId: tenantA!.id },
+      (tx, principal) => cancelNextEnrollment({
+        tx,
+        principal,
+        enrollmentId: lifecycleWaiters[1]!.id,
+        cancellationType: 'withdrawn',
+        reason: 'Cross tenant cancellation must remain hidden.',
+      }),
+    ),
+    (error: unknown) => error instanceof NextEnrollmentCancellationError
+      && error.code === 'enrollment_not_found',
+  )
+  adversarialChecks.add('enrollment-cancellation-cannot-cross-tenants')
+
+  await assert.rejects(
+    app.begin(async (transaction) => {
+      await transaction`SELECT set_config('app.tenant_id', ${String(tenantB!.id)}, true)`
+      await transaction`SELECT set_config('app.user_id', ${String(userB.id)}, true)`
+      await transaction`SELECT set_config('app.role', 'marketing', true)`
+      return transaction`
+        SELECT * FROM akademate_next_cancel_enrollment(
+          ${lifecycleWaiters[1]!.id}, 'withdrawn', 'Marketing cannot cancel enrollments.'
+        )
+      `
+    }),
+    (error: unknown) => typeof error === 'object'
+      && error !== null
+      && 'message' in error
+      && typeof error.message === 'string'
+      && error.message.includes('enrollment_cancellation_forbidden'),
+  )
+  adversarialChecks.add('enrollment-cancellation-database-rejects-marketing-role')
+
+  const [inconsistentEnrollment] = await sql<{ id: number }[]>`
+    WITH inserted_run AS (
+      INSERT INTO course_runs (
+        course_id, codigo, start_date, end_date, tenant_id, current_enrollments
+      ) VALUES (
+        ${courseB.id}, 'INCONSISTENT-CANCEL-B', '2099-12-01', '2099-12-02',
+        ${tenantB!.id}, 0
+      ) RETURNING id
+    ), inserted_lead AS (
+      INSERT INTO leads (
+        first_name, last_name, email, phone, gdpr_consent,
+        privacy_policy_accepted, status, priority, tenant_id, updated_at, created_at
+      ) VALUES (
+        'Capacity', 'Mismatch', 'capacity.mismatch@example.test', '', true, true,
+        'converted', 'medium', ${tenantB!.id}, now(), now()
+      ) RETURNING id
+    )
+    INSERT INTO enrollments (
+      tenant_id, student_id, course_run_id, status, payment_status,
+      total_amount, amount_paid, enrolled_at, created_by_id, updated_at, created_at
+    )
+    SELECT ${tenantB!.id}, lead.id, run.id, 'confirmed', 'pending',
+      0, 0, now(), ${userB.id}, now(), now()
+    FROM inserted_run run CROSS JOIN inserted_lead lead
+    RETURNING id
+  `
+  assert.ok(inconsistentEnrollment)
+  await assert.rejects(
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => cancelNextEnrollment({
+        tx,
+        principal,
+        enrollmentId: inconsistentEnrollment.id,
+        cancellationType: 'cancelled',
+        reason: 'Capacity mismatch must reject without partial mutation.',
+      }),
+    ),
+    (error: unknown) => error instanceof NextEnrollmentCancellationError
+      && error.code === 'enrollment_capacity_inconsistent',
+  )
+  const [inconsistentState] = await sql<{ status: string; events: number }[]>`
+    SELECT enrollment.status::text,
+      count(event.id)::integer AS events
+    FROM enrollments enrollment
+    LEFT JOIN enrollment_lifecycle_events event
+      ON event.tenant_id = enrollment.tenant_id AND event.enrollment_id = enrollment.id
+    WHERE enrollment.id = ${inconsistentEnrollment.id}
+    GROUP BY enrollment.id
+  `
+  assert.deepEqual(inconsistentState, { status: 'confirmed', events: 0 })
+  adversarialChecks.add('capacity-mismatch-rejects-cancellation-without-partial-write')
+
+  const concurrentFixtures = await sql<{ id: number; status: string }[]>`
+    WITH inserted_run AS (
+      INSERT INTO course_runs (
+        course_id, codigo, start_date, end_date, tenant_id, current_enrollments
+      ) VALUES (
+        ${courseB.id}, 'CONCURRENT-CANCEL-B', '2099-12-10', '2099-12-11',
+        ${tenantB!.id}, 2
+      ) RETURNING id
+    ), inserted_leads AS (
+      INSERT INTO leads (
+        first_name, last_name, email, phone, gdpr_consent,
+        privacy_policy_accepted, status, priority, tenant_id, updated_at, created_at
+      ) VALUES
+        ('Concurrent', 'One', 'concurrent.one@example.test', '', true, true,
+          'converted', 'medium', ${tenantB!.id}, now(), now()),
+        ('Concurrent', 'Two', 'concurrent.two@example.test', '', true, true,
+          'converted', 'medium', ${tenantB!.id}, now(), now()),
+        ('Concurrent', 'Waiter', 'concurrent.waiter@example.test', '', true, true,
+          'converted', 'medium', ${tenantB!.id}, now(), now())
+      RETURNING id, email
+    )
+    INSERT INTO enrollments (
+      tenant_id, student_id, course_run_id, status, payment_status,
+      total_amount, amount_paid, enrolled_at, created_by_id, updated_at, created_at
+    )
+    SELECT ${tenantB!.id}, lead.id, run.id,
+      CASE WHEN lead.email = 'concurrent.waiter@example.test'
+        THEN 'waitlisted'::enum_enrollments_status
+        ELSE 'confirmed'::enum_enrollments_status END,
+      'pending', 0, 0, now(), ${userB.id}, now(), now()
+    FROM inserted_run run CROSS JOIN inserted_leads lead
+    RETURNING id, status::text
+  `
+  const concurrentConfirmed = concurrentFixtures.filter((fixture) => fixture.status === 'confirmed')
+  const concurrentWaiter = concurrentFixtures.find((fixture) => fixture.status === 'waitlisted')
+  assert.equal(concurrentConfirmed.length, 2)
+  assert.ok(concurrentWaiter)
+  const concurrentCancellations = await Promise.allSettled(concurrentConfirmed.map((fixture) => (
+    withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => cancelNextEnrollment({
+        tx,
+        principal,
+        enrollmentId: fixture.id,
+        cancellationType: 'cancelled',
+        reason: `Concurrent cancellation proof ${fixture.id}`,
+      }),
+    )
+  )))
+  assert.equal(concurrentCancellations.length, 2)
+  const concurrentSuccesses = concurrentCancellations.filter((attempt) => attempt.status === 'fulfilled')
+  const concurrentFailures = concurrentCancellations.filter((attempt) => attempt.status === 'rejected')
+  assert.ok(concurrentSuccesses.length >= 1)
+  for (const failed of concurrentFailures) {
+    assert.equal(typeof failed.reason, 'object')
+    assert.equal((failed.reason as { code?: unknown }).code, '40001')
+  }
+  for (let index = 0; index < concurrentCancellations.length; index += 1) {
+    if (concurrentCancellations[index]?.status !== 'rejected') continue
+    const fixture = concurrentConfirmed[index]!
+    const retried = await withNextLearningTransaction(
+      { userId: userB.id, tenantId: tenantB!.id },
+      (tx, principal) => cancelNextEnrollment({
+        tx,
+        principal,
+        enrollmentId: fixture.id,
+        cancellationType: 'cancelled',
+        reason: `Retried concurrent cancellation proof ${fixture.id}`,
+      }),
+    )
+    assert.equal(retried.status, 'cancelled')
+  }
+  const [concurrentLifecycleState] = await sql<{
+    current_enrollments: number
+    confirmed: number
+    cancelled: number
+    waitlisted: number
+    events: number
+  }[]>`
+    SELECT run.current_enrollments::integer,
+      count(*) FILTER (WHERE enrollment.status = 'confirmed')::integer AS confirmed,
+      count(*) FILTER (WHERE enrollment.status = 'cancelled')::integer AS cancelled,
+      count(*) FILTER (WHERE enrollment.status = 'waitlisted')::integer AS waitlisted,
+      count(DISTINCT event.id)::integer AS events
+    FROM course_runs run
+    JOIN enrollments enrollment
+      ON enrollment.tenant_id = run.tenant_id AND enrollment.course_run_id = run.id
+    LEFT JOIN enrollment_lifecycle_events event
+      ON event.tenant_id = enrollment.tenant_id AND event.enrollment_id = enrollment.id
+    WHERE run.codigo = 'CONCURRENT-CANCEL-B'
+    GROUP BY run.id
+  `
+  assert.deepEqual(concurrentLifecycleState, {
+    current_enrollments: 1,
+    confirmed: 1,
+    cancelled: 2,
+    waitlisted: 0,
+    events: 3,
+  })
+  adversarialChecks.add('concurrent-cancellations-retry-conflict-promote-one-waiter-and-preserve-count')
+
+  const [lifecyclePrivileges] = await sql<{
+    can_select: boolean
+    can_insert: boolean
+    can_update: boolean
+    can_delete: boolean
+    can_execute: boolean
+  }[]>`
+    SELECT
+      has_table_privilege(${appRole}, 'enrollment_lifecycle_events', 'SELECT') AS can_select,
+      has_table_privilege(${appRole}, 'enrollment_lifecycle_events', 'INSERT') AS can_insert,
+      has_table_privilege(${appRole}, 'enrollment_lifecycle_events', 'UPDATE') AS can_update,
+      has_table_privilege(${appRole}, 'enrollment_lifecycle_events', 'DELETE') AS can_delete,
+      has_function_privilege(
+        ${appRole},
+        'akademate_next_cancel_enrollment(bigint, character varying, character varying)',
+        'EXECUTE'
+      ) AS can_execute
+  `
+  assert.deepEqual(lifecyclePrivileges, {
+    can_select: true,
+    can_insert: false,
+    can_update: false,
+    can_delete: false,
+    can_execute: true,
+  })
+  adversarialChecks.add('lifecycle-ledger-is-command-only-for-app-role')
+
   process.stdout.write(`${JSON.stringify({
     validModes: ['information_only', 'paid_registration', 'approval_required'],
     adversarialChecks: adversarialChecks.size,
@@ -911,6 +1233,7 @@ try {
     submissionReview: 'audited-reversible',
     submissionHistory: 'reviewer-only-bounded-timeline',
     submissionEnrollment: 'approved-idempotent-tenant-scoped-capacity-reserved',
+    enrollmentLifecycle: 'audited-cancellation-capacity-reconciled-fifo-promotion',
   })}\n`)
 } finally {
   await Promise.allSettled([sql.end(), app.end()])

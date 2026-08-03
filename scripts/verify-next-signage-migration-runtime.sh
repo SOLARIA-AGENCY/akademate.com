@@ -90,8 +90,12 @@ capture_payload_down() {
   local log_file="$1"
   local migration_name="$2"
   local retry_log="${log_file}.retry"
+  local first_exit=0
 
-  capture_payload "${log_file}" migrate:down
+  capture_payload "${log_file}" migrate:down || first_exit=$?
+  if [[ ${first_exit} -ne 0 ]]; then
+    return "${first_exit}"
+  fi
   if [[ "$(psql_owner -Atc "SELECT count(*) FROM payload_migrations WHERE name='${migration_name}';")" = "1" ]]; then
     printf '%s\n' "Payload migrate:down returned success without selecting the latest batch; retrying once." >>"${log_file}"
     capture_payload "${retry_log}" migrate:down
@@ -137,8 +141,23 @@ capture_payload "${LOG_DIR}/migrate-with-data.log" migrate
     AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
     node_modules/.bin/tsx scripts/verify-next-offer-conversion-db.ts
 )
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=10 WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" >/dev/null
+if capture_payload_down "${LOG_DIR}/enrollment-lifecycle-rollback-with-data.log" '20260803_zzzz_akademate_next_enrollment_lifecycle'; then
+  echo "Enrollment lifecycle rollback unexpectedly succeeded with ledger data" >&2
+  exit 1
+fi
+grep -q 'Cannot roll back enrollment lifecycle while lifecycle events exist' \
+  "${LOG_DIR}/enrollment-lifecycle-rollback-with-data.log"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" "1"
+assert_query "SELECT count(*) FROM enrollment_lifecycle_events;" "5"
+
+psql_owner -c "DELETE FROM enrollment_lifecycle_events;" >/dev/null
+capture_payload_down "${LOG_DIR}/enrollment-lifecycle-rollback.log" '20260803_zzzz_akademate_next_enrollment_lifecycle'
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" "0"
+assert_query "SELECT count(*) FROM pg_class WHERE relname='enrollment_lifecycle_events';" "0"
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=9 WHERE name='20260803_zzz_akademate_next_offer_enrollment_conversion';" >/dev/null
-if capture_payload "${LOG_DIR}/offer-enrollment-conversion-rollback-with-data.log" migrate:down; then
+if capture_payload_down "${LOG_DIR}/offer-enrollment-conversion-rollback-with-data.log" '20260803_zzz_akademate_next_offer_enrollment_conversion'; then
   echo "Offer enrollment conversion rollback unexpectedly succeeded with enrollment data" >&2
   exit 1
 fi
@@ -147,13 +166,13 @@ grep -q 'Cannot roll back offer enrollment conversion while converted enrollment
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzz_akademate_next_offer_enrollment_conversion';" "1"
 assert_query "SELECT count(*) FROM enrollments WHERE offer_submission_id IS NOT NULL;" "3"
 
-psql_owner -c "DELETE FROM enrollments WHERE offer_submission_id IS NOT NULL; DELETE FROM leads WHERE status='converted'; UPDATE course_runs SET current_enrollments=0 WHERE codigo IN ('FORM-B','FULL-LIMITED-B','FULL-WAITLIST-B','LAST-SEAT-B');" >/dev/null
+psql_owner -c "DELETE FROM enrollments; DELETE FROM leads WHERE status='converted'; UPDATE course_runs SET current_enrollments=0 WHERE codigo IN ('FORM-B','FULL-LIMITED-B','FULL-WAITLIST-B','LAST-SEAT-B','INCONSISTENT-CANCEL-B','CONCURRENT-CANCEL-B');" >/dev/null
 capture_payload_down "${LOG_DIR}/offer-enrollment-conversion-rollback.log" '20260803_zzz_akademate_next_offer_enrollment_conversion'
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzz_akademate_next_offer_enrollment_conversion';" "0"
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='enrollments' AND column_name='offer_submission_id';" "0"
 
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=8 WHERE name='20260803_zz_akademate_next_offer_submission_review';" >/dev/null
-if capture_payload "${LOG_DIR}/offer-submission-review-rollback-with-data.log" migrate:down; then
+if capture_payload_down "${LOG_DIR}/offer-submission-review-rollback-with-data.log" '20260803_zz_akademate_next_offer_submission_review'; then
   echo "Offer submission review rollback unexpectedly succeeded with review data" >&2
   exit 1
 fi
@@ -168,7 +187,7 @@ assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zz_ak
 assert_query "SELECT count(*) FROM pg_class WHERE relname='offer_submission_review_events';" "0"
 
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=7 WHERE name='20260803_akademate_next_public_offer_submissions';" >/dev/null
-if capture_payload "${LOG_DIR}/public-offer-submissions-rollback-with-data.log" migrate:down; then
+if capture_payload_down "${LOG_DIR}/public-offer-submissions-rollback-with-data.log" '20260803_akademate_next_public_offer_submissions'; then
   echo "Public offer submission rollback unexpectedly succeeded with submission data" >&2
   exit 1
 fi
@@ -189,7 +208,7 @@ assert_query "SELECT count(*) FROM pg_proc WHERE proname='akademate_next_get_pub
 
 psql_owner -c "UPDATE payload_migrations SET batch=5 WHERE name='20260803_akademate_next_offer_runtime_access';" >/dev/null
 
-if capture_payload "${LOG_DIR}/offer-access-rollback-with-data.log" migrate:down; then
+if capture_payload_down "${LOG_DIR}/offer-access-rollback-with-data.log" '20260803_akademate_next_offer_runtime_access'; then
   echo "Offer access rollback unexpectedly succeeded with academy offer data" >&2
   exit 1
 fi
@@ -207,7 +226,7 @@ psql_owner -c "INSERT INTO areas_formativas(nombre,codigo) VALUES ('Rollback off
 assert_query "SELECT max(batch)::text FROM payload_migrations;" "4"
 assert_query "SELECT count(*) FROM course_runs WHERE publication_access='public' AND share_slug='rollback-offer';" "1"
 
-if capture_payload "${LOG_DIR}/offer-rollback-with-data.log" migrate:down; then
+if capture_payload_down "${LOG_DIR}/offer-rollback-with-data.log" '20260803_akademate_next_offer_conversion_modes'; then
   echo "Offer rollback unexpectedly succeeded with configured course offers" >&2
   exit 1
 fi
@@ -218,7 +237,7 @@ assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='
 
 psql_owner -c "DELETE FROM course_runs; DELETE FROM courses; DELETE FROM areas_formativas WHERE codigo='ROLLBACK-OFFER'; UPDATE payload_migrations SET batch=2 WHERE name='20260803_akademate_next_offer_conversion_modes'; UPDATE payload_migrations SET batch=3 WHERE name='20260802_akademate_next_signage';" >/dev/null
 
-if capture_payload "${LOG_DIR}/rollback-with-data.log" migrate:down; then
+if capture_payload_down "${LOG_DIR}/rollback-with-data.log" '20260802_akademate_next_signage'; then
   echo "Rollback unexpectedly succeeded with operational signage data" >&2
   exit 1
 fi
@@ -230,6 +249,11 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 
 start_database
 capture_payload "${LOG_DIR}/migrate-empty.log" migrate
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=9 WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" >/dev/null
+capture_payload_down "${LOG_DIR}/enrollment-lifecycle-rollback-clean.log" '20260803_zzzz_akademate_next_enrollment_lifecycle'
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzz_akademate_next_enrollment_lifecycle';" "0"
+assert_query "SELECT count(*) FROM pg_class WHERE relname='enrollment_lifecycle_events';" "0"
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=8 WHERE name='20260803_zzz_akademate_next_offer_enrollment_conversion';" >/dev/null
 capture_payload_down "${LOG_DIR}/offer-enrollment-conversion-rollback-clean.log" '20260803_zzz_akademate_next_offer_enrollment_conversion'
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzz_akademate_next_offer_enrollment_conversion';" "0"
@@ -269,7 +293,7 @@ psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations 
 capture_payload_down "${LOG_DIR}/offer-rollback-empty.log" '20260803_akademate_next_offer_conversion_modes'
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akademate_next_offer_conversion_modes';" "0"
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name IN ('publication_access','conversion_mode','offer_price_amount');" "0"
-assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection','20260803_akademate_next_public_offer_submissions','20260803_zz_akademate_next_offer_submission_review','20260803_zzz_akademate_next_offer_enrollment_conversion');" "0"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection','20260803_akademate_next_public_offer_submissions','20260803_zz_akademate_next_offer_submission_review','20260803_zzz_akademate_next_offer_enrollment_conversion','20260803_zzzz_akademate_next_enrollment_lifecycle');" "0"
 assert_query "SELECT count(*) FROM payload_migrations;" "4"
 
 psql_owner -c "INSERT INTO tenants(name,slug) VALUES ('Legacy tenant','legacy-tenant'); INSERT INTO campuses(slug,name,city,tenant_id) VALUES ('legacy-null-campus','Legacy null campus','Tallinn',NULL);" >/dev/null
@@ -291,4 +315,4 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name='offer_price_amount';" "0"
 assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='campuses' AND column_name='tenant_id';" "YES"
 
-printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","publicOfferSubmissions":"idempotent-rate-limited-and-rollback-guarded","submissionReview":"audited-reversible-and-rollback-guarded","submissionEnrollment":"tenant-scoped-idempotent-capacity-and-rollback-guarded","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'
+printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","publicOfferSubmissions":"idempotent-rate-limited-and-rollback-guarded","submissionReview":"audited-reversible-and-rollback-guarded","submissionEnrollment":"tenant-scoped-idempotent-capacity-and-rollback-guarded","enrollmentLifecycle":"audited-capacity-reconciled-and-rollback-guarded","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'
