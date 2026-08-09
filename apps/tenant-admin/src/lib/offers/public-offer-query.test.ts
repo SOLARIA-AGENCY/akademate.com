@@ -46,16 +46,62 @@ const storedOffer = {
   capacity_policy: 'limited',
 }
 
-function fakeClient(rows: Row[]) {
+function fakeClient(rows: Row[], ticketRows: Row[] = []) {
   const calls: Array<{ query: string; params: unknown[] }> = []
   const tx: LearningSqlClient = {
     async unsafe<T extends Row>(query: string, params: unknown[] = []) {
       calls.push({ query: query.replace(/\s+/g, ' ').trim(), params })
+      if (query.includes('akademate_next_get_public_offer_ticket_types')) return ticketRows as T[]
       return rows as T[]
     },
   }
   return { calls, tx }
 }
+
+test('maps the bounded public ticket projection without trusting persisted money types', async () => {
+  const { tx } = fakeClient([
+    {
+      ...storedOffer,
+      conversion_mode: 'free_registration',
+      external_action_url: null,
+      cta_label: 'Register',
+    },
+  ], [{
+    ticket_id: '101',
+    ticket_slug: 'standard',
+    ticket_name: 'Standard ticket',
+    ticket_description: 'Access to the full workshop.',
+    ticket_kind: 'paid',
+    price_amount: '149.50',
+    deposit_amount: null,
+    capacity: '24',
+    max_per_registration: '2',
+    sales_start: '2026-08-01T00:00:00.000Z',
+    sales_end: null,
+    sort_order: '0',
+  }])
+
+  const offer = await getNextPublicOffer({
+    tx,
+    host: 'learn.northstar.example',
+    shareSlug: 'creative-leadership-weekend',
+  })
+
+  assert.deepEqual(offer.ticketTypes, [{
+    id: 101,
+    slug: 'standard',
+    name: 'Standard ticket',
+    description: 'Access to the full workshop.',
+    ticketKind: 'paid',
+    priceAmount: 149.5,
+    depositAmount: null,
+    capacity: 24,
+    maxPerRegistration: 2,
+    salesStart: '2026-08-01T00:00:00.000Z',
+    salesEnd: null,
+    sortOrder: 0,
+  }])
+})
 
 test('loads only the sanitized public projection for an exact host and slug', async () => {
   const { calls, tx } = fakeClient([storedOffer])
@@ -69,9 +115,11 @@ test('loads only the sanitized public projection for an exact host and slug', as
   assert.equal(offer.availablePlaces, 8)
   assert.equal(offer.conversionMode, 'external_link')
   assert.equal(offer.externalActionUrl, 'https://events.example.test/creative-leadership')
-  assert.equal(calls.length, 1)
+  assert.equal(calls.length, 2)
   assert.match(calls[0]?.query ?? '', /akademate_next_get_public_offer\(\$1, \$2\)/)
   assert.deepEqual(calls[0]?.params, ['learn.northstar.example', 'creative-leadership-weekend'])
+  assert.match(calls[1]?.query ?? '', /akademate_next_get_public_offer_ticket_types\(\$1, \$2\)/)
+  assert.deepEqual(calls[1]?.params, ['learn.northstar.example', 'creative-leadership-weekend'])
 })
 test('fails closed for base, reserved, malformed and credential-bearing hosts', async () => {
   const { calls, tx } = fakeClient([storedOffer])

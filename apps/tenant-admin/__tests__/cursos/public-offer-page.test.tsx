@@ -39,6 +39,7 @@ const offer: NextPublicOffer = {
   depositAmount: null,
   ctaLabel: 'Reserve your place',
   capacityPolicy: 'limited',
+  ticketTypes: [],
 }
 
 describe('PublicOfferPageView', () => {

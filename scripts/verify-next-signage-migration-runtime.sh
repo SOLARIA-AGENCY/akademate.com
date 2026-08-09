@@ -146,6 +146,14 @@ capture_payload "${LOG_DIR}/migrate-with-data.log" migrate
   env \
     AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL="$(owner_url)" \
     AKADEMATE_NEXT_TEST_APP_DATABASE_URL="$(app_url)" \
+    AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
+    node_modules/.bin/tsx scripts/verify-next-event-ticket-types-rls.ts
+)
+(
+  cd "${TENANT_ADMIN_DIR}"
+  env \
+    AKADEMATE_NEXT_TEST_OWNER_DATABASE_URL="$(owner_url)" \
+    AKADEMATE_NEXT_TEST_APP_DATABASE_URL="$(app_url)" \
     AKADEMATE_RUNTIME=next \
     DATABASE_URL="$(app_url)" \
     AKADEMATE_NEXT_DB_APP_USER="${APP_USER}" \
@@ -293,6 +301,57 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 
 start_database
 capture_payload "${LOG_DIR}/migrate-empty.log" migrate
+
+psql_owner -c "
+  INSERT INTO tenants (name, slug, domain, active)
+  VALUES ('Ticket rollback tenant', 'ticket-rollback', 'ticket-rollback.example', true);
+  INSERT INTO areas_formativas (nombre, codigo)
+  VALUES ('Ticket rollback area', 'ROLLBACK-TICKET-AREA');
+  INSERT INTO courses (codigo, slug, name, area_formativa_id, tenant_id)
+  SELECT 'ROLLBACK-TICKET-COURSE', 'rollback-ticket-course', 'Ticket rollback course',
+    area.id, tenant.id
+  FROM areas_formativas area
+  CROSS JOIN tenants tenant
+  WHERE area.codigo='ROLLBACK-TICKET-AREA' AND tenant.slug='ticket-rollback';
+  INSERT INTO course_runs (
+    course_id, codigo, start_date, end_date, tenant_id, conversion_mode,
+    payment_plan, offer_price_amount
+  )
+  SELECT course.id, 'ROLLBACK-TICKET-RUN', '2099-03-01', '2099-03-02', course.tenant_id,
+    'paid_registration', 'full_amount', 149.50
+  FROM courses course
+  WHERE course.codigo='ROLLBACK-TICKET-COURSE';
+  INSERT INTO event_offer_ticket_types (
+    tenant_id, course_run_id, slug, name, ticket_kind, price_amount, max_per_registration
+  )
+  SELECT tenant_id, id, 'rollback-ticket', 'Rollback ticket', 'paid', 149.50, 1
+  FROM course_runs
+  WHERE codigo='ROLLBACK-TICKET-RUN' AND conversion_mode='paid_registration'
+  ORDER BY id
+  LIMIT 1;
+" >/dev/null
+assert_query "SELECT count(*) FROM event_offer_ticket_types;" "1"
+psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=12 WHERE name='20260809_akademate_next_event_ticket_types';" >/dev/null
+if capture_payload_down "${LOG_DIR}/event-ticket-types-rollback-with-data.log" '20260809_akademate_next_event_ticket_types'; then
+  echo "Event ticket type rollback unexpectedly succeeded with ticket configuration" >&2
+  exit 1
+fi
+grep -q 'Cannot roll back event ticket types while ticket configuration exists' \
+  "${LOG_DIR}/event-ticket-types-rollback-with-data.log"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260809_akademate_next_event_ticket_types';" "1"
+assert_query "SELECT count(*) FROM event_offer_ticket_types;" "1"
+
+psql_owner -c "DELETE FROM event_offer_ticket_types;" >/dev/null
+capture_payload_down "${LOG_DIR}/event-ticket-types-rollback.log" '20260809_akademate_next_event_ticket_types'
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260809_akademate_next_event_ticket_types';" "0"
+assert_query "SELECT count(*) FROM pg_class WHERE relname='event_offer_ticket_types';" "0"
+psql_owner -c "
+  DELETE FROM course_runs WHERE codigo='ROLLBACK-TICKET-RUN';
+  DELETE FROM courses WHERE codigo='ROLLBACK-TICKET-COURSE';
+  DELETE FROM areas_formativas WHERE codigo='ROLLBACK-TICKET-AREA';
+  DELETE FROM tenants WHERE slug='ticket-rollback';
+" >/dev/null
+
 psql_owner -c "UPDATE payload_migrations SET batch=1; UPDATE payload_migrations SET batch=10 WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" >/dev/null
 capture_payload_down "${LOG_DIR}/paid-offer-orders-rollback-clean.log" '20260803_zzzzz_akademate_next_paid_offer_orders'
 assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_zzzzz_akademate_next_paid_offer_orders';" "0"
@@ -344,7 +403,8 @@ assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260803_akade
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name IN ('publication_access','conversion_mode','offer_price_amount');" "0"
 assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260802_akademate_next_signage','20260803_akademate_next_offer_conversion_modes','20260803_akademate_next_offer_runtime_access','20260803_akademate_next_public_offer_projection','20260803_akademate_next_public_offer_submissions','20260803_zz_akademate_next_offer_submission_review','20260803_zzz_akademate_next_offer_enrollment_conversion','20260803_zzzz_akademate_next_enrollment_lifecycle','20260803_zzzzz_akademate_next_paid_offer_orders');" "0"
 assert_query "SELECT count(*) FROM payload_migrations WHERE name IN ('20260803_zzzzzz_akademate_next_dashboard_projection','20260803_zzzzzzz_akademate_next_dashboard_least_privilege');" "2"
-assert_query "SELECT count(*) FROM payload_migrations WHERE name NOT IN ('20260803_zzzzzz_akademate_next_dashboard_projection','20260803_zzzzzzz_akademate_next_dashboard_least_privilege');" "4"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name='20260809_akademate_next_event_ticket_types';" "0"
+assert_query "SELECT count(*) FROM payload_migrations WHERE name NOT IN ('20260803_zzzzzz_akademate_next_dashboard_projection','20260803_zzzzzzz_akademate_next_dashboard_least_privilege','20260809_akademate_next_event_ticket_types');" "4"
 
 psql_owner -c "INSERT INTO tenants(name,slug) VALUES ('Legacy tenant','legacy-tenant'); INSERT INTO campuses(slug,name,city,tenant_id) VALUES ('legacy-null-campus','Legacy null campus','Tallinn',NULL);" >/dev/null
 if psql_owner -c 'ALTER TABLE campuses ALTER COLUMN tenant_id SET NOT NULL;' \
@@ -365,4 +425,4 @@ assert_query "SELECT count(*) FROM pg_class WHERE relname LIKE 'signage_%' AND r
 assert_query "SELECT count(*) FROM information_schema.columns WHERE table_name='course_runs' AND column_name='offer_price_amount';" "0"
 assert_query "SELECT is_nullable FROM information_schema.columns WHERE table_name='campuses' AND column_name='tenant_id';" "YES"
 
-printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","publicOfferSubmissions":"idempotent-rate-limited-and-rollback-guarded","submissionReview":"audited-reversible-and-rollback-guarded","submissionEnrollment":"tenant-scoped-idempotent-capacity-and-rollback-guarded","enrollmentLifecycle":"audited-capacity-reconciled-and-rollback-guarded","paidOfferOrders":"financial-evidence-guarded-and-rollback-clean","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'
+printf '%s\n' '{"postgres":"16","migrationDirectory":"migrations-next","publicOfferProjection":"host-scoped-and-rollback-clean","publicOfferSubmissions":"idempotent-rate-limited-and-rollback-guarded","submissionReview":"audited-reversible-and-rollback-guarded","submissionEnrollment":"tenant-scoped-idempotent-capacity-and-rollback-guarded","enrollmentLifecycle":"audited-capacity-reconciled-and-rollback-guarded","paidOfferOrders":"financial-evidence-guarded-and-rollback-clean","eventTicketTypes":"data-guarded-and-rollback-clean","offerAccessRollbackWithData":"rejected","signageRollbackWithData":"rejected","offerRollbackWithData":"rejected","emptyRollbacks":"clean","nullCampus":"transactionally-rejected"}'

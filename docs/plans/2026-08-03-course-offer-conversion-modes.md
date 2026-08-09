@@ -80,21 +80,21 @@ actually perform.
 - [x] Next-native public command for interest, application and enrolment requests.
 - [x] Authenticated tenant-scoped inbox with bounded search, status and request-kind filters.
 - [x] Dedicated Next session profile and dashboard middleware compatibility without changing CEP's
-  historical session contract.
+      historical session contract.
 - [x] Desktop and mobile browser QA for the public request flow, including persistence, console,
-  network, tracker and horizontal-overflow checks.
+      network, tracker and horizontal-overflow checks.
 - [x] Reversible approve, reject, archive and reopen decisions with an append-only actor ledger.
 - [x] Least-privilege review boundary: marketing can read; superadmin, admin and gestor can decide.
 - [x] Real PostgreSQL transition, replay, cross-tenant, role and guarded-rollback verification.
 - [x] Reviewer-only bounded timeline with actor identifiers, current names, notes and received state.
 - [x] Reviewer-confirmed enrollment command with tenant ownership, submission idempotency, locked
-  capacity reservation and waitlist fallback.
+      capacity reservation and waitlist fallback.
 - [x] Explicit operator confirmation UI and canonical enrollment link in desktop/mobile inbox cards.
 - [x] Audited cancellation and voluntary-withdrawal command with atomic capacity reconciliation.
 - [x] Deterministic FIFO promotion from the waitlist and append-only lifecycle events.
 - [x] Tenant-scoped enrollment detail route and persistent success state in desktop/mobile UI.
-- [ ] Checkout creation command; payment remains pending and separate from academic capacity.
-- [ ] Payment-provider adapters and webhook reconciliation.
+- [x] Checkout creation command; payment remains pending and separate from academic capacity.
+- [x] Payment-provider adapters and webhook reconciliation.
 - [ ] Form-template builder and consent-version custody.
 - [ ] Retention and export controls for internal decision notes.
 - [ ] Bot challenge and configurable retention/erasure jobs for public submission data.

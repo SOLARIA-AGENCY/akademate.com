@@ -2,7 +2,8 @@ import { OfferPublicationSchema } from '@akademate/operations/offer-publication'
 
 import type { LearningSqlClient } from '../learning/next-learning-transaction.ts'
 
-const HOST_PATTERN = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/
+const HOST_PATTERN =
+  /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const SYSTEM_HOSTS = new Set([
   'akademate.com',
@@ -55,6 +56,35 @@ type PublicOfferRow = {
   cta_label: string | null
   capacity_policy: unknown
 }
+type PublicOfferTicketRow = {
+  ticket_id: number | string
+  ticket_slug: string
+  ticket_name: string
+  ticket_description: string | null
+  ticket_kind: 'free' | 'paid' | 'deposit'
+  price_amount: number | string
+  deposit_amount: number | string | null
+  capacity: number | string | null
+  max_per_registration: number | string
+  sales_start: string | Date | null
+  sales_end: string | Date | null
+  sort_order: number | string
+}
+
+export type NextPublicOfferTicketType = {
+  id: number
+  slug: string
+  name: string
+  description: string | null
+  ticketKind: 'free' | 'paid' | 'deposit'
+  priceAmount: number
+  depositAmount: number | null
+  capacity: number | null
+  maxPerRegistration: number
+  salesStart: string | null
+  salesEnd: string | null
+  sortOrder: number
+}
 export type NextPublicOffer = {
   tenantSlug: string
   tenantName: string
@@ -82,7 +112,13 @@ export type NextPublicOffer = {
   campusCity: string | null
   campusAddress: string | null
   publicationAccess: 'public' | 'unlisted'
-  conversionMode: 'information_only' | 'interest_form' | 'free_registration' | 'approval_required' | 'paid_registration' | 'external_link'
+  conversionMode:
+    | 'information_only'
+    | 'interest_form'
+    | 'free_registration'
+    | 'approval_required'
+    | 'paid_registration'
+    | 'external_link'
   shareSlug: string
   externalActionUrl: string | null
   paymentPlan: 'full_amount' | 'deposit' | null
@@ -90,6 +126,7 @@ export type NextPublicOffer = {
   depositAmount: number | null
   ctaLabel: string | null
   capacityPolicy: 'limited' | 'waitlist' | 'unlimited'
+  ticketTypes: NextPublicOfferTicketType[]
 }
 
 export class NextPublicOfferError extends Error {
@@ -107,7 +144,10 @@ function fail(code: string): never {
 }
 
 export function normalizePublicOfferHost(value: string): string {
-  const normalized = value.trim().toLowerCase().replace(/:\d{1,5}$/, '')
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/:\d{1,5}$/, '')
   if (!HOST_PATTERN.test(normalized) || SYSTEM_HOSTS.has(normalized)) {
     fail('public_offer_host_invalid')
   }
@@ -134,7 +174,39 @@ function iso(value: string | Date | null): string | null {
   return parsed.toISOString()
 }
 
-function mapRow(row: PublicOfferRow): NextPublicOffer {
+function mapTicketRow(row: PublicOfferTicketRow): NextPublicOfferTicketType {
+  const id = Number(row.ticket_id)
+  const priceAmount = numeric(row.price_amount)
+  const depositAmount = numeric(row.deposit_amount)
+  const capacity = numeric(row.capacity)
+  const maxPerRegistration = Number(row.max_per_registration)
+  const sortOrder = Number(row.sort_order)
+  if (
+    !Number.isSafeInteger(id) ||
+    priceAmount === null ||
+    (depositAmount !== null && !Number.isFinite(depositAmount)) ||
+    (capacity !== null && (!Number.isSafeInteger(capacity) || capacity <= 0)) ||
+    !Number.isSafeInteger(maxPerRegistration) ||
+    !Number.isSafeInteger(sortOrder)
+  )
+    fail('public_offer_projection_invalid')
+  return {
+    id,
+    slug: row.ticket_slug,
+    name: row.ticket_name,
+    description: row.ticket_description,
+    ticketKind: row.ticket_kind,
+    priceAmount,
+    depositAmount,
+    capacity,
+    maxPerRegistration,
+    salesStart: iso(row.sales_start),
+    salesEnd: iso(row.sales_end),
+    sortOrder,
+  }
+}
+
+function mapRow(row: PublicOfferRow, ticketRows: PublicOfferTicketRow[]): NextPublicOffer {
   const parsed = OfferPublicationSchema.safeParse({
     publicationAccess: row.publication_access,
     conversionMode: row.conversion_mode,
@@ -153,9 +225,10 @@ function mapRow(row: PublicOfferRow): NextPublicOffer {
   const maxStudents = numeric(row.max_students)
   const currentEnrollments = numeric(row.current_enrollments)
   if (maxStudents === null || currentEnrollments === null) fail('public_offer_projection_invalid')
-  const primaryColor = row.tenant_primary_color && /^#[0-9a-f]{6}$/i.test(row.tenant_primary_color)
-    ? row.tenant_primary_color
-    : '#2457F5'
+  const primaryColor =
+    row.tenant_primary_color && /^#[0-9a-f]{6}$/i.test(row.tenant_primary_color)
+      ? row.tenant_primary_color
+      : '#2457F5'
 
   return {
     tenantSlug: row.tenant_slug,
@@ -179,9 +252,10 @@ function mapRow(row: PublicOfferRow): NextPublicOffer {
     scheduleTimeEnd: row.schedule_time_end,
     maxStudents,
     currentEnrollments,
-    availablePlaces: parsed.data.capacityPolicy === 'unlimited'
-      ? null
-      : Math.max(0, maxStudents - currentEnrollments),
+    availablePlaces:
+      parsed.data.capacityPolicy === 'unlimited'
+        ? null
+        : Math.max(0, maxStudents - currentEnrollments),
     campusName: row.campus_name,
     campusCity: row.campus_city,
     campusAddress: row.campus_address,
@@ -194,6 +268,7 @@ function mapRow(row: PublicOfferRow): NextPublicOffer {
     depositAmount: parsed.data.depositAmount ?? null,
     ctaLabel: parsed.data.ctaLabel ?? null,
     capacityPolicy: parsed.data.capacityPolicy,
+    ticketTypes: ticketRows.map(mapTicketRow),
   }
 }
 
@@ -208,10 +283,20 @@ export async function getNextPublicOffer({
 }): Promise<NextPublicOffer> {
   const normalizedHost = normalizePublicOfferHost(host)
   const normalizedSlug = normalizeShareSlug(shareSlug)
-  const rows = await tx.unsafe<PublicOfferRow>(`
+  const rows = await tx.unsafe<PublicOfferRow>(
+    `
     SELECT *
     FROM akademate_next_get_public_offer($1, $2)
-  `, [normalizedHost, normalizedSlug])
+  `,
+    [normalizedHost, normalizedSlug]
+  )
   if (!rows[0]) fail('public_offer_not_found')
-  return mapRow(rows[0])
+  const ticketRows = await tx.unsafe<PublicOfferTicketRow>(
+    `
+    SELECT *
+    FROM akademate_next_get_public_offer_ticket_types($1, $2)
+  `,
+    [normalizedHost, normalizedSlug]
+  )
+  return mapRow(rows[0], ticketRows)
 }

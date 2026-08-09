@@ -41,6 +41,7 @@ import {
   Skeleton,
   cn,
 } from '@akademate/ui'
+import { EventTicketTypesEditor } from './EventTicketTypesEditor'
 
 type ConversionMode =
   | 'information_only'
@@ -166,26 +167,28 @@ function initialState(record: OfferRecord): FormState {
 }
 
 function payloadFrom(state: FormState) {
-  const usesForm = state.conversionMode === 'interest_form'
-    || state.conversionMode === 'approval_required'
+  const usesForm =
+    state.conversionMode === 'interest_form' || state.conversionMode === 'approval_required'
   const isPaid = state.conversionMode === 'paid_registration'
   return {
     publicationAccess: state.publicationAccess,
     conversionMode: state.conversionMode,
-    shareSlug: state.publicationAccess === 'private' || !state.shareSlug.trim()
-      ? undefined
-      : state.shareSlug.trim(),
-    formTemplateKey: usesForm && state.formTemplateKey.trim()
-      ? state.formTemplateKey.trim()
-      : undefined,
-    externalActionUrl: state.conversionMode === 'external_link' && state.externalActionUrl.trim()
-      ? state.externalActionUrl.trim()
-      : undefined,
+    shareSlug:
+      state.publicationAccess === 'private' || !state.shareSlug.trim()
+        ? undefined
+        : state.shareSlug.trim(),
+    formTemplateKey:
+      usesForm && state.formTemplateKey.trim() ? state.formTemplateKey.trim() : undefined,
+    externalActionUrl:
+      state.conversionMode === 'external_link' && state.externalActionUrl.trim()
+        ? state.externalActionUrl.trim()
+        : undefined,
     paymentPlan: isPaid ? state.paymentPlan : undefined,
     priceAmount: isPaid && state.priceAmount ? Number(state.priceAmount) : undefined,
-    depositAmount: isPaid && state.paymentPlan === 'deposit' && state.depositAmount
-      ? Number(state.depositAmount)
-      : undefined,
+    depositAmount:
+      isPaid && state.paymentPlan === 'deposit' && state.depositAmount
+        ? Number(state.depositAmount)
+        : undefined,
     ctaLabel: state.ctaLabel.trim() || undefined,
     capacityPolicy: state.capacityPolicy,
   }
@@ -202,12 +205,18 @@ function formatDate(value: string) {
 function modeCta(state: FormState) {
   if (state.ctaLabel.trim()) return state.ctaLabel.trim()
   switch (state.conversionMode) {
-    case 'information_only': return 'Contactar con la academia'
-    case 'interest_form': return 'Solicitar información'
-    case 'free_registration': return 'Inscribirme'
-    case 'approval_required': return 'Enviar solicitud'
-    case 'paid_registration': return state.paymentPlan === 'deposit' ? 'Reservar plaza' : 'Inscribirme y pagar'
-    case 'external_link': return 'Continuar'
+    case 'information_only':
+      return 'Contactar con la academia'
+    case 'interest_form':
+      return 'Solicitar información'
+    case 'free_registration':
+      return 'Inscribirme'
+    case 'approval_required':
+      return 'Enviar solicitud'
+    case 'paid_registration':
+      return state.paymentPlan === 'deposit' ? 'Reservar plaza' : 'Inscribirme y pagar'
+    case 'external_link':
+      return 'Continuar'
   }
 }
 
@@ -237,11 +246,12 @@ export function OfferConfigurationForm({
     setState((current) => ({
       ...current,
       conversionMode,
-      formTemplateKey: conversionMode === 'interest_form'
-        ? 'lead-standard'
-        : conversionMode === 'approval_required'
-          ? 'application-standard'
-          : current.formTemplateKey,
+      formTemplateKey:
+        conversionMode === 'interest_form'
+          ? 'lead-standard'
+          : conversionMode === 'approval_required'
+            ? 'application-standard'
+            : current.formTemplateKey,
     }))
   }
 
@@ -265,7 +275,10 @@ export function OfferConfigurationForm({
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+    <form
+      onSubmit={submit}
+      className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]"
+    >
       <Card>
         <CardHeader>
           <CardTitle>Publicación e inscripción</CardTitle>
@@ -280,7 +293,9 @@ export function OfferConfigurationForm({
               <NativeSelect
                 id="offer-publication-access"
                 value={state.publicationAccess}
-                onChange={(event) => update('publicationAccess', event.target.value as FormState['publicationAccess'])}
+                onChange={(event) =>
+                  update('publicationAccess', event.target.value as FormState['publicationAccess'])
+                }
               >
                 <option value="private">Privada · solo equipo</option>
                 <option value="unlisted">No listada · acceso con enlace</option>
@@ -308,16 +323,22 @@ export function OfferConfigurationForm({
             <FieldSet>
               <FieldLegend>¿Qué debe poder hacer el visitante?</FieldLegend>
               <FieldDescription>
-                Elige un único resultado. Akademate mostrará solamente los campos y acciones de ese recorrido.
+                Elige un único resultado. Akademate mostrará solamente los campos y acciones de ese
+                recorrido.
               </FieldDescription>
               <div className="grid gap-5">
                 {modeGroups.map((group) => (
                   <section key={group.title} aria-labelledby={`offer-mode-${group.values[0]}`}>
                     <div className="mb-3">
-                      <h3 id={`offer-mode-${group.values[0]}`} className="text-sm font-semibold text-foreground">
+                      <h3
+                        id={`offer-mode-${group.values[0]}`}
+                        className="text-sm font-semibold text-foreground"
+                      >
                         {group.title}
                       </h3>
-                      <p className="mt-1 text-sm leading-5 text-muted-foreground">{group.description}</p>
+                      <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                        {group.description}
+                      </p>
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
                       {group.values.map((value) => {
@@ -329,7 +350,7 @@ export function OfferConfigurationForm({
                             key={mode.value}
                             className={cn(
                               'items-start rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 ease-in-out hover:border-primary/60 hover:shadow-md',
-                              selected && 'border-primary ring-2 ring-primary/15',
+                              selected && 'border-primary ring-2 ring-primary/15'
                             )}
                           >
                             <input
@@ -341,11 +362,16 @@ export function OfferConfigurationForm({
                               className="mt-1 size-4 accent-primary"
                             />
                             <span className="flex min-w-0 flex-1 gap-3">
-                              <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+                              <Icon
+                                className="mt-0.5 size-5 shrink-0 text-primary"
+                                aria-hidden="true"
+                              />
                               <span className="flex min-w-0 flex-col gap-1">
                                 <span className="flex flex-wrap items-center gap-2">
                                   <span className="text-sm font-semibold">{mode.title}</span>
-                                  <Badge variant="secondary" className="font-normal">{mode.outcome}</Badge>
+                                  <Badge variant="secondary" className="font-normal">
+                                    {mode.outcome}
+                                  </Badge>
                                 </span>
                                 <span className="text-sm font-normal leading-5 text-muted-foreground">
                                   {mode.description}
@@ -361,9 +387,9 @@ export function OfferConfigurationForm({
               </div>
             </FieldSet>
 
-            {(state.conversionMode === 'interest_form'
-              || state.conversionMode === 'approval_required'
-              || state.conversionMode === 'free_registration') ? (
+            {state.conversionMode === 'interest_form' ||
+            state.conversionMode === 'approval_required' ||
+            state.conversionMode === 'free_registration' ? (
               <Alert>
                 <ClipboardCheck aria-hidden="true" />
                 <AlertTitle>
@@ -378,14 +404,20 @@ export function OfferConfigurationForm({
                     Nombre y apellidos · Email · Teléfono · Mensaje
                   </span>
                   <span className="mt-1 block">
-                    Incluye aceptación de privacidad y consentimiento de marketing separado. El constructor de campos personalizados se añadirá como una capacidad independiente.
+                    Incluye aceptación de privacidad y consentimiento de marketing separado. El
+                    constructor de campos personalizados se añadirá como una capacidad
+                    independiente.
                   </span>
                 </AlertDescription>
               </Alert>
             ) : null}
 
             {state.conversionMode === 'external_link' ? (
-              <Field data-invalid={Boolean(state.externalActionUrl && !state.externalActionUrl.startsWith('https://'))}>
+              <Field
+                data-invalid={Boolean(
+                  state.externalActionUrl && !state.externalActionUrl.startsWith('https://')
+                )}
+              >
                 <FieldLabel htmlFor="offer-external-url">Destino HTTPS</FieldLabel>
                 <Input
                   id="offer-external-url"
@@ -393,7 +425,9 @@ export function OfferConfigurationForm({
                   value={state.externalActionUrl}
                   onChange={(event) => update('externalActionUrl', event.target.value)}
                   placeholder="https://lu.ma/tu-convocatoria"
-                  aria-invalid={Boolean(state.externalActionUrl && !state.externalActionUrl.startsWith('https://'))}
+                  aria-invalid={Boolean(
+                    state.externalActionUrl && !state.externalActionUrl.startsWith('https://')
+                  )}
                 />
                 <FieldDescription>
                   Puedes enlazar Luma, Eventbrite, un formulario propio u otro servicio con HTTPS.
@@ -410,7 +444,9 @@ export function OfferConfigurationForm({
                     <NativeSelect
                       id="offer-payment-plan"
                       value={state.paymentPlan}
-                      onChange={(event) => update('paymentPlan', event.target.value as FormState['paymentPlan'])}
+                      onChange={(event) =>
+                        update('paymentPlan', event.target.value as FormState['paymentPlan'])
+                      }
                     >
                       <option value="full_amount">Importe completo</option>
                       <option value="deposit">Depósito de reserva</option>
@@ -447,15 +483,17 @@ export function OfferConfigurationForm({
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-2">
-              {(state.conversionMode === 'free_registration'
-                || state.conversionMode === 'approval_required'
-                || state.conversionMode === 'paid_registration') ? (
+              {state.conversionMode === 'free_registration' ||
+              state.conversionMode === 'approval_required' ||
+              state.conversionMode === 'paid_registration' ? (
                 <Field>
                   <FieldLabel htmlFor="offer-capacity">Gestión de plazas</FieldLabel>
                   <NativeSelect
                     id="offer-capacity"
                     value={state.capacityPolicy}
-                    onChange={(event) => update('capacityPolicy', event.target.value as FormState['capacityPolicy'])}
+                    onChange={(event) =>
+                      update('capacityPolicy', event.target.value as FormState['capacityPolicy'])
+                    }
                   >
                     <option value="limited">Plazas limitadas</option>
                     <option value="waitlist">Lista de espera</option>
@@ -479,7 +517,9 @@ export function OfferConfigurationForm({
               <Link2 aria-hidden="true" />
               <AlertTitle>La página compartible es independiente</AlertTitle>
               <AlertDescription>
-                Cualquier modo público o no listado puede tener una página tipo Luma. El modo elegido decide si esa página informa, recoge datos, solicita una plaza, cobra o deriva a otro servicio.
+                Cualquier modo público o no listado puede tener una página tipo Luma. El modo
+                elegido decide si esa página informa, recoge datos, solicita una plaza, cobra o
+                deriva a otro servicio.
               </AlertDescription>
             </Alert>
 
@@ -488,14 +528,18 @@ export function OfferConfigurationForm({
               <Alert>
                 <Check aria-hidden="true" />
                 <AlertTitle>Configuración guardada</AlertTitle>
-                <AlertDescription>La convocatoria conserva este recorrido como nueva fuente de verdad.</AlertDescription>
+                <AlertDescription>
+                  La convocatoria conserva este recorrido como nueva fuente de verdad.
+                </AlertDescription>
               </Alert>
             ) : null}
           </FieldGroup>
         </CardContent>
         <CardFooter className="justify-end gap-3">
           <Button type="submit" disabled={saving || !parsed.success}>
-            {saving ? <LoaderCircle className="animate-spin" data-icon="inline-start" aria-hidden="true" /> : null}
+            {saving ? (
+              <LoaderCircle className="animate-spin" data-icon="inline-start" aria-hidden="true" />
+            ) : null}
             {saving ? 'Guardando…' : 'Guardar recorrido'}
           </Button>
         </CardFooter>
@@ -513,7 +557,13 @@ export function OfferConfigurationForm({
           </CardHeader>
           <CardContent className="flex min-h-[350px] flex-col gap-6 pt-6">
             <div className="flex flex-wrap gap-2">
-              <Badge>{state.publicationAccess === 'public' ? 'Pública' : state.publicationAccess === 'unlisted' ? 'Con enlace' : 'Privada'}</Badge>
+              <Badge>
+                {state.publicationAccess === 'public'
+                  ? 'Pública'
+                  : state.publicationAccess === 'unlisted'
+                    ? 'Con enlace'
+                    : 'Privada'}
+              </Badge>
               <Badge variant="secondary">{selectedMode.title}</Badge>
             </div>
             <div className="flex flex-col gap-2">
@@ -521,7 +571,8 @@ export function OfferConfigurationForm({
                 {formatDate(record.startsAt)} — {formatDate(record.endsAt)}
               </p>
               <p className="text-sm leading-6 text-muted-foreground">
-                Una página clara para descubrir la convocatoria y completar el siguiente paso elegido por la academia.
+                Una página clara para descubrir la convocatoria y completar el siguiente paso
+                elegido por la academia.
               </p>
             </div>
             {state.publicationAccess !== 'private' && state.shareSlug ? (
@@ -532,12 +583,20 @@ export function OfferConfigurationForm({
             <div className="mt-auto flex flex-col gap-3">
               {state.conversionMode === 'paid_registration' && state.priceAmount ? (
                 <p className="text-2xl font-semibold text-foreground">
-                  {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(Number(state.priceAmount))}
+                  {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                    Number(state.priceAmount)
+                  )}
                 </p>
               ) : null}
-              <Button type="button" className="w-full" disabled={state.publicationAccess === 'private'}>
+              <Button
+                type="button"
+                className="w-full"
+                disabled={state.publicationAccess === 'private'}
+              >
                 {modeCta(state)}
-                {state.conversionMode === 'external_link' ? <ArrowUpRight data-icon="inline-end" aria-hidden="true" /> : null}
+                {state.conversionMode === 'external_link' ? (
+                  <ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+                ) : null}
               </Button>
               <p className="text-center text-xs text-muted-foreground">
                 Vista operativa; la publicación pública se activa en una fase separada.
@@ -558,13 +617,17 @@ export function OfferConfigurationPage({ courseRunId }: { courseRunId: string })
     const controller = new AbortController()
     const load = async () => {
       try {
-        const response = await fetch(`/api/next/course-runs/${encodeURIComponent(courseRunId)}/offer`, {
-          credentials: 'include',
-          cache: 'no-store',
-          signal: controller.signal,
-        })
-        const body = await response.json() as { record?: OfferRecord; error?: string }
-        if (!response.ok || !body.record) throw new Error(body.error ?? 'No se pudo cargar la convocatoria.')
+        const response = await fetch(
+          `/api/next/course-runs/${encodeURIComponent(courseRunId)}/offer`,
+          {
+            credentials: 'include',
+            cache: 'no-store',
+            signal: controller.signal,
+          }
+        )
+        const body = (await response.json()) as { record?: OfferRecord; error?: string }
+        if (!response.ok || !body.record)
+          throw new Error(body.error ?? 'No se pudo cargar la convocatoria.')
         setRecord(body.record)
       } catch (cause) {
         if (controller.signal.aborted) return
@@ -582,8 +645,9 @@ export function OfferConfigurationPage({ courseRunId }: { courseRunId: string })
       credentials: 'include',
       body: JSON.stringify(input),
     })
-    const body = await response.json() as { record?: OfferRecord; error?: string }
-    if (!response.ok || !body.record) throw new Error(body.error ?? 'No se pudo guardar la configuración.')
+    const body = (await response.json()) as { record?: OfferRecord; error?: string }
+    if (!response.ok || !body.record)
+      throw new Error(body.error ?? 'No se pudo guardar la configuración.')
     setRecord(body.record)
     return body.record
   }
@@ -599,12 +663,20 @@ export function OfferConfigurationPage({ courseRunId }: { courseRunId: string })
 
   if (!record) {
     return (
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]" aria-label="Cargando configuración de la convocatoria">
+      <div
+        className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]"
+        aria-label="Cargando configuración de la convocatoria"
+      >
         <Skeleton className="h-[680px] w-full rounded-xl" />
         <Skeleton className="h-[520px] w-full rounded-xl" />
       </div>
     )
   }
 
-  return <OfferConfigurationForm record={record} onSave={save} />
+  return (
+    <div className="space-y-6">
+      <OfferConfigurationForm record={record} onSave={save} />
+      <EventTicketTypesEditor courseRunId={courseRunId} />
+    </div>
+  )
 }
