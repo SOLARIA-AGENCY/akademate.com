@@ -10,6 +10,7 @@ import { ClientMarquee } from '@/components/marketing/ClientMarquee'
 import { CourseRegistrationPreview } from '@/components/marketing/CourseRegistrationPreview'
 import { CustomerVoices } from '@/components/marketing/CustomerVoices'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
+import { FinanceConnectorShowcase } from '@/components/marketing/FinanceConnectorShowcase'
 import { HomeMcpConnect } from '@/components/marketing/HomeMcpConnect'
 import { PhysicalCampusStory } from '@/components/marketing/PhysicalCampusStory'
 import { ProductHeroCarousel } from '@/components/marketing/ProductHeroCarousel'
@@ -294,6 +295,8 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        <FinanceConnectorShowcase locale={locale} imageSrc="/images/marketing/akademate-finance-workspace-v1.png" imageAlt={locale === 'es' ? 'Panel financiero ilustrativo para una academia' : 'Illustrative academy finance workspace'} />
 
         <CustomerVoices />
 

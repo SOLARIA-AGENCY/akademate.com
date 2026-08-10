@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { FinanceConnectorShowcase } from '@/components/marketing/FinanceConnectorShowcase'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { localizedHref } from '@/lib/i18n/routing'
@@ -359,6 +360,8 @@ export default async function PricingPage() {
             </ul>
           </div>
         </section>
+
+        <FinanceConnectorShowcase locale={locale} imageSrc="/images/marketing/akademate-finance-workspace-v1.png" imageAlt={locale === 'es' ? 'Vista ilustrativa del espacio financiero de Akademate' : 'Illustrative Akademate finance workspace'} />
 
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.78fr 1.22fr] lg:items-start lg:gap-20">

@@ -28,6 +28,7 @@ import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { FeatureModuleExplorer } from '@/components/marketing/FeatureModuleExplorer'
+import { FinanceConnectorShowcase } from '@/components/marketing/FinanceConnectorShowcase'
 import { ProductMoments } from '@/components/marketing/ProductMoments'
 import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistributionPreview'
 import { integrationPillarBrands } from '@/lib/integration-brands'
@@ -295,6 +296,8 @@ export default async function FeaturesPage() {
             </p>
           </div>
         </section>
+
+        <FinanceConnectorShowcase locale={locale} imageSrc="/images/marketing/akademate-finance-connection-flow-v1.png" imageAlt={locale === 'es' ? 'Flujo ilustrativo para conectar un proveedor financiero' : 'Illustrative finance provider connection flow'} />
 
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-5xl text-center">
