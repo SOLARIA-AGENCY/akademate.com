@@ -379,6 +379,8 @@ const spanishNotes: Record<string, string> = {
     'Las licencias del proveedor de vídeo las factura el proveedor.',
   'Processor onboarding and transaction fees are separate.':
     'El onboarding del procesador y las comisiones por transacción son independientes.',
+  'Holded, Xero and QuickBooks are coming soon; provider subscriptions, transaction fees and bespoke mapping are separate.':
+    'Holded, Xero y QuickBooks llegarán próximamente; las suscripciones, comisiones por transacción y mapeos a medida del proveedor son independientes.',
   'Hardware, installation and provider licences are separate.':
     'El hardware, la instalación y las licencias de proveedor son independientes.',
   'Screens, players, installation and external licences are separate.':

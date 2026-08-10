@@ -263,6 +263,7 @@ export const planComparisonSections: readonly PlanComparisonSection[] = [
         launch: 'paid-extension',
         business: 'paid-extension',
         enterprise: 'paid-extension',
+        note: 'Holded, Xero and QuickBooks are coming soon; provider subscriptions, transaction fees and bespoke mapping are separate.',
       },
     ],
   },
