@@ -182,7 +182,7 @@ export default function DashboardHome() {
             <p className="mt-3 text-2xl font-semibold">{dashboard.attention.waitlisted}</p>
           </Link>
           <Link href="/finanzas/cobros-pagos" className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <div className="flex items-center justify-between gap-3"><span className="text-sm font-medium">Pagos por conciliar</span><WalletCards className="size-4 text-primary" /></div>
+            <div className="flex items-center justify-between gap-3"><span className="text-sm font-medium">Órdenes de oferta en revisión</span><WalletCards className="size-4 text-primary" /></div>
             <p className="mt-3 text-2xl font-semibold">{dashboard.attention.paymentReview}</p>
           </Link>
         </div>

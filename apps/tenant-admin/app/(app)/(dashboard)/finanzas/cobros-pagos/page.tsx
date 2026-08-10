@@ -1,30 +1,20 @@
 'use client'
 
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { UpcomingPlaceholder } from '@payload-config/components/ui/UpcomingPlaceholder'
 import { HandCoins } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@payload-config/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 
 export default function CobrosPagosPage() {
   return (
     <div className="space-y-6">
       <PageHeader
         title="Cobros y Pagos"
-        description="Gestion de pagos de alumnos y pagos a proveedores"
+        description="Review verified offer payments and provider connection status"
         icon={HandCoins}
       />
-      <UpcomingPlaceholder
-        title="Cobros y Pagos"
-        description="Control total de los movimientos economicos: cobros a alumnos, pagos a profesores y proveedores."
-        features={[
-          'Registro de pagos de matricula (efectivo, tarjeta, transferencia, financiacion)',
-          'Cobros recurrentes mensuales con estado (pagado, pendiente, vencido)',
-          'Pagos a profesores por horas/mes',
-          'Pasarela de pago online (Stripe/Redsys)',
-          'Recordatorios automaticos de pagos pendientes',
-          'Historial completo de transacciones por alumno',
-          'Conciliacion bancaria basica',
-        ]}
-      />
+      <Card><CardHeader><CardTitle>Verified payment evidence</CardTitle></CardHeader><CardContent className="space-y-4"><p className="text-sm text-muted-foreground">Offer payment orders and provider events remain the canonical source for enrolment. Accounting projections appear after a configured provider connection.</p><Button variant="outline" asChild><Link href="/finanzas/integraciones">Review accounting integrations</Link></Button></CardContent></Card>
     </div>
   )
 }

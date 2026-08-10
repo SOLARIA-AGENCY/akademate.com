@@ -20,6 +20,7 @@
     "campus:seed-staging-admin": "tsx scripts/seed-campus-staging-admin.ts",
     "typecheck": "tsc --noEmit",
     "typecheck:next-offers": "tsc -p tsconfig.next-offers.json",
+    "verify:next-finance-db": "tsx scripts/verify-next-finance-db.ts",
     "audit:hygiene": "node ./scripts/audit-transpiled-artifacts.mjs",
     "smoke:meta:live": "node ./scripts/smoke-meta-live.mjs",
     "sync:cep:website": "tsx scripts/sync-cep-website-foundation.ts",

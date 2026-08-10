@@ -18,6 +18,7 @@
     "app/(app)/(dashboard)/cursos/solicitudes/**/*.tsx",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/page.tsx",
     "app/(app)/(dashboard)/cursos/convocatorias/[id]/oferta/OfferConfigurationPage.tsx",
+    "app/(app)/(dashboard)/finanzas/**/*.tsx",
     "app/(app)/(dashboard)/matriculas/[id]/EnrollmentCancellationPanel.tsx",
     "app/(next-public)/layout.tsx",
     "app/(next-public)/o/[slug]/**/*.tsx",
@@ -27,12 +28,15 @@
     "app/api/next/public/payments/webhooks/stripe/route.ts",
     "app/api/next/public/payments/webhooks/paypal/route.ts",
     "app/api/next/public/payments/paypal/return/route.ts",
+    "app/api/next/finance/**/*.ts",
     "src/lib/offers/**/*.ts",
     "src/lib/payments/**/*.ts",
     "src/lib/enrollments/**/*.ts",
     "src/lib/dashboard/**/*.ts",
     "src/lib/learning/next-learning-auth.ts",
-    "src/lib/learning/next-learning-transaction.ts"
+    "src/lib/learning/next-learning-transaction.ts",
+    "src/lib/runtime/next-authenticated-transaction.ts",
+    "src/lib/finance/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

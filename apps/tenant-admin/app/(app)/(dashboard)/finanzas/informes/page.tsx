@@ -1,30 +1,20 @@
 'use client'
 
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { UpcomingPlaceholder } from '@payload-config/components/ui/UpcomingPlaceholder'
 import { ClipboardList } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@payload-config/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 
 export default function InformesFinancierosPage() {
   return (
     <div className="space-y-6">
       <PageHeader
         title="Informes Financieros"
-        description="Reportes y analisis para toma de decisiones"
+        description="Explore persisted finance evidence once a provider is connected"
         icon={ClipboardList}
       />
-      <UpcomingPlaceholder
-        title="Informes Financieros"
-        description="Generacion de informes automaticos para direccion, contabilidad y auditorias."
-        features={[
-          'Cuenta de resultados mensual/trimestral/anual',
-          'Informe de morosidad con detalle por alumno',
-          'Rentabilidad por curso, ciclo y sede',
-          'Prevision de ingresos (matriculas confirmadas vs estimadas)',
-          'Exportacion a Excel y PDF',
-          'Informe FUNDAE de bonificaciones',
-          'Datos para declaracion fiscal (modelo 347, etc.)',
-        ]}
-      />
+      <Card><CardHeader><CardTitle>Reports follow verified data</CardTitle></CardHeader><CardContent className="space-y-4"><p className="text-sm text-muted-foreground">Reports are generated from synchronized, redacted provider data and canonical Akademate payment evidence. No financial figures are invented while the workspace has no source data.</p><Button variant="outline" asChild><Link href="/finanzas/integraciones">Connect a provider</Link></Button></CardContent></Card>
     </div>
   )
 }

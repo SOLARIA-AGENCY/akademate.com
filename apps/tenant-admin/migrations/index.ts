@@ -29,6 +29,8 @@ import * as migration_20260803_zzz_akademate_next_offer_enrollment_conversion fr
 import * as migration_20260803_zzzz_akademate_next_enrollment_lifecycle from './20260803_zzzz_akademate_next_enrollment_lifecycle'
 import * as migration_20260803_zzzzz_akademate_next_paid_offer_orders from './20260803_zzzzz_akademate_next_paid_offer_orders'
 import * as migration_20260809_akademate_next_event_ticket_types from './20260809_akademate_next_event_ticket_types'
+import * as migration_20260810_akademate_next_finance_connectors from './20260810_akademate_next_finance_connectors'
+import * as migration_20260811_akademate_next_finance_integration_requests from './20260811_akademate_next_finance_integration_requests'
 import { selectRuntimeMigrations } from '../src/runtime/select-runtime-migrations'
 
 const legacyMigrations = [
@@ -199,6 +201,16 @@ const nextMigrations = [
     up: migration_20260809_akademate_next_event_ticket_types.up,
     down: migration_20260809_akademate_next_event_ticket_types.down,
     name: '20260809_akademate_next_event_ticket_types',
+  },
+  {
+    up: migration_20260810_akademate_next_finance_connectors.up,
+    down: migration_20260810_akademate_next_finance_connectors.down,
+    name: '20260810_akademate_next_finance_connectors',
+  },
+  {
+    up: migration_20260811_akademate_next_finance_integration_requests.up,
+    down: migration_20260811_akademate_next_finance_integration_requests.down,
+    name: '20260811_akademate_next_finance_integration_requests',
   },
 ]
 

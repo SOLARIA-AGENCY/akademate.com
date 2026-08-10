@@ -1,29 +1,20 @@
 'use client'
 
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { UpcomingPlaceholder } from '@payload-config/components/ui/UpcomingPlaceholder'
 import { PiggyBank } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@payload-config/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 
 export default function NominasPage() {
   return (
     <div className="space-y-6">
       <PageHeader
         title="Nominas y Costes"
-        description="Gestion de costes de personal y estructura de gastos"
+        description="Keep payroll and staff-cost decisions grounded in configured provider data"
         icon={PiggyBank}
       />
-      <UpcomingPlaceholder
-        title="Nominas y Costes"
-        description="Control de costes de personal vinculado a profesores, administrativos y convocatorias."
-        features={[
-          'Coste por profesor (horas asignadas x tarifa)',
-          'Coste por convocatoria (profesores + aula + materiales)',
-          'Margen de rentabilidad por curso/ciclo',
-          'Resumen mensual de costes de personal',
-          'Costes fijos de sede (alquiler, suministros)',
-          'Proyeccion de gastos por trimestre',
-        ]}
-      />
+      <Card><CardHeader><CardTitle>Payroll requires a configured finance source</CardTitle></CardHeader><CardContent className="space-y-4"><p className="text-sm text-muted-foreground">Akademate can show approved provider data after connection. Payroll calculation, contracts and tax filing remain provider-specific workflows with their own authorization.</p><Button variant="outline" asChild><Link href="/finanzas/integraciones">Review provider paths</Link></Button></CardContent></Card>
     </div>
   )
 }

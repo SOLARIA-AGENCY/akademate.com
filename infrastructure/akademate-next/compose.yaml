@@ -111,6 +111,13 @@ services:
       AKADEMATE_NEXT_PAYPAL_CLIENT_ID: ${AKADEMATE_NEXT_PAYPAL_CLIENT_ID:-}
       AKADEMATE_NEXT_PAYPAL_CLIENT_SECRET: ${AKADEMATE_NEXT_PAYPAL_CLIENT_SECRET:-}
       AKADEMATE_NEXT_PAYPAL_WEBHOOK_ID: ${AKADEMATE_NEXT_PAYPAL_WEBHOOK_ID:-}
+      AKADEMATE_NEXT_FINANCE_MODE: ${AKADEMATE_NEXT_FINANCE_MODE:-disabled}
+      AKADEMATE_NEXT_FINANCE_EXTERNAL_IO_ENABLED: ${AKADEMATE_NEXT_FINANCE_EXTERNAL_IO_ENABLED:-false}
+      AKADEMATE_NEXT_FINANCE_REAL_DATA_ENABLED: ${AKADEMATE_NEXT_FINANCE_REAL_DATA_ENABLED:-false}
+      AKADEMATE_NEXT_FINANCE_WEBHOOKS_ENABLED: ${AKADEMATE_NEXT_FINANCE_WEBHOOKS_ENABLED:-false}
+      AKADEMATE_NEXT_FINANCE_WRITEBACK_ENABLED: ${AKADEMATE_NEXT_FINANCE_WRITEBACK_ENABLED:-false}
+      AKADEMATE_NEXT_FINANCE_DRAINER_HMAC_KEY: ${AKADEMATE_NEXT_FINANCE_DRAINER_HMAC_KEY:-}
+      AKADEMATE_NEXT_FINANCE_DRAINER_URL: ${AKADEMATE_NEXT_FINANCE_DRAINER_URL:-http://tenant-admin:3009/api/internal/next/finance/drain}
       NEXT_TELEMETRY_DISABLED: "1"
     ports:
       - "127.0.0.1:${AKADEMATE_NEXT_TENANT_PORT:-3109}:3009"
@@ -125,6 +132,22 @@ services:
       timeout: 5s
       retries: 10
       start_period: 120s
+
+  finance-drainer:
+    image: node:22-alpine
+    restart: unless-stopped
+    depends_on:
+      tenant-admin:
+        condition: service_healthy
+    environment:
+      AKADEMATE_NEXT_FINANCE_DRAINER_URL: ${AKADEMATE_NEXT_FINANCE_DRAINER_URL:-http://tenant-admin:3009/api/internal/next/finance/drain}
+      AKADEMATE_NEXT_FINANCE_DRAINER_HMAC_KEY: ${AKADEMATE_NEXT_FINANCE_DRAINER_HMAC_KEY:-}
+      AKADEMATE_NEXT_FINANCE_DRAINER_INTERVAL_MS: ${AKADEMATE_NEXT_FINANCE_DRAINER_INTERVAL_MS:-5000}
+    command: ["node", "/opt/akademate/finance-drainer.mjs"]
+    volumes:
+      - ../../apps/tenant-admin/scripts/finance-drainer.mjs:/opt/akademate/finance-drainer.mjs:ro
+    networks:
+      - akademate_next_internal
 
   campus:
     image: akademate-next-campus:${AKADEMATE_NEXT_IMAGE_TAG:-local}
