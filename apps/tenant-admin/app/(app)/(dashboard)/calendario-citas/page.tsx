@@ -483,8 +483,8 @@ export default function LeadAppointmentsPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <Card>
+      <div className="grid h-full min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
+        <Card className="flex h-full min-h-0 flex-1 flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-3">
             <div>
               <CardTitle className="capitalize">{format(cursor, viewMode === 'month' ? 'MMMM yyyy' : "d 'de' MMMM yyyy", { locale: es })}</CardTitle>
@@ -507,7 +507,7 @@ export default function LeadAppointmentsPage() {
               <Button variant="outline" size="icon" onClick={() => void loadAppointments()}><RefreshCw className="h-4 w-4" /></Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 pt-0">
             {error && <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
             {loading ? (
               <div className="flex h-80 items-center justify-center text-muted-foreground"><Loader2 className="mr-2 h-5 w-5 animate-spin" />Cargando calendario</div>
@@ -579,7 +579,7 @@ export default function LeadAppointmentsPage() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid h-full min-h-0 flex-1 grid-cols-7 auto-rows-fr gap-1">
                 {days.map((day) => {
                   const dayAppointments = appointments.filter((appointment) => isSameDay(new Date(appointment.starts_at), day))
                   const active = isSameDay(day, selectedDate)
@@ -589,7 +589,7 @@ export default function LeadAppointmentsPage() {
                       type="button"
                       variant="outline"
                       onClick={() => setSelectedDate(day)}
-                      className={`h-auto min-h-32 justify-start rounded-xl p-3 text-left transition-colors ${active ? 'border-red-500 bg-red-50 hover:bg-red-50' : 'hover:border-red-200'} ${viewMode === 'month' && !isSameMonth(day, cursor) ? 'opacity-40' : ''}`}
+                      className={`h-full min-h-0 justify-start overflow-hidden rounded-lg p-1.5 text-left transition-colors ${active ? 'border-primary bg-primary/10 hover:bg-primary/10' : 'hover:border-primary/40'} ${viewMode === 'month' && !isSameMonth(day, cursor) ? 'opacity-40' : ''}`}
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-bold">{format(day, 'd', { locale: es })}</span>

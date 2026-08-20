@@ -83,6 +83,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           credentials: 'include',
           cache: 'no-store',
         })
+        if (response.status >= 500) {
+          console.warn('[DashboardLayout] Session probe unavailable; keep current cookies')
+          return
+        }
         if (!response.ok) {
           router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
           return
@@ -91,10 +95,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const payload = (await response.json()) as SessionResponse
         const user = payload.user
         if (!payload.authenticated || !user?.email) {
-          // A stale browser session used to leave the dashboard visible while
-          // its protected API calls returned 401 and rendered empty lists.
-          // Send the user through login instead of presenting misleading data.
-          await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
           router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
           return
         }
@@ -351,7 +351,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 md:p-6"
             data-oid="20tk9nh"
           >
-            {children}
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">{children}</div>
           </main>
 
           <DashboardFooter data-oid="jsy7wdn" />

@@ -39,6 +39,8 @@ import {
   PiggyBank,
   HandCoins,
   ClipboardList,
+  QrCode,
+  Video,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -180,6 +182,24 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
       { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
       { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
+      { title: 'Tareas', icon: ClipboardList, url: '/proximamente/tareas', upcoming: true },
+      { title: 'Asistencia interna', icon: QrCode, url: '/asistencia' },
+      { title: 'Selección', icon: ListTodo, url: '/seleccion' },
+      { title: 'Informes de cumplimiento', icon: FileText, url: '/informes-cumplimiento' },
+      { title: 'Sesiones en directo', icon: Video, url: '/proximamente/sesiones-live', upcoming: true },
+      { title: 'Grabaciones', icon: Video, url: '/proximamente/grabaciones', upcoming: true },
+    ],
+  },
+  {
+    title: 'Comunicación',
+    icon: MessageSquareQuote,
+    upcoming: true,
+    sectionBefore: 'PRÓXIMAMENTE',
+    items: [
+      { title: 'Mensajería', icon: MessageSquareQuote, url: '/proximamente/comunicacion', upcoming: true },
+      { title: 'Google Calendar', icon: CalendarDays, url: '/proximamente/calendario-google', upcoming: true },
+      { title: 'Centro de webhooks', icon: Globe, url: '/proximamente/webhooks', upcoming: true },
+      { title: 'SSO / SAML', icon: Shield, url: '/proximamente/sso', upcoming: true },
     ],
   },
   {
@@ -253,12 +273,12 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
             data-oid="bspggu-"
           />
 
-          <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" data-oid="z:_3-_d" />
+          <SubIcon className="h-4 w-4 shrink-0 text-sidebar-foreground-muted" />
           <span className="flex-1 text-left" data-oid="68y.1:a">
             {subItem.title}
           </span>
           <ChevronDown
-            className={`h-3 w-3 transition-transform text-foreground/50 ${
+            className={`h-3 w-3 transition-transform text-sidebar-foreground-muted ${
               nestedOpen || hasActiveNestedChild ? 'rotate-180' : ''
             }`}
             data-oid="wu7sv:t"
@@ -278,8 +298,8 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
                     href={nestedItem.url!}
                     className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
                       isNestedActive
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                        : ''
+                        ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                        : 'text-sidebar-foreground'
                     }`}
                     data-oid="edf83fk"
                   >
@@ -291,7 +311,7 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
                     />
 
                     <NestedIcon
-                      className="h-3 w-3 shrink-0 text-foreground/60"
+                      className="h-3 w-3 shrink-0 text-sidebar-foreground-muted"
                       data-oid="67suuti"
                     />
 
@@ -310,7 +330,9 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
     <Link
       href={subItem.url!}
       className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-        isSubActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : ''
+        isSubActive
+          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+          : 'text-sidebar-foreground'
       }`}
       data-oid="b-5u9jo"
     >
@@ -321,8 +343,8 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
         data-oid="c:6sgov"
       />
 
-      <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
-      <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
+      <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-sidebar-foreground-muted/50' : 'text-sidebar-foreground-muted'}`} />
+      <span className={subItem.upcoming ? 'italic text-sidebar-foreground-muted' : ''}>{subItem.title}</span>
       {subItem.upcoming ? <DashboardSidebarUpcomingBadge className="ml-auto" /> : null}
     </Link>
   )
@@ -409,7 +431,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           aria-label={item.title}
         >
           <Icon
-            className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-muted-foreground/40' : 'text-foreground/80'}`}
+            className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-sidebar-foreground-muted/50' : 'text-sidebar-foreground'}`}
           />
         </Button>
       </DropdownMenuTrigger>
@@ -455,7 +477,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
   return (
     <div
-      className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground"
+      className="flex h-full flex-col overflow-hidden bg-sidebar text-sidebar-foreground"
       data-oid="itwxk4a"
     >
       {/* Header - Logo + Text - Smooth transition */}
@@ -509,7 +531,9 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     <Link
                       href={item.url!}
                       className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
-                        isActive ? `bg-sidebar-accent text-sidebar-accent-foreground` : ''
+                        isActive
+                          ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                          : 'text-sidebar-foreground'
                       } ${topLevelBaseClass}`}
                       title={isCollapsed ? item.title : undefined}
                       data-oid="5zqti0j"
@@ -526,7 +550,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       />
 
                       <Icon
-                        className="h-5 w-5 shrink-0 text-foreground/80 group-hover:text-foreground"
+                        className="h-5 w-5 shrink-0 text-current"
                         data-oid="vtc2v7g"
                       />
 
@@ -572,7 +596,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     variant="ghost"
                     onClick={() => toggleSection(item.title)}
                     className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
-                      hasActiveChild && !isCollapsed ? 'bg-sidebar-accent/60' : ''
+                      hasActiveChild && !isCollapsed ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground'
                     } ${topLevelBaseClass}`}
                     title={isCollapsed ? item.title : undefined}
                     data-oid="47oydbm"
@@ -589,7 +613,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     />
 
                     <Icon
-                      className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-muted-foreground/40' : 'text-foreground/80'}`}
+                      className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-sidebar-foreground-muted/50' : 'text-sidebar-foreground'}`}
                       data-oid="o_-brke"
                     />
 
@@ -598,7 +622,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                         isCollapsed
                           ? 'w-0 opacity-0 overflow-hidden'
                           : 'flex-1 w-auto opacity-100 text-left'
-                      } ${item.upcoming ? 'italic text-muted-foreground/60' : ''}`}
+                      } ${item.upcoming ? 'italic text-sidebar-foreground-muted' : ''}`}
                       data-oid="eg9lgi8"
                     >
                       {item.title}
@@ -654,7 +678,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={onToggle}
-              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent transition-colors text-foreground/70"
+              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent transition-colors text-sidebar-foreground-muted"
               title={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
               data-oid=".6.qflx"
             >
@@ -676,7 +700,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           title={isCollapsed ? 'Ayuda y Documentación' : undefined}
           data-oid="yyqlipb"
         >
-          <HelpCircle className="h-4 w-4 shrink-0 text-foreground/70" data-oid="jhy3iek" />
+          <HelpCircle className="h-4 w-4 shrink-0 text-sidebar-foreground-muted" />
           <div
             className={`min-w-0 transition-all duration-300 ease-in-out ${
               isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100'
@@ -684,13 +708,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
             data-oid="1rnn:zw"
           >
             <p
-              className="text-sm text-muted-foreground truncate whitespace-nowrap"
+              className="text-sm text-sidebar-foreground truncate whitespace-nowrap"
               data-oid="10c0ke6"
             >
               Ayuda y Documentación
             </p>
             <p
-              className="text-xs text-muted-foreground/70 truncate whitespace-nowrap"
+              className="text-xs text-sidebar-foreground-muted truncate whitespace-nowrap"
               data-oid=":jyoxpo"
             >
               Guías y soporte técnico

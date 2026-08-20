@@ -12,7 +12,16 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import {
+  DashboardListingLayout,
+  DashboardToolbar,
+  ListingActions,
+} from '@payload-config/components/akademate/dashboard'
+import {
+  ListingColumnBoard,
+  ListingColumnCard,
+  WAITLIST_LIST_COLUMNS,
+} from '@payload-config/components/akademate/dashboard/ListingColumnBoard'
 import {
   Select,
   SelectContent,
@@ -20,14 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@payload-config/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,9 +38,7 @@ import {
 } from '@payload-config/components/ui/dropdown-menu'
 import {
   Plus,
-  Search,
   ListTodo,
-  Mail,
   Eye,
   MoreHorizontal,
   CheckCircle2,
@@ -49,10 +48,8 @@ import {
   ArrowDown,
   Bell,
   Send,
-  User,
   GraduationCap,
   AlertCircle,
-  UserCheck,
   CalendarClock,
 } from 'lucide-react'
 
@@ -299,100 +296,30 @@ export default function ListaEsperaPage() {
   }
 
   return (
-    <div className="space-y-6" data-oid=":z2a6yu">
-      <PageHeader
-        title="Lista de Espera"
-        description="Gestión de alumnos en espera para cursos con plazas completas"
-        icon={ListTodo}
-        actions={
+    <DashboardListingLayout
+      title="Lista de espera"
+      icon={ListTodo}
+      actions={
+        <ListingActions>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Exportar</span>
+          </Button>
+          <Button size="sm">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Añadir</span>
+          </Button>
+        </ListingActions>
+      }
+      toolbar={
+      <DashboardToolbar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Buscar por nombre, email o curso..."
+        filters={
           <>
-            <Button variant="outline" data-oid="53sf6zb">
-              <Download className="mr-2 h-4 w-4" data-oid="4i5_man" />
-              Exportar
-            </Button>
-            <Button style={{ backgroundColor: '#F2014B' }} data-oid="1nzhime">
-              <Plus className="mr-2 h-4 w-4" data-oid="ovglfi1" />
-              Añadir a Lista
-            </Button>
-          </>
-        }
-        data-oid="o_b65jb"
-      />
-
-      {loadError && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {loadError}
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-5" data-oid=".k1vwbb">
-        <Card data-oid=":ic0rhg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" data-oid="e8:g-xg">
-            <CardTitle className="text-sm font-medium" data-oid="2kpwg4m">Total en Espera</CardTitle>
-            <ListTodo className="h-4 w-4 text-muted-foreground" data-oid="8zr69af" />
-          </CardHeader>
-          <CardContent data-oid=":6vs.z9">
-            <div className="text-2xl font-bold" data-oid="mg3hpv3">{stats.total}</div>
-            <p className="text-xs text-muted-foreground" data-oid="dj3kbh-">personas en cola</p>
-          </CardContent>
-        </Card>
-        <Card data-oid="er9d4t7">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" data-oid="73t_ek8">
-            <CardTitle className="text-sm font-medium" data-oid="x3i5z4u">Esperando Plaza</CardTitle>
-            <Clock className="h-4 w-4 text-primary" data-oid="pxt59_:" />
-          </CardHeader>
-          <CardContent data-oid="ohskkj-">
-            <div className="text-2xl font-bold text-primary" data-oid="v4.e_jc">{stats.enLista}</div>
-            <p className="text-xs text-muted-foreground" data-oid="6:t9phj">activos en lista</p>
-          </CardContent>
-        </Card>
-        <Card data-oid="h-2lqbp">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" data-oid="q0b88rx">
-            <CardTitle className="text-sm font-medium" data-oid="wuzd:cb">Notificados</CardTitle>
-            <Bell className="h-4 w-4 text-amber-500" data-oid="o5gwiaq" />
-          </CardHeader>
-          <CardContent data-oid="7kg57g6">
-            <div className="text-2xl font-bold text-amber-600" data-oid="9ew9qr5">{stats.notificados}</div>
-            <p className="text-xs text-muted-foreground" data-oid="r8thyqi">esperando respuesta</p>
-          </CardContent>
-        </Card>
-        <Card data-oid="djblo4p">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" data-oid="hr.8wgd">
-            <CardTitle className="text-sm font-medium" data-oid="x_44bk_">Convertidos</CardTitle>
-            <UserCheck className="h-4 w-4 text-green-500" data-oid="kixare2" />
-          </CardHeader>
-          <CardContent data-oid="w4s.t3.">
-            <div className="text-2xl font-bold text-green-600" data-oid="ihqudoq">{stats.aceptados}</div>
-            <p className="text-xs text-muted-foreground" data-oid="7uxiof6">a matrícula</p>
-          </CardContent>
-        </Card>
-        <Card data-oid="68c2cey">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" data-oid="iss4dfn">
-            <CardTitle className="text-sm font-medium" data-oid="asagr.u">Alta Prioridad</CardTitle>
-            <ArrowUp className="h-4 w-4 text-red-500" data-oid=".44ognf" />
-          </CardHeader>
-          <CardContent data-oid="1.rxc8d">
-            <div className="text-2xl font-bold text-red-600" data-oid="o2r:cjl">{stats.altaPrioridad}</div>
-            <p className="text-xs text-muted-foreground" data-oid="gm48._.">requieren atención</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card data-oid="0u79uyp">
-        <CardContent className="pt-6" data-oid="0mvn09s">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center" data-oid="o9suy7i">
-            <div className="relative flex-1" data-oid="0aaltmb">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" data-oid=".7uaf9w" />
-              <Input
-                placeholder="Buscar por nombre, email o curso..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                data-oid="3z7b7m-"
-              />
-            </div>
             <Select value={estadoFilter} onValueChange={setEstadoFilter} data-oid="7dgx4rv">
-              <SelectTrigger className="w-full md:w-[160px]" data-oid="yu3j8f.">
+              <SelectTrigger className="w-full min-w-0" data-oid="yu3j8f.">
                 <SelectValue placeholder="Estado" data-oid="93sn777" />
               </SelectTrigger>
               <SelectContent data-oid="uk41dlm">
@@ -404,7 +331,7 @@ export default function ListaEsperaPage() {
               </SelectContent>
             </Select>
             <Select value={prioridadFilter} onValueChange={setPrioridadFilter} data-oid="s1r.oqf">
-              <SelectTrigger className="w-full md:w-[160px]" data-oid=".fs52rt">
+              <SelectTrigger className="w-full min-w-0" data-oid=".fs52rt">
                 <SelectValue placeholder="Prioridad" data-oid="p1zkq3g" />
               </SelectTrigger>
               <SelectContent data-oid="j5qs2rf">
@@ -415,7 +342,7 @@ export default function ListaEsperaPage() {
               </SelectContent>
             </Select>
             <Select value={sedeFilter} onValueChange={setSedeFilter} data-oid="4o6lea0">
-              <SelectTrigger className="w-full md:w-[160px]" data-oid="xh4o4t2">
+              <SelectTrigger className="w-full min-w-0" data-oid="xh4o4t2">
                 <SelectValue placeholder="Sede" data-oid="e2qqst:" />
               </SelectTrigger>
               <SelectContent data-oid=".0v:swn">
@@ -427,130 +354,110 @@ export default function ListaEsperaPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        }
+      />
+      }
+    >
+      {loadError ? (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {loadError}
+        </div>
+      ) : null}
 
-      <Card data-oid="azi5ug-">
-        <CardHeader data-oid=":ga6fxb">
-          <CardTitle className="flex items-center gap-2" data-oid="vh64q2n">
-            <ListTodo className="h-5 w-5" style={{ color: '#F2014B' }} data-oid="97xaqye" />
-            Cola de Espera ({filteredLista.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent data-oid="ht.2qc.">
-          <Table data-oid="kp7wko7">
-            <TableHeader data-oid="-3ef:-6">
-              <TableRow data-oid="uzh.aqg">
-                <TableHead className="w-[60px]" data-oid="zapr59u">#</TableHead>
-                <TableHead data-oid="1_8hm1j">Alumno</TableHead>
-                <TableHead data-oid="zpjgupt">Origen/Curso</TableHead>
-                <TableHead data-oid="c4ymqb6">Convocatoria</TableHead>
-                <TableHead data-oid="2wnxep0">Prioridad</TableHead>
-                <TableHead data-oid="nggta-g">Interesados</TableHead>
-                <TableHead data-oid="3f3e9zc">Estado</TableHead>
-                <TableHead className="text-right" data-oid="-0nl6gc">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody data-oid="v.z4srb">
-              {filteredLista.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="py-10 text-center text-sm text-muted-foreground">
-                    No hay registros en lista de espera.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredLista.map((item) => {
-                  const prioridadInfo = prioridadConfig[item.prioridad]
-                  const estadoInfo = estadoConfig[item.estado]
-                  const StatusIcon = estadoInfo.icon
-                  return (
-                    <TableRow key={item.id} data-oid="ims98dw">
-                      <TableCell data-oid="ok51osp">
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center font-bold text-sm" data-oid="3hwlj:5">
-                          {item.posicion}
-                        </div>
-                      </TableCell>
-                      <TableCell data-oid="onq6rhv">
-                        <div className="flex items-center gap-3" data-oid=":fq6::r">
-                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center" data-oid="mg53wj-">
-                            <User className="h-5 w-5 text-muted-foreground" data-oid="ddxz:k:" />
-                          </div>
-                          <div className="flex flex-col" data-oid="tvev8qb">
-                            <span className="font-medium" data-oid="gukinnx">{item.alumno.nombre}</span>
-                            <span className="text-sm text-muted-foreground flex items-center gap-1" data-oid="w30yd86">
-                              <Mail className="h-3 w-3" data-oid="qu399.w" />
-                              {item.alumno.email}
-                            </span>
-                            <span className="text-xs text-muted-foreground">{item.asesor}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell data-oid="s7_5_6s">
-                        <div className="flex flex-col" data-oid="4h3h3f1">
-                          <span className="font-medium" data-oid="2av1dt8">{item.curso}</span>
-                          <span className="text-xs text-muted-foreground">{item.origen}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell data-oid="k2lp3kw">
-                        <div className="flex flex-col" data-oid="4h5-tmf">
-                          <span className="font-mono text-sm" data-oid="g0ccc7a">{item.convocatoria}</span>
-                          <span className="text-xs text-muted-foreground">{item.sede}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell data-oid="7_2_q5k">
-                        <Badge className={`${prioridadInfo.bgColor} ${prioridadInfo.color}`} data-oid="loxzcn_">
-                          {item.prioridad === 'alta' && <ArrowUp className="h-3 w-3 mr-1" data-oid="k-drmc7" />}
-                          {item.prioridad === 'baja' && <ArrowDown className="h-3 w-3 mr-1" data-oid="nhb-89d" />}
-                          {prioridadInfo.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell data-oid="d09b7b_">
-                        <span className="font-bold text-lg" data-oid="q40i-s0">{item.interesadosActuales}</span>
-                        <span className="text-xs text-muted-foreground ml-1" data-oid="_.izh8j">/ {item.umbralApertura}</span>
-                      </TableCell>
-                      <TableCell data-oid=":884hq1">
-                        <Badge className={`${estadoInfo.bgColor} ${estadoInfo.color} flex items-center gap-1 w-fit`} data-oid="bg:eqsf">
-                          <StatusIcon className="h-3 w-3" data-oid="d6doip4" />
-                          {estadoInfo.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right" data-oid="ew9or93">
-                        <DropdownMenu data-oid="01b42ll">
-                          <DropdownMenuTrigger asChild data-oid="9ze8cw1">
-                            <Button variant="ghost" size="sm" data-oid="gaxv35s">
-                              <MoreHorizontal className="h-4 w-4" data-oid=".td9-en" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" data-oid="jd5b5xx">
-                            <DropdownMenuItem data-oid="5snr0f-" onClick={() => router.push(`/inscripciones/${item.id}`)}>
-                              <Eye className="mr-2 h-4 w-4" data-oid="4rqqu_r" />
-                              Ver ficha
-                            </DropdownMenuItem>
-                            <DropdownMenuItem data-oid="1brdajr">
-                              <Send className="mr-2 h-4 w-4" data-oid="qvug3cq" />
-                              Proponer apertura
-                            </DropdownMenuItem>
-                            <DropdownMenuItem data-oid="iralw8l" onClick={() => router.push(`/leads/${item.id}`)}>
-                              <ArrowUp className="mr-2 h-4 w-4" data-oid="8r-se11" />
-                              Convertir a lead
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator data-oid="m-xk1f-" />
-                            <DropdownMenuItem className="text-green-600" onClick={() => router.push(`/inscripciones/${item.id}`)}>
-                              <GraduationCap className="mr-2 h-4 w-4" />
-                              Iniciar matriculación
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <ListingColumnBoard columns={WAITLIST_LIST_COLUMNS}>
+        {filteredLista.length === 0 ? (
+          <Card className="px-3 py-10 text-center text-sm text-muted-foreground">
+            No hay registros en lista de espera.
+          </Card>
+        ) : (
+          filteredLista.map((item) => {
+            const prioridadInfo = prioridadConfig[item.prioridad]
+            const estadoInfo = estadoConfig[item.estado]
+            const StatusIcon = estadoInfo.icon
+            return (
+              <ListingColumnCard
+                key={item.id}
+                columns={WAITLIST_LIST_COLUMNS}
+                onClick={() => router.push(`/inscripciones/${item.id}`)}
+                cells={[
+                  <div
+                    key="posicion"
+                    className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-semibold"
+                  >
+                    {item.posicion}
+                  </div>,
+                  <div key="alumno" className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{item.alumno.nombre}</p>
+                    <p className="truncate text-xs text-muted-foreground">{item.alumno.email}</p>
+                  </div>,
+                  <div key="origen" className="min-w-0">
+                    <p className="truncate text-sm font-medium">{item.curso}</p>
+                    <p className="truncate text-xs text-muted-foreground">{item.origen}</p>
+                  </div>,
+                  <div key="convocatoria" className="min-w-0">
+                    <p className="truncate text-sm">{item.convocatoria}</p>
+                    <p className="truncate text-xs text-muted-foreground">{item.sede}</p>
+                  </div>,
+                  <Badge key="prioridad" variant="static" className={`${prioridadInfo.bgColor} ${prioridadInfo.color}`}>
+                    {item.prioridad === 'alta' ? <ArrowUp className="mr-1 h-3 w-3" /> : null}
+                    {item.prioridad === 'baja' ? <ArrowDown className="mr-1 h-3 w-3" /> : null}
+                    {prioridadInfo.label}
+                  </Badge>,
+                  <span key="interesados" className="text-sm">
+                    {item.interesadosActuales}
+                    <span className="ml-1 text-xs text-muted-foreground">/ {item.umbralApertura}</span>
+                  </span>,
+                  <Badge
+                    key="estado"
+                    variant="static"
+                    className={`${estadoInfo.bgColor} ${estadoInfo.color} flex w-fit items-center gap-1`}
+                  >
+                    <StatusIcon className="h-3 w-3" />
+                    {estadoInfo.label}
+                  </Badge>,
+                  <div key="acciones" className="flex items-center justify-end gap-1" onClick={(event) => event.stopPropagation()}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/inscripciones/${item.id}`)}
+                    >
+                      Ver
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button type="button" variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/inscripciones/${item.id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Ver ficha
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Send className="mr-2 h-4 w-4" />
+                          Proponer apertura
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/leads/${item.id}`)}>
+                          <ArrowUp className="mr-2 h-4 w-4" />
+                          Convertir a lead
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => router.push(`/inscripciones/${item.id}`)}>
+                          <GraduationCap className="mr-2 h-4 w-4" />
+                          Iniciar matriculación
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>,
+                ]}
+              />
+            )
+          })
+        )}
+      </ListingColumnBoard>
 
       <div className="grid gap-4 md:grid-cols-2" data-oid="-fsza4.">
         <Card data-oid="wsxsr4v">
@@ -625,6 +532,6 @@ export default function ListaEsperaPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardListingLayout>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
-import { useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { safeInternalRedirect } from '@/app/lib/safe-internal-redirect'
 import Link from 'next/link'
 import { Button } from '@payload-config/components/ui/button'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
@@ -30,6 +31,8 @@ interface LoginResponse {
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextPath = safeInternalRedirect(searchParams.get('redirect'))
   const { branding, loading: brandingLoading } = useTenantBranding()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -93,8 +96,7 @@ export default function LoginPage() {
           }),
         })
 
-        // Redirect to dashboard
-        router.push('/dashboard')
+        router.push(nextPath)
         router.refresh()
       } else {
         setError(data.message ?? 'Email o contraseña incorrectos')
@@ -106,6 +108,27 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    const resumeSession = async () => {
+      try {
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        })
+        if (!response.ok) return
+        const payload = (await response.json()) as { authenticated?: boolean }
+        if (payload.authenticated) {
+          router.replace(nextPath)
+        }
+      } catch {
+        // Stay on login if the session probe fails.
+      }
+    }
+
+    void resumeSession()
+  }, [nextPath, router])
 
   return (
     <AuthShell

@@ -88,7 +88,7 @@ export async function GET(request?: NextRequest) {
 
   } catch (error) {
     console.error('[/api/auth/session] Error:', error)
-    return NextResponse.json({ user: null, authenticated: false })
+    return NextResponse.json({ user: null, authenticated: false, error: 'session_unavailable' }, { status: 503 })
   }
 }
 
