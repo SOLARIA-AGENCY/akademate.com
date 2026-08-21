@@ -48,7 +48,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       eyebrow: 'A studio people return to',
       title: 'Make every arrival feel effortless.',
       description:
-        'Reception, instructors and members share the same view of classes, access and membership.',
+        'Reception, instructors and members share classes and access.',
       image: '/images/marketing/wellness-member-checkin-v1.jpg',
       imageAlt: 'Wellness studio member checking in by QR while an instructor prepares the class',
       roles: [
@@ -79,7 +79,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       eyebrow: 'One season, clearly coordinated',
       title: 'Turn every trial into the right next step.',
       description:
-        'Coaches, coordinators and guardians move from assessment to team, facility and season together.',
+        'Coaches, coordinators and guardians share team and season.',
       image: '/images/marketing/sports-trial-team-placement-v1.jpg',
       imageAlt:
         'Coach assessing young athletes at a football trial with an academy coordinator and guardian',
@@ -109,9 +109,9 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
   seasonal: {
     en: {
       eyebrow: 'Ready for the first morning',
-      title: 'Open bookings with every arrival detail connected.',
+      title: 'Open bookings with arrivals connected.',
       description:
-        'Families and camp teams share dates, deposits, health notes, groups and authorised pickup.',
+        'Families and camp teams share dates, deposits and pickup.',
       image: '/images/marketing/seasonal-family-checkin-v1.jpg',
       imageAlt:
         'Family checking in a child at a seasonal camp with organised activity leaders nearby',
@@ -141,9 +141,9 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
   'performing-arts': {
     en: {
       eyebrow: 'Classes and stage in the same rhythm',
-      title: 'Coordinate every studio, teacher and performance.',
+      title: 'Coordinate studios, teachers and shows.',
       description:
-        'The weekly timetable and the path to performance share rooms, resources, progress and family accounts.',
+        'Timetables and performances share rooms, progress and billing.',
       image: '/images/marketing/performing-arts-studio-operations-v1.jpg',
       imageAlt:
         'Performing arts coordinator planning shared studios while dance and piano sessions take place',
@@ -175,7 +175,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       eyebrow: 'More than a video call',
       title: 'Give every cohort a clear learning rhythm.',
       description:
-        'Facilitators, operations and learners connect live sessions, recordings, assignments and community.',
+        'Facilitators and learners share sessions, recordings and tasks.',
       image: '/images/marketing/online-cohort-live-production-v1.jpg',
       imageAlt:
         'Educator and learning producer running a live online cohort session in a professional studio',
@@ -207,7 +207,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       eyebrow: 'The right learner in the right group',
       title: 'Connect placement, schedules and progress.',
       description:
-        'Academic teams match level, availability, teacher and location before confirming the learner journey.',
+        'Academic teams match level, teacher and location first.',
       image: '/images/marketing/languages-placement-scheduling-v1.jpg',
       imageAlt:
         'Language teacher conducting a placement interview while a coordinator reviews group schedules',
@@ -239,7 +239,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       eyebrow: 'Shared standards, local operation',
       title: 'See the network and respect every location.',
       description:
-        'Central and local teams coordinate brands, permissions, catalogues, domains and financial scope.',
+        'Central and local teams share brands, catalogues and finance.',
       image: '/images/marketing/networks-central-local-operations-v1.jpg',
       imageAlt: 'Central and local academy managers coordinating plans with a remote campus leader',
       roles: [

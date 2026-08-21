@@ -124,13 +124,13 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             </div>
             <div>
               <p className="text-sm font-semibold text-blue-700">{experience.eyebrow}</p>
-              <h2 className="mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+              <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-[-0.045em] sm:text-4xl">
                 {experience.title}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
                 {experience.description}
               </p>
-              <div className="mt-9 grid gap-3 sm:grid-cols-3">
+              <div className="mt-9 grid gap-3">
                 {experience.roles.map((role) => (
                   <article
                     key={role.title}

@@ -172,7 +172,7 @@ test.describe('public EN/ES parity', () => {
       const tab = tabs.nth(index)
       await tab.evaluate((node) => {
         node.scrollIntoView({ block: 'center' })
-        node.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+        ;(node as HTMLButtonElement).click()
       })
       await expect(tab).toHaveAttribute('aria-selected', 'true')
       await expect(catalogue.getByRole('tabpanel')).toBeVisible()
