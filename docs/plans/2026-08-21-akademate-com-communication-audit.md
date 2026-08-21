@@ -4,7 +4,8 @@
 **Estado:** Listo para implementación  
 **Sitio auditado:** [https://akademate.com](https://akademate.com) (EN/ES, producción viva)  
 **Producto:** SaaS vertical para academias (web + admisiones + operación + campus + pagos)  
-**Objetivo del trabajo:** convertir el home en un landing de ventas enterprise internacional, con menos texto, menos superficie y más producto.
+**Objetivo del trabajo:** convertir el home en un landing de ventas enterprise internacional, con menos texto, menos superficie y más producto.  
+**Plan de implementación:** [`2026-08-21-akademate-home-landing-implementation.md`](./2026-08-21-akademate-home-landing-implementation.md)
 
 ---
 
