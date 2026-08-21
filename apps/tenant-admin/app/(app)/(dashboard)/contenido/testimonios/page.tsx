@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useRouter } from 'next/navigation'
 import {
   AcademicEntityCard,
   AKADEMATE_ACADEMIC_FALLBACK_IMAGE,
@@ -33,6 +34,7 @@ type TestimonialRow = {
 }
 
 export default function TestimoniosPage() {
+  const router = useRouter()
   const [rows, setRows] = React.useState<TestimonialRow[]>([])
   const [query, setQuery] = React.useState('')
   const [isLoading, setIsLoading] = React.useState(true)
@@ -139,6 +141,8 @@ export default function TestimoniosPage() {
               variant="list"
               title={row.name}
               fallbackImage={AKADEMATE_ACADEMIC_FALLBACK_IMAGE}
+              onClick={() => router.push(`/contenido/testimonios/${row.id}`)}
+              onCtaClick={() => router.push(`/contenido/testimonios/${row.id}`)}
               badge={
                 <Badge
                   variant="static"
