@@ -45,6 +45,7 @@ export type PreviewCopy = {
     exampleCoursePage: string
     title: string
     description: string
+    dateTitle: string
     dateDescription: string
     timeDescription: string
     locationTitle: string

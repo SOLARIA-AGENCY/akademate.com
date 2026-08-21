@@ -47,7 +47,9 @@ describe('public marketing architecture', () => {
     expect(plans.every((plan) => words(plan.description) <= 12)).toBe(true)
 
     const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
-    expect(home).toContain('<ul className="compact-feature-list">')
+    const features = readFileSync(new URL('../app/features/page.tsx', import.meta.url), 'utf8')
+    expect(home).not.toContain('<ul className="compact-feature-list">')
+    expect(features).toContain('<ul className="compact-feature-list">')
     expect(home).not.toContain("pillar.capabilities.join(' · ')")
   })
 
@@ -247,12 +249,10 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/AcademyOperationsStory.tsx', import.meta.url),
       'utf8'
     )
-    expect(home.indexOf('<ConnectedExperiences')).toBeLessThan(
-      home.indexOf('<WebsiteDistributionPreview')
-    )
-    expect(home.indexOf('One platform. Every part of the academy.')).toBeLessThan(
-      home.indexOf('<WebsiteDistributionPreview')
-    )
+    expect(home).toContain('<ConnectedExperiences')
+    expect(home).toContain('<CourseRegistrationPreview')
+    expect(home).not.toContain('<WebsiteDistributionPreview')
+    expect(home).not.toContain('One platform. Every part of the academy.')
     expect(home).toContain('<AcademyOperationsStory')
     expect(home).not.toContain('<AcademySetupJourney')
     expect(operationsComponent).toContain('getHomeExperienceContent')
@@ -562,9 +562,10 @@ describe('public marketing architecture', () => {
       '/pricing',
       '/sobre-nosotros',
     ])
-    expect(publicNavigation.find((item) => item.href === '/blog')).toBeUndefined()
-    expect(publicNavigation.find((item) => item.href === '/news')).toBeUndefined()
-    expect(publicNavigation.find((item) => item.href === '/download')).toBeUndefined()
+    const navigationHrefs: readonly string[] = publicNavigation.map((item) => item.href)
+    expect(navigationHrefs).not.toContain('/blog')
+    expect(navigationHrefs).not.toContain('/news')
+    expect(navigationHrefs).not.toContain('/download')
     expect(publicCompanyLinks.find((item) => item.href === '/blog')?.name).toBe('Blog')
     expect(publicCompanyLinks.find((item) => item.href === '/news')?.name).toBe('News')
   })
