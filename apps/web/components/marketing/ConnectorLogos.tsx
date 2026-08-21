@@ -7,9 +7,11 @@ import { integrationBrands, type IntegrationBrandId } from '@/lib/integration-br
 export function ConnectorLogos({
   ids,
   compact = false,
+  hideStatus = false,
 }: {
   ids: readonly IntegrationBrandId[]
   compact?: boolean
+  hideStatus?: boolean
 }) {
   const copy = usePreviewCopy()
   if (ids.length === 0)
@@ -26,7 +28,9 @@ export function ConnectorLogos({
           <div
             key={id}
             className={`group flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-white ${compact ? 'px-3 py-2' : 'min-h-12 px-4 py-3'}`}
-            title={`${brand.label}: ${copy.connectors.status[brand.status]}`}
+            title={
+              hideStatus ? brand.label : `${brand.label}: ${copy.connectors.status[brand.status]}`
+            }
           >
             {'preserveColor' in brand && brand.preserveColor ? (
               <span className="relative h-5 w-8 overflow-hidden">
@@ -53,9 +57,11 @@ export function ConnectorLogos({
               <span className="block truncate text-xs font-semibold text-slate-800">
                 {brand.label}
               </span>
-              <span className="block truncate text-[10px] leading-4 text-slate-400">
-                {copy.connectors.status[brand.status]}
-              </span>
+              {hideStatus ? null : (
+                <span className="block truncate text-[10px] leading-4 text-slate-400">
+                  {copy.connectors.status[brand.status]}
+                </span>
+              )}
             </span>
           </div>
         )

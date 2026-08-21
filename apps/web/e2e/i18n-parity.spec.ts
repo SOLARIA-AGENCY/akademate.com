@@ -97,6 +97,8 @@ test.describe('public EN/ES parity', () => {
           'Fill every course',
           'See Akademate on your academy.',
           'EU-hosted. GDPR ready.',
+          'Live academy on Akademate',
+          'CEP Formación runs offer, enrolment and campus on Akademate',
         ],
       },
       {

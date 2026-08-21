@@ -220,6 +220,9 @@ export const spanishMarketingCopy = {
   'Learner-rated experience': 'Experiencia valorada por alumnos',
   'See public feedback from a live Akademate academy':
     'Consulta opiniones públicas de una academia Akademate activa',
+  'Live academy on Akademate': 'Academia activa sobre Akademate',
+  'CEP Formación runs offer, enrolment and campus on Akademate':
+    'CEP Formación opera oferta, captación y campus sobre Akademate',
   'Consent-aware enquiries': 'Consultas con consentimiento',
   'Clear privacy choices before people share their details':
     'Opciones de privacidad claras antes de compartir datos',

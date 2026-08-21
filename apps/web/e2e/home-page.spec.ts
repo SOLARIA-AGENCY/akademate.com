@@ -28,7 +28,14 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('link', { name: 'Language academies' })).toBeVisible()
     const trustSignals = page.getByRole('region', { name: 'Akademate trust signals' })
     await expect(trustSignals).toBeVisible()
-    await expect(trustSignals.getByText('Learner-rated experience')).toBeVisible()
+    await expect(page.locator('main > section')).toHaveCount(8)
+    await expect(trustSignals.getByText('Live academy on Akademate')).toBeVisible()
+    await expect(
+      trustSignals.getByText('CEP Formación runs offer, enrolment and campus on Akademate')
+    ).toBeVisible()
+    await expect(page.locator('main')).not.toContainText(
+      /Learner-rated experience|coming soon|Connector-ready/i
+    )
     await expect(trustSignals.getByText('Consent-aware enquiries')).toBeVisible()
     await expect(trustSignals).not.toContainText(/trustpilot/i)
     await expect(

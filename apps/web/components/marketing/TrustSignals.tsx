@@ -1,14 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowUpRight, Building2, Layers3, ShieldCheck, Star } from 'lucide-react'
+import { ArrowUpRight, Building2, Globe2, Layers3, ShieldCheck } from 'lucide-react'
 import { useMarketingText } from '@/components/i18n/use-marketing-text'
 
 const trustSignals = [
   {
-    icon: Star,
-    label: 'Learner-rated experience',
-    detail: 'See public feedback from a live Akademate academy',
+    icon: Globe2,
+    label: 'Live academy on Akademate',
+    detail: 'CEP Formación runs offer, enrolment and campus on Akademate',
     href: 'https://cepformacion.akademate.com/',
   },
   {
@@ -31,19 +31,17 @@ const trustSignals = [
 export function TrustSignals() {
   const t = useMarketingText()
   return (
-    <section
+    <div
+      role="region"
       aria-label={t('Akademate trust signals')}
       className="border-b border-slate-200 bg-[#f8faff] px-4 sm:px-6 lg:px-8"
     >
       <div className="mx-auto grid max-w-7xl border-x border-slate-200 sm:grid-cols-2 lg:grid-cols-4">
-        {trustSignals.map(({ icon: Icon, label, detail, ...signal }, index) => {
+        {trustSignals.map(({ icon: Icon, label, detail, ...signal }) => {
           const content = (
             <>
               <div className="flex items-center gap-2 text-blue-700">
-                <Icon
-                  className={`h-5 w-5 ${index === 0 ? 'fill-amber-400 text-amber-400' : ''}`}
-                  aria-hidden="true"
-                />
+                <Icon className="h-5 w-5" aria-hidden="true" />
                 <span className="text-sm font-semibold text-[#071633]">{t(label)}</span>
               </div>
               <span className="mt-2 block text-xs leading-5 text-slate-500">{t(detail)}</span>
@@ -71,6 +69,6 @@ export function TrustSignals() {
           )
         })}
       </div>
-    </section>
+    </div>
   )
 }

@@ -88,8 +88,10 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <ClientMarquee />
-        <TrustSignals />
+        <section>
+          <ClientMarquee />
+          <TrustSignals />
+        </section>
 
         <section id="reservations" className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
@@ -113,11 +115,11 @@ export default async function HomePage() {
         <AcademyOperationsStory />
 
         <ConnectedExperiences />
-        <section className="border-y border-blue-200 bg-[#eaf1ff] px-4 py-10 sm:px-6 lg:px-8">
+        <div className="border-y border-blue-200 bg-[#eaf1ff] px-4 py-10 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
-            <ConnectorLogos ids={homeIntegrationBrands} />
+            <ConnectorLogos hideStatus ids={homeIntegrationBrands} />
           </div>
-        </section>
+        </div>
 
         <section id="solutions" className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">

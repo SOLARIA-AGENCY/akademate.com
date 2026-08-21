@@ -502,7 +502,8 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/TrustSignals.tsx', import.meta.url),
       'utf8'
     )
-    expect(trustSignals).toContain('Learner-rated experience')
+    expect(trustSignals).toContain('Live academy on Akademate')
+    expect(trustSignals).toContain('CEP Formación runs offer, enrolment and campus on Akademate')
     expect(trustSignals).toContain('Consent-aware enquiries')
     expect(trustSignals).toContain('https://cepformacion.akademate.com/')
     expect(trustSignals).not.toMatch(/trustpilot|g2 crowd|capterra/i)

@@ -12,7 +12,7 @@ const rows = [
 export function ClientMarquee() {
   const t = useMarketingText()
   return (
-    <section
+    <div
       aria-labelledby="client-marquee-title"
       className="overflow-hidden border-y border-slate-200 bg-white py-8"
     >
@@ -41,6 +41,6 @@ export function ClientMarquee() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   )
 }
