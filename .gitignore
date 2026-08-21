@@ -3,6 +3,7 @@ node_modules
 .pnp*
 .turbo
 .next
+.open-next
 /.yarn
 
 # Output
