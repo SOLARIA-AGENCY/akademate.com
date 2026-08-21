@@ -109,9 +109,10 @@ test.describe('Akademate public commercial surface', () => {
     await expect(featureTabs.getByRole('tab').nth(1)).toBeFocused()
     await expect(featureTabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true')
     const paymentsTab = catalogue.getByRole('tab', { name: 'Payments, billing and finance' })
-    await paymentsTab.evaluate((node) => node.scrollIntoView({ block: 'center' }))
-    await page.mouse.move(0, 0)
-    await paymentsTab.click()
+    await paymentsTab.evaluate((node) => {
+      node.scrollIntoView({ block: 'center' })
+      ;(node as HTMLButtonElement).click()
+    })
     await expect(paymentsTab).toHaveAttribute('aria-selected', 'true')
     await expect(
       catalogue

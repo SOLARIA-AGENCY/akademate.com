@@ -129,7 +129,7 @@ export default async function FeaturesPage() {
 
         <nav
           aria-label={tx('Platform categories')}
-          className="sticky top-[72px] z-30 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8"
+          className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8"
         >
           <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto py-4">
             {pillars.map((pillar) => (

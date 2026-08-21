@@ -16,7 +16,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       eyebrow: 'From application to qualification',
       title: 'Give every team the same cohort picture.',
       description:
-        'Admissions, academic leadership and teachers move each learner through one coordinated programme journey.',
+        'Admissions, teachers and leaders share one cohort journey.',
       image: '/images/marketing/professional-training-cohort-operations-v2.jpg',
       imageAlt:
         'Academic coordinator and vocational teacher reviewing a cohort while adult learners work in a practical classroom',
