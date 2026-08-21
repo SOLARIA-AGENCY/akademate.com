@@ -108,7 +108,11 @@ test.describe('Akademate public commercial surface', () => {
     await page.keyboard.press('ArrowDown')
     await expect(featureTabs.getByRole('tab').nth(1)).toBeFocused()
     await expect(featureTabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true')
-    await catalogue.getByRole('tab', { name: 'Payments, billing and finance' }).click()
+    const paymentsTab = catalogue.getByRole('tab', { name: 'Payments, billing and finance' })
+    await paymentsTab.evaluate((node) => node.scrollIntoView({ block: 'center' }))
+    await page.mouse.move(0, 0)
+    await paymentsTab.click()
+    await expect(paymentsTab).toHaveAttribute('aria-selected', 'true')
     await expect(
       catalogue
         .getByRole('tabpanel')
@@ -486,7 +490,7 @@ test.describe('Akademate public commercial surface', () => {
       const heading = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? ''
       expect(heading.length).toBeGreaterThan(20)
       headings.add(heading)
-      await expect(page.getByRole('tablist', { name: /Akademate designed for this/ })).toBeVisible()
+      await expect(page.getByRole('tablist', { name: /Akademate designed for your/ })).toBeVisible()
       await page.getByRole('tab').last().click()
       await expect(page.getByRole('tabpanel').locator('select')).toHaveCount(3)
     }

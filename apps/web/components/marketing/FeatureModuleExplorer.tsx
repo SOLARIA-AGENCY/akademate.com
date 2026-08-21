@@ -56,7 +56,7 @@ export function FeatureModuleExplorer() {
 
         <div
           data-testid="feature-catalogue"
-          className="mt-12 grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_rgba(7,22,51,.08)] lg:grid-cols-[.34fr_.66fr]"
+          className="mt-12 grid scroll-mt-44 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_rgba(7,22,51,.08)] lg:grid-cols-[.34fr_.66fr]"
         >
           <div
             role="tablist"
