@@ -14,7 +14,8 @@
     "test:coverage": "vitest run --coverage",
     "cf:build": "OPEN_NEXT=1 opennextjs-cloudflare build",
     "cf:preview": "OPEN_NEXT=1 opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf:deploy": "OPEN_NEXT=1 opennextjs-cloudflare build && wrangler deploy --autoconfig=false"
+    "cf:deploy": "OPEN_NEXT=1 opennextjs-cloudflare build && wrangler deploy --autoconfig=false",
+    "cf:upload": "wrangler deploy --autoconfig=false --routes 'akademate.com/*' --routes 'www.akademate.com/*'"
   },
   "dependencies": {
     "@akademate/api": "workspace:*",
