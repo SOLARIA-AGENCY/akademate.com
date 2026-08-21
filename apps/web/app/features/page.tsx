@@ -302,7 +302,15 @@ export default async function FeaturesPage() {
           </div>
         </section>
 
-        <FinanceConnectorShowcase locale={locale} imageSrc="/images/marketing/akademate-finance-connection-flow-v1.png" imageAlt={locale === 'es' ? 'Flujo ilustrativo para conectar un proveedor financiero' : 'Illustrative finance provider connection flow'} />
+        <FinanceConnectorShowcase
+          locale={locale}
+          imageSrc="/images/marketing/akademate-finance-connection-flow-v1.png"
+          imageAlt={
+            locale === 'es'
+              ? 'Flujo ilustrativo para conectar un proveedor financiero'
+              : 'Illustrative finance provider connection flow'
+          }
+        />
 
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-5xl text-center">

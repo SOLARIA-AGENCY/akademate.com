@@ -15,8 +15,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'From application to qualification',
       title: 'Give every team the same cohort picture.',
-      description:
-        'Admissions, teachers and leaders share one cohort journey.',
+      description: 'Admissions, teachers and leaders share one cohort journey.',
       image: '/images/marketing/professional-training-cohort-operations-v2.jpg',
       imageAlt:
         'Academic coordinator and vocational teacher reviewing a cohort while adult learners work in a practical classroom',
@@ -47,8 +46,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'A studio people return to',
       title: 'Make every arrival feel effortless.',
-      description:
-        'Reception, instructors and members share classes and access.',
+      description: 'Reception, instructors and members share classes and access.',
       image: '/images/marketing/wellness-member-checkin-v1.jpg',
       imageAlt: 'Wellness studio member checking in by QR while an instructor prepares the class',
       roles: [
@@ -78,8 +76,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'One season, clearly coordinated',
       title: 'Turn every trial into the right next step.',
-      description:
-        'Coaches, coordinators and guardians share team and season.',
+      description: 'Coaches, coordinators and guardians share team and season.',
       image: '/images/marketing/sports-trial-team-placement-v1.jpg',
       imageAlt:
         'Coach assessing young athletes at a football trial with an academy coordinator and guardian',
@@ -110,8 +107,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'Ready for the first morning',
       title: 'Open bookings with arrivals connected.',
-      description:
-        'Families and camp teams share dates, deposits and pickup.',
+      description: 'Families and camp teams share dates, deposits and pickup.',
       image: '/images/marketing/seasonal-family-checkin-v1.jpg',
       imageAlt:
         'Family checking in a child at a seasonal camp with organised activity leaders nearby',
@@ -142,8 +138,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'Classes and stage in the same rhythm',
       title: 'Coordinate studios, teachers and shows.',
-      description:
-        'Timetables and performances share rooms, progress and billing.',
+      description: 'Timetables and performances share rooms, progress and billing.',
       image: '/images/marketing/performing-arts-studio-operations-v1.jpg',
       imageAlt:
         'Performing arts coordinator planning shared studios while dance and piano sessions take place',
@@ -174,8 +169,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'More than a video call',
       title: 'Give every cohort a clear learning rhythm.',
-      description:
-        'Facilitators and learners share sessions, recordings and tasks.',
+      description: 'Facilitators and learners share sessions, recordings and tasks.',
       image: '/images/marketing/online-cohort-live-production-v1.jpg',
       imageAlt:
         'Educator and learning producer running a live online cohort session in a professional studio',
@@ -206,8 +200,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'The right learner in the right group',
       title: 'Connect placement, schedules and progress.',
-      description:
-        'Academic teams match level, teacher and location first.',
+      description: 'Academic teams match level, teacher and location first.',
       image: '/images/marketing/languages-placement-scheduling-v1.jpg',
       imageAlt:
         'Language teacher conducting a placement interview while a coordinator reviews group schedules',
@@ -238,8 +231,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
     en: {
       eyebrow: 'Shared standards, local operation',
       title: 'See the network and respect every location.',
-      description:
-        'Central and local teams share brands, catalogues and finance.',
+      description: 'Central and local teams share brands, catalogues and finance.',
       image: '/images/marketing/networks-central-local-operations-v1.jpg',
       imageAlt: 'Central and local academy managers coordinating plans with a remote campus leader',
       roles: [
