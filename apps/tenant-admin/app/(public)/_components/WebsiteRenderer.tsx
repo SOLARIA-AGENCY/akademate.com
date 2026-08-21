@@ -33,6 +33,7 @@ import {
 } from '@/app/lib/public-convocations'
 import { queryRows } from '@payload-config/lib/db'
 import { normalizeNominativeText } from '@/lib/nominative-text'
+import { textFromSlate } from '@/src/domain/faq-content'
 
 const BRAND_RED = '#f2014b'
 
@@ -1242,6 +1243,153 @@ function LeadFormSection({
   )
 }
 
+function RichTextSection({ section }: { section: Extract<WebsiteSection, { kind: 'richText' }> }) {
+  const paragraphs = section.body.split(/\n{2,}/).map((item) => item.trim()).filter(Boolean)
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+        {section.title ? <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2> : null}
+        <div className={section.title ? 'mt-6 space-y-4' : 'space-y-4'}>
+          {paragraphs.map((paragraph) => (
+            <p key={paragraph.slice(0, 48)} className="text-base leading-7 text-slate-600">{paragraph}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+async function FaqListSection({
+  section,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'faqList' }>
+  tenantId: string
+}) {
+  const payload = await getPayload({ config: configPromise })
+  const filters: Record<string, unknown>[] = [{ status: { equals: 'published' } }]
+  if (section.featuredOnly) filters.push({ featured: { equals: true } })
+  const result = await payload.find({
+    collection: 'faqs',
+    where: withTenantScope({ and: filters }, tenantId) as never,
+    sort: 'order',
+    limit: section.limit ?? 50,
+    depth: 0,
+  })
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
+        <div className="mt-8 space-y-4">
+          {result.docs.map((faq: { id?: string | number; question?: string; answer?: unknown }) => (
+            <details key={String(faq.id)} className="rounded-2xl border border-slate-200 bg-white p-6">
+              <summary className="cursor-pointer text-lg font-semibold text-slate-950">{faq.question}</summary>
+              <p className="mt-4 text-sm leading-7 text-slate-600">{textFromSlate(faq.answer) || 'Respuesta disponible próximamente.'}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+async function TestimonialListSection({
+  section,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'testimonialList' }>
+  tenantId: string
+}) {
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'testimonials',
+    where: withTenantScope({ status: { equals: 'published' } }, tenantId) as never,
+    sort: 'order',
+    limit: section.limit ?? 6,
+    depth: 1,
+  })
+  return (
+    <section className="bg-slate-50">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {result.docs.map((item: { id?: string | number; quote?: string; name?: string; role?: string }) => (
+            <article key={String(item.id)} className="rounded-3xl border border-slate-200 bg-white p-6">
+              <p className="text-sm leading-7 text-slate-700">“{item.quote}”</p>
+              <p className="mt-4 text-sm font-bold text-slate-950">{item.name}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+async function FormEmbedSection({
+  section,
+  brandColor,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'formEmbed' }>
+  brandColor: string
+  tenantId: string
+}) {
+  const payload = await getPayload({ config: configPromise })
+  const filters: Record<string, unknown>[] = [{ status: { equals: 'published' } }]
+  if (section.formId) filters.push({ id: { equals: section.formId } })
+  else if (section.source) filters.push({ source: { equals: section.source } })
+  const result = await payload.find({
+    collection: 'website_forms',
+    where: withTenantScope({ and: filters }, tenantId) as never,
+    limit: 1,
+    depth: 0,
+  })
+  const form = result.docs[0] as { title?: string; subtitle?: string; source?: string } | undefined
+  return (
+    <LeadFormSection
+      section={{
+        kind: 'leadForm',
+        title: form?.title || section.title,
+        subtitle: form?.subtitle || section.subtitle,
+        source: form?.source || section.source || 'website-form',
+      }}
+      brandColor={brandColor}
+    />
+  )
+}
+
+async function BlogListSection({
+  section,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'blogList' }>
+  tenantId: string
+}) {
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'blog_posts',
+    where: withTenantScope({ status: { equals: 'published' } }, tenantId) as never,
+    sort: '-published_at',
+    limit: section.limit ?? 6,
+    depth: 0,
+  })
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {result.docs.map((post: { id?: string | number; title?: string; slug?: string; excerpt?: string }) => (
+            <Link key={String(post.id)} href={post.slug ? `/blog/${post.slug}` : '/blog'} className="rounded-3xl border border-slate-200 bg-white p-6">
+              <h3 className="text-lg font-bold text-slate-950">{post.title}</h3>
+              {post.excerpt ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{post.excerpt}</p> : null}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 async function renderSection(
   section: WebsiteSection,
   brandColor: string,
@@ -1272,8 +1420,20 @@ async function renderSection(
       return <TeamGridSection section={section} tenantId={tenantId} />
     case 'leadForm':
       return <LeadFormSection section={section} brandColor={brandColor} />
-    default:
-      return null
+    case 'faqList':
+      return <FaqListSection section={section} tenantId={tenantId} />
+    case 'testimonialList':
+      return <TestimonialListSection section={section} tenantId={tenantId} />
+    case 'formEmbed':
+      return <FormEmbedSection section={section} brandColor={brandColor} tenantId={tenantId} />
+    case 'blogList':
+      return <BlogListSection section={section} tenantId={tenantId} />
+    case 'richText':
+      return <RichTextSection section={section} />
+    default: {
+      const exhaustive: never = section
+      return exhaustive
+    }
   }
 }
 

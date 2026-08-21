@@ -315,6 +315,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(httpsUrl, 301)
   }
 
+  if (!pathname.startsWith('/api/') && ['GET', 'HEAD'].includes(request.method)) {
+    if (pathname === '/p/legal' || pathname === '/p/legal/cookies') {
+      const canonicalUrl = request.nextUrl.clone()
+      canonicalUrl.pathname = pathname === '/p/legal' ? '/legal' : '/legal/cookies'
+      return NextResponse.redirect(canonicalUrl, 308)
+    }
+    if (pathname === '/legal' || pathname === '/legal/cookies') {
+      const rewriteUrl = request.nextUrl.clone()
+      rewriteUrl.pathname = pathname === '/legal' ? '/p/legal' : '/p/legal/cookies'
+      return NextResponse.rewrite(rewriteUrl)
+    }
+  }
+
   // Canonical public routes for CEP host
   if (!pathname.startsWith('/api/') && ['GET', 'HEAD'].includes(request.method) && isCepHost(host)) {
     if (pathname === '/' || pathname === '/convocatorias' || pathname.startsWith('/convocatorias/')) {

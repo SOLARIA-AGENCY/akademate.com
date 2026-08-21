@@ -31,6 +31,7 @@ export type MetaAttributionInput = {
 
 export function isPaidMetaLanding(input: MetaAttributionInput | null | undefined): boolean {
   if (!input) return false
+  if (String(input.fbclid || '').trim()) return true
   const source = String(input.utm_source || '').trim().toLowerCase()
   const medium = String(input.utm_medium || '').trim().toLowerCase()
   return (source === 'facebook' || source === 'instagram') && medium === 'paid'

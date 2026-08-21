@@ -2,9 +2,14 @@ export type WebsitePageKind =
   | 'home'
   | 'standard'
   | 'contact'
+  | 'legal'
+  | 'faq'
   | 'courses_index'
   | 'cycles_index'
   | 'convocations_index'
+  | 'campuses_index'
+  | 'blog_index'
+  | 'login'
 
 export type WebsitePageCatalogItem = {
   slug: string

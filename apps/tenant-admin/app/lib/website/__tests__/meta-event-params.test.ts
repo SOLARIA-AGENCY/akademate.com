@@ -22,6 +22,10 @@ describe('meta-event-params', () => {
       analyticsConsent: false,
     })).toBe(true)
     expect(shouldTrackPublicPageView({
+      attribution: { fbclid: 'abc123' },
+      analyticsConsent: false,
+    })).toBe(true)
+    expect(shouldTrackPublicPageView({
       attribution: { utm_source: 'google', utm_medium: 'organic' },
       analyticsConsent: false,
     })).toBe(false)

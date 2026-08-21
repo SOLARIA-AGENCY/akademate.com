@@ -152,6 +152,77 @@ export type WebsiteSection =
       source: string
       dark?: boolean
     }
+  | {
+      id?: string
+      enabled?: boolean
+      label?: string
+      kind: 'faqList'
+      title: string
+      subtitle?: string
+      limit?: number
+      featuredOnly?: boolean
+    }
+  | {
+      id?: string
+      enabled?: boolean
+      label?: string
+      kind: 'testimonialList'
+      title: string
+      subtitle?: string
+      limit?: number
+    }
+  | {
+      id?: string
+      enabled?: boolean
+      label?: string
+      kind: 'formEmbed'
+      title: string
+      subtitle?: string
+      source?: string
+      formId?: string
+    }
+  | {
+      id?: string
+      enabled?: boolean
+      label?: string
+      kind: 'blogList'
+      title: string
+      subtitle?: string
+      limit?: number
+    }
+  | {
+      id?: string
+      enabled?: boolean
+      label?: string
+      kind: 'richText'
+      title?: string
+      body: string
+    }
+
+export type CookieBannerVariant = 'bar' | 'modal' | 'corner'
+
+export type WebsiteConsentCategoryId = 'necessary' | 'analytics' | 'marketing_google' | 'marketing_meta'
+
+export type WebsiteConsentStats = {
+  shown: number
+  analyticsGranted: number
+  analyticsDenied: number
+  marketingGoogleGranted: number
+  marketingGoogleDenied: number
+  marketingMetaGranted: number
+  marketingMetaDenied: number
+}
+
+export type WebsiteConsentConfig = {
+  bannerVariant: CookieBannerVariant
+  categories: {
+    analytics: boolean
+    marketing_google: boolean
+    marketing_meta: boolean
+  }
+  googleAdsEnabled?: boolean
+  stats?: WebsiteConsentStats
+}
 
 export type WebsitePage = {
   title: string
@@ -173,11 +244,38 @@ export type WebsitePage = {
     | 'cycle_detail_template'
     | 'campuses_index'
     | 'campus_detail_template'
+    | 'login'
   seo?: {
     title?: string
     description?: string
+    keywords?: string[]
   }
   sections: WebsiteSection[]
+}
+
+export type WebsiteWhatsappChannel = {
+  label: string
+  phone: string
+  shortCode?: string
+  message?: string
+}
+
+export type WebsiteFooterLocation = {
+  label: string
+  address: string
+}
+
+export type WebsiteFooterBadge = {
+  src: string
+  alt: string
+}
+
+export type WebsiteContact = {
+  email: string
+  phone: string
+  phoneAlternative?: string
+  schedule?: string
+  whatsapp: WebsiteWhatsappChannel[]
 }
 
 export type WebsiteConfig = {
@@ -193,6 +291,9 @@ export type WebsiteConfig = {
     colorSurface: string
     colorText: string
   }
+  academyName?: string
+  legalName?: string
+  contact?: WebsiteContact
   navigation: {
     items: WebsiteNavigationItem[]
     cta?: WebsiteLink
@@ -200,8 +301,16 @@ export type WebsiteConfig = {
   footer: {
     description: string
     columns: Array<{ title: string; links: WebsiteLink[] }>
+    locations?: WebsiteFooterLocation[]
+    badges?: WebsiteFooterBadge[]
     legalNote?: string
+    copyright?: string
   }
   redirects: Array<{ from: string; to: string }>
   pages: WebsitePage[]
+  seo?: {
+    keywords?: string[]
+    concepts?: string[]
+  }
+  consent?: WebsiteConsentConfig
 }
