@@ -205,6 +205,7 @@ export async function POST(request: Request) {
     'staff:write',
     'convocatorias:read',
     'convocatorias:write',
+    'construction:write',
   ]
 
   const invalidScopes = scopes.filter((s) => !validScopes.includes(s))
