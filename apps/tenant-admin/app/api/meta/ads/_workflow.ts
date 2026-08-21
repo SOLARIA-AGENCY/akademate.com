@@ -6,14 +6,23 @@ import { checkMetaHealth } from '../_lib/meta-graph'
 import {
   buildCampaignName,
   buildUtmParams,
+  chooseOptimizationFromPixelVolume,
   createAd,
-  createAdCreative,
   createAdSet,
   createCampaign,
+  createFlexibleAdCreative,
+  FORBIDDEN_META_PIXEL_IDS,
+  getAdSetDelivery,
+  getPixelLeadCount7d,
+  META_SAFE_DELIVERY_PLACEMENTS,
+  needsWebsiteOnlyAdSet,
   updateAdStatus,
   uploadAdImage,
   uploadAdVideo,
+  type FlexibleCreativeAsset,
 } from '../../../../src/lib/meta-marketing'
+import { tenantPaidLandingCampaignMap } from '@/app/lib/website/meta-event-params'
+import { tenantCampaignNamePrefix, tenantMetaInstagramUserId, tenantMetaPageId, tenantTargetingGeo } from '@/app/lib/meta-ads-tenant'
 
 export type AdStrategy = 'new_campaign' | 'new_ad_existing_adset' | 'refresh_existing_ad'
 export type AdWorkflowStatus = 'draft' | 'review' | 'meta_paused' | 'active' | 'error' | 'ended'
@@ -64,9 +73,7 @@ export interface AdPreflightBody {
   landing_url?: string
 }
 
-const META_PAGE_ID = process.env.META_PAGE_ID || '174953792552373'
-const META_REGION_TENERIFE = '3872'
-const DEFAULT_CATEGORY = 'CICLOS FP'
+const DEFAULT_CATEGORY = 'FORMACION'
 
 function esc(value: string): string {
   return value.replace(/'/g, "''")
@@ -365,7 +372,7 @@ export function buildPreview(input: { body: AdWorkflowBody; convocatoria: any; p
   const estimatedTotal = input.body.daily_budget * input.plan.days
   return {
     course_name: courseName,
-    campaign_name: buildCampaignName(DEFAULT_CATEGORY, String(new Date().getFullYear()), input.plan.utmCampaign),
+    campaign_name: buildCampaignName(DEFAULT_CATEGORY, String(new Date().getFullYear()), input.plan.utmCampaign, tenantCampaignNamePrefix() || 'TEST AGENCY'),
     landing_url: input.plan.landingUrl,
     start_time: input.plan.startIso,
     stop_time: input.plan.stopIso,
@@ -374,7 +381,7 @@ export function buildPreview(input: { body: AdWorkflowBody; convocatoria: any; p
     estimated_total_budget: estimatedTotal,
     status_after_publish: 'PAUSED',
     status_after_activation: 'ACTIVE',
-    placements: ['feed', 'stories_reels', 'right_column'],
+    placements: [...META_SAFE_DELIVERY_PLACEMENTS],
     lifecycle: {
       review_required: true,
       created_in_meta_status: 'PAUSED',
@@ -534,9 +541,24 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
   const accessToken = ctx.metaContext.meta.marketingApiToken
   const adAccountId = ctx.metaContext.meta.adAccountIdNormalized
   const pixelId = ctx.metaContext.meta.pixelId
+  if (!pixelId) throw new Error('El tenant no tiene pixel de Meta configurado.')
+  if (FORBIDDEN_META_PIXEL_IDS.has(String(pixelId).trim())) {
+    throw new Error('Pixel prohibido. Configura el pixel del tenant.')
+  }
+  const pageId = tenantMetaPageId()
+  if (!pageId) throw new Error('META_PAGE_ID del tenant es obligatorio.')
+  const geoLocations = tenantTargetingGeo()
+  if (!geoLocations.cities && !geoLocations.regions) {
+    throw new Error('Configura META_TARGET_CITY_ID (y radio) en el tenant. No hay geo por defecto.')
+  }
   const courseName = preview.course_name as string
+  const reusableCampaignId = tenantPaidLandingCampaignMap()[plan.code]
   let metaCampaignId = input.body.campaign_id || ''
   let metaAdSetId = input.body.adset_id || ''
+
+  if (input.body.strategy === 'new_ad_existing_adset' && !metaCampaignId && reusableCampaignId) {
+    metaCampaignId = reusableCampaignId
+  }
 
   if (input.body.strategy === 'new_campaign' || !metaCampaignId) {
     const campaign = await createCampaign({ adAccountId, accessToken, name: preview.campaign_name as string, status: 'PAUSED' })
@@ -544,15 +566,41 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
     metaCampaignId = campaign.data.id
   }
 
-  if (input.body.strategy === 'new_campaign' || !metaAdSetId) {
+  const leadCount7d = await getPixelLeadCount7d({ pixelId, accessToken, adAccountId }).catch(() => 0)
+  const conversionPath = chooseOptimizationFromPixelVolume(leadCount7d)
+  let shouldCreateWebsiteSet = input.body.strategy === 'new_campaign' || !metaAdSetId
+
+  if (metaAdSetId) {
+    const existingSet = await getAdSetDelivery(metaAdSetId, accessToken)
+    const destinationType = String((existingSet.data as { destination_type?: string } | undefined)?.destination_type || '')
+    const existingGoal = String((existingSet.data as { optimization_goal?: string } | undefined)?.optimization_goal || '')
+    const existingCustomEvent = String(
+      ((existingSet.data as { promoted_object?: { custom_event_type?: string } } | undefined)?.promoted_object?.custom_event_type) || '',
+    )
+    if (needsWebsiteOnlyAdSet(destinationType)) {
+      shouldCreateWebsiteSet = true
+      metaAdSetId = ''
+    } else if (
+      conversionPath === 'LANDING_PAGE_VIEWS'
+      && (existingGoal === 'OFFSITE_CONVERSIONS' || existingCustomEvent === 'LEAD' || existingCustomEvent === 'CONTACT')
+    ) {
+      shouldCreateWebsiteSet = true
+      metaAdSetId = ''
+    }
+  }
+
+  if (shouldCreateWebsiteSet || !metaAdSetId) {
     const adSet = await createAdSet({
       adAccountId,
       accessToken,
       campaignId: metaCampaignId,
-      name: `${courseName} / ${plan.code}`,
+      name: `${courseName} / ${plan.code} / WEBSITE / ${conversionPath === 'LANDING_PAGE_VIEWS' ? 'LPV' : 'LEAD'}`,
       dailyBudget: input.body.daily_budget,
       pixelId,
-      targeting: { geoLocations: { regions: [{ key: META_REGION_TENERIFE }] } },
+      conversionPath,
+      destinationType: 'WEBSITE',
+      isDynamicCreative: true,
+      targeting: { geoLocations, ageMin: 18, ageMax: 65, advantageAudience: 0 },
       startTime: plan.startIso,
       endTime: plan.stopIso,
     })
@@ -560,7 +608,7 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
     metaAdSetId = adSet.data.id
   }
 
-  const publishedAds: PublishedMetaAd[] = []
+  const uploadedAssets: FlexibleCreativeAsset[] = []
   for (const asset of input.body.assets) {
     const uploadedAsset = await resolveMediaAsset({
       payload: ctx.payload,
@@ -569,38 +617,48 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
       accessToken,
       asset,
     })
-    const creative = await createAdCreative({
-      adAccountId,
-      accessToken,
-      name: `Creative - ${courseName} - ${asset.ratio} - ${new Date().toISOString().slice(0, 10)}`,
-      pageId: META_PAGE_ID,
-      imageHash: uploadedAsset.imageHash,
-      videoId: uploadedAsset.videoId,
-      headline: input.body.copy.headlines[0],
-      body: input.body.copy.primary_texts[0],
-      description: input.body.copy.descriptions[0] || '',
-      linkUrl: plan.landingUrl,
-      callToAction: input.body.copy.cta || 'SIGN_UP',
-      urlParameters: buildMetaAdUrlParameters({ utmCampaign: plan.utmCampaign, metaCampaignId, ratio: asset.ratio }),
-    })
-    if (!creative.success || !creative.data?.id) throw new Error(creative.error || `No se pudo crear creative Meta para ${asset.ratio}.`)
-
-    const ad = await createAd({
-      adAccountId,
-      accessToken,
-      adSetId: metaAdSetId,
-      name: `AD / ${courseName} / ${plan.code} / ${asset.ratio} / ${new Date().toISOString().slice(0, 10)}`,
-      creativeId: creative.data.id,
-      status: 'PAUSED',
-    })
-    if (!ad.success || !ad.data?.id) throw new Error(ad.error || `No se pudo crear anuncio Meta para ${asset.ratio}.`)
-    publishedAds.push({
+    uploadedAssets.push({
       ratio: asset.ratio,
       type: asset.type,
-      meta_creative_id: creative.data.id,
-      meta_ad_id: ad.data.id,
+      imageHash: uploadedAsset.imageHash,
+      videoId: uploadedAsset.videoId,
     })
   }
+
+  const urlParameters = buildMetaAdUrlParameters({ utmCampaign: plan.utmCampaign, metaCampaignId })
+  const creative = await createFlexibleAdCreative({
+    adAccountId,
+    accessToken,
+    name: `Creative - ${courseName} - flexible - ${new Date().toISOString().slice(0, 10)}`,
+    pageId,
+    instagramUserId: tenantMetaInstagramUserId() || undefined,
+    linkUrl: plan.landingUrl,
+    urlParameters,
+    bodies: input.body.copy.primary_texts,
+    titles: input.body.copy.headlines,
+    descriptions: input.body.copy.descriptions,
+    callToAction: input.body.copy.cta || 'SIGN_UP',
+    assets: uploadedAssets,
+    optimizationType: 'REGULAR',
+  })
+  if (!creative.success || !creative.data?.id) throw new Error(creative.error || 'No se pudo crear creative flexible Meta.')
+
+  const ad = await createAd({
+    adAccountId,
+    accessToken,
+    adSetId: metaAdSetId,
+    name: `AD / ${courseName} / ${plan.code} / flexible / ${new Date().toISOString().slice(0, 10)}`,
+    creativeId: creative.data.id,
+    status: 'PAUSED',
+  })
+  if (!ad.success || !ad.data?.id) throw new Error(ad.error || 'No se pudo crear anuncio Meta.')
+
+  const publishedAds: PublishedMetaAd[] = input.body.assets.map((asset) => ({
+    ratio: asset.ratio,
+    type: asset.type,
+    meta_creative_id: creative.data!.id,
+    meta_ad_id: ad.data!.id,
+  }))
   const primaryPublishedAd = publishedAds[0]
 
   const draftId = await upsertDraft({

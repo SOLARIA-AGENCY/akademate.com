@@ -66,6 +66,7 @@ interface PreviewPayload {
     stop_source?: string
   }
   review_checklist?: string[]
+  placements?: string[]
 }
 
 interface PreflightPayload {
@@ -400,6 +401,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
                   <p className="break-all"><strong>Landing:</strong> {preview.landing_url}</p>
                   <p><strong>UTM:</strong> {preview.tracking?.utm_campaign}</p>
                   <p><strong>Eventos:</strong> {preview.tracking?.traffic_events?.join(', ')}</p>
+                  <p><strong>Placements:</strong> {(preview.placements || []).join(', ') || '--'}</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-2">

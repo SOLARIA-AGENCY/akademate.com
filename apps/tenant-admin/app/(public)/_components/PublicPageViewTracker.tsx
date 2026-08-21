@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { inferPaidCampaignFromPath, shouldTrackPublicPageView } from '@/app/lib/website/meta-event-params'
 
 function readParam(searchParams: URLSearchParams | null, key: string): string | undefined {
   const value = searchParams?.get(key) || ''
@@ -30,6 +31,15 @@ export function PublicPageViewTracker() {
       return
     }
 
+    const attribution = {
+      utm_source: readParam(searchParams, 'utm_source'),
+      utm_medium: readParam(searchParams, 'utm_medium'),
+      utm_campaign: readParam(searchParams, 'utm_campaign'),
+      fbclid: readParam(searchParams, 'fbclid'),
+      meta_campaign_id: readMetaCampaignId(searchParams),
+    }
+    if (!shouldTrackPublicPageView({ attribution, analyticsConsent: true })) return
+
     const eventId =
       typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
         ? crypto.randomUUID()
@@ -46,10 +56,11 @@ export function PublicPageViewTracker() {
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString(),
         event_id: eventId,
-        utm_source: readParam(searchParams, 'utm_source'),
-        utm_medium: readParam(searchParams, 'utm_medium'),
-        utm_campaign: readParam(searchParams, 'utm_campaign'),
-        meta_campaign_id: readMetaCampaignId(searchParams),
+        utm_source: attribution.utm_source,
+        utm_medium: attribution.utm_medium,
+        utm_campaign: attribution.utm_campaign,
+        fbclid: attribution.fbclid,
+        meta_campaign_id: attribution.meta_campaign_id || inferPaidCampaignFromPath(pathWithQuery, attribution),
       }),
     }).catch(() => {})
   }, [pathname, searchParams, searchQuery])

@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { type NextRequest, NextResponse } from 'next/server'
 import { Pool } from 'pg'
+import { inferPaidCampaignFromPath, leadCapiCustomData, resolveMetaFbc } from '@/app/lib/website/meta-event-params'
 
 /**
  * Public tracking endpoint for landing page views and lead captures.
@@ -93,11 +94,16 @@ function inferCampaignCode(body: any): string | null {
 }
 
 function inferMetaCampaignId(body: any): string | null {
-  return (
+  const explicit =
     normalizeOptional(body.meta_campaign_id, 64) ||
     normalizeOptional(body.campaign_id, 64) ||
     normalizeOptional(body.utm_id, 64)
-  )
+  if (explicit) return explicit
+  return inferPaidCampaignFromPath(normalizeOptional(body.path, 1024) || normalizeOptional(body.slug, 120), {
+    utm_source: normalizeOptional(body.utm_source, 255),
+    utm_medium: normalizeOptional(body.utm_medium, 255),
+    fbclid: normalizeOptional(body.fbclid, 255),
+  })
 }
 
 function normalizeLeadName(body: any): { firstName: string; lastName: string } {
@@ -483,9 +489,15 @@ async function fireCapiEvent(
       lastName: body.last_name,
       clientIpAddress: request.headers.get('x-forwarded-for') || '',
       clientUserAgent: body.userAgent || request.headers.get('user-agent') || '',
-      fbc: body.fbc,
+      fbc: resolveMetaFbc(body.fbc, body.fbclid) || undefined,
       fbp: body.fbp,
     },
+    customData: eventName === 'Lead'
+      ? leadCapiCustomData({
+        contentName: String(body.courseName || body.course_name || ''),
+        contentCategory: 'convocatoria',
+      })
+      : undefined,
   })
 }
 

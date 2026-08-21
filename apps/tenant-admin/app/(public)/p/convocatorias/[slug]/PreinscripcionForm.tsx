@@ -5,6 +5,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { resolveMetaFbc } from '@/app/lib/website/meta-event-params'
 
 interface Props {
   convocatoriaId: string
@@ -46,7 +47,6 @@ export function PreinscripcionForm({
 
       // Read Meta cookies for better matching
       const getCookie = (name_c: string) => document.cookie.split('; ').find(c => c.startsWith(name_c + '='))?.split('=')[1]
-      const fbc = getCookie('_fbc')
       const fbp = getCookie('_fbp')
 
       // Read UTM params from URL
@@ -57,6 +57,7 @@ export function PreinscripcionForm({
       const utmTerm = urlParams.get('utm_term') || ''
       const utmContent = urlParams.get('utm_content') || ''
       const fbclid = urlParams.get('fbclid') || ''
+      const fbc = resolveMetaFbc(getCookie('_fbc') || null, fbclid || null)
       const metaCampaignId =
         urlParams.get('meta_campaign_id') || urlParams.get('campaign_id') || urlParams.get('utm_id') || ''
       const trackingPayload = {

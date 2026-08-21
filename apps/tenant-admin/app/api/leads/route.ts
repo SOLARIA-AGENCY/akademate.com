@@ -11,6 +11,7 @@ import {
   parseCommercialBucketFilter,
 } from '@/lib/leads/commercialBuckets'
 import { getAuthenticatedUserContext } from './_lib/auth'
+import { inferPaidCampaignFromPath, leadCapiCustomData, resolveMetaFbc } from '@/app/lib/website/meta-event-params'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -133,13 +134,13 @@ async function fireLeadCapiEvent(
       firstName: body.first_name || body.name,
       clientIpAddress: request.headers.get('x-forwarded-for') || '',
       clientUserAgent: body.userAgent || request.headers.get('user-agent') || '',
-      fbc: body.fbc,
+      fbc: resolveMetaFbc(body.fbc, body.fbclid) || undefined,
       fbp: body.fbp,
     },
-    customData: {
-      content_name: body.course_name || body.notes || '',
-      content_category: 'convocatoria',
-    },
+    customData: leadCapiCustomData({
+      contentName: String(body.course_name || body.notes || ''),
+      contentCategory: 'convocatoria',
+    }),
   })
 }
 
@@ -1077,11 +1078,18 @@ export async function POST(request: NextRequest) {
       null
     const adId = normalizeOptionalTrackingValue(body.ad_id, 64)
     const adsetId = normalizeOptionalTrackingValue(body.adset_id, 64)
-    const fbc = normalizeOptionalTrackingValue(body.fbc, 255)
-    const fbp = normalizeOptionalTrackingValue(body.fbp, 255)
     const fbclid =
       normalizeOptionalTrackingValue(body.fbclid, 255) ||
       extractQueryParamFromUrl(sourcePage, 'fbclid')
+    const fbc = resolveMetaFbc(normalizeOptionalTrackingValue(body.fbc, 255), fbclid)
+    const fbp = normalizeOptionalTrackingValue(body.fbp, 255)
+    const inferredPaidCampaignId = inferPaidCampaignFromPath(sourcePage, {
+      utm_source: typeof body.utm_source === 'string' ? body.utm_source : null,
+      utm_medium: typeof body.utm_medium === 'string' ? body.utm_medium : null,
+      fbclid,
+      meta_campaign_id: metaCampaignId,
+    })
+    const resolvedMetaCampaignId = metaCampaignId || inferredPaidCampaignId
     const isTestLead = inferIsTestLead(body)
 
     // Parse name into first/last
@@ -1209,7 +1217,7 @@ export async function POST(request: NextRequest) {
       fbp,
       convocatoria_id: convocatoriaId,
       cycle_id: cycleId,
-      meta_campaign_id: metaCampaignId,
+      meta_campaign_id: resolvedMetaCampaignId,
       ad_id: adId,
       adset_id: adsetId,
       lead_intent: normalizeOptionalTrackingValue(body.lead_intent, 120),
@@ -1239,7 +1247,7 @@ export async function POST(request: NextRequest) {
       campaign_code: campaignCode || undefined,
       convocatoria_id: convocatoriaId ?? undefined,
       cycle_id: cycleId ?? undefined,
-      meta_campaign_id: metaCampaignId || undefined,
+      meta_campaign_id: resolvedMetaCampaignId || undefined,
       ad_id: adId || undefined,
       adset_id: adsetId || undefined,
       fbclid: fbclid || undefined,

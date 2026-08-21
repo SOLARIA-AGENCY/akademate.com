@@ -28,6 +28,7 @@ import {
 } from '@payload-config/components/ui/table'
 import { AlertTriangle, CalendarClock, Megaphone, RefreshCw, Search } from 'lucide-react'
 import type { CampaignListItem, CampaignStatus, CampaignsResponse } from './_components/types'
+import { adsManagerTimezoneNote } from '@/app/lib/meta-ads-timezone'
 
 type StatusFilter = 'all' | 'active' | 'paused' | 'draft' | 'completed'
 type RangeOption = 'today' | '7d' | '30d' | 'month' | 'custom'
@@ -334,8 +335,8 @@ export default function CampanasPage() {
         title="Campañas de Marketing"
         description={
           selectedAccount === 'all'
-            ? `Campañas SOLARIA ${DEFAULT_CAMPAIGNS_YEAR} con filtro por estado`
-            : `Campañas SOLARIA ${DEFAULT_CAMPAIGNS_YEAR} de ${selectedAccountName}`
+            ? `Campañas ${DEFAULT_CAMPAIGNS_YEAR}. ${adsManagerTimezoneNote()}`
+            : `Campañas ${DEFAULT_CAMPAIGNS_YEAR} de ${selectedAccountName}. ${adsManagerTimezoneNote()}`
         }
         icon={Megaphone}
         actions={

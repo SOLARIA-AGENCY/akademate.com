@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { adsManagerTimezoneNote } from '@/app/lib/meta-ads-timezone'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import {
   Bar,
@@ -888,7 +889,7 @@ export default function AnaliticasPage() {
     <div className="space-y-6">
       <PageHeader
         title="Analíticas y Métricas"
-        description="Rendimiento de campañas SOLARIA y tráfico público"
+        description={`Rendimiento de campañas y tráfico público. ${adsManagerTimezoneNote()}`}
         icon={BarChart3}
         actions={
           <div className="flex items-center gap-2 flex-wrap">

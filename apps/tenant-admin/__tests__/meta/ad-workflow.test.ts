@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { activateMetaAd, buildMetaAdUrlParameters, buildPreview, normalizeAdPreflightBody, normalizeAdWorkflowBody, publishToMeta, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
 
 const request = {
-  nextUrl: new URL('https://cepformacion.akademate.com/api/meta/ads/preview'),
+  nextUrl: new URL('https://demo.akademate.com/api/meta/ads/preview'),
 } as any
 
 function validBody(overrides = {}) {
@@ -73,6 +73,7 @@ describe('Meta ad workflow', () => {
       id: 2,
       codigo: 'SC-2026-002',
       status: 'enrollment_open',
+      training_type: 'private',
       start_date: futureStop.toISOString(),
       course: { name: 'CFGS Higiene Bucodental' },
     }
@@ -90,6 +91,16 @@ describe('Meta ad workflow', () => {
     expect(preview.tracking.traffic_events).toContain('lead')
     expect(preview.landing_url).toContain('/p/convocatorias/SC-2026-002')
     expect(preview.landing_url).toContain('utm_source=facebook')
+    expect(preview.placements).toEqual([
+      'facebook_feed',
+      'facebook_story',
+      'facebook_reels',
+      'instagram_stream',
+      'instagram_story',
+      'instagram_reels',
+    ])
+    expect(preview.placements).not.toContain('right_column')
+    expect(preview.campaign_name).toMatch(/^TEST AGENCY - /)
   })
 
   it('builds landing URLs from the current tenant host instead of global app env', () => {
@@ -105,7 +116,7 @@ describe('Meta ad workflow', () => {
         course: { name: 'CFGM Farmacia y Parafarmacia' },
       }
       const plan = resolveConvocatoriaPlan({ request, body, convocatoria })
-      expect(plan.landingUrl).toContain('https://cepformacion.akademate.com/p/convocatorias/SC-2026-CEP')
+      expect(plan.landingUrl).toContain('https://demo.akademate.com/p/convocatorias/SC-2026-CEP')
       expect(plan.landingUrl).not.toContain('https://app.akademate.com')
     } finally {
       process.env.NEXT_PUBLIC_TENANT_URL = previousTenantUrl

@@ -4,12 +4,16 @@ import {
   createAdSet,
   createAdCreative,
   createAd,
+  createFlexibleAdCreative,
   uploadAdImage,
   getCampaignInsights,
   listCampaigns,
   buildLandingUrl,
   buildUtmParams,
   buildCampaignName,
+  needsWebsiteOnlyAdSet,
+  chooseOptimizationFromPixelVolume,
+  resolveFlexibleOptimizationType,
 } from '@/src/lib/meta-marketing'
 
 // ---------------------------------------------------------------------------
@@ -23,6 +27,7 @@ beforeEach(() => {
   vi.restoreAllMocks()
   vi.stubGlobal('fetch', mockFetch)
   mockFetch.mockReset()
+  process.env.META_CAMPAIGN_NAME_PREFIX = 'TEST AGENCY'
 })
 
 // ---------------------------------------------------------------------------
@@ -48,7 +53,7 @@ describe('createCampaign', () => {
     name: 'Test Campaign',
   }
 
-  it('creates a campaign with SOLARIA AGENCY prefix when missing', async () => {
+  it('creates a campaign with TEST AGENCY prefix when missing', async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ id: 'camp_123' }))
 
     const result = await createCampaign(baseParams)
@@ -62,22 +67,22 @@ describe('createCampaign', () => {
     expect(options.method).toBe('POST')
 
     const body = new URLSearchParams(options.body)
-    expect(body.get('name')).toBe('SOLARIA AGENCY - Test Campaign')
+    expect(body.get('name')).toBe('TEST AGENCY - Test Campaign')
     expect(body.get('objective')).toBe('OUTCOME_LEADS')
     expect(body.get('status')).toBe('PAUSED')
     expect(body.get('access_token')).toBe('test-token')
   })
 
-  it('keeps existing SOLARIA AGENCY prefix', async () => {
+  it('keeps existing TEST AGENCY prefix', async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ id: 'camp_456' }))
 
     await createCampaign({
       ...baseParams,
-      name: 'SOLARIA AGENCY - My Campaign',
+      name: 'TEST AGENCY - My Campaign',
     })
 
     const body = new URLSearchParams(mockFetch.mock.calls[0][1].body)
-    expect(body.get('name')).toBe('SOLARIA AGENCY - My Campaign')
+    expect(body.get('name')).toBe('TEST AGENCY - My Campaign')
   })
 
   it('uses custom objective and status', async () => {
@@ -178,9 +183,23 @@ describe('createAdSet', () => {
     const body = new URLSearchParams(options.body)
     expect(body.get('campaign_id')).toBe('camp_123')
     expect(body.get('billing_event')).toBe('IMPRESSIONS')
-    expect(body.get('optimization_goal')).toBe('LEAD_GENERATION')
+    expect(body.get('optimization_goal')).toBe('LANDING_PAGE_VIEWS')
+    expect(body.get('destination_type')).toBe('WEBSITE')
+    expect(body.get('is_dynamic_creative')).toBe('true')
     expect(body.get('daily_budget')).toBe('2500')
     expect(body.get('status')).toBe('PAUSED')
+    expect(JSON.parse(body.get('attribution_spec')!)).toEqual([{ event_type: 'CLICK_THROUGH', window_days: 1 }])
+    const promotedObject = JSON.parse(body.get('promoted_object')!)
+    expect(promotedObject.pixel_id).toBe('pixel_789')
+    expect(promotedObject.custom_event_type).toBeUndefined()
+  })
+
+  it('uses OFFSITE_CONVERSIONS + LEAD only when pixel volume is sufficient', async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: 'adset_lead' }))
+    await createAdSet({ ...baseParams, conversionPath: 'OFFSITE_CONVERSIONS' })
+    const body = new URLSearchParams(mockFetch.mock.calls[0][1].body)
+    expect(body.get('optimization_goal')).toBe('OFFSITE_CONVERSIONS')
+    expect(JSON.parse(body.get('promoted_object')!).custom_event_type).toBe('LEAD')
   })
 
   it('uses default age range 18-65', async () => {
@@ -520,9 +539,9 @@ describe('getCampaignInsights', () => {
 // ---------------------------------------------------------------------------
 
 describe('listCampaigns', () => {
-  it('lists campaigns with SOLARIA AGENCY filter', async () => {
+  it('lists campaigns with TEST AGENCY filter', async () => {
     mockFetch.mockResolvedValueOnce(
-      mockResponse({ data: [{ id: 'camp_1', name: 'SOLARIA AGENCY - Test' }] }),
+      mockResponse({ data: [{ id: 'camp_1', name: 'TEST AGENCY - Test' }] }),
     )
 
     const result = await listCampaigns('123456', 'test-token')
@@ -536,7 +555,7 @@ describe('listCampaigns', () => {
     const filtering = JSON.parse(url.searchParams.get('filtering')!)
     expect(filtering[0].field).toBe('name')
     expect(filtering[0].operator).toBe('CONTAIN')
-    expect(filtering[0].value).toBe('SOLARIA AGENCY')
+    expect(filtering[0].value).toBe('TEST AGENCY')
   })
 })
 
@@ -580,7 +599,63 @@ describe('buildUtmParams', () => {
 describe('buildCampaignName', () => {
   it('builds correct campaign name', () => {
     expect(buildCampaignName('CICLOS FP', 'CAPTACION 2026', 'SA-SC-SAN-FAR-2628-CIC-CAP26')).toBe(
-      'SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26',
+      'TEST AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26',
     )
+  })
+})
+
+describe('flexible creative and website-only sets', () => {
+  it('defaults createFlexibleAdCreative to REGULAR when no placement rules', async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: 'flex_1' }))
+    const result = await createFlexibleAdCreative({
+      adAccountId: '123456',
+      accessToken: 'test-token',
+      name: 'Flex',
+      pageId: 'page_123',
+      instagramUserId: '17841404729596750',
+      linkUrl: 'https://example.com/p/convocatorias/SC-2026-001',
+      urlParameters: 'utm_source=facebook&utm_medium=paid',
+      bodies: ['Texto'],
+      titles: ['Titular'],
+      descriptions: ['Desc'],
+      assets: [
+        { ratio: '1:1', type: 'image', imageHash: 'hash1' },
+        { ratio: '9:16', type: 'image', imageHash: 'hash9' },
+      ],
+    })
+    expect(result.success).toBe(true)
+    const body = new URLSearchParams(mockFetch.mock.calls[0][1].body)
+    const feed = JSON.parse(body.get('asset_feed_spec')!)
+    const story = JSON.parse(body.get('object_story_spec')!)
+    const dof = JSON.parse(body.get('degrees_of_freedom_spec')!)
+    expect(feed.optimization_type).toBe('REGULAR')
+    expect(feed.asset_customization_rules).toBeUndefined()
+    expect(feed.ad_formats).toEqual(['AUTOMATIC_FORMAT'])
+    expect(feed.call_to_action_types).toEqual(['SIGN_UP'])
+    expect(feed.images[0].adlabels[0].name).toBe('art_1x1')
+    expect(feed.images[1].adlabels[0].name).toBe('art_9x16')
+    expect(story.page_id).toBe('page_123')
+    expect(story.instagram_user_id).toBe('17841404729596750')
+    expect(dof.creative_features_spec.standard_enhancements.enroll_status).toBe('OPT_OUT')
+  })
+
+  it('rejects PLACEMENT without six safe-placement rules', () => {
+    expect(() => resolveFlexibleOptimizationType('PLACEMENT', [])).toThrow(/PLACEMENT/)
+    expect(() => resolveFlexibleOptimizationType('PLACEMENT', [{}, {}])).toThrow(/exactamente 6/)
+    expect(resolveFlexibleOptimizationType(undefined, [])).toBe('REGULAR')
+  })
+
+  it('marks phone/whatsapp/messenger destinations as needing a website-only set', () => {
+    expect(needsWebsiteOnlyAdSet('WEBSITE_AND_PHONE_CALL')).toBe(true)
+    expect(needsWebsiteOnlyAdSet('PHONE_CALL')).toBe(true)
+    expect(needsWebsiteOnlyAdSet('WHATSAPP')).toBe(true)
+    expect(needsWebsiteOnlyAdSet('MESSENGER')).toBe(true)
+    expect(needsWebsiteOnlyAdSet('WEBSITE')).toBe(false)
+  })
+
+  it('chooses LPV when pixel Lead volume is dry', () => {
+    expect(chooseOptimizationFromPixelVolume(0)).toBe('LANDING_PAGE_VIEWS')
+    expect(chooseOptimizationFromPixelVolume(49)).toBe('LANDING_PAGE_VIEWS')
+    expect(chooseOptimizationFromPixelVolume(50)).toBe('OFFSITE_CONVERSIONS')
   })
 })

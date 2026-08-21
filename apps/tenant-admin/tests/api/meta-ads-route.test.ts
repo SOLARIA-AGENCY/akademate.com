@@ -108,7 +108,7 @@ describe('POST /api/meta/ads', () => {
     expect(payload.code).toBe('MISSING_PERMISSIONS')
   })
 
-  it('crea campaña en Meta cuando healthcheck está OK', async () => {
+  it('rechaza el publish legado de imagen simple y obliga al workflow', async () => {
     mockResolveMetaRequestContext.mockResolvedValueOnce({
       authenticated: true,
       tenantId: '2',
@@ -156,14 +156,10 @@ describe('POST /api/meta/ads', () => {
     const response = await POST(request)
     const payload = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(payload.success).toBe(true)
-    expect(payload.data.metaCampaignId).toBe('cmp-1')
-    expect(mockCreateCampaign).toHaveBeenCalledWith(
-      expect.objectContaining({
-        adAccountId: '730494526974837',
-        accessToken: 'token-valido',
-      }),
-    )
+    expect(response.status).toBe(409)
+    expect(payload.code).toBe('LEGACY_SIMPLE_PUBLISH_DISABLED')
+    expect(mockCreateCampaign).not.toHaveBeenCalled()
+    expect(mockCreateAdSet).not.toHaveBeenCalled()
+    expect(mockCreateAdCreative).not.toHaveBeenCalled()
   })
 })
