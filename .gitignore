@@ -4,6 +4,7 @@ node_modules
 .turbo
 .next
 .open-next
+.wrangler
 /.yarn
 
 # Output
