@@ -127,11 +127,11 @@ export const dictionaries: Record<Locale, Dictionary> = {
       governance: 'Legal information is maintained as part of our product governance programme.',
     },
     home: {
-      eyebrow: 'One connected platform for every academy team',
-      title: 'Run your academy. Grow.',
-      description: 'Bring enrolment, teaching, payments and performance into one operating system.',
+      eyebrow: 'Academy operations platform',
+      title: 'Run the whole academy.',
+      description: 'Enrolment, teaching and payments in one record for every role.',
       primaryCta: 'Book a demo',
-      secondaryCta: 'Explore the platform',
+      secondaryCta: 'See the product',
     },
     features: {
       eyebrow: 'The academy operating platform',
@@ -233,12 +233,11 @@ export const dictionaries: Record<Locale, Dictionary> = {
         'La información legal se mantiene dentro de nuestro programa de gobierno de producto.',
     },
     home: {
-      eyebrow: 'Una plataforma conectada para todo el equipo',
-      title: 'Gestiona tu academia. Crece.',
-      description:
-        'Conecta matrículas, enseñanza, pagos y rendimiento en un único sistema operativo.',
+      eyebrow: 'Plataforma de gestión para academias',
+      title: 'Toda la academia. Un sistema.',
+      description: 'Matrículas, docencia y cobros en un expediente para cada rol.',
       primaryCta: 'Reservar una demo',
-      secondaryCta: 'Explorar la plataforma',
+      secondaryCta: 'Ver el producto',
     },
     features: {
       eyebrow: 'La plataforma operativa para academias',

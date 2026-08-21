@@ -88,15 +88,15 @@ test.describe('public EN/ES parity', () => {
         path: '/es',
         forbidden: [
           'Book a demo',
-          'Explore every module',
+          'See the product',
           'Compare plans',
           'See the whole academy.',
           'The academy command centre',
           'One workspace for every role.',
-          'Publish your way',
-          'Example public course page',
-          'Seasonal and cohort-ready',
-          'Connector-ready',
+          'Turn interest into a confirmed place.',
+          'Fill every course',
+          'See Akademate on your academy.',
+          'EU-hosted. GDPR ready.',
         ],
       },
       {
@@ -133,6 +133,7 @@ test.describe('public EN/ES parity', () => {
       'true'
     )
 
+    await page.goto('/en/features')
     const distributionTabs = page.getByRole('tablist', { name: 'Website distribution options' })
     await distributionTabs.getByRole('tab', { name: 'Your own domain' }).hover()
     await expect(distributionTabs.getByRole('tab', { name: 'Your own domain' })).toHaveAttribute(
@@ -140,6 +141,7 @@ test.describe('public EN/ES parity', () => {
       'true'
     )
 
+    await page.goto('/en/download')
     const appTabs = page.getByRole('tablist', { name: 'Future Akademate applications' })
     await appTabs.getByRole('tab', { name: 'iPhone' }).hover()
     await expect(appTabs.getByRole('tab', { name: 'iPhone' })).toHaveAttribute(

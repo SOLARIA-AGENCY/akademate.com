@@ -398,6 +398,11 @@ export const spanishMarketingCopy = {
   Campus: 'Campus',
   Insight: 'Datos',
   'Turn interest into a confirmed place.': 'Convierte el interés en una plaza confirmada.',
+  'Fill every course': 'Llena cada curso',
+  'Publish an offer, take the booking and collect the payment.':
+    'Publica la oferta, recibe la reserva y cobra.',
+  'See Akademate on your academy.': 'Mira Akademate en tu academia.',
+  'EU-hosted. GDPR ready.': 'Alojado en la UE. Preparado para el RGPD.',
   'Give every programme a booking, capacity and payment journey.':
     'Da a cada programa un recorrido de reserva, capacidad y pago.',
   '12 places left': 'Quedan 12 plazas',

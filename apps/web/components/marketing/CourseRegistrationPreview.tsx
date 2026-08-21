@@ -105,7 +105,7 @@ export function CourseRegistrationPreview() {
             <div className="mt-8 grid gap-4 text-sm sm:grid-cols-2">
               <Info
                 icon={CalendarDays}
-                title="12–13 September"
+                title={copy.course.dateTitle}
                 text={copy.course.dateDescription}
               />
               <Info icon={Clock3} title="10:00–17:00" text={copy.course.timeDescription} />

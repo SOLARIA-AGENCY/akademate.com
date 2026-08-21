@@ -6,14 +6,11 @@ import {
   Bot,
   BriefcaseBusiness,
   Building2,
+  Check,
   CircleDollarSign,
   Code2,
   GraduationCap,
   Library,
-  Megaphone,
-  Network,
-  School,
-  UsersRound,
 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
@@ -29,6 +26,8 @@ import { ConnectedExperiences } from '@/components/marketing/ConnectedExperience
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { FeatureModuleExplorer } from '@/components/marketing/FeatureModuleExplorer'
 import { FinanceConnectorShowcase } from '@/components/marketing/FinanceConnectorShowcase'
+import { HomeMcpConnect } from '@/components/marketing/HomeMcpConnect'
+import { PhysicalCampusStory } from '@/components/marketing/PhysicalCampusStory'
 import { ProductMoments } from '@/components/marketing/ProductMoments'
 import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistributionPreview'
 import { integrationPillarBrands } from '@/lib/integration-brands'
@@ -55,16 +54,6 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-const pillarIcons = [
-  Building2,
-  Megaphone,
-  School,
-  UsersRound,
-  GraduationCap,
-  CircleDollarSign,
-  Library,
-  Network,
-] as const
 const roadmapIcons = [
   CircleDollarSign,
   BriefcaseBusiness,
@@ -157,42 +146,58 @@ export default async function FeaturesPage() {
 
         <ConnectedExperiences />
 
-        <section className="paper-texture px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <section
+          data-testid="visual-platform-pillars"
+          className="bg-[#eaf1ff] px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-                {tx('One connected academy system.')}
+                {tx('One platform. Every part of the academy.')}
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                {tx('Eight layers connect discovery, learning, operations and decisions.')}
+                {tx('Choose the modules your academy needs. Keep every role connected.')}
               </p>
             </div>
-            <div className="mt-14 grid border border-blue-200 md:grid-cols-2 lg:grid-cols-4">
-              {pillars.map((pillar, index) => {
-                const Icon = pillarIcons[index] ?? Network
-                return (
-                  <article
-                    id={`platform-${slugify(pillar.sourceTitle)}`}
-                    key={pillar.sourceTitle}
-                    className="scroll-mt-44 border-b border-blue-200 px-6 py-8 lg:min-h-[360px] lg:border-r"
-                  >
-                    <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
-                    <h3 className="mt-10 text-2xl font-semibold tracking-tight">{pillar.title}</h3>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">{pillar.text}</p>
+            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {pillars.map((pillar) => (
+                <article
+                  id={`platform-${slugify(pillar.sourceTitle)}`}
+                  key={pillar.sourceTitle}
+                  className="group scroll-mt-44 overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_14px_40px_rgba(7,22,51,.06)]"
+                >
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <Image
+                      src={pillar.image}
+                      alt={tx(pillar.imageAlt)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-semibold tracking-tight">{pillar.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{pillar.text}</p>
                     <ul className="compact-feature-list">
                       {pillar.capabilities.map((capability) => (
                         <li key={capability}>
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-600" />
+                          <Check
+                            className="mt-1 h-3.5 w-3.5 shrink-0 text-blue-700"
+                            aria-hidden="true"
+                          />
                           <span>{capability}</span>
                         </li>
                       ))}
                     </ul>
-                  </article>
-                )
-              })}
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>
+
+        <PhysicalCampusStory />
+        <HomeMcpConnect />
 
         <AcademySetupJourney />
 

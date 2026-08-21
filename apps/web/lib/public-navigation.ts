@@ -2,9 +2,6 @@ export const publicNavigation = [
   { name: 'Features', href: '/features' },
   { name: "Who it's for", href: '/solutions' },
   { name: 'Pricing', href: '/pricing' },
-  { name: 'Blog', href: '/blog' },
-  { name: 'News', href: '/news' },
-  { name: 'Download', href: '/download' },
   { name: 'Company', href: '/sobre-nosotros' },
 ] as const
 

@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/header'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
+import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -76,6 +77,7 @@ export default async function AboutPage() {
             </div>
           </div>
         </section>
+        <GovernanceFrameworks />
       </main>
       <Footer />
     </div>

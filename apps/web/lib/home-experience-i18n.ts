@@ -93,7 +93,7 @@ export const homeExperienceContent = {
     },
     operations: {
       eyebrow: 'The academy command centre',
-      title: 'Run your academy with clarity.',
+      title: 'One live view of the academy.',
       description: 'Coordinate admissions, schedules, people and finance in one live view.',
       imageAlt: 'Academy management team coordinating admissions and daily operations',
       imageEyebrow: 'Made for academy teams',
@@ -128,7 +128,7 @@ export const homeExperienceContent = {
           id: 'operations',
           label: 'Academy team',
           eyebrow: 'For directors and centre staff',
-          title: 'Run your academy with clarity.',
+          title: 'Run the academy from one workspace.',
           description: 'See enrolment, schedules, people and finance in one workspace.',
           image: '/images/marketing/akademate-operations-experience-v1.jpg',
           imageAlt:
@@ -212,7 +212,7 @@ export const homeExperienceContent = {
     },
     operations: {
       eyebrow: 'El centro de control de tu academia',
-      title: 'Dirige tu academia con claridad.',
+      title: 'Toda la academia, a la vista.',
       description: 'Coordina admisiones, horarios, personas y finanzas en una vista en directo.',
       imageAlt: 'Equipo de gestión de una academia coordinando admisiones y operaciones diarias',
       imageEyebrow: 'Creado para equipos de academia',
@@ -247,7 +247,7 @@ export const homeExperienceContent = {
           id: 'operations',
           label: 'Equipo de academia',
           eyebrow: 'Para dirección y personal del centro',
-          title: 'Dirige tu academia con claridad.',
+          title: 'Gestiona la academia desde un solo espacio.',
           description:
             'Consulta matrículas, horarios, personas y finanzas en un único espacio de trabajo.',
           image: '/images/marketing/akademate-operations-experience-v1.jpg',

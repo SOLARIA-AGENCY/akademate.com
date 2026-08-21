@@ -102,7 +102,7 @@ describe('public marketing architecture', () => {
     const dictionaries = readFileSync(new URL('./i18n/dictionaries.ts', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
     expect(home).toContain('{dictionary.home.title}')
-    expect(dictionaries).toMatch(/Run your academy\. Grow\./)
+    expect(dictionaries).toMatch(/Run the whole academy\./)
   })
 
   it('models the complete product journey from website distribution to extensible operations', () => {
@@ -560,14 +560,11 @@ describe('public marketing architecture', () => {
       '/features',
       '/solutions',
       '/pricing',
-      '/blog',
-      '/news',
-      '/download',
       '/sobre-nosotros',
     ])
-    expect(publicNavigation.find((item) => item.href === '/blog')?.name).toBe('Blog')
-    expect(publicNavigation.find((item) => item.href === '/news')?.name).toBe('News')
-    expect(publicNavigation.find((item) => item.href === '/download')?.name).toBe('Download')
+    expect(publicNavigation.find((item) => item.href === '/blog')).toBeUndefined()
+    expect(publicNavigation.find((item) => item.href === '/news')).toBeUndefined()
+    expect(publicNavigation.find((item) => item.href === '/download')).toBeUndefined()
     expect(publicCompanyLinks.find((item) => item.href === '/blog')?.name).toBe('Blog')
     expect(publicCompanyLinks.find((item) => item.href === '/news')?.name).toBe('News')
   })
