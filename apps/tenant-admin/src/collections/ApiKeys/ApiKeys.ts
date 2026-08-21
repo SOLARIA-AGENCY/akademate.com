@@ -107,6 +107,7 @@ export const ApiKeys: CollectionConfig = {
             { label: 'Personal — Escritura', value: 'staff:write' },
             { label: 'Convocatorias — Lectura', value: 'convocatorias:read' },
             { label: 'Convocatorias — Escritura', value: 'convocatorias:write' },
+            { label: 'Construcción OVH — Escritura', value: 'construction:write' },
           ],
         },
       ],

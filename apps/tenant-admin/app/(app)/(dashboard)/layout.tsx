@@ -3,7 +3,7 @@
 // Force dynamic rendering for all dashboard pages - bypass static generation for client-side hooks
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, Search } from 'lucide-react'
 import { NotificationBell } from '@payload-config/components/ui/NotificationBell'
@@ -74,6 +74,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     avatar: null as string | null,
     initials: 'AD',
   })
+  const pathnameRef = useRef(pathname)
+  const sessionConfirmedRef = useRef(false)
+  pathnameRef.current = pathname
 
   useEffect(() => {
     const loadSession = async () => {
@@ -87,18 +90,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           console.warn('[DashboardLayout] Session probe unavailable; keep current cookies')
           return
         }
+
+        const sendToLogin = () => {
+          if (sessionConfirmedRef.current) {
+            console.warn('[DashboardLayout] Session probe failed after a confirmed login; keep dashboard')
+            return
+          }
+          const dest = pathnameRef.current || '/dashboard'
+          router.replace(`/auth/login?redirect=${encodeURIComponent(dest)}`)
+        }
+
         if (!response.ok) {
-          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
+          sendToLogin()
           return
         }
 
         const payload = (await response.json()) as SessionResponse
         const user = payload.user
         if (!payload.authenticated || !user?.email) {
-          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
+          sendToLogin()
           return
         }
 
+        sessionConfirmedRef.current = true
         const displayName = user.name?.trim() || user.email
         const initials =
           displayName
@@ -120,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     void loadSession()
-  }, [pathname, router])
+  }, [router])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)')
