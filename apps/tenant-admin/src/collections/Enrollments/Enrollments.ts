@@ -224,11 +224,11 @@ export const Enrollments: CollectionConfig = {
     {
       name: 'student',
       type: 'relationship',
-      relationTo: 'leads', // NOTE: Using 'leads' as students for now. In production, use dedicated 'students' collection
+      relationTo: 'students',
       required: true,
       index: true,
       admin: {
-        description: 'The student enrolling in the course run',
+        description: 'Alumno de la collection students',
       },
     },
 

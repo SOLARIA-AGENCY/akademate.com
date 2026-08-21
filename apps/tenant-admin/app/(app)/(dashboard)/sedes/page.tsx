@@ -1,31 +1,27 @@
 'use client'
 
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
+import { Badge } from '@payload-config/components/ui/badge'
 import {
+  ACADEMIC_ENTITY_META_CLASS,
+  ACADEMIC_LISTING_GRID_CLASS,
+  AcademicEntityCard,
+  CAMPUS_LIST_COLUMNS,
   DashboardListingLayout,
   DashboardToolbar,
-  type DashboardStatItem,
+  ListingActions,
+  ListingColumnBoard,
 } from '@payload-config/components/akademate/dashboard'
+import { ACADEMIC_FALLBACK_IMAGES } from '@/app/lib/academic-template-mocks'
+import { MapPin, Plus } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
-import {
-  MapPin,
-  DoorOpen,
-  Users,
-  BookOpen,
-  Phone,
-  Mail,
-  Printer,
-  Download,
-} from 'lucide-react'
-import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
-import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
-import { UsageBar } from '@payload-config/components/ui/UsageBar'
-import { getLimit } from '@payload-config/lib/planLimits'
 import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
+import { isVirtualCampus } from '@/src/domain/cep-operational-units'
+import { getPublicCampusImage } from '@/app/lib/public-campus-assets'
 
 /** Sede data structure used for display */
 interface Sede {
@@ -42,6 +38,8 @@ interface Sede {
   color: string
   borderColor: string
   imagen: string | null
+  campusKind: 'physical' | 'virtual'
+  operationalOwner: 'cep' | 'acaten' | 'aproem'
 }
 
 /** Campus data from API response */
@@ -55,6 +53,9 @@ interface ApiCampus {
   email?: string
   staff_members?: unknown[]
   image?: { url?: string } | number | null
+  campus_kind?: 'physical' | 'virtual' | string | null
+  operational_owner?: 'cep' | 'acaten' | 'aproem' | string | null
+  active?: boolean
 }
 
 /** API response shape for campuses endpoint */
@@ -82,8 +83,7 @@ export default function SedesPage() {
   const [sedes, setSedes] = useState<Sede[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const { plan } = usePlanLimits()
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -105,7 +105,9 @@ export default function SedesPage() {
           ? ((await aulasRes.json()) as AulasApiResponse)
           : { success: false, data: [] }
 
-        const docs: ApiCampus[] = Array.isArray(campusPayload.docs) ? campusPayload.docs : []
+        const docs: ApiCampus[] = (Array.isArray(campusPayload.docs) ? campusPayload.docs : []).filter(
+          (campus) => campus.active !== false
+        )
         const aulas: ApiAula[] = aulasPayload.success ? aulasPayload.data : []
 
         // Build lookup: campusId → { count, totalCapacity }
@@ -121,12 +123,16 @@ export default function SedesPage() {
         }
 
         const mapped: Sede[] = docs.map((campus: ApiCampus) => {
-          const addressParts = [campus.address, campus.postal_code, campus.city].filter(Boolean)
-          const campusStats = aulasByCampus.get(Number(campus.id))
+          const campusKind = campus.campus_kind === 'virtual' ? 'virtual' : 'physical'
+          const operationalOwner = campus.operational_owner === 'acaten' || campus.operational_owner === 'aproem'
+            ? campus.operational_owner
+            : 'cep'
+          const addressParts = campusKind === 'virtual' ? [] : [campus.address, campus.postal_code, campus.city].filter(Boolean)
+          const campusStats = campusKind === 'virtual' ? undefined : aulasByCampus.get(Number(campus.id))
           return {
             id: campus.id,
             nombre: campus.name ?? 'Sede',
-            direccion: addressParts.join(', ') || 'Dirección pendiente',
+            direccion: addressParts.join(', ') || (campusKind === 'virtual' ? 'Unidad operativa virtual' : 'Dirección pendiente'),
             telefono: campus.phone ?? '—',
             email: campus.email ?? '—',
             horario: 'Lunes a Viernes 08:00 - 20:00',
@@ -137,9 +143,14 @@ export default function SedesPage() {
             color: 'bg-primary',
             borderColor: 'border-primary',
             imagen:
-              campus.image && typeof campus.image === 'object' && campus.image.url
-                ? campus.image.url
-                : null,
+              getPublicCampusImage(
+                campus.name,
+                campus.image && typeof campus.image === 'object' && campus.image.url
+                  ? campus.image.url
+                  : null,
+              ) ?? ACADEMIC_FALLBACK_IMAGES.campus,
+            campusKind,
+            operationalOwner,
           }
         })
 
@@ -158,26 +169,12 @@ export default function SedesPage() {
     router.push(`/dashboard/sedes/${sedeId}`)
   }
 
-  const stats: DashboardStatItem[] = [
-    { label: 'Total sedes', value: sedes.length, icon: MapPin },
-    {
-      label: 'Aulas activas',
-      value: sedes.reduce((total, sede) => total + sede.aulas, 0),
-      icon: DoorOpen,
-      tone: 'primary',
-    },
-    {
-      label: 'Capacidad total',
-      value: sedes.reduce((total, sede) => total + sede.capacidad, 0),
-      icon: Users,
-      tone: 'success',
-    },
-    {
-      label: 'Cursos activos',
-      value: sedes.reduce((total, sede) => total + sede.cursosActivos, 0),
-      icon: BookOpen,
-    },
-  ]
+  const filteredSedes = searchQuery
+    ? sedes.filter((s) => {
+        const q = searchQuery.toLowerCase()
+        return s.nombre.toLowerCase().includes(q) || s.direccion.toLowerCase().includes(q)
+      })
+    : sedes
 
   const exportColumns: ExportColumn<Sede>[] = [
     { header: 'Sede', getValue: (sede) => sede.nombre },
@@ -196,31 +193,20 @@ export default function SedesPage() {
   return (
     <DashboardListingLayout
       title="Sedes"
+      icon={MapPin}
       actions={
-        <Button
-          disabled
-          aria-disabled="true"
-          title="La creación de sedes está restringida al equipo interno de Akademate."
-          data-oid="hrtnwkn"
-        >
-          Nueva Sede
-        </Button>
+        <ListingActions onPrint={handlePrint} onCsv={handleCsv}>
+          <Button size="sm" className="shrink-0" onClick={() => router.push('/dashboard/sedes/nueva')}>
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nueva sede</span>
+          </Button>
+        </ListingActions>
       }
-      stats={stats}
       toolbar={
         <DashboardToolbar
-          actions={
-            <>
-              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
-                <Printer className="h-4 w-4" />
-                Imprimir
-              </Button>
-              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
-                <Download className="h-4 w-4" />
-                Descargar CSV
-              </Button>
-            </>
-          }
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Buscar sede…"
           viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />}
         />
       }
@@ -243,8 +229,6 @@ export default function SedesPage() {
         </div>
       )}
 
-      <UsageBar resource="sedes" current={sedes.length} limit={getLimit(plan, 'sedes')} />
-
       {!isLoading && sedes.length === 0 ? (
         <Card data-oid="kmn6z-k">
           <CardContent className="p-8 text-center" data-oid="z8f:dzt">
@@ -252,118 +236,74 @@ export default function SedesPage() {
               No hay sedes registradas
             </p>
             <p className="mt-1 text-sm text-muted-foreground" data-oid="pfv-9.9">
-              Crea tu primera sede desde el panel de administración de campus.
+              Crea la primera sede con Nueva sede.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {!isLoading && sedes.length > 0 && filteredSedes.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-base font-medium">Sin resultados</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ninguna sede coincide con &ldquo;{searchQuery}&rdquo;.
             </p>
           </CardContent>
         </Card>
       ) : null}
 
       {view === 'grid' ? (
-        <div className="grid gap-6 lg:grid-cols-2" data-oid="sgmd.g2">
-          {sedes.map((sede) => (
-            <Card
+        <div className={ACADEMIC_LISTING_GRID_CLASS} data-oid="sgmd.g2">
+          {filteredSedes.map((sede) => (
+            <AcademicEntityCard
               key={sede.id}
-              className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+              title={sede.nombre}
+              image={sede.imagen}
+              fallbackImage={ACADEMIC_FALLBACK_IMAGES.campus}
               onClick={() => handleViewSede(sede.id)}
-              data-oid="x43z8n_"
-            >
-              <div className="relative h-56 w-full bg-primary/10 sm:h-64" data-oid="sede-image">
-                {sede.imagen ? (
-                  <img src={sede.imagen} alt={sede.nombre} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <MapPin className="h-12 w-12 text-primary" />
-                  </div>
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent p-5">
-                  <h3 className="text-xl font-semibold leading-tight text-white" data-oid="ccek8r3">
-                    {sede.nombre}
-                  </h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-white/85" data-oid="1li66s3">
-                    {sede.direccion}
-                  </p>
-                </div>
-              </div>
-
-              <CardContent className="space-y-5 p-6" data-oid="rke.tyb">
-                <div
-                  className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2"
-                  data-oid="jks8htn"
-                >
-                  <div className="flex min-w-0 items-center gap-2" data-oid="qpi.:t:">
-                    <Phone className="h-4 w-4 flex-shrink-0" data-oid="4stws:y" />
-                    <span className="truncate" data-oid="r3x6t9d">
-                      {sede.telefono}
-                    </span>
-                  </div>
-                  <div className="flex min-w-0 items-center gap-2" data-oid="m0sxcka">
-                    <Mail className="h-4 w-4 flex-shrink-0" data-oid="9ucksis" />
-                    <span className="truncate" data-oid="05pc1xv">
-                      {sede.email}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 border-t pt-4" data-oid="ukx44fj">
-                  <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-aulas">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                      <DoorOpen className="h-3.5 w-3.5" data-oid="calvmou" />
-                      Aulas
-                    </div>
-                    <p className="mt-1 text-xl font-semibold">{sede.aulas || '—'}</p>
-                  </div>
-                  <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-capacidad">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                      <Users className="h-3.5 w-3.5" data-oid="2umu.g." />
-                      Plazas
-                    </div>
-                    <p className="mt-1 text-xl font-semibold">{sede.capacidad || '—'}</p>
-                  </div>
-                  <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-cursos">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                      <BookOpen className="h-3.5 w-3.5" data-oid="08kaha8" />
-                      Cursos
-                    </div>
-                    <p className="mt-1 text-xl font-semibold">{sede.cursosActivos || '—'}</p>
-                  </div>
-                </div>
-
-                <div
-                  className="flex items-center justify-between gap-3 border-t pt-4"
-                  data-oid="sede-footer"
-                >
-                  <div className="min-w-0" data-oid="x6kzf:k">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Centro
-                    </p>
-                    <p className="truncate text-sm font-medium">{sede.nombre}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      handleViewSede(sede.id)
-                    }}
-                    data-oid="ljzu3kn"
-                  >
-                    Ver sede
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2" data-oid="fc.70tp">
-          {sedes.map((sede) => (
-            <SedeListItem
-              key={sede.id}
-              sede={sede}
-              onClick={() => handleViewSede(sede.id)}
-              data-oid="57xdg7e"
+              onCtaClick={() => router.push(`/dashboard/sedes/${sede.id}/editar`)}
+              badge={
+                <Badge variant="static" className="text-[10px] font-medium">
+                  {isVirtualCampus({ campus_kind: sede.campusKind }) ? 'Virtual' : 'Física'}
+                </Badge>
+              }
+              tiles={[
+                <span key="address">{sede.direccion}</span>,
+                <span key="rooms">
+                  {sede.aulas || 0} aulas · {sede.capacidad || 0} plazas
+                </span>,
+              ]}
             />
           ))}
         </div>
+      ) : (
+        <ListingColumnBoard columns={CAMPUS_LIST_COLUMNS}>
+          {filteredSedes.map((sede) => (
+            <AcademicEntityCard
+              key={sede.id}
+              variant="list"
+              title={sede.nombre}
+              image={sede.imagen}
+              fallbackImage={ACADEMIC_FALLBACK_IMAGES.campus}
+              onClick={() => handleViewSede(sede.id)}
+              onCtaClick={() => router.push(`/dashboard/sedes/${sede.id}/editar`)}
+              badge={
+                <Badge variant="static" className="text-[10px] font-medium">
+                  {isVirtualCampus({ campus_kind: sede.campusKind }) ? 'Virtual' : 'Física'}
+                </Badge>
+              }
+              listCells={[
+                <span key="address" className={ACADEMIC_ENTITY_META_CLASS}>
+                  {sede.direccion}
+                </span>,
+                <span key="rooms" className={ACADEMIC_ENTITY_META_CLASS}>
+                  {sede.aulas || 0} / {sede.capacidad || 0}
+                </span>,
+              ]}
+            />
+          ))}
+        </ListingColumnBoard>
       )}
     </DashboardListingLayout>
   )

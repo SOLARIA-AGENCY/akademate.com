@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '../../leads/_lib/auth'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import { findOrCreateStudent } from '@/src/domain/ensure-student'
 
 export const dynamic = 'force-dynamic'
 
@@ -197,12 +198,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const student = await findOrCreateStudent(payload, {
+      email,
+      firstName,
+      lastName,
+      phone,
+      tenantId,
+    })
+
     const existingEnrollment =
       typeof (payload as any).find === 'function'
         ? await payload.find({
             collection: 'enrollments',
             where: {
-              and: [{ student: { equals: lead.id } }, { course_run: { equals: courseRunId } }],
+              and: [{ student: { equals: student.id } }, { course_run: { equals: courseRunId } }],
             } as any,
             depth: 0,
             limit: 1,
@@ -216,6 +225,7 @@ export async function POST(request: NextRequest) {
         alreadyExists: true,
         mode: 'direct',
         leadId: lead.id,
+        studentId: student.id,
         enrollmentId: existing.id,
       })
     }
@@ -224,7 +234,7 @@ export async function POST(request: NextRequest) {
       collection: 'enrollments',
       overrideAccess: true,
       data: {
-        student: lead.id,
+        student: student.id,
         course_run: courseRunId,
         status: 'pending',
         payment_status: 'pending',

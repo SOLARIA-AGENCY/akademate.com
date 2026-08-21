@@ -41,6 +41,8 @@ import {
   ClipboardList,
   QrCode,
   Video,
+  Search,
+  UserCog,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -96,6 +98,21 @@ const menuItems: MenuItemWithSection[] = [
     url: '/dashboard/sedes',
   },
   {
+    title: 'Asistencia interna',
+    icon: ClipboardList,
+    url: '/asistencia',
+  },
+  {
+    title: 'Selección',
+    icon: ListTodo,
+    url: '/seleccion',
+  },
+  {
+    title: 'Informes de cumplimiento',
+    icon: FileText,
+    url: '/informes-cumplimiento',
+  },
+  {
     title: 'Alumnos',
     icon: School,
     url: '/dashboard/alumnos',
@@ -143,6 +160,7 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Convocatorias', icon: Calendar, url: '/web/convocatorias' },
       { title: 'Noticias/Blog', icon: Newspaper, url: '/contenido/blog' },
       { title: 'Páginas', icon: FileEdit, url: '/contenido/paginas' },
+      { title: 'SEO', icon: Search, url: '/contenido/seo' },
       { title: 'FAQs', icon: HelpCircle, url: '/contenido/faqs' },
       {
         title: 'Testimonios',
@@ -183,9 +201,7 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
       { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
       { title: 'Tareas', icon: ClipboardList, url: '/proximamente/tareas', upcoming: true },
-      { title: 'Asistencia interna', icon: QrCode, url: '/asistencia' },
-      { title: 'Selección', icon: ListTodo, url: '/seleccion' },
-      { title: 'Informes de cumplimiento', icon: FileText, url: '/informes-cumplimiento' },
+      { title: 'Asistencia QR', icon: QrCode, url: '/proximamente/asistencia', upcoming: true },
       { title: 'Sesiones en directo', icon: Video, url: '/proximamente/sesiones-live', upcoming: true },
       { title: 'Grabaciones', icon: Video, url: '/proximamente/grabaciones', upcoming: true },
     ],
@@ -208,6 +224,7 @@ const menuItems: MenuItemWithSection[] = [
     sectionBefore: 'ADMINISTRACIÓN',
     items: [
       { title: 'Usuarios', icon: Users, url: '/administracion/usuarios' },
+      { title: 'Impersonar', icon: UserCog, url: '/administracion/impersonar' },
       { title: 'Roles y Permisos', icon: Shield, url: '/administracion/roles' },
       { title: 'Areas de Estudio', icon: BookOpen, url: '/administracion/areas-estudio' },
       { title: 'Tipos de Estudio', icon: Tag, url: '/administracion/tipos-estudio' },

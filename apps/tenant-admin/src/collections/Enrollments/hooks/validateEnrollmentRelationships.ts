@@ -38,10 +38,8 @@ export const validateEnrollmentRelationships: CollectionBeforeValidateHook = asy
   // Validate student exists
   if (data.student) {
     try {
-      // NOTE: Using 'leads' collection as students for now
-      // In production, this should be a dedicated 'students' collection
       await payload.findByID({
-        collection: 'leads',
+        collection: 'students',
         id: data.student,
       });
     } catch (_error) {

@@ -17,6 +17,8 @@ import * as migration_20260630_staff_profile_campuses from './20260630_staff_pro
 import * as migration_20260713_campus_virtual_internal from './20260713_campus_virtual_internal'
 import * as migration_20260714_staging_tenant_schema_compat from './20260714_staging_tenant_schema_compat'
 import * as migration_20260714_staging_users_auth_compat from './20260714_staging_users_auth_compat'
+import * as migration_20260820_compliance_ops from './20260820_compliance_ops'
+import * as migration_20260821_testimonials_forms_enrollment_students from './20260821_testimonials_forms_enrollment_students'
 
 export const migrations = [
   {
@@ -113,5 +115,15 @@ export const migrations = [
     up: migration_20260714_staging_users_auth_compat.up,
     down: migration_20260714_staging_users_auth_compat.down,
     name: '20260714_staging_users_auth_compat',
+  },
+  {
+    up: migration_20260820_compliance_ops.up,
+    down: migration_20260820_compliance_ops.down,
+    name: '20260820_compliance_ops',
+  },
+  {
+    up: migration_20260821_testimonials_forms_enrollment_students.up,
+    down: migration_20260821_testimonials_forms_enrollment_students.down,
+    name: '20260821_testimonials_forms_enrollment_students',
   },
 ]

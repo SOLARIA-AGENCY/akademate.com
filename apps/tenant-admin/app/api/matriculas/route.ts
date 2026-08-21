@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(toNumber(searchParams.get('page'), 1), 1)
     const status = searchParams.get('status')?.trim() || null
     const query = searchParams.get('q')?.trim() || null
+    const studentId = toPositiveInt(searchParams.get('studentId'))
 
     const hasDni = await hasColumn(drizzle, 'leads', 'dni')
     const hasAddress = await hasColumn(drizzle, 'leads', 'address')
@@ -38,15 +39,18 @@ export async function GET(request: NextRequest) {
     const hasPhotoId = await hasColumn(drizzle, 'leads', 'photo_id')
 
     const conditions: string[] = []
-    if (auth.tenantId) conditions.push(`l.tenant_id = ${auth.tenantId}`)
+    if (auth.tenantId) {
+      conditions.push(`(COALESCE(s.tenant_id, l.tenant_id) = ${auth.tenantId} OR COALESCE(s.tenant_id, l.tenant_id) IS NULL)`)
+    }
+    if (studentId) conditions.push(`e.student_id = ${studentId}`)
     if (status) conditions.push(`e.status = '${esc(status)}'`)
     if (query) {
       const q = esc(query)
       const searchParts = [
-        `l.first_name ILIKE '%${q}%'`,
-        `l.last_name ILIKE '%${q}%'`,
-        `l.email ILIKE '%${q}%'`,
-        `l.phone ILIKE '%${q}%'`,
+        `COALESCE(s.first_name, l.first_name) ILIKE '%${q}%'`,
+        `COALESCE(s.last_name, l.last_name) ILIKE '%${q}%'`,
+        `COALESCE(s.email, l.email) ILIKE '%${q}%'`,
+        `COALESCE(s.phone, l.phone) ILIKE '%${q}%'`,
         `c.name ILIKE '%${q}%'`,
         `cr.codigo ILIKE '%${q}%'`,
       ]
@@ -59,7 +63,7 @@ export async function GET(request: NextRequest) {
     const countRes = await drizzle.execute(`
       SELECT COUNT(*)::int AS cnt
       FROM enrollments e
-      INNER JOIN leads l ON l.id = e.student_id
+      ${studentLeadJoin}
       LEFT JOIN course_runs cr ON cr.id = e.course_run_id
       LEFT JOIN courses c ON c.id = cr.course_id
       ${whereClause}
@@ -79,7 +83,18 @@ export async function GET(request: NextRequest) {
       hasPhotoId ? 'm.url AS photo_url' : 'NULL::text AS photo_url',
     ]
 
+    const hasLeadId = await hasColumn(drizzle, 'enrollments', 'lead_id')
+    const studentLeadJoin = hasLeadId
+      ? `LEFT JOIN students s ON s.id = e.student_id
+      LEFT JOIN leads l ON l.id = COALESCE(e.lead_id, CASE WHEN s.id IS NULL THEN e.student_id END)`
+      : `LEFT JOIN students s ON s.id = e.student_id
+      LEFT JOIN leads l ON l.id = e.student_id AND s.id IS NULL`
     const mediaJoin = hasPhotoId ? 'LEFT JOIN media m ON m.id = l.photo_id' : ''
+    const hasCycleId = await hasColumn(drizzle, 'course_runs', 'cycle_id')
+    const cycleSelect = hasCycleId
+      ? 'cr.cycle_id AS cycle_id,\n        cy.name AS cycle_name'
+      : 'NULL::int AS cycle_id,\n        NULL::text AS cycle_name'
+    const cycleJoin = hasCycleId ? 'LEFT JOIN cycles cy ON cy.id = cr.cycle_id' : ''
 
     const rowsRes = await drizzle.execute(`
       SELECT
@@ -101,10 +116,10 @@ export async function GET(request: NextRequest) {
         e.cancelled_at,
         e.created_at,
         e.updated_at,
-        l.first_name,
-        l.last_name,
-        l.email,
-        l.phone,
+        COALESCE(s.first_name, l.first_name) AS first_name,
+        COALESCE(s.last_name, l.last_name) AS last_name,
+        COALESCE(s.email, l.email) AS email,
+        COALESCE(s.phone, l.phone) AS phone,
         ${optionalProfileSelect.join(',\n        ')},
         cr.codigo AS course_run_code,
         cr.start_date AS course_run_start_date,
@@ -113,12 +128,14 @@ export async function GET(request: NextRequest) {
         c.id AS course_id,
         c.name AS course_name,
         cp.id AS campus_id,
-        cp.name AS campus_name
+        cp.name AS campus_name,
+        ${cycleSelect}
       FROM enrollments e
-      INNER JOIN leads l ON l.id = e.student_id
+      ${studentLeadJoin}
       LEFT JOIN course_runs cr ON cr.id = e.course_run_id
       LEFT JOIN courses c ON c.id = cr.course_id
       LEFT JOIN campuses cp ON cp.id = cr.campus_id
+      ${cycleJoin}
       ${mediaJoin}
       ${whereClause}
       ORDER BY e.created_at DESC, e.id DESC
@@ -172,6 +189,10 @@ export async function GET(request: NextRequest) {
       campus: {
         id: toPositiveInt(row.campus_id) ?? row.campus_id,
         name: row.campus_name ? String(row.campus_name) : 'Sin sede',
+      },
+      cycle: {
+        id: toPositiveInt(row.cycle_id),
+        name: row.cycle_name ? String(row.cycle_name) : null,
       },
     }))
 

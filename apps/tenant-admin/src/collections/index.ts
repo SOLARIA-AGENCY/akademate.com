@@ -37,11 +37,21 @@ export { default as Campaigns } from './Campaigns';
 export { AdsTemplates } from './AdsTemplates/AdsTemplates';
 export { BlogPosts } from './BlogPosts/BlogPosts';
 export { FAQs } from './FAQs/FAQs';
+export { Testimonials } from './Testimonials/Testimonials';
+export { WebsiteForms } from './WebsiteForms/WebsiteForms';
 export { Media } from './Media/Media';
 export { AuditLogs } from './AuditLogs/AuditLogs';
 export { AreasFormativas } from './AreasFormativas';
 export { Staff } from './Staff/Staff';
 export { StaffStatusEvents } from './StaffStatusEvents/StaffStatusEvents';
+export { TenantPaymentProviders } from './TenantPaymentProviders/TenantPaymentProviders';
+export { ActivityOffers } from './ActivityOffers/ActivityOffers';
+export { RegionPackBindings } from './RegionPackBindings/RegionPackBindings';
+export { AttendanceRosterEntries } from './AttendanceRoster/AttendanceRosterEntries';
+export { AttendanceEvents } from './AttendanceRoster/AttendanceEvents';
+export { SelectionCandidacies } from './SelectionCandidacies/SelectionCandidacies';
+export { PlacementAgencies } from './PlacementAgencies/PlacementAgencies';
+export { EnrollmentDropouts } from './EnrollmentDropouts/EnrollmentDropouts';
 
 // LMS Collections
 export { Modules } from './Modules/Modules';

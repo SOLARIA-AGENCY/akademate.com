@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardPageShell } from '@payload-config/components/akademate/dashboard'
 import {
   Sparkles,
   Upload,
@@ -139,25 +139,41 @@ function SlotCard({ slot, onUpload, onDelete }: {
 
 export default function CreatividadesPage() {
   const [campaigns, setCampaigns] = useState<ConvocatoriaSlots[]>([])
+  const [templates, setTemplates] = useState<Array<{ id: string; name: string; status: string }>>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchConvocatorias = async () => {
       try {
-        const res = await fetch('/api/convocatorias', { cache: 'no-cache' })
-        if (!res.ok) return
-        const payload = (await res.json()) as ConvocatoriasApiPayload
-        const data = Array.isArray(payload.data) ? payload.data : []
-
-        setCampaigns(
-          data.map((c) => ({
-            id: String(c.id),
-            cursoNombre: c.cursoNombre ?? 'Curso',
-            campusNombre: c.campusNombre ?? 'Sin sede',
-            campaignCode: '',
-            slots: createSlots(),
-          }))
-        )
+        const [res, templatesRes] = await Promise.all([
+          fetch('/api/convocatorias', { cache: 'no-cache' }),
+          fetch('/api/ads_templates?limit=40&sort=-updatedAt', { cache: 'no-store' }),
+        ])
+        if (res.ok) {
+          const payload = (await res.json()) as ConvocatoriasApiPayload
+          const data = Array.isArray(payload.data) ? payload.data : []
+          setCampaigns(
+            data.map((c) => ({
+              id: String(c.id),
+              cursoNombre: c.cursoNombre ?? 'Curso',
+              campusNombre: c.campusNombre ?? 'Sin sede',
+              campaignCode: '',
+              slots: createSlots(),
+            })),
+          )
+        }
+        if (templatesRes.ok) {
+          const templatesPayload = (await templatesRes.json()) as {
+            docs?: Array<{ id?: string | number; name?: string; status?: string }>
+          }
+          setTemplates(
+            (templatesPayload.docs ?? []).map((doc) => ({
+              id: String(doc.id ?? ''),
+              name: doc.name ?? 'Plantilla',
+              status: doc.status ?? 'draft',
+            })),
+          )
+        }
       } catch {
         setCampaigns([])
       } finally {
@@ -220,24 +236,24 @@ export default function CreatividadesPage() {
     })
   }
 
-  const totalSlots = campaigns.reduce((sum, c) => sum + c.slots.length, 0)
-  const filledSlots = campaigns.reduce((sum, c) => sum + c.slots.filter((s) => s.mediaId).length, 0)
-
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Creatividades"
-        description="Gestión de assets creativos para campañas publicitarias"
-        icon={Sparkles}
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{campaigns.length} convocatorias</Badge>
-            <Badge variant={filledSlots > 0 ? 'default' : 'outline'}>
-              {filledSlots}/{totalSlots} assets
-            </Badge>
-          </div>
-        }
-      />
+    <DashboardPageShell title="Creatividades" icon={Sparkles}>
+
+      {templates.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Plantillas AdsTemplates</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {templates.map((template) => (
+              <div key={template.id} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+                <span>{template.name}</span>
+                <Badge variant="static">{template.status}</Badge>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
@@ -294,6 +310,6 @@ export default function CreatividadesPage() {
           </Card>
         )
       })}
-    </div>
+    </DashboardPageShell>
   )
 }

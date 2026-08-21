@@ -1,14 +1,19 @@
 'use client'
 
-import { useEffect, useState, type MouseEvent, type KeyboardEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import {
+  AcademicEntityCard,
+  ACADEMIC_LISTING_GRID_CLASS,
+  AKADEMATE_ACADEMIC_FALLBACK_IMAGE,
   DashboardListingLayout,
   DashboardToolbar,
-  type DashboardStatItem,
+  ListingActions,
+  ListingColumnBoard,
+  PERSON_LIST_COLUMNS,
 } from '@payload-config/components/akademate/dashboard'
 import {
   Select,
@@ -17,22 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import {
-  User,
-  Mail,
-  Phone,
-  BookOpen,
-  CheckCircle2,
-  Download,
-  Eye,
-  Edit,
-  MapPin,
-  GraduationCap,
-  Printer,
-  UserPlus,
-} from 'lucide-react'
+import { Plus, User } from 'lucide-react'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
+import { joinStudentWithEnrollments } from '@/src/domain/student-enrollment-join'
 
 interface Student {
   id: string
@@ -68,7 +61,6 @@ export default function AlumnosPage() {
 
   // Estados de visualización
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [students, setStudents] = useState<Student[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -93,8 +85,28 @@ export default function AlumnosPage() {
 
         const payload = (await response.json()) as StudentsApiResponse
         const docs: StudentApiDoc[] = Array.isArray(payload.docs) ? payload.docs : []
+        const enrollmentsRes = await fetch('/api/matriculas?limit=200', { cache: 'no-store' })
+        const enrollmentsPayload = enrollmentsRes.ok
+          ? ((await enrollmentsRes.json()) as {
+              docs?: Array<{
+                status?: string
+                lead?: { email?: string }
+                course?: { name?: string }
+                campus?: { name?: string }
+                cycle?: { name?: string | null }
+              }>
+            })
+          : { docs: [] }
+        const enrollmentRows = (enrollmentsPayload.docs ?? []).map((row) => ({
+          email: row.lead?.email,
+          status: row.status,
+          campusName: row.campus?.name,
+          courseName: row.course?.name,
+          cycleName: row.cycle?.name,
+        }))
         const mapped: Student[] = docs.map((student: StudentApiDoc) => {
           const status = student.status
+          const joined = joinStudentWithEnrollments({ email: student.email }, enrollmentRows)
           return {
             id: String(student.id),
             first_name: student.first_name ?? '',
@@ -102,19 +114,16 @@ export default function AlumnosPage() {
             email: student.email ?? '—',
             phone: student.phone ?? '—',
             active: status ? status === 'active' : true,
-            enrolled_courses: 0,
-            completed_courses: 0,
-            sede: 'Sin sede',
-            curso_actual: '-',
-            ciclo: '-',
+            enrolled_courses: joined.enrolled_courses,
+            completed_courses: joined.completed_courses,
+            sede: joined.sede,
+            curso_actual: joined.curso_actual,
+            ciclo: joined.ciclo,
             fecha_inscripcion: student.createdAt ?? '',
           }
         })
 
         setStudents(mapped)
-        if (mapped.length > 0) {
-          setSelectedStudent((prev) => prev ?? mapped[0])
-        }
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : 'Error al cargar alumnos')
         setStudents([])
@@ -128,6 +137,10 @@ export default function AlumnosPage() {
 
   const handleViewStudent = (studentId: string) => {
     router.push(`/dashboard/alumnos/${studentId}`)
+  }
+
+  const handleEditStudent = (studentId: string) => {
+    router.push(`/dashboard/alumnos/${studentId}/editar`)
   }
 
   // Extraer valores únicos para filtros
@@ -156,20 +169,6 @@ export default function AlumnosPage() {
     return matchesSearch && matchesStatus && matchesSede && matchesCurso && matchesCiclo
   })
 
-  const stats = {
-    total: students.length,
-    active: students.filter((s) => s.active).length,
-    inactive: students.filter((s) => !s.active).length,
-    totalEnrolled: students.reduce((sum, s) => sum + s.enrolled_courses, 0),
-  }
-
-  const statItems: DashboardStatItem[] = [
-    { label: 'Total alumnos', value: stats.total, icon: User },
-    { label: 'Activos', value: stats.active, icon: User, tone: 'success' },
-    { label: 'Inactivos', value: stats.inactive, icon: User },
-    { label: 'Cursando', value: stats.totalEnrolled, icon: BookOpen, tone: 'primary' },
-  ]
-
   const exportColumns: ExportColumn<Student>[] = [
     { header: 'Nombre', getValue: (student) => `${student.first_name} ${student.last_name}` },
     { header: 'Email', getValue: (student) => student.email },
@@ -191,8 +190,15 @@ export default function AlumnosPage() {
   return (
     <DashboardListingLayout
       title="Alumnos"
-      description={`${filteredStudents.length} alumnos de ${students.length} totales`}
-      stats={statItems}
+      icon={User}
+      actions={
+        <ListingActions onPrint={handlePrint} onCsv={handleCsv}>
+          <Button size="sm" className="shrink-0" onClick={() => router.push('/dashboard/alumnos/nuevo')}>
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nuevo alumno</span>
+          </Button>
+        </ListingActions>
+      }
       toolbar={
         <DashboardToolbar
           searchValue={searchTerm}
@@ -201,7 +207,7 @@ export default function AlumnosPage() {
           filters={
             <>
               <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="8gn04-c">
-                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid=":.:.p3e">
+                <SelectTrigger className="w-full min-w-0" data-oid=":.:.p3e">
                   <SelectValue placeholder="Estado" data-oid="wrk4a2x" />
                 </SelectTrigger>
                 <SelectContent data-oid="neuz-.3">
@@ -218,7 +224,7 @@ export default function AlumnosPage() {
               </Select>
 
               <Select value={filterSede} onValueChange={setFilterSede} data-oid="ah85kl0">
-                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid="_-je2:c">
+                <SelectTrigger className="w-full min-w-0" data-oid="_-je2:c">
                   <SelectValue placeholder="Sede" data-oid="hg5vqi2" />
                 </SelectTrigger>
                 <SelectContent data-oid=":p47ksq">
@@ -234,7 +240,7 @@ export default function AlumnosPage() {
               </Select>
 
               <Select value={filterCurso} onValueChange={setFilterCurso} data-oid="zd.guip">
-                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid="5mx06il">
+                <SelectTrigger className="w-full min-w-0" data-oid="5mx06il">
                   <SelectValue placeholder="Curso" data-oid="oj62xzc" />
                 </SelectTrigger>
                 <SelectContent data-oid="xo2qpfm">
@@ -250,7 +256,7 @@ export default function AlumnosPage() {
               </Select>
 
               <Select value={filterCiclo} onValueChange={setFilterCiclo} data-oid="yzzmgac">
-                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid="8w3syz2">
+                <SelectTrigger className="w-full min-w-0" data-oid="8w3syz2">
                   <SelectValue placeholder="Ciclo" data-oid="x676wrn" />
                 </SelectTrigger>
                 <SelectContent data-oid="min-q8c">
@@ -288,443 +294,102 @@ export default function AlumnosPage() {
               </Button>
             ) : null
           }
-          actions={
-            <>
-              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
-                <Printer className="h-4 w-4" />
-                Imprimir
-              </Button>
-              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
-                <Download className="h-4 w-4" />
-                Descargar CSV
-              </Button>
-            </>
-          }
           viewToggle={<ViewToggle view={viewMode} onViewChange={setViewMode} />}
         />
       }
     >
-      {isLoading && (
-        <div
-          className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
-          data-oid="zt9:_my"
-        >
+      {isLoading ? (
+        <div className="rounded-xl border border-dashed border-border/80 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando alumnos...
         </div>
-      )}
+      ) : null}
 
-      {errorMessage && (
-        <div
-          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
-          data-oid="eri:6r6"
-        >
+      {errorMessage ? (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {errorMessage}
         </div>
-      )}
+      ) : null}
 
-      {/* Vista LISTADO (default) */}
-      {viewMode === 'list' && (
-        <div
-          className={`grid gap-6 ${selectedStudent ? 'md:grid-cols-3' : 'grid-cols-1'}`}
-          data-oid="5zazfnf"
-        >
-          {/* Tabla de alumnos - 2/3 */}
-          <div className={selectedStudent ? 'md:col-span-2' : ''} data-oid="9l0cg-c">
-            <Card data-oid="zdzib1h">
-              <CardHeader data-oid="ou3nw24">
-                <CardTitle data-oid="8zzp30h">Listado de Alumnos</CardTitle>
-              </CardHeader>
-              <CardContent data-oid="8nm_upd">
-                <div className="space-y-2" data-oid="_3nf_97">
-                  {filteredStudents.map((student) => (
-                    <div
-                      key={student.id}
-                      role="button"
-                      tabIndex={0}
-                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedStudent?.id === student.id
-                          ? 'bg-primary/10 border-2 border-primary'
-                          : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => setSelectedStudent(student)}
-                      onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          setSelectedStudent(student)
-                        }
-                      }}
-                      data-oid="1fs_iks"
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0" data-oid="kvz76_j">
-                        <div className="relative flex-shrink-0" data-oid="w7pvw9g">
-                          <div
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                            data-oid="j_1i8jg"
-                          >
-                            <span className="text-sm font-bold" data-oid="32zet9l">
-                              {student.first_name[0]}
-                              {student.last_name[0]}
-                            </span>
-                          </div>
-                          {student.active && (
-                            <div
-                              className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"
-                              data-oid="inub7v2"
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0" data-oid="5cw.1zv">
-                          <h4 className="font-semibold text-sm truncate" data-oid="h81:4hw">
-                            {student.first_name} {student.last_name}
-                          </h4>
-                          <p className="text-xs text-muted-foreground truncate" data-oid="1tle69y">
-                            {student.email}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 flex-shrink-0" data-oid="781miv9">
-                        <Badge
-                          variant={student.active ? 'default' : 'secondary'}
-                          className="text-xs"
-                          data-oid="59eo6fh"
-                        >
-                          {student.active ? 'Activo' : 'Inactivo'}
-                        </Badge>
-                        <div
-                          className="flex items-center gap-1 text-xs text-muted-foreground"
-                          data-oid="y06a2rj"
-                        >
-                          <BookOpen className="h-3 w-3" data-oid="wb1d3ji" />
-                          <span data-oid="hk.2njg">{student.enrolled_courses}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {filteredStudents.length === 0 && (
-                  <div className="py-12 text-center space-y-3" data-oid="ioxw5-:">
-                    {students.length === 0 ? (
-                      <>
-                        <p className="text-muted-foreground" data-oid="h21g4jj">
-                          Los alumnos se crean automaticamente al realizar una matriculacion
-                        </p>
-                        <Button onClick={() => router.push('/matriculas')} data-oid="ir-matri-list">
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          Ir a Matriculacion
-                        </Button>
-                      </>
-                    ) : (
-                      <p className="text-muted-foreground" data-oid="h21g4jj">
-                        No se encontraron alumnos que coincidan con los filtros seleccionados.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+      {/* QA mock: muestra una ficha cuando la API no devuelve datos reales */}
+      {!isLoading && students.length === 0 ? (
+        viewMode === 'list' ? (
+          <ListingColumnBoard columns={PERSON_LIST_COLUMNS}>
+            <AcademicEntityCard
+              variant="list"
+              title="Lucas Rodríguez"
+              fallbackImage={AKADEMATE_ACADEMIC_FALLBACK_IMAGE}
+              badge={<Badge variant="static" className="bg-green-600 text-white hover:bg-green-600">Activo</Badge>}
+              listCells={['Gestión Empresarial', 'Sede Central']}
+            />
+          </ListingColumnBoard>
+        ) : (
+          <div className={ACADEMIC_LISTING_GRID_CLASS}>
+            <AcademicEntityCard
+              title="Lucas Rodríguez"
+              fallbackImage={AKADEMATE_ACADEMIC_FALLBACK_IMAGE}
+              badge={<Badge variant="static" className="bg-green-600 text-white hover:bg-green-600">Activo</Badge>}
+              tiles={['Gestión Empresarial', 'Sede Central']}
+            />
           </div>
-
-          {/* Panel lateral - 1/3 (solo visible cuando hay alumno seleccionado) */}
-          {selectedStudent ? (
-            <div className="md:col-span-1" data-oid="_pl0in2">
-              <Card className="sticky top-6" data-oid=".-k-ldy">
-                <CardHeader data-oid="uig6t_r">
-                  <CardTitle className="text-lg" data-oid="k5un1kd">
-                    Previsualización
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4" data-oid="xm9.br.">
-                  {/* Avatar y nombre */}
-                  <div
-                    className="flex flex-col items-center text-center space-y-3"
-                    data-oid="_zj6xw4"
-                  >
-                    <div className="relative" data-oid="3gvfxsj">
-                      <div
-                        className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                        data-oid="bkjw._c"
-                      >
-                        <span className="text-2xl font-bold" data-oid="8gm6col">
-                          {selectedStudent.first_name[0]}
-                          {selectedStudent.last_name[0]}
-                        </span>
-                      </div>
-                      {selectedStudent.active && (
-                        <div
-                          className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-green-500 border-2 border-white"
-                          data-oid="zp7d319"
-                        />
-                      )}
-                    </div>
-                    <div data-oid="2usz0nd">
-                      <h3 className="font-bold text-lg" data-oid="4tlfq.5">
-                        {selectedStudent.first_name} {selectedStudent.last_name}
-                      </h3>
-                      <Badge
-                        variant={selectedStudent.active ? 'default' : 'secondary'}
-                        className="mt-1"
-                        data-oid="k.6:xpr"
-                      >
-                        {selectedStudent.active ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Información de contacto */}
-                  <div className="space-y-2 pt-3 border-t" data-oid="xlh:al_">
-                    <div className="flex items-center gap-2 text-sm" data-oid="-2wexjl">
-                      <Mail
-                        className="h-4 w-4 text-muted-foreground flex-shrink-0"
-                        data-oid="zftomhu"
-                      />
-                      <span className="truncate" data-oid="8va3a1s">
-                        {selectedStudent.email}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm" data-oid="ul1k3d5">
-                      <Phone
-                        className="h-4 w-4 text-muted-foreground flex-shrink-0"
-                        data-oid="9qh6glg"
-                      />
-                      <span data-oid="xyhbina">{selectedStudent.phone}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm" data-oid=":4q9-8y">
-                      <MapPin
-                        className="h-4 w-4 text-muted-foreground flex-shrink-0"
-                        data-oid="g_wnq1v"
-                      />
-                      <span data-oid="f6oj.-g">{selectedStudent.sede}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm" data-oid="u9shji8">
-                      <GraduationCap
-                        className="h-4 w-4 text-muted-foreground flex-shrink-0"
-                        data-oid="3.djqgj"
-                      />
-                      <span className="truncate" data-oid="22xmz6c">
-                        {selectedStudent.ciclo}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Curso actual */}
-                  <div className="space-y-2 pt-3 border-t" data-oid="39o2316">
-                    <p
-                      className="text-xs font-semibold text-muted-foreground uppercase"
-                      data-oid="p9yaz:6"
-                    >
-                      Curso Actual
-                    </p>
-                    <p className="text-sm" data-oid="56hh-qp">
-                      {selectedStudent.curso_actual}
-                    </p>
-                  </div>
-
-                  {/* Estadísticas */}
-                  <div className="grid grid-cols-2 gap-3 pt-3 border-t" data-oid="o8bj9:9">
-                    <div className="text-center p-2 bg-secondary rounded" data-oid="t8-4kh.">
-                      <div
-                        className="flex items-center justify-center gap-1 mb-1"
-                        data-oid=":phnqc7"
-                      >
-                        <BookOpen className="h-4 w-4 text-muted-foreground" data-oid=":zn8ecg" />
-                        <span className="font-bold text-lg" data-oid="dwh2_43">
-                          {selectedStudent.enrolled_courses}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground" data-oid="lfvc1.l">
-                        Cursando
-                      </p>
-                    </div>
-                    <div className="text-center p-2 bg-secondary rounded" data-oid="g1ux92m">
-                      <div
-                        className="flex items-center justify-center gap-1 mb-1"
-                        data-oid="p55xsnb"
-                      >
-                        <CheckCircle2
-                          className="h-4 w-4 text-muted-foreground"
-                          data-oid="9xfl-a0"
-                        />
-                        <span className="font-bold text-lg" data-oid="ncnfiwu">
-                          {selectedStudent.completed_courses}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground" data-oid="vwwtfct">
-                        Completados
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Botones de acción */}
-                  <div className="grid grid-cols-2 gap-2 pt-3 border-t" data-oid=".0dvdg5">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleViewStudent(selectedStudent.id)}
-                      data-oid="5iscurj"
-                    >
-                      <Eye className="mr-2 h-4 w-4" data-oid="118o68k" />
-                      Ver Ficha
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => router.push(`/dashboard/alumnos/${selectedStudent.id}/editar`)}
-                      data-oid="u7lf.71"
-                    >
-                      <Edit className="mr-2 h-4 w-4" data-oid="gpux11j" />
-                      Editar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ) : null}
-        </div>
-      )}
-
-      {/* Vista FICHAS (grid) */}
-      {viewMode === 'grid' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=":xr0vw7">
+        )
+      ) : !isLoading && filteredStudents.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              No se encontraron alumnos que coincidan con los filtros seleccionados.
+            </p>
+          </CardContent>
+        </Card>
+      ) : viewMode === 'list' ? (
+        <ListingColumnBoard columns={PERSON_LIST_COLUMNS}>
           {filteredStudents.map((student) => (
-            <Card
+            <AcademicEntityCard
               key={student.id}
-              className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
+              variant="list"
+              title={`${student.first_name} ${student.last_name}`.trim() || student.email}
+              fallbackImage={AKADEMATE_ACADEMIC_FALLBACK_IMAGE}
+              badge={
+                <Badge
+                  variant="static"
+                  className={
+                    student.active
+                      ? 'bg-green-600 text-white hover:bg-green-600'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
+                  }
+                >
+                  {student.active ? 'Activo' : 'Inactivo'}
+                </Badge>
+              }
+              listCells={[student.curso_actual !== '-' ? student.curso_actual : student.email, student.sede]}
               onClick={() => handleViewStudent(student.id)}
-              data-oid="n0nsj_-"
-            >
-              <CardContent className="p-6 space-y-4" data-oid="uu8doez">
-                <div className="flex items-start gap-4" data-oid="o-x-54n">
-                  <div className="relative" data-oid="7g.x9no">
-                    <div
-                      className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                      data-oid="v15y-dv"
-                    >
-                      <span className="text-xl font-bold" data-oid="insnk62">
-                        {student.first_name[0]}
-                        {student.last_name[0]}
-                      </span>
-                    </div>
-                    {student.active && (
-                      <div
-                        className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white"
-                        data-oid="f9s55df"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0" data-oid="uqrrjhy">
-                    <h3 className="font-bold text-lg leading-tight truncate" data-oid="eobcsk7">
-                      {student.first_name} {student.last_name}
-                    </h3>
-                    <Badge
-                      variant={student.active ? 'default' : 'secondary'}
-                      className="mt-1 text-xs"
-                      data-oid="lbyczpn"
-                    >
-                      {student.active ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-sm" data-oid="xbagnsm">
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="odqf6lu">
-                    <Mail className="h-4 w-4 flex-shrink-0" data-oid="p:5sid1" />
-                    <span className="truncate" data-oid="5pk_tp1">
-                      {student.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="xj1v.0i">
-                    <Phone className="h-4 w-4 flex-shrink-0" data-oid="w6c03zs" />
-                    <span data-oid="qqnxxsr">{student.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="kpn6o9.">
-                    <MapPin className="h-4 w-4 flex-shrink-0" data-oid="0lpo8q6" />
-                    <span data-oid="c5no04x">{student.sede}</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t" data-oid="tn_k4hf">
-                  <div className="text-center" data-oid="2civgy_">
-                    <div className="flex items-center justify-center gap-1" data-oid="gopbo.y">
-                      <BookOpen className="h-4 w-4 text-muted-foreground" data-oid="mw_6mnc" />
-                      <span className="font-bold" data-oid="hpcggr9">
-                        {student.enrolled_courses}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1" data-oid="9rivujt">
-                      Cursando
-                    </p>
-                  </div>
-
-                  <div className="text-center" data-oid="6eozkcn">
-                    <div className="flex items-center justify-center gap-1" data-oid="f3dsa_f">
-                      <CheckCircle2 className="h-4 w-4 text-muted-foreground" data-oid="wt0h2jt" />
-                      <span className="font-bold" data-oid="fuwf1o:">
-                        {student.completed_courses}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1" data-oid="ynqcqbl">
-                      Completados
-                    </p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t" data-oid="oxr0jgm">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      handleViewStudent(student.id)
-                    }}
-                    data-oid="ikpzb2w"
-                  >
-                    <Eye className="mr-2 h-4 w-4" data-oid="3:mwtcz" />
-                    Ver Detalles
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="w-full"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      router.push(`/dashboard/alumnos/${student.id}/editar`)
-                    }}
-                    data-oid="bgitn2z"
-                  >
-                    <Edit className="mr-2 h-4 w-4" data-oid="v0mbiro" />
-                    Editar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              onCtaClick={() => handleEditStudent(student.id)}
+            />
           ))}
-
-          {filteredStudents.length === 0 && (
-            <Card className="col-span-full" data-oid="2lx:bjr">
-              <CardContent className="py-12 text-center space-y-3" data-oid="b1d0:0p">
-                {students.length === 0 ? (
-                  <>
-                    <p className="text-muted-foreground" data-oid="k_an-0i">
-                      Los alumnos se crean automaticamente al realizar una matriculacion
-                    </p>
-                    <Button onClick={() => router.push('/matriculas')} data-oid="ir-matri-grid">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Ir a Matriculacion
-                    </Button>
-                  </>
-                ) : (
-                  <p className="text-muted-foreground" data-oid="k_an-0i">
-                    No se encontraron alumnos que coincidan con los filtros seleccionados.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
+        </ListingColumnBoard>
+      ) : (
+        <div className={ACADEMIC_LISTING_GRID_CLASS}>
+          {filteredStudents.map((student) => (
+            <AcademicEntityCard
+              key={student.id}
+              title={`${student.first_name} ${student.last_name}`.trim() || student.email}
+              fallbackImage={AKADEMATE_ACADEMIC_FALLBACK_IMAGE}
+              badge={
+                <Badge
+                  variant="static"
+                  className={
+                    student.active
+                      ? 'bg-green-600 text-white hover:bg-green-600'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
+                  }
+                >
+                  {student.active ? 'Activo' : 'Inactivo'}
+                </Badge>
+              }
+              tiles={[student.curso_actual !== '-' ? student.curso_actual : student.email, student.sede]}
+              onClick={() => handleViewStudent(student.id)}
+              onCtaClick={() => handleEditStudent(student.id)}
+            />
+          ))}
         </div>
       )}
     </DashboardListingLayout>

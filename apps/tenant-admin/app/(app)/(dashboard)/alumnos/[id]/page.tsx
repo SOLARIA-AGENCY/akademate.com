@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
-import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
+import { DashboardPageShell } from '@payload-config/components/akademate/dashboard'
+import { resolveEnrollmentLifecycle } from '@/app/lib/enrollment-lifecycle'
+import { joinStudentWithEnrollments } from '@/src/domain/student-enrollment-join'
 import {
   ArrowLeft,
   Edit,
@@ -54,6 +55,13 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
   const { id } = React.use(params)
 
   const [student, setStudent] = React.useState<Student | null>(null)
+  const [enrollments, setEnrollments] = React.useState<Array<{
+    id: string
+    course: string
+    campus: string
+    label: string
+    badgeClass: string
+  }>>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -61,14 +69,43 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
     const fetchStudent = async () => {
       try {
         setLoading(true)
-        // Buscar en la lista de alumnos por ID (Payload no tiene endpoint individual para students aún)
-        const response = await fetch(`/api/students?limit=200`, { cache: 'no-cache' })
-        const result = (await response.json()) as { docs?: StudentApiDoc[] }
-
-        const docs: StudentApiDoc[] = Array.isArray(result.docs) ? result.docs : []
-        const doc = docs.find((d) => String(d.id) === id)
+        const response = await fetch(`/api/students/${encodeURIComponent(id)}`, { cache: 'no-cache' })
+        const result = (await response.json()) as { doc?: StudentApiDoc; error?: string }
+        const doc = result.doc && String(result.doc.id) === id ? result.doc : null
 
         if (doc) {
+          const email = doc.email?.trim()
+          const runsRes = email
+            ? await fetch(`/api/matriculas?q=${encodeURIComponent(email)}&limit=50`, { cache: 'no-store' })
+            : null
+          const runsPayload = runsRes
+            ? ((await runsRes.json().catch(() => ({}))) as {
+                docs?: Array<{
+                  id?: string | number
+                  status?: string
+                  payment_status?: string
+                  amount_paid?: number
+                  total_amount?: number
+                  enrolled_at?: string
+                  created_at?: string
+                  course?: { name?: string }
+                  campus?: { name?: string }
+                  cycle?: { name?: string | null }
+                  lead?: { email?: string }
+                }>
+              })
+            : { docs: [] }
+          const docs = Array.isArray(runsPayload.docs) ? runsPayload.docs : []
+          const joined = joinStudentWithEnrollments(
+            { email: doc.email },
+            docs.map((run) => ({
+              email: run.lead?.email ?? doc.email,
+              status: run.status,
+              campusName: run.campus?.name,
+              courseName: run.course?.name,
+              cycleName: run.cycle?.name,
+            })),
+          )
           setStudent({
             id: String(doc.id),
             first_name: doc.first_name ?? '',
@@ -76,15 +113,27 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
             email: doc.email ?? '—',
             phone: doc.phone ?? '—',
             active: doc.status ? doc.status === 'active' : true,
-            enrolled_courses: 0,
-            completed_courses: 0,
-            sede: 'Sin sede',
-            curso_actual: '—',
-            ciclo: '—',
+            enrolled_courses: joined.enrolled_courses,
+            completed_courses: joined.completed_courses,
+            sede: joined.sede,
+            curso_actual: joined.curso_actual === '-' ? '—' : joined.curso_actual,
+            ciclo: joined.ciclo === '-' ? '—' : joined.ciclo,
             fecha_inscripcion: doc.createdAt ?? '',
           })
+          setEnrollments(
+            docs.map((run) => {
+              const life = resolveEnrollmentLifecycle(run)
+              return {
+                id: String(run.id),
+                course: run.course?.name || 'Curso',
+                campus: run.campus?.name || 'Sin sede',
+                label: life.label,
+                badgeClass: life.badgeClass,
+              }
+            }),
+          )
         } else {
-          setError('Alumno no encontrado')
+          setError(result.error || 'Alumno no encontrado')
         }
       } catch {
         setError('Error de conexión al cargar el alumno')
@@ -117,7 +166,7 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
             <p className="text-sm text-muted-foreground mb-4" data-oid="kks0xwy">
               {error ?? `El alumno con ID ${id} no existe`}
             </p>
-            <Button onClick={() => router.push('/dashboard/alumnos')} data-oid=":zx8gh6">
+            <Button onClick={() => router.push('/alumnos')} data-oid=":zx8gh6">
               <ArrowLeft className="mr-2 h-4 w-4" data-oid="n5bbe9m" />
               Volver a Alumnos
             </Button>
@@ -130,39 +179,17 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
   const initials = `${student.first_name[0] ?? ''}${student.last_name[0] ?? ''}`.toUpperCase()
 
   return (
-    <div className="space-y-6" data-oid="seiyw9a">
-      <DashboardBreadcrumb
-        items={[
-          { label: 'Alumnos', href: '/dashboard/alumnos' },
-          { label: 'Ficha de alumno' },
-        ]}
-      />
-      <PageHeader
-        title={`${student.first_name} ${student.last_name}`}
-        description="Ficha de alumno"
-        icon={User}
-        actions={
-          <div className="flex items-center gap-2" data-oid="nt3.py.">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard/alumnos')}
-              data-oid=":icfnk8"
-            >
-              <ArrowLeft className="h-4 w-4" data-oid="zqj93uq" />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/dashboard/alumnos/${id}/editar`)}
-              data-oid="lv9:k4l"
-            >
-              <Edit className="mr-2 h-4 w-4" data-oid="bv22-7e" />
-              Editar
-            </Button>
-          </div>
-        }
-        data-oid="f4-g9m8"
-      />
+    <DashboardPageShell
+      title={`${student.first_name} ${student.last_name}`}
+      icon={User}
+      backHref="/alumnos"
+      actions={
+        <Button variant="outline" size="sm" onClick={() => router.push(`/alumnos/${id}/editar`)}>
+          <Edit className="mr-2 h-4 w-4" />
+          Editar
+        </Button>
+      }
+    >
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" data-oid=".xgwbx1">
         {/* Panel izquierdo — Información principal */}
@@ -275,14 +302,34 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
 
           <Card data-oid=".n60fw_">
             <CardHeader data-oid="rb6:lxd">
-              <CardTitle data-oid="b9gka58">Curso Actual</CardTitle>
+              <CardTitle data-oid="b9gka58">Matrículas</CardTitle>
             </CardHeader>
-            <CardContent data-oid="lxlgqfe">
-              <p className="text-sm text-muted-foreground" data-oid=".mjhoby">
-                {student.curso_actual !== '—'
-                  ? student.curso_actual
-                  : 'Sin curso asignado actualmente'}
-              </p>
+            <CardContent className="space-y-2" data-oid="lxlgqfe">
+              {enrollments.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {student.curso_actual !== '—'
+                    ? student.curso_actual
+                    : 'Sin matrículas registradas'}
+                </p>
+              ) : (
+                enrollments.map((enrollment) => (
+                  <button
+                    key={enrollment.id}
+                    type="button"
+                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/80 bg-muted/70 px-3 py-2 text-left"
+                    onClick={() => router.push(`/matriculas/${enrollment.id}`)}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-semibold">{enrollment.course}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">{enrollment.campus}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <Badge variant="static" className={enrollment.badgeClass}>{enrollment.label}</Badge>
+                      <span className="text-xs font-medium">Ver</span>
+                    </span>
+                  </button>
+                ))
+              )}
             </CardContent>
           </Card>
 
@@ -309,6 +356,6 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
           )}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

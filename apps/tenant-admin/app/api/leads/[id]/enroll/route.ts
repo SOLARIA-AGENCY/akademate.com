@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '../../_lib/auth'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import { findOrCreateStudent } from '@/src/domain/ensure-student'
 
 export const dynamic = 'force-dynamic'
 
@@ -165,12 +166,20 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
 
+    const student = await findOrCreateStudent(payload, {
+      email: String(lead.email ?? ''),
+      firstName: String(lead.first_name ?? ''),
+      lastName: String(lead.last_name ?? ''),
+      phone: typeof lead.phone === 'string' ? lead.phone : null,
+      tenantId,
+    })
+
     const existingEnrollment =
       typeof (payload as any).find === 'function'
         ? await payload.find({
             collection: 'enrollments',
             where: {
-              and: [{ student: { equals: lead.id } }, { course_run: { equals: courseRunId } }],
+              and: [{ student: { equals: student.id } }, { course_run: { equals: courseRunId } }],
             } as any,
             depth: 0,
             limit: 1,
@@ -178,8 +187,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
           })
         : { docs: [] as any[] }
     const existing = (existingEnrollment as any).docs?.[0] as any
-    const leadStudentId = toPositiveInt(lead.id)
-    if (leadStudentId && matchesEnrollmentCandidate(existing, leadStudentId, courseRunId)) {
+    if (matchesEnrollmentCandidate(existing, student.id, courseRunId)) {
       return NextResponse.json({
         success: true,
         alreadyExists: true,
@@ -192,7 +200,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       collection: 'enrollments',
       overrideAccess: true,
       data: {
-        student: lead.id,
+        student: student.id,
         course_run: courseRunId,
         status: 'pending',
         payment_status: 'pending',

@@ -80,6 +80,7 @@ const publicRoutes = [
   '/api/health',
   '/api/auth/dev-login',
   '/auth/login',
+  '/acceso',
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/signup',
@@ -98,6 +99,8 @@ const publicRoutes = [
   '/api/internal/invitations/verify', // Invitation token verification (public)
   '/api/internal/invitations/accept', // Accept invitation (public — token-based auth)
   '/api/v1/openapi', // OpenAPI spec is public (no auth needed)
+  '/mcp', // Hosted MCP for agents — auth is Bearer API key inside the route
+  '/.well-known/mcp.json',
   '/api/leads', // Lead capture from public landing pages
   '/api/track', // Public tracking endpoint for page views/forms
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)

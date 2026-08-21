@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardPageShell } from '@payload-config/components/akademate/dashboard'
 import {
   Table,
   TableBody,
@@ -114,8 +114,32 @@ export default function ImpersonarPage() {
   const [motivoMap, setMotivoMap] = useState<Record<string, string>>({})
   const [errorMap, setErrorMap] = useState<Record<string, string>>({})
   const [isPending, startTransition] = useTransition()
+  const [usuarios, setUsuarios] = useState(usuariosData)
 
-  const filteredUsuarios = usuariosData.filter((usuario) => {
+  useEffect(() => {
+    const load = async () => {
+      const response = await fetch('/api/internal/users?limit=80', { cache: 'no-store' })
+      if (!response.ok) return
+      const payload = (await response.json()) as {
+        docs?: Array<{ id?: string | number; email?: string; role?: string; first_name?: string; last_name?: string }>
+      }
+      setUsuarios(
+        (payload.docs ?? []).map((user) => ({
+          id: String(user.id ?? ''),
+          nombre: `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email || 'Usuario',
+          email: user.email ?? '',
+          rol: user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Lectura',
+          sede: '—',
+          activo: true,
+          ultimoAcceso: '—',
+          avatar: null,
+        })),
+      )
+    }
+    void load()
+  }, [])
+
+  const filteredUsuarios = usuarios.filter((usuario) => {
     const matchesSearch =
       usuario.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       usuario.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -125,29 +149,21 @@ export default function ImpersonarPage() {
   })
 
   return (
-    <div className="space-y-6" data-oid="rbw:ci_">
-      <PageHeader
-        title="Impersonar Usuario"
-        description="Accede al sistema como otro usuario para soporte y verificación"
-        icon={Users}
-        data-oid="vstos:r"
-      />
-
-      {/* Warning Card */}
-      <Card className="border-amber-200 bg-amber-50" data-oid="0eiuv_:">
+    <DashboardPageShell title="Impersonar" icon={Users} regionLabel="Impersonar">
+      <Card className="rounded-xl border-border/80 bg-muted/70 shadow-none">
         <CardContent className="pt-6" data-oid="-c2.p3k">
           <div className="flex items-start gap-4" data-oid="3.uv2sc">
-            <AlertTriangle className="h-6 w-6 text-amber-600 flex-shrink-0" data-oid="rwbc_bm" />
-            <div className="space-y-2" data-oid="-2klf8a">
-              <h4 className="font-medium text-amber-900" data-oid="k7w8kfh">
-                Advertencia de Seguridad
+            <AlertTriangle className="h-6 w-6 text-muted-foreground flex-shrink-0" />
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-neutral-950">
+                Advertencia de seguridad
               </h4>
-              <p className="text-sm text-amber-800" data-oid="8wbx:fi">
+              <p className="text-sm text-muted-foreground">
                 La impersonación permite acceder al sistema con los permisos de otro usuario. Esta
                 funcionalidad está diseñada exclusivamente para:
               </p>
               <ul
-                className="text-sm text-amber-800 list-disc list-inside space-y-1"
+                className="list-inside list-disc space-y-1 text-sm text-muted-foreground"
                 data-oid="4mmd46l"
               >
                 <li data-oid="jn0yb3m">Soporte técnico y resolución de incidencias</li>
@@ -247,7 +263,7 @@ export default function ImpersonarPage() {
       <Card data-oid="slz1g.e">
         <CardHeader data-oid="ov3.xgg">
           <CardTitle className="flex items-center gap-2" data-oid="q7nbduv">
-            <UserCog className="h-5 w-5" style={{ color: '#F2014B' }} data-oid="7u.9w6t" />
+            <UserCog className="h-5 w-5 text-foreground" />
             Seleccionar Usuario
           </CardTitle>
           <CardDescription data-oid="-y1fd9.">
@@ -461,7 +477,6 @@ export default function ImpersonarPage() {
                             <AlertDialogCancel data-oid="4ry__0x">Cancelar</AlertDialogCancel>
                             <AlertDialogAction
                               className="text-white"
-                              style={{ backgroundColor: '#F2014B' }}
                               disabled={isPending || !(motivoMap[usuario.id]?.trim())}
                               onClick={(e) => {
                                 e.preventDefault()
@@ -496,7 +511,7 @@ export default function ImpersonarPage() {
       <Card data-oid="k9e:bii">
         <CardHeader data-oid="4w5r4mn">
           <CardTitle className="flex items-center gap-2" data-oid="9h9fgjj">
-            <History className="h-5 w-5" style={{ color: '#F2014B' }} data-oid="mji_7ot" />
+            <History className="h-5 w-5 text-foreground" />
             Historial de Impersonaciones
           </CardTitle>
           <CardDescription data-oid="kbb2h1x">
@@ -550,6 +565,6 @@ export default function ImpersonarPage() {
           </Table>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   )
 }

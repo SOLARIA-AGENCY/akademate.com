@@ -6,12 +6,23 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Input } from '@payload-config/components/ui/input'
+import {
+  DashboardListingLayout,
+  DashboardToolbar,
+  ListingActions,
+} from '@payload-config/components/akademate/dashboard'
 import { Button } from '@payload-config/components/ui/button'
+import { Input } from '@payload-config/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@payload-config/components/ui/dialog'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
-import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { Label } from '@payload-config/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -21,17 +32,8 @@ import {
 } from '@payload-config/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@payload-config/components/ui/sheet'
-import {
   Users,
-  Search,
+  Plus,
   Loader2,
   Phone,
   Mail,
@@ -39,7 +41,6 @@ import {
   Clock,
   MessageSquare,
   UserSearch,
-  Filter,
   NotebookPen,
   UserCheck,
   CalendarPlus,
@@ -339,14 +340,97 @@ function matchesQueue(
   return isLeadRecoverable(lead)
 }
 
+class LeadsRequestError extends Error {
+  readonly code: string
+  readonly status: number | null
+  readonly retryable: boolean
+
+  constructor(message: string, options: { code?: string; status?: number | null; retryable?: boolean } = {}) {
+    super(message)
+    this.name = 'LeadsRequestError'
+    this.code = options.code ?? 'LEADS_REQUEST_FAILED'
+    this.status = options.status ?? null
+    this.retryable = options.retryable ?? false
+  }
+}
+
+function isRetryableStatus(status: number): boolean {
+  return status === 408 || status === 425 || status === 429 || status >= 500
+}
+
+async function parseApiError(response: Response): Promise<{ message: string; code: string; retryable: boolean }> {
+  try {
+    const payload = await response.json()
+    return {
+      message:
+        typeof payload?.error === 'string' && payload.error.trim().length > 0
+          ? payload.error.trim()
+          : `Error ${response.status}`,
+      code: typeof payload?.code === 'string' ? payload.code : 'LEADS_REQUEST_FAILED',
+      retryable: Boolean(payload?.retryable) || isRetryableStatus(response.status),
+    }
+  } catch {
+    return {
+      message: `Error ${response.status}`,
+      code: 'LEADS_REQUEST_FAILED',
+      retryable: isRetryableStatus(response.status),
+    }
+  }
+}
+
 async function fetchWithTimeout(input: string, timeoutMs = 12000): Promise<Response> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    return await fetch(input, { signal: controller.signal })
+    return await fetch(input, {
+      signal: controller.signal,
+      credentials: 'include',
+      cache: 'no-store',
+      headers: { Accept: 'application/json' },
+    })
   } finally {
     clearTimeout(timeout)
   }
+}
+
+async function fetchWithRetry(input: string, retries = 2): Promise<Response> {
+  let lastError: unknown = null
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      const response = await fetchWithTimeout(input)
+      if (response.ok) return response
+
+      const apiError = await parseApiError(response)
+      if (response.status === 401) {
+        throw new LeadsRequestError('AUTH_REQUIRED', {
+          code: 'AUTH_REQUIRED',
+          status: response.status,
+        })
+      }
+
+      const error = new LeadsRequestError(apiError.message, {
+        code: apiError.code,
+        status: response.status,
+        retryable: apiError.retryable,
+      })
+      if (!error.retryable || attempt === retries) throw error
+      lastError = error
+    } catch (error) {
+      lastError = error
+      if (error instanceof LeadsRequestError && !error.retryable) throw error
+      if (attempt === retries) throw error
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 300 * 2 ** attempt))
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new LeadsRequestError('El CRM de leads no está disponible temporalmente.', {
+        code: 'LEADS_UNAVAILABLE',
+        retryable: true,
+      })
 }
 
 type LeadsFetchMode = 'bucket_leads' | 'all_leads_fallback'
@@ -364,17 +448,20 @@ async function fetchLeadPages(
     const query = new URLSearchParams(params)
     query.set('limit', String(limitPerPage))
     query.set('page', String(page))
-    const res = await fetchWithTimeout(
+    const res = await fetchWithRetry(
       `/api/leads?${query.toString()}`,
     )
-    if (res.status === 401) {
-      throw new Error('AUTH_REQUIRED')
-    }
-    if (!res.ok) {
-      throw new Error('No se pudieron cargar los leads del CRM')
-    }
 
     const payload = await res.json()
+    if (payload?.warning || payload?.code === 'LEADS_UNAVAILABLE') {
+      throw new LeadsRequestError(
+        typeof payload?.error === 'string' ? payload.error : 'El CRM de leads no está disponible temporalmente.',
+        {
+          code: typeof payload?.code === 'string' ? payload.code : 'LEADS_UNAVAILABLE',
+          retryable: true,
+        },
+      )
+    }
     const docs = Array.isArray(payload?.docs) ? payload.docs : []
     allLeads.push(...docs)
 
@@ -401,18 +488,6 @@ async function fetchAllLeads(
   return { leads: allLeads, mode: 'all_leads_fallback' }
 }
 
-async function parseApiError(response: Response): Promise<string> {
-  try {
-    const payload = await response.json()
-    if (typeof payload?.error === 'string' && payload.error.trim().length > 0) {
-      return payload.error.trim()
-    }
-  } catch {
-    // ignore json parse issues
-  }
-  return `Error ${response.status}`
-}
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -424,12 +499,16 @@ export default function LeadsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
+  const [kpiError, setKpiError] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [createForm, setCreateForm] = useState({ first_name: '', last_name: '', email: '', phone: '' })
+  const [reloadToken, setReloadToken] = useState(0)
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [queueFilter, setQueueFilter] = useState<QueueFilter>('all')
-  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
 
   const [inlineError, setInlineError] = useState<string | null>(null)
   const [noteEditorLeadId, setNoteEditorLeadId] = useState<string | null>(null)
@@ -437,36 +516,53 @@ export default function LeadsPage() {
   const [savingNotesByLead, setSavingNotesByLead] = useState<Record<string, boolean>>({})
   const [savingStatusByLead, setSavingStatusByLead] = useState<Record<string, boolean>>({})
 
+  const retryLoad = () => {
+    setError(null)
+    setInlineError(null)
+    setIsLoading(true)
+    setReloadToken((current) => current + 1)
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setError(null)
         const [leadsResult, kpisResult] = await Promise.allSettled([
           fetchAllLeads(200),
-          fetchWithTimeout('/api/leads/dashboard'),
+          fetchWithRetry('/api/leads/dashboard'),
         ])
 
         if (leadsResult.status === 'fulfilled') {
           setLeads(leadsResult.value.leads)
           setFetchMode(leadsResult.value.mode)
         } else {
-          if (
-            leadsResult.reason instanceof Error &&
-            leadsResult.reason.message === 'AUTH_REQUIRED'
-          ) {
-            router.push('/login?redirect=/dashboard/leads')
+          if (leadsResult.reason instanceof LeadsRequestError && leadsResult.reason.code === 'AUTH_REQUIRED') {
+            router.push('/auth/login?redirect=/dashboard/leads')
             return
           }
-          throw new Error('No se pudieron cargar los leads del CRM')
+          throw leadsResult.reason
         }
 
         if (kpisResult.status === 'fulfilled' && kpisResult.value.ok) {
           setKpis(await kpisResult.value.json())
+          setKpiError(null)
         } else {
           setKpis(null)
+          setKpiError('No se pudieron cargar los indicadores del CRM.')
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al cargar leads')
+        if (err instanceof LeadsRequestError && err.code === 'AUTH_REQUIRED') {
+          router.push('/auth/login?redirect=/dashboard/leads')
+          return
+        }
+
+        const message =
+          err instanceof DOMException && err.name === 'AbortError'
+            ? 'El CRM tardó demasiado en responder. Reintenta en unos segundos.'
+            : err instanceof LeadsRequestError
+              ? err.message
+              : 'No se pudieron cargar los leads del CRM. Revisa la conexión y vuelve a intentarlo.'
+        setError(message)
         setLeads([])
         setFetchMode('bucket_leads')
       } finally {
@@ -475,7 +571,7 @@ export default function LeadsPage() {
     }
 
     fetchData()
-  }, [router])
+  }, [router, reloadToken])
 
   const now = useMemo(() => new Date(), [leads])
   const nowTs = now.getTime()
@@ -529,13 +625,6 @@ export default function LeadsPage() {
     }).length
   }, [leads, dayStartTs, dayEndTs, nowTs])
 
-  const advancedFilterSummary = useMemo(() => {
-    const chunks: string[] = []
-    if (typeFilter) chunks.push(`Tipo: ${TYPE_CONFIG[typeFilter]?.label ?? typeFilter}`)
-    if (statusFilter) chunks.push(`Estado: ${STATUS_CONFIG[statusFilter]?.label ?? statusFilter}`)
-    return chunks.join(' · ')
-  }, [typeFilter, statusFilter])
-
   const handleQuickStatusChange = async (lead: Lead, nextStatus: string) => {
     const currentStatus = lead.status ?? 'new'
     if (nextStatus === currentStatus) return
@@ -554,7 +643,7 @@ export default function LeadsPage() {
       })
 
       if (!response.ok) {
-        throw new Error(await parseApiError(response))
+        throw new Error((await parseApiError(response)).message)
       }
 
       setLeads((prev) =>
@@ -590,7 +679,7 @@ export default function LeadsPage() {
       })
 
       if (!response.ok) {
-        throw new Error(await parseApiError(response))
+        throw new Error((await parseApiError(response)).message)
       }
 
       setLeads((prev) =>
@@ -615,187 +704,135 @@ export default function LeadsPage() {
     }
   }
 
+  const handleCreateLead = async () => {
+    setCreating(true)
+    setInlineError(null)
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: createForm.first_name,
+          last_name: createForm.last_name,
+          email: createForm.email,
+          phone: createForm.phone,
+          lead_type: 'lead',
+          source_form: 'dashboard_manual',
+        }),
+      })
+      if (!response.ok) {
+        throw new Error('No se pudo crear el lead')
+      }
+      setCreateOpen(false)
+      setCreateForm({ first_name: '', last_name: '', email: '', phone: '' })
+      retryLoad()
+    } catch (error) {
+      setInlineError(error instanceof Error ? error.message : 'No se pudo crear el lead')
+    } finally {
+      setCreating(false)
+    }
+  }
+
   const clearAdvancedFilters = () => {
     setTypeFilter(null)
     setStatusFilter(null)
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="CRM de Leads"
-        description="Seguimiento operativo diario de captacion"
-        icon={Users}
+    <DashboardListingLayout
+      title="Leads"
+      icon={Users}
+      actions={
+        <ListingActions>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nuevo lead</span>
+          </Button>
+        </ListingActions>
+      }
+      toolbar={
+      <DashboardToolbar
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar lead..."
+        filters={
+          <>
+            <Select
+              value={typeFilter ?? 'all'}
+              onValueChange={(value) => setTypeFilter(value === 'all' ? null : value)}
+            >
+              <SelectTrigger className="w-full min-w-0">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {Object.entries(TYPE_CONFIG).map(([key, config]) => (
+                  <SelectItem key={key} value={key}>
+                    {config.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={statusFilter ?? 'all'}
+              onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
+            >
+              <SelectTrigger className="w-full min-w-0">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {ADVANCED_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {STATUS_CONFIG[status]?.label ?? status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        }
+        clearAction={
+          search || typeFilter || statusFilter ? (
+            <Button variant="ghost" size="sm" onClick={() => { setSearch(''); clearAdvancedFilters() }}>
+              Limpiar
+            </Button>
+          ) : null
+        }
       />
+      }
+    >
 
-      {/* KPI strip (max 4 visibles) */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total leads</p>
-                <p className="text-2xl font-bold">{isLoading ? '-' : kpis?.totalLeads ?? leads.length}</p>
-              </div>
-              <Users className="h-8 w-8 text-muted-foreground/40" />
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs
+        value={queueFilter}
+        onValueChange={(value) => setQueueFilter(value as QueueFilter)}
+        className="w-full"
+      >
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
+          {QUEUE_TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="flex-none">
+              {tab.label} ({queueCounts[tab.value]})
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Sin atender</p>
-                <p className={`text-2xl font-bold ${(kpis?.unattended ?? 0) > 0 ? 'text-red-600' : ''}`}>
-                  {isLoading ? '-' : kpis?.unattended ?? 0}
-                </p>
-                <p className="text-[10px] text-muted-foreground">nuevos sin contacto</p>
-              </div>
-              <AlertCircle
-                className={`h-8 w-8 ${(kpis?.unattended ?? 0) > 0 ? 'text-red-400' : 'text-red-400/40'}`}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Vencidos hoy</p>
-                <p className={`text-2xl font-bold ${overdueTodayTotal > 0 ? 'text-amber-600' : ''}`}>
-                  {isLoading ? '-' : overdueTodayTotal}
-                </p>
-              </div>
-              <UserCheck className="h-8 w-8 text-amber-400/40" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">T. respuesta media</p>
-                <p className="text-2xl font-bold text-violet-600">
-                  {isLoading ? '-' : `${kpis?.avgResponseHours ?? 0}h`}
-                </p>
-              </div>
-              <Clock className="h-8 w-8 text-violet-400/40" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Barra de trabajo */}
-      <Card>
-        <CardContent className="space-y-4 p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <div className="relative w-full lg:max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Buscar lead..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="pl-9"
-              />
-            </div>
-
-            <Sheet open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="w-full lg:w-auto">
-                  <Filter className="h-4 w-4" />
-                  Filtros avanzados
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-md">
-                <SheetHeader>
-                  <SheetTitle>Filtros avanzados</SheetTitle>
-                  <SheetDescription>
-                    Tipo y estado permanecen disponibles en panel secundario para reducir friccion.
-                  </SheetDescription>
-                </SheetHeader>
-
-                <div className="space-y-4 px-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="lead-type-filter">Tipo</Label>
-                    <Select
-                      value={typeFilter ?? 'all'}
-                      onValueChange={(value) => setTypeFilter(value === 'all' ? null : value)}
-                    >
-                      <SelectTrigger id="lead-type-filter" className="w-full">
-                        <SelectValue placeholder="Todos los tipos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        {Object.entries(TYPE_CONFIG).map(([key, config]) => (
-                          <SelectItem key={key} value={key}>
-                            {config.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="lead-status-filter">Estado</Label>
-                    <Select
-                      value={statusFilter ?? 'all'}
-                      onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
-                    >
-                      <SelectTrigger id="lead-status-filter" className="w-full">
-                        <SelectValue placeholder="Todos los estados" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        {ADVANCED_STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {STATUS_CONFIG[status]?.label ?? status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <SheetFooter>
-                  <div className="flex w-full gap-2">
-                    <Button variant="outline" className="flex-1" onClick={clearAdvancedFilters}>
-                      Limpiar
-                    </Button>
-                    <Button className="flex-1" onClick={() => setIsAdvancedFiltersOpen(false)}>
-                      Aplicar
-                    </Button>
-                  </div>
-                </SheetFooter>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          <Tabs
-            value={queueFilter}
-            onValueChange={(value) => setQueueFilter(value as QueueFilter)}
-            className="w-full"
-          >
-            <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
-              {QUEUE_TABS.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} className="flex-none">
-                  {tab.label} ({queueCounts[tab.value]})
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-
-          {advancedFilterSummary && (
-            <p className="text-xs text-muted-foreground">Filtros activos: {advancedFilterSummary}</p>
-          )}
-        </CardContent>
-      </Card>
+      {kpiError ? (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {kpiError}
+        </div>
+      ) : null}
 
       {(error || inlineError) && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive">
-          {error || inlineError}
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span>{error || inlineError}</span>
+          {error && (
+            <Button type="button" variant="outline" size="sm" onClick={retryLoad} className="shrink-0">
+              Reintentar
+            </Button>
+          )}
         </div>
       )}
 
@@ -1070,6 +1107,43 @@ export default function LeadsPage() {
           </div>
         </div>
       )}
-    </div>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuevo lead</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Nombre"
+              value={createForm.first_name}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, first_name: event.target.value }))}
+            />
+            <Input
+              placeholder="Apellidos"
+              value={createForm.last_name}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, last_name: event.target.value }))}
+            />
+            <Input
+              placeholder="Email"
+              value={createForm.email}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, email: event.target.value }))}
+            />
+            <Input
+              placeholder="Teléfono"
+              value={createForm.phone}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, phone: event.target.value }))}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => void handleCreateLead()} disabled={creating}>
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </DashboardListingLayout>
   )
 }

@@ -16,12 +16,10 @@ import {
   DashboardListingLayout,
   DashboardToolbar,
   ListingActions,
-} from '@payload-config/components/akademate/dashboard'
-import {
   ListingColumnBoard,
   ListingColumnCard,
   WAITLIST_LIST_COLUMNS,
-} from '@payload-config/components/akademate/dashboard/ListingColumnBoard'
+} from '@payload-config/components/akademate/dashboard'
 import {
   Select,
   SelectContent,
@@ -36,6 +34,14 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@payload-config/components/ui/dropdown-menu'
+import { downloadCsv, type ExportColumn } from '@/app/lib/dashboard-export'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@payload-config/components/ui/dialog'
 import {
   Plus,
   ListTodo,
@@ -231,6 +237,10 @@ export default function ListaEsperaPage() {
   const [prioridadFilter, setPrioridadFilter] = useState('todas')
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadToken, setReloadToken] = useState(0)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [createForm, setCreateForm] = useState({ first_name: '', last_name: '', email: '', phone: '' })
 
   useEffect(() => {
     let cancelled = false
@@ -246,7 +256,7 @@ export default function ListaEsperaPage() {
       } catch (error) {
         if (!cancelled) {
           if (error instanceof Error && error.message === 'AUTH_REQUIRED') {
-            router.push('/login?redirect=/dashboard/lista-espera')
+            router.push('/auth/login?redirect=/dashboard/lista-espera')
             return
           }
           setListaEsperaData([])
@@ -259,7 +269,7 @@ export default function ListaEsperaPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reloadToken, router])
 
   const availableSedes = useMemo(
     () => Array.from(new Set(listaEsperaData.map((row) => row.sede))).sort(),
@@ -301,11 +311,24 @@ export default function ListaEsperaPage() {
       icon={ListTodo}
       actions={
         <ListingActions>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const columns: ExportColumn<(typeof filteredLista)[number]>[] = [
+                { header: 'Alumno', getValue: (row) => row.alumno.nombre },
+                { header: 'Email', getValue: (row) => row.alumno.email },
+                { header: 'Curso', getValue: (row) => row.curso },
+                { header: 'Sede', getValue: (row) => row.sede },
+                { header: 'Estado', getValue: (row) => row.estado },
+              ]
+              downloadCsv(`lista-espera-${new Date().toISOString().slice(0, 10)}.csv`, columns, filteredLista)
+            }}
+          >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Exportar</span>
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Añadir</span>
           </Button>
@@ -423,7 +446,7 @@ export default function ListaEsperaPage() {
                       size="sm"
                       onClick={() => router.push(`/inscripciones/${item.id}`)}
                     >
-                      Ver
+                      Editar
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -532,6 +555,67 @@ export default function ListaEsperaPage() {
           </CardContent>
         </Card>
       </div>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Añadir a lista de espera</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Nombre"
+              value={createForm.first_name}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, first_name: event.target.value }))}
+            />
+            <Input
+              placeholder="Apellidos"
+              value={createForm.last_name}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, last_name: event.target.value }))}
+            />
+            <Input
+              placeholder="Email"
+              value={createForm.email}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, email: event.target.value }))}
+            />
+            <Input
+              placeholder="Teléfono"
+              value={createForm.phone}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, phone: event.target.value }))}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+            <Button
+              disabled={creating}
+              onClick={() => {
+                void (async () => {
+                  setCreating(true)
+                  try {
+                    const response = await fetch('/api/leads', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        ...createForm,
+                        lead_type: 'waiting_list',
+                        source_form: 'web_waitlist',
+                      }),
+                    })
+                    if (!response.ok) throw new Error('No se pudo añadir')
+                    setCreateOpen(false)
+                    setCreateForm({ first_name: '', last_name: '', email: '', phone: '' })
+                    setReloadToken((current) => current + 1)
+                  } catch (error) {
+                    setLoadError(error instanceof Error ? error.message : 'No se pudo añadir')
+                  } finally {
+                    setCreating(false)
+                  }
+                })()
+              }}
+            >
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardListingLayout>
   )
 }

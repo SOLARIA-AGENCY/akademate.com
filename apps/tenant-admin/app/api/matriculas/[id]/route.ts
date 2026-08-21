@@ -44,7 +44,9 @@ async function getMatriculaDetail(
   },
 ): Promise<Record<string, unknown> | null> {
   const conditions = [`e.id = ${matriculaId}`]
-  if (tenantId) conditions.push(`l.tenant_id = ${tenantId}`)
+  if (tenantId) {
+    conditions.push(`(COALESCE(s.tenant_id, l.tenant_id) = ${tenantId} OR COALESCE(s.tenant_id, l.tenant_id) IS NULL)`)
+  }
 
   const whereClause = `WHERE ${conditions.join(' AND ')}`
   const optionalProfileSelect = [
@@ -58,6 +60,12 @@ async function getMatriculaDetail(
     profileColumns.hasPhotoId ? 'm.url AS photo_url' : 'NULL::text AS photo_url',
   ]
 
+  const hasLeadId = await hasColumn(drizzle, 'enrollments', 'lead_id')
+  const studentLeadJoin = hasLeadId
+    ? `LEFT JOIN students s ON s.id = e.student_id
+    LEFT JOIN leads l ON l.id = COALESCE(e.lead_id, CASE WHEN s.id IS NULL THEN e.student_id END)`
+    : `LEFT JOIN students s ON s.id = e.student_id
+    LEFT JOIN leads l ON l.id = e.student_id AND s.id IS NULL`
   const mediaJoin = profileColumns.hasPhotoId ? 'LEFT JOIN media m ON m.id = l.photo_id' : ''
 
   const detailRes = await drizzle.execute(`
@@ -84,10 +92,10 @@ async function getMatriculaDetail(
       e.cancelled_at,
       e.created_at,
       e.updated_at,
-      l.first_name,
-      l.last_name,
-      l.email,
-      l.phone,
+      COALESCE(s.first_name, l.first_name) AS first_name,
+      COALESCE(s.last_name, l.last_name) AS last_name,
+      COALESCE(s.email, l.email) AS email,
+      COALESCE(s.phone, l.phone) AS phone,
       ${optionalProfileSelect.join(',\n      ')},
       cr.id AS course_run_id_fk,
       cr.codigo AS course_run_code,
@@ -101,7 +109,7 @@ async function getMatriculaDetail(
       cp.id AS campus_id,
       cp.name AS campus_name
     FROM enrollments e
-    INNER JOIN leads l ON l.id = e.student_id
+    ${studentLeadJoin}
     LEFT JOIN course_runs cr ON cr.id = e.course_run_id
     LEFT JOIN courses c ON c.id = cr.course_id
     LEFT JOIN campuses cp ON cp.id = cr.campus_id
@@ -268,9 +276,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const baseRes = await drizzle.execute(`
       SELECT e.id, e.student_id
       FROM enrollments e
-      INNER JOIN leads l ON l.id = e.student_id
+      LEFT JOIN students s ON s.id = e.student_id
+      LEFT JOIN leads l ON l.id = e.student_id AND s.id IS NULL
       WHERE e.id = ${matriculaId}
-      ${auth.tenantId ? `AND l.tenant_id = ${auth.tenantId}` : ''}
+      ${auth.tenantId ? `AND (COALESCE(s.tenant_id, l.tenant_id) = ${auth.tenantId} OR COALESCE(s.tenant_id, l.tenant_id) IS NULL)` : ''}
       LIMIT 1
     `)
     const baseRows = Array.isArray(baseRes) ? baseRes : (baseRes?.rows ?? [])

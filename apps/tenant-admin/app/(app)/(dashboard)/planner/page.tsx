@@ -5,10 +5,15 @@ export const dynamic = 'force-dynamic'
 import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import {
+  AcademicPageShell,
+  ACADEMIC_SCROLL_REGION_CLASS,
+  DashboardToolbar,
+  ListingActions,
+  SedeFilterControl,
+} from '@payload-config/components/akademate/dashboard'
 import {
   LayoutGrid,
   Plus,
@@ -16,16 +21,18 @@ import {
   Calendar,
   Users,
   Clock,
-  BookOpen,
   GripVertical,
   Loader2,
-  AlertTriangle,
-  BarChart3,
-  GraduationCap,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
-import { DAY_FILTERS, cardMatchesDay, type PlannerDayKey } from './planner-days'
+import { formatCampusLabel, mapCampusFilterOptions } from '@/app/lib/campus-label'
+import { OccupancyMatrix } from './OccupancyMatrix'
+import {
+  getOccupancyVisual,
+  getRunStatusVisual,
+  getTrainingTypeVisual,
+} from '../programacion/planning-visuals'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,12 +69,6 @@ interface Aula {
   campusId: string
   capacity: number
   usagePolicy?: string
-}
-
-const SHIFT_LABELS: Record<string, string> = {
-  morning: 'Mañana',
-  afternoon: 'Tarde',
-  evening_extra: 'Tercer turno',
 }
 
 interface KanbanColumn {
@@ -115,16 +116,6 @@ const COLUMNS_CONFIG: { key: string; label: string; color: string; bgColor: stri
   },
 ]
 
-const DAY_LABELS: Record<string, string> = {
-  monday: 'LUN',
-  tuesday: 'MAR',
-  wednesday: 'MIE',
-  thursday: 'JUE',
-  friday: 'VIE',
-  saturday: 'SAB',
-  sunday: 'DOM',
-}
-
 const DAY_ORDER: Record<string, number> = {
   monday: 1,
   tuesday: 2,
@@ -135,81 +126,11 @@ const DAY_ORDER: Record<string, number> = {
   sunday: 7,
 }
 
-const COURSE_TYPE_STYLES: Record<
-  string,
-  { bar: string; bg: string; text: string; border: string }
-> = {
-  privados: {
-    bar: 'bg-[#f2014b]',
-    bg: 'bg-rose-50',
-    text: 'text-rose-950',
-    border: 'border-rose-200',
-  },
-  privado: {
-    bar: 'bg-[#f2014b]',
-    bg: 'bg-rose-50',
-    text: 'text-rose-950',
-    border: 'border-rose-200',
-  },
-  private: {
-    bar: 'bg-[#f2014b]',
-    bg: 'bg-rose-50',
-    text: 'text-rose-950',
-    border: 'border-rose-200',
-  },
-  desempleados: {
-    bar: 'bg-primary',
-    bg: 'bg-primary/10',
-    text: 'text-primary',
-    border: 'border-primary/20',
-  },
-  fped: {
-    bar: 'bg-primary',
-    bg: 'bg-primary/10',
-    text: 'text-primary',
-    border: 'border-primary/20',
-  },
-  ocupados: {
-    bar: 'bg-emerald-600',
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-950',
-    border: 'border-emerald-200',
-  },
-  teleformacion: {
-    bar: 'bg-orange-500',
-    bg: 'bg-orange-50',
-    text: 'text-orange-950',
-    border: 'border-orange-200',
-  },
-  online: {
-    bar: 'bg-orange-500',
-    bg: 'bg-orange-50',
-    text: 'text-orange-950',
-    border: 'border-orange-200',
-  },
-  cycle: {
-    bar: 'bg-violet-600',
-    bg: 'bg-violet-50',
-    text: 'text-violet-950',
-    border: 'border-violet-200',
-  },
-}
-
 function normalizeCampaignStatus(value: unknown): CampaignState {
   return typeof value === 'string' &&
     ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
     ? (value as CampaignState)
     : 'none'
-}
-
-function formatSchedule(
-  card: Pick<KanbanCard, 'dias' | 'horaInicio' | 'horaFin' | 'horario'>
-): string {
-  const days = card.dias.map((day) => DAY_LABELS[day] ?? day.toUpperCase()).join(', ')
-  const start = card.horaInicio?.slice(0, 5) ?? ''
-  const end = card.horaFin?.slice(0, 5) ?? ''
-  const time = start && end ? `${start}-${end}` : start || end
-  return [days, time].filter(Boolean).join(' · ') || card.horario
 }
 
 function firstDayOrder(card: Pick<KanbanCard, 'dias'>): number {
@@ -229,17 +150,6 @@ function sortCardsByWeekday<T extends Pick<KanbanCard, 'dias' | 'horaInicio' | '
   })
 }
 
-function courseTypeStyle(type?: string) {
-  return (
-    COURSE_TYPE_STYLES[(type ?? '').toLowerCase()] ?? {
-      bar: 'bg-slate-500',
-      bg: 'bg-slate-50',
-      text: 'text-slate-950',
-      border: 'border-slate-200',
-    }
-  )
-}
-
 // ---------------------------------------------------------------------------
 // Kanban Card Component
 // ---------------------------------------------------------------------------
@@ -254,13 +164,16 @@ function KanbanCardItem({
   onClick: (id: string) => void
 }) {
   const ocupacion = card.plazas > 0 ? Math.round((card.inscritos / card.plazas) * 100) : 0
+  const occupancyVisual = getOccupancyVisual(ocupacion)
+  const trainingVisual = getTrainingTypeVisual(card.tipo)
+  const statusVisual = getRunStatusVisual(card.estado)
 
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart(e, card.id)}
       onClick={() => onClick(card.id)}
-      className="bg-background border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow group"
+      className="cursor-grab active:cursor-grabbing group rounded-xl border border-border/80 bg-muted/70 p-3"
     >
       {/* Drag handle */}
       <div className="flex items-start gap-2">
@@ -269,16 +182,21 @@ function KanbanCardItem({
           {/* Title */}
           <div className="flex items-start justify-between gap-2">
             <h4 className="text-sm font-semibold leading-tight line-clamp-2">{card.curso}</h4>
-            {card.estado === 'enrollment_open' ? (
-              <Badge className="shrink-0 bg-green-500 px-1.5 py-0 text-[9px] text-white hover:bg-green-500">
-                Matrícula abierta
-              </Badge>
-            ) : null}
+            <Badge
+              className={`shrink-0 whitespace-nowrap rounded-full border px-1.5 py-0.5 text-[9px] font-semibold shadow-none ${statusVisual.className}`}
+            >
+              {statusVisual.label}
+            </Badge>
           </div>
+          <Badge
+            className={`mt-1 whitespace-nowrap rounded-full border px-1.5 py-0.5 text-[8px] font-semibold shadow-none ${trainingVisual.className}`}
+          >
+            {trainingVisual.label}
+          </Badge>
 
           {/* Info */}
           <div className="mt-2 space-y-1 text-[11px] text-muted-foreground">
-            <div className="flex items-center gap-1">
+            <div className="inline-flex max-w-full items-center gap-1 rounded-md border border-sky-200 bg-sky-50 px-1.5 py-1 text-sky-800 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
               <MapPin className="h-3 w-3 shrink-0" />
               <span className="truncate">{card.sede}</span>
             </div>
@@ -317,8 +235,13 @@ function KanbanCardItem({
               </div>
               <div className="h-1 bg-muted rounded-full">
                 <div
-                  className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`}
-                  style={{ width: `${ocupacion}%` }}
+                  aria-label={`${occupancyVisual.percent}% de ocupación`}
+                  aria-valuemax={100}
+                  aria-valuemin={0}
+                  aria-valuenow={occupancyVisual.percent}
+                  className={`h-1 rounded-full ${occupancyVisual.className}`}
+                  role="progressbar"
+                  style={{ width: `${occupancyVisual.percent}%` }}
                 />
               </div>
             </div>
@@ -401,189 +324,6 @@ function KanbanColumnView({
   )
 }
 
-function OccupancyMatrix({
-  aulas,
-  cards,
-  sedeFilter,
-  sedeName,
-}: {
-  aulas: Aula[]
-  cards: KanbanCard[]
-  sedeFilter: string
-  sedeName?: string
-}) {
-  const [selectedDay, setSelectedDay] = useState<PlannerDayKey>('all')
-  const visibleAulas = aulas.filter((aula) => aula.campusId === sedeFilter)
-  const visibleCards = cards.filter((card) => card.sedeId === sedeFilter)
-  const selectedDayCards = visibleCards.filter((card) => cardMatchesDay(card, selectedDay))
-
-  if (visibleAulas.length === 0) return null
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle className="text-sm">
-              Matriz de ocupación por aula y turno · {sedeName ?? 'Sede seleccionada'}
-            </CardTitle>
-            <div className="flex shrink-0 items-center gap-2">
-              {selectedDay !== 'all' ? (
-                <Badge variant="secondary" className="hidden sm:inline-flex">
-                  {selectedDayCards.length}{' '}
-                  {selectedDayCards.length === 1 ? 'convocatoria ese día' : 'convocatorias ese día'}
-                </Badge>
-              ) : null}
-              <Badge variant="outline">{visibleCards.length} convocatorias</Badge>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 rounded-md border bg-muted/20 p-1.5 sm:flex-row sm:items-center sm:justify-between">
-            <span className="px-2 text-[11px] font-semibold text-muted-foreground">
-              Día de ocupación
-            </span>
-            <div
-              aria-label="Seleccionar día de ocupación"
-              className="grid grid-cols-3 gap-1 sm:flex sm:flex-wrap"
-              role="tablist"
-            >
-              {DAY_FILTERS.map((day) => (
-                <Button
-                  key={day.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedDay === day.key}
-                  variant={selectedDay === day.key ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setSelectedDay(day.key)}
-                  className="h-7 px-2.5 text-xs"
-                >
-                  {day.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <div className="min-w-[760px] rounded-md border">
-            <div className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b bg-muted/40 text-xs font-medium">
-              <div className="p-2">Aula</div>
-              {Object.entries(SHIFT_LABELS).map(([key, label]) => (
-                <div key={key} className="border-l p-2">
-                  {label}
-                </div>
-              ))}
-            </div>
-            {visibleAulas.map((aula) => {
-              const aulaCards = visibleCards.filter((card) => card.aulaId === aula.id)
-              return (
-                <div
-                  key={aula.id}
-                  className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b last:border-b-0 text-xs"
-                >
-                  <div className="p-2">
-                    <div className="font-medium">{aula.name}</div>
-                    <div className="mt-1 text-muted-foreground">{aula.capacity} plazas</div>
-                  </div>
-                  {Object.keys(SHIFT_LABELS).map((shift) => {
-                    const shiftCards = sortCardsByWeekday(
-                      aulaCards.filter((card) => card.turno === shift)
-                    )
-                    const orderedShiftCards =
-                      selectedDay === 'all'
-                        ? shiftCards
-                        : [...shiftCards].sort(
-                            (a, b) =>
-                              Number(cardMatchesDay(b, selectedDay)) -
-                              Number(cardMatchesDay(a, selectedDay))
-                          )
-                    const occupancyCards = shiftCards.filter((card) =>
-                      cardMatchesDay(card, selectedDay)
-                    )
-                    const occupied = occupancyCards.reduce(
-                      (sum, card) =>
-                        sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0),
-                      0
-                    )
-                    const ratio =
-                      aula.capacity > 0
-                        ? Math.min(100, Math.round((occupied / aula.capacity) * 100))
-                        : 0
-                    return (
-                      <div key={shift} className="min-h-[84px] border-l p-2">
-                        {shiftCards.length === 0 ? (
-                          <span className="text-muted-foreground">Libre</span>
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="h-1.5 rounded-full bg-muted">
-                              <div
-                                className={
-                                  ratio >= 100
-                                    ? 'h-1.5 rounded-full bg-red-500'
-                                    : 'h-1.5 rounded-full bg-green-500'
-                                }
-                                style={{ width: `${ratio}%` }}
-                              />
-                            </div>
-                            {orderedShiftCards.map((card) => {
-                              const style = courseTypeStyle(card.tipo)
-                              const matchesSelectedDay = cardMatchesDay(card, selectedDay)
-                              return (
-                                <Button
-                                  key={card.id}
-                                  type="button"
-                                  variant="outline"
-                                  aria-label={`${card.curso} · ${formatSchedule(card)}`}
-                                  className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border} ${matchesSelectedDay ? 'ring-1 ring-primary/40' : 'opacity-40 saturate-50'}`}
-                                  onClick={() =>
-                                    window.location.assign(`/dashboard/programacion/${card.id}`)
-                                  }
-                                >
-                                  <div className={`w-1.5 shrink-0 ${style.bar}`} />
-                                  {card.cursoImagen ? (
-                                    <img
-                                      src={card.cursoImagen}
-                                      alt=""
-                                      className="h-auto w-16 shrink-0 object-cover"
-                                    />
-                                  ) : (
-                                    <div className="flex w-16 shrink-0 items-center justify-center bg-white/65">
-                                      <BookOpen className="h-5 w-5 text-muted-foreground" />
-                                    </div>
-                                  )}
-                                  <div className="min-w-0 flex-1 p-2">
-                                    {card.estado === 'enrollment_open' ? (
-                                      <Badge className="mb-1 bg-green-500 px-1.5 py-0 text-[9px] text-white hover:bg-green-500">
-                                        Matrícula abierta
-                                      </Badge>
-                                    ) : null}
-                                    <div
-                                      className={`line-clamp-2 text-[11px] font-bold uppercase leading-tight ${style.text}`}
-                                    >
-                                      {card.curso}
-                                    </div>
-                                    <div className="mt-1 text-[11px] font-medium text-muted-foreground">
-                                      {formatSchedule(card)}
-                                    </div>
-                                  </div>
-                                </Button>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Main Page
@@ -623,7 +363,7 @@ export default function PlannerPage() {
             curso: (c.cursoNombre as string) || 'Curso',
             tipo: (c.cursoTipo as string) || (c.trainingType as string) || '',
             cursoImagen: (c.cursoImagen as string) || null,
-            sede: (c.campusNombre as string) || 'Sin sede',
+            sede: formatCampusLabel((c.campusNombre as string) || null),
             sedeId: String(c.campusId || ''),
             fechaInicio: (c.fechaInicio as string) || '',
             fechaFin: (c.fechaFin as string) || '',
@@ -647,11 +387,13 @@ export default function PlannerPage() {
         let nextCampuses: { id: string; name: string }[] = []
         if (campusRes.ok) {
           const campusData = await campusRes.json()
-          nextCampuses = (Array.isArray(campusData.docs) ? campusData.docs : []).map(
-            (c: Record<string, unknown>) => ({
-              id: String(c.id),
-              name: (c.name as string) || 'Sede',
-            })
+          nextCampuses = mapCampusFilterOptions(
+            (Array.isArray(campusData.docs) ? campusData.docs : []) as Array<{
+              id?: unknown
+              name?: unknown
+              active?: unknown
+              slug?: unknown
+            }>,
           )
           setCampuses(nextCampuses)
           if (nextCampuses.length > 0) {
@@ -784,139 +526,45 @@ export default function PlannerPage() {
     [router]
   )
 
-  const handleAdd = useCallback(
-    (columnKey: string) => {
-      router.push(`/dashboard/programacion/nueva`)
-    },
-    [router]
-  )
-
-  // Filtered columns
-  const filteredColumns = columns.map((col) => ({
-    ...col,
-    cards: sortCardsByWeekday(col.cards.filter((c) => c.sedeId === sedeFilter)),
-  }))
-
   const selectedCampus = campuses.find((campus) => campus.id === sedeFilter)
-  const visibleCards =
-    sedeFilter === 'todas' ? allCards : allCards.filter((card) => card.sedeId === sedeFilter)
-  const activeCards = visibleCards.filter((card) =>
-    ['published', 'enrollment_open', 'in_progress'].includes(card.estado)
-  )
-  const totalSeats = visibleCards.reduce((sum, card) => sum + card.plazas, 0)
-  const occupiedSeats = visibleCards.reduce((sum, card) => sum + card.inscritos, 0)
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Planner Visual"
-        description="Arrastra convocatorias entre columnas para cambiar su estado"
-        icon={LayoutGrid}
-        badge={
-          <div className="flex items-center gap-2">
-            {openConflictCount > 0 && (
-              <Badge variant="destructive" className="gap-1">
-                <AlertTriangle className="h-3 w-3" />
-                {openConflictCount} conflictos
-              </Badge>
-            )}
-            {updating && (
-              <Badge variant="outline" className="animate-pulse">
-                Guardando...
-              </Badge>
-            )}
-          </div>
-        }
-        actions={
-          <Button onClick={() => router.push('/dashboard/programacion/nueva')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva Convocatoria
+    <AcademicPageShell title="Planner Visual" icon={LayoutGrid}
+      actions={
+        <ListingActions>
+          <Button size="sm" onClick={() => router.push('/dashboard/programacion/nueva')}>
+            <Plus className="h-4 w-4" />
+            <span className="sr-only sm:not-sr-only sm:inline">Nueva</span>
           </Button>
-        }
-      />
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          { label: 'Convocatorias', value: visibleCards.length, icon: GraduationCap },
-          { label: 'Activas', value: activeCards.length, icon: Calendar },
-          { label: 'Plazas totales', value: totalSeats, icon: Users },
-          {
-            label: 'Ocupacion',
-            value: totalSeats > 0 ? `${Math.round((occupiedSeats / totalSeats) * 100)}%` : '—',
-            icon: BarChart3,
-          },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card key={label}>
-            <CardContent className="flex items-center justify-between p-3">
-              <div>
-                <p className="text-[10px] text-muted-foreground">{label}</p>
-                <p className="text-lg font-semibold">{value}</p>
-              </div>
-              <Icon className="h-4 w-4 text-primary" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Sede filter */}
-      <Card className="p-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium">Filtrar por sede:</span>
-          {campuses.map((c) => (
-            <Button
-              key={c.id}
-              type="button"
-              variant={sedeFilter === c.id ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setSedeFilter(c.id)}
-              className="h-7 px-2.5 text-xs"
-            >
-              {c.name}
-            </Button>
-          ))}
-        </div>
-      </Card>
-
-      <OccupancyMatrix
-        aulas={aulas}
-        cards={allCards}
-        sedeFilter={sedeFilter}
-        sedeName={selectedCampus?.name}
-      />
-
-      {/* Loading */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      )}
-
-      {/* Kanban Board */}
-      {!isLoading && (
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {filteredColumns.map((column) => (
-            <KanbanColumnView
-              key={column.key}
-              column={column}
-              onDragStart={handleDragStart}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={handleCardClick}
-              onAdd={handleAdd}
+        </ListingActions>
+      }
+      toolbar={
+        <DashboardToolbar
+          className="shrink-0"
+          filters={
+            <SedeFilterControl
+              campuses={campuses}
+              value={sedeFilter}
+              onChange={setSedeFilter}
             />
-          ))}
-        </div>
-      )}
-
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground px-1">
-        <span className="font-medium">
-          Arrastra las tarjetas entre columnas para cambiar el estado de la convocatoria.
-        </span>
-        <span className="flex items-center gap-1">
-          <GripVertical className="h-3 w-3" /> = Arrastrar
-        </span>
+          }
+        />
+      }
+    >
+      <div role="region" aria-label="Ocupación de aulas" className={ACADEMIC_SCROLL_REGION_CLASS}>
+        {isLoading ? (
+          <div className="flex flex-1 items-center justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <OccupancyMatrix
+            aulas={aulas}
+            cards={allCards}
+            sedeFilter={sedeFilter}
+            sedeName={selectedCampus?.name}
+          />
+        )}
       </div>
-    </div>
+    </AcademicPageShell>
   )
 }

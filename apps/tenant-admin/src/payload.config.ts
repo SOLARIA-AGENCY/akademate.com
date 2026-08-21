@@ -33,6 +33,8 @@ import { Campaigns } from './collections/Campaigns/Campaigns';
 import { AdsTemplates } from './collections/AdsTemplates/AdsTemplates';
 import { BlogPosts } from './collections/BlogPosts/BlogPosts';
 import { FAQs } from './collections/FAQs/FAQs';
+import { Testimonials } from './collections/Testimonials/Testimonials';
+import { WebsiteForms } from './collections/WebsiteForms/WebsiteForms';
 import { Media } from './collections/Media';
 import { AuditLogs } from './collections/AuditLogs/AuditLogs';
 import { Staff } from './collections/Staff/Staff';
@@ -40,6 +42,15 @@ import { StaffStatusEvents } from './collections/StaffStatusEvents/StaffStatusEv
 import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 import { CourseTypes } from './collections/CourseTypes/CourseTypes';
+import { TenantPaymentProviders } from './collections/TenantPaymentProviders/TenantPaymentProviders';
+import { ActivityOffers } from './collections/ActivityOffers/ActivityOffers';
+import { RegionPackBindings } from './collections/RegionPackBindings/RegionPackBindings';
+import { AttendanceRosterEntries } from './collections/AttendanceRoster/AttendanceRosterEntries';
+import { AttendanceEvents } from './collections/AttendanceRoster/AttendanceEvents';
+import { SelectionCandidacies } from './collections/SelectionCandidacies/SelectionCandidacies';
+import { PlacementAgencies } from './collections/PlacementAgencies/PlacementAgencies';
+import { EnrollmentDropouts } from './collections/EnrollmentDropouts/EnrollmentDropouts';
+import { getMultiEntityShadowCollections } from './multi-entity/schema-gate';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -109,6 +120,8 @@ export const getPayloadConfig = () => buildConfig({
     // Content
     BlogPosts, // ✅ Blog content with SEO optimization
     FAQs, // ✅ Frequently Asked Questions
+    Testimonials,
+    WebsiteForms,
     Media, // ✅ File uploads with S3 storage
 
     // LMS - Learning Management System
@@ -135,6 +148,21 @@ export const getPayloadConfig = () => buildConfig({
 
     // ===== CATALOG =====
     CourseTypes, // ✅ Course types by audience (Desempleados, Ocupados, Teleformacion)
+
+    // ===== LEARNER PAYMENTS (tenant Stripe, default-off) =====
+    TenantPaymentProviders,
+    ActivityOffers,
+    RegionPackBindings,
+    AttendanceRosterEntries,
+    AttendanceEvents,
+    SelectionCandidacies,
+    PlacementAgencies,
+    EnrollmentDropouts,
+
+    // ===== CEP MULTI-ENTITY SHADOW SCHEMA =====
+    // Empty by default and always empty in production. These hidden, deny-all
+    // collections only exist in an explicitly labelled non-production environment.
+    ...getMultiEntityShadowCollections(),
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',

@@ -142,6 +142,42 @@ export const MCP_TOOLS: McpToolDefinition[] = [
     description: 'Public employment-agency pages for the tenant.',
     inputSchema: { type: 'object', properties: {} },
   },
+  {
+    name: 'create_blog_draft',
+    description: 'Create a draft news/blog article with SEO keywords',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        excerpt: { type: 'string' },
+        body: { type: 'string' },
+        keywords: { type: 'array', items: { type: 'string' } },
+      },
+      required: ['title'],
+    },
+  },
+  {
+    name: 'create_faq',
+    description: 'Create a draft FAQ',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        question: { type: 'string' },
+        answer: { type: 'string' },
+      },
+      required: ['question', 'answer'],
+    },
+  },
+  {
+    name: 'list_website_media',
+    description: 'List media used on the public website',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'list_integrations',
+    description: 'List academy connectors (signage, access, payments, meetings, ads, finance). No secrets.',
+    inputSchema: { type: 'object', properties: {} },
+  },
 ]
 
 export const MCP_RESOURCES: McpResourceDefinition[] = [
@@ -150,6 +186,7 @@ export const MCP_RESOURCES: McpResourceDefinition[] = [
   { uri: 'akademate://convocatorias', name: 'Schedule', description: 'Scheduled activities', mimeType: 'application/json' },
   { uri: 'akademate://campuses', name: 'Venues', description: 'Campuses and studios', mimeType: 'application/json' },
   { uri: 'akademate://analytics', name: 'KPIs', description: 'Dashboard KPIs', mimeType: 'application/json' },
+  { uri: 'akademate://integrations', name: 'Connectors', description: 'Integration catalog without secrets', mimeType: 'application/json' },
 ]
 
 const RESOURCE_PATHS: Record<string, string> = {
@@ -158,6 +195,7 @@ const RESOURCE_PATHS: Record<string, string> = {
   'akademate://convocatorias': '/api/v1/convocatorias?limit=100&offset=0',
   'akademate://campuses': '/api/v1/campuses?limit=100&offset=0',
   'akademate://analytics': '/api/v1/analytics',
+  'akademate://integrations': '/api/integrations',
 }
 
 export function resolveToolDispatch(name: string, args: Record<string, unknown>): McpToolDispatch {
@@ -205,6 +243,14 @@ export function resolveToolDispatch(name: string, args: Record<string, unknown>)
       }
     case 'list_placement_agencies':
       return { kind: 'get', path: '/api/compliance/agencies' }
+    case 'list_integrations':
+      return { kind: 'get', path: '/api/integrations' }
+    case 'create_blog_draft':
+      return { kind: 'post', path: '/api/blog_posts', body: () => args }
+    case 'create_faq':
+      return { kind: 'post', path: '/api/contenido/faqs', body: () => args }
+    case 'list_website_media':
+      return { kind: 'get', path: '/api/media?limit=60&sort=-createdAt' }
     default:
       throw new Error(`Unknown tool: ${name}`)
   }
