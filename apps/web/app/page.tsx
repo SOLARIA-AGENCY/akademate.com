@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Globe2 } from 'lucide-react'
 import { AcademyOperationsStory } from '@/components/marketing/AcademyOperationsStory'
@@ -45,6 +46,8 @@ const homeVerticalSlugs = [
   'languages',
   'seasonal',
   'networks',
+  'performing-arts',
+  'online-cohorts',
 ] as const
 
 export default async function HomePage() {
@@ -126,14 +129,28 @@ export default async function HomePage() {
             <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
               {tx('Built around your academy model.')}
             </h2>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {homeVerticals.map((vertical) => (
                 <Link
                   key={vertical.slug}
                   href={href(`/solutions/${vertical.slug}`)}
-                  className="inline-flex min-h-11 items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700"
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_50px_rgba(7,22,51,.06)] transition hover:border-blue-300"
                 >
-                  {vertical.title}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-slate-200">
+                    <Image
+                      src={vertical.image}
+                      alt={vertical.imageAlt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                    />
+                  </div>
+                  <div className="px-4 py-5">
+                    <h3 className="text-lg font-semibold tracking-tight text-[#071633]">
+                      {vertical.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{vertical.description}</p>
+                  </div>
                 </Link>
               ))}
             </div>

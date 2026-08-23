@@ -65,6 +65,9 @@ export async function Footer() {
                 ))}
               </div>
             ) : null}
+            <div className="mt-6">
+              <ComplianceBadges />
+            </div>
           </div>
           <FooterColumn title={dictionary.footer.product} links={productLinks} href={href} />
           <FooterColumn title={dictionary.footer.company} links={companyLinks} href={href} />
@@ -83,22 +86,10 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-8 border-t border-white/10 pt-9 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
-            <p className="max-w-xl text-2xl font-semibold tracking-tight">
-              {dictionary.footer.statement}
-            </p>
-            <p className="mt-3 text-sm text-blue-100/50">{dictionary.footer.detail}</p>
-          </div>
-          <ComplianceBadges />
-        </div>
-        <div>
-          <div className="mt-8 flex flex-col gap-2 text-center text-xs leading-5 text-blue-100/45 sm:flex-row sm:justify-between sm:text-left">
-            <p>
-              © {new Date().getFullYear()} Akademate. {dictionary.footer.rights}
-            </p>
-            <p>{dictionary.footer.governance}</p>
-          </div>
+        <div className="mt-14 border-t border-white/10 pt-8">
+          <p className="text-center text-xs leading-5 text-blue-100/45 sm:text-left">
+            © {new Date().getFullYear()} Akademate. {dictionary.footer.rights}
+          </p>
         </div>
       </div>
     </footer>
