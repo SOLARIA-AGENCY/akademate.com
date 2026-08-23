@@ -463,7 +463,9 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/GovernanceFrameworks.tsx', import.meta.url),
       'utf8'
     )
-    expect(frameworkComponent).toMatch(/privacy, security and responsible AI roadmap/i)
+    expect(frameworkComponent).toMatch(/not completed certifications/i)
+    expect(frameworkComponent).toContain('Reference framework')
+    expect(frameworkComponent).toContain('Roadmap — not a certification')
     expect(frameworkComponent).toContain('framework mark')
     expect(frameworkComponent).toMatch(/ShieldCheck|BrainCircuit|ClipboardCheck|BadgeCheck|CodeXml/)
     expect(frameworkComponent).not.toMatch(
@@ -537,7 +539,10 @@ describe('public marketing architecture', () => {
       'utf8'
     )
     const previewCopy = readFileSync(new URL('./i18n/preview-copy.ts', import.meta.url), 'utf8')
-    expect(course).toContain('academy.akademate.com/creative-leadership')
+    expect(course).toContain('publicCourseExampleDisplay')
+    expect(course).toContain('liveAcademyExampleOrigin')
+    expect(course).not.toContain('academy.akademate.com')
+    expect(distributionModes[0]?.label).toBe('cepformacion.akademate.com')
     expect(previewCopy).toContain("availabilityTitle: '8 places available'")
     expect(previewCopy).toContain("availabilityDescription: '16 of 24 confirmed'")
     expect(previewCopy).toContain("availabilityTitle: '8 plazas disponibles'")
@@ -571,14 +576,13 @@ describe('public marketing architecture', () => {
     expect(publicCompanyLinks.find((item) => item.href === '/news')?.name).toBe('News')
   })
 
-  it('centralizes accessible Instagram, X and Facebook destinations', () => {
-    expect(publicSocialLinks.map((link) => link.name)).toEqual(['Instagram', 'X', 'Facebook'])
-    expect(publicSocialLinks.map((link) => new URL(link.href).hostname)).toEqual([
-      'www.instagram.com',
-      'x.com',
-      'www.facebook.com',
-    ])
+  it('hides social icons until a real profile URL is configured', () => {
+    expect(publicSocialLinks).toEqual([])
+    const navigation = readFileSync(new URL('./public-navigation.ts', import.meta.url), 'utf8')
+    expect(navigation).not.toMatch(/instagram\.com\/explore\/search|facebook\.com\/search|x\.com\/search/i)
     const footer = readFileSync(new URL('../components/layout/footer.tsx', import.meta.url), 'utf8')
+    expect(footer).toContain('publicSocialLinks.length > 0')
+    expect(footer).toContain('LinkedInMark')
     expect(footer).toContain('target="_blank"')
     expect(footer).toContain('rel="noreferrer"')
     expect(footer).toContain('aria-label={`${link.name}: ${dictionary.footer.socialLabel}`}')

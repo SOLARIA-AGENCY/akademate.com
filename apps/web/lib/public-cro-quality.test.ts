@@ -58,6 +58,7 @@ describe('public CRO quality boundaries', () => {
     expect(publicCopy).not.toMatch(
       /50[,.]?000 learners|95%|migration in 48 hours|support.{0,20}15 minutes/i
     )
+    expect(read('../lib/i18n/dictionaries.ts')).toMatch(/24 business hours/)
   })
 
   it('labels governance frameworks as references and never as certifications', () => {
@@ -65,7 +66,8 @@ describe('public CRO quality boundaries', () => {
     const badges = read('../components/legal/ComplianceBadges.tsx')
     const legal = read('../app/legal/ia/page.tsx')
 
-    expect(frameworks).toContain('Governance reference')
+    expect(frameworks).toContain('Reference framework')
+    expect(frameworks).toContain('Roadmap — not a certification')
     expect(`${frameworks}${badges}`).not.toMatch(/certified|official seal|certification achieved/i)
     expect(legal).toMatch(
       /Evidence for completed certifications or independent audits will be published/i

@@ -30,6 +30,7 @@ const publicPaths = [
   '/legal/cookies',
   '/legal/subencargados',
   '/legal/ia',
+  '/legal/aviso-legal',
 ] as const
 
 test.describe('public EN/ES parity', () => {

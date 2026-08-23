@@ -26,6 +26,11 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByText('Built around every academy model')).toBeVisible()
     await expect(page.getByText('Language academies').first()).toBeAttached()
     await expect(page.getByRole('link', { name: 'Language academies' })).toBeVisible()
+    await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1)
+    const jsonLd = await page.locator('script[type="application/ld+json"]').textContent()
+    expect(jsonLd).toContain('"Organization"')
+    expect(jsonLd).toContain('"SoftwareApplication"')
+    expect(jsonLd).not.toMatch(/taxID|aggregateRating/)
     const trustSignals = page.getByRole('region', { name: 'Akademate trust signals' })
     await expect(trustSignals).toBeVisible()
     await expect(page.locator('main > section')).toHaveCount(8)
@@ -49,8 +54,12 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('banner').getByRole('link', { name: 'News' })).toHaveCount(0)
     await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Blog' })).toBeVisible()
     await expect(page.getByRole('contentinfo').getByRole('link', { name: 'News' })).toBeVisible()
-    for (const network of ['Instagram', 'X', 'Facebook'])
-      await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
+    await expect(
+      page.getByRole('contentinfo').getByRole('link', { name: /find Akademate/i })
+    ).toHaveCount(0)
+    await expect(page.locator('a[href*="instagram.com/explore/search"]')).toHaveCount(0)
+    await expect(page.locator('a[href*="facebook.com/search"]')).toHaveCount(0)
+    await expect(page.locator('a[href*="x.com/search"]')).toHaveCount(0)
     await expect(page.locator('body')).not.toContainText(/coming soon/i)
     await expect(page.locator('main')).not.toContainText(/ISO 27001|SOC 2/)
   })
@@ -258,7 +267,7 @@ test.describe('Akademate public commercial surface', () => {
 
     await page.goto('/')
     const course = page.locator('#reservations')
-    await expect(course.getByText('academy.akademate.com/creative-leadership')).toBeVisible()
+    await expect(course.getByText('cepformacion.akademate.com')).toBeVisible()
     await expect(course.getByText('8 places available')).toBeVisible()
     await expect(course.getByText('16 of 24 confirmed')).toBeVisible()
     await expect(
@@ -415,10 +424,9 @@ test.describe('Akademate public commercial surface', () => {
   }) => {
     await page.goto('/sobre-nosotros')
     await expect(
-      page.getByText(
-        /framework references shaping our privacy, security and responsible AI roadmap/i
-      )
+      page.getByText(/reference frameworks and a governance roadmap, not completed certifications/i)
     ).toBeVisible()
+    await expect(page.getByText('Roadmap — not a certification').first()).toBeVisible()
     await expect(page.getByLabel(/framework mark$/)).toHaveCount(5)
     for (const paragraph of await page
       .getByRole('heading', { name: 'Grow with confidence.' })
@@ -441,6 +449,7 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('heading', { name: 'Grow with confidence.' })).toHaveCount(0)
     await expect(page.locator('main')).not.toContainText(/ISO 27001|SOC 2/)
     for (const path of [
+      '/legal/aviso-legal',
       '/legal/privacidad',
       '/legal/terminos',
       '/legal/cookies',
@@ -503,6 +512,29 @@ test.describe('Akademate public commercial surface', () => {
       await expect(page.getByRole('tabpanel').locator('select')).toHaveCount(3)
     }
     expect(headings.size).toBe(paths.length)
+  })
+
+  test('contact form is present without a loading placeholder and states the reply SLA', async ({
+    page,
+  }) => {
+    await page.goto('/en/contacto')
+    await expect(page.getByText(/Loading form/i)).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Send request' })).toBeVisible()
+    await expect(page.getByText(/24 business hours/i).first()).toBeVisible()
+  })
+
+  test('login falls back to a demo CTA when the academy workspace is not reachable', async ({
+    page,
+  }) => {
+    const response = await page.goto('/en/login')
+    if (page.url().includes('app.akademate.com')) {
+      expect(response?.status()).not.toBe(503)
+      return
+    }
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'The academy workspace is temporarily unavailable.'
+    )
+    await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
   })
 
   test('does not request third-party analytics or marketing', async ({ page }) => {

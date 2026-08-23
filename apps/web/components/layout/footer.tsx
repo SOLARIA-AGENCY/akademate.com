@@ -38,29 +38,33 @@ export async function Footer() {
             <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">
               {dictionary.footer.description}
             </p>
-            <div
-              className="mt-6 flex items-center gap-2"
-              aria-label={dictionary.footer.socialMedia}
-            >
-              {publicSocialLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`${link.name}: ${dictionary.footer.socialLabel}`}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.06] text-blue-100/70 transition hover:border-blue-300/40 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
-                >
-                  {link.name === 'Instagram' ? (
-                    <InstagramMark />
-                  ) : link.name === 'Facebook' ? (
-                    <FacebookMark />
-                  ) : (
-                    <XMark />
-                  )}
-                </a>
-              ))}
-            </div>
+            {publicSocialLinks.length > 0 ? (
+              <div
+                className="mt-6 flex items-center gap-2"
+                aria-label={dictionary.footer.socialMedia}
+              >
+                {publicSocialLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${link.name}: ${dictionary.footer.socialLabel}`}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.06] text-blue-100/70 transition hover:border-blue-300/40 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+                  >
+                    {link.name === 'LinkedIn' ? (
+                      <LinkedInMark />
+                    ) : link.name === 'Instagram' ? (
+                      <InstagramMark />
+                    ) : link.name === 'Facebook' ? (
+                      <FacebookMark />
+                    ) : (
+                      <XMark />
+                    )}
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
           <FooterColumn title={dictionary.footer.product} links={productLinks} href={href} />
           <FooterColumn title={dictionary.footer.company} links={companyLinks} href={href} />
@@ -123,6 +127,14 @@ function FooterColumn({
         ))}
       </ul>
     </div>
+  )
+}
+
+function LinkedInMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45ZM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0Z" />
+    </svg>
   )
 }
 

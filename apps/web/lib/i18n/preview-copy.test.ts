@@ -62,8 +62,10 @@ describe('marketing preview copy registry', () => {
       'utf8'
     )
 
-    expect(distribution).toContain('academy.akademate.com/creative-leadership')
-    expect(course).toContain("const courseUrl = 'academy.akademate.com/creative-leadership'")
+    expect(distribution).toContain('publicCourseExampleDisplay')
+    expect(course).toContain('const courseUrl = publicCourseExampleDisplay')
+    expect(distribution).not.toContain('academy.akademate.com')
+    expect(course).not.toContain('academy.akademate.com')
     expect(course).toContain("price: '€249'")
     expect(course).toContain("price: '€60'")
     expect(course).toContain('title={copy.course.dateTitle}')

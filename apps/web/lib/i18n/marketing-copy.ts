@@ -250,8 +250,13 @@ export const spanishMarketingCopy = {
   'Privacy, security and responsible AI belong inside the product.':
     'La privacidad, la seguridad y una IA responsable forman parte del producto.',
   'Governance reference': 'Referencia de gobierno',
+  'Reference framework': 'Marco de referencia',
+  'Regulatory framework': 'Marco regulatorio',
+  'Roadmap — not a certification': 'Hoja de ruta — no es un certificado',
   'Framework references shaping our privacy, security and responsible AI roadmap.':
     'Referencias que orientan nuestra hoja de ruta de privacidad, seguridad e IA responsable.',
+  'These are reference frameworks and a governance roadmap, not completed certifications.':
+    'Son marcos de referencia y una hoja de ruta de gobierno, no certificaciones obtenidas.',
   'Explore responsible AI at Akademate': 'Explora la IA responsable en Akademate',
   'Optional AI connection': 'Conexión de IA opcional',
   'Connect your AI agent to Akademate.': 'Conecta tu agente de IA a Akademate.',

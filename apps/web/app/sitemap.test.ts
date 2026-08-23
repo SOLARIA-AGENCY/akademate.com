@@ -18,6 +18,8 @@ describe('localized public sitemap', () => {
     expect(urls).toContain('/es/cursos')
     expect(urls).toContain('/en/download')
     expect(urls).toContain('/es/download')
+    expect(urls).toContain('/en/legal/aviso-legal')
+    expect(urls).toContain('/es/legal/aviso-legal')
     expect(urls).not.toContain('/')
 
     for (const url of urls.filter((pathname) => pathname.startsWith('/en'))) {

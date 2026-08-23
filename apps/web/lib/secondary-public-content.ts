@@ -25,6 +25,7 @@ type SecondaryPublicContent = {
   download: {
     metadata: { title: string; description: string }
     comingSoon: string
+    heroKicker: string
     title: string
     description: string
     imageAlt: string
@@ -99,13 +100,14 @@ export const secondaryPublicContent: Record<Locale, SecondaryPublicContent> = {
     },
     download: {
       metadata: {
-        title: 'Download Akademate apps — Coming soon',
+        title: 'Download Akademate apps',
         description:
-          'Preview the upcoming Akademate apps for Mac, iPhone and iPad. Native applications are coming soon.',
+          'Use Akademate in the browser today. Native Mac, iPhone and iPad apps are on the product roadmap.',
       },
       comingSoon: 'Coming soon',
+      heroKicker: 'Web workspace today',
       title: 'Akademate on every screen.',
-      description: 'Future native apps for academy teams, teachers and learners.',
+      description: 'Use Akademate in the browser today. Native apps sit on the product roadmap.',
       imageAlt: 'Future Akademate experiences presented across laptop, tablet and smartphone',
       roadmap: 'Product roadmap',
       roadmapTitle: 'Bring Akademate to your academy.',
@@ -198,13 +200,15 @@ export const secondaryPublicContent: Record<Locale, SecondaryPublicContent> = {
     },
     download: {
       metadata: {
-        title: 'Descargar aplicaciones de Akademate — Próximamente',
+        title: 'Descargar aplicaciones de Akademate',
         description:
-          'Conoce las próximas aplicaciones de Akademate para Mac, iPhone y iPad. Las aplicaciones nativas llegarán próximamente.',
+          'Usa Akademate en el navegador hoy. Las aplicaciones nativas para Mac, iPhone e iPad están en la hoja de ruta.',
       },
       comingSoon: 'Próximamente',
+      heroKicker: 'Espacio web disponible hoy',
       title: 'Akademate en cada pantalla.',
-      description: 'Futuras aplicaciones nativas para equipos, docentes y alumnado.',
+      description:
+        'Usa Akademate en el navegador hoy. Las aplicaciones nativas están en la hoja de ruta.',
       imageAlt:
         'Futuras experiencias de Akademate presentadas en portátil, tableta y teléfono inteligente',
       roadmap: 'Hoja de ruta de producto',

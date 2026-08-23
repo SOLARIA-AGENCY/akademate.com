@@ -1,43 +1,58 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocale } from '@/components/i18n/locale-provider'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/routing'
 
 const validSubjects = ['demo', 'pricing', 'support', 'partnership', 'privacy', 'other'] as const
 
+function readQueryValue(name: string): string {
+  if (typeof window === 'undefined') return ''
+  return new URLSearchParams(window.location.search).get(name) ?? ''
+}
+
 export function ContactForm() {
   const locale = useLocale()
   const copy = getDictionary(locale).contact
-  const searchParams = useSearchParams()
-  const requestedSubject = searchParams.get('asunto')
-  const initialSubject = validSubjects.includes(requestedSubject as (typeof validSubjects)[number])
-    ? (requestedSubject ?? '')
-    : ''
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
-    subject: initialSubject,
+    subject: '',
     message: '',
     website: '',
     privacyAccepted: false,
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [feedback, setFeedback] = useState('')
+  const [query, setQuery] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const requestedSubject = readQueryValue('asunto')
+    const nextQuery = {
+      source: readQueryValue('utm_source'),
+      medium: readQueryValue('utm_medium'),
+      campaign: readQueryValue('utm_campaign'),
+      term: readQueryValue('utm_term'),
+      content: readQueryValue('utm_content'),
+    }
+    setQuery(nextQuery)
+    if (validSubjects.includes(requestedSubject as (typeof validSubjects)[number])) {
+      setForm((current) => ({ ...current, subject: requestedSubject }))
+    }
+  }, [])
 
   const utm = useMemo(
     () => ({
-      source: searchParams.get('utm_source') ?? '',
-      medium: searchParams.get('utm_medium') ?? '',
-      campaign: searchParams.get('utm_campaign') ?? '',
-      term: searchParams.get('utm_term') ?? '',
-      content: searchParams.get('utm_content') ?? '',
+      source: query.source ?? '',
+      medium: query.medium ?? '',
+      campaign: query.campaign ?? '',
+      term: query.term ?? '',
+      content: query.content ?? '',
     }),
-    [searchParams]
+    [query]
   )
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -202,6 +217,7 @@ export function ContactForm() {
       >
         {status === 'loading' ? copy.sending : copy.submit}
       </button>
+      <p className="text-sm leading-6 text-slate-500">{copy.responseSla}</p>
     </form>
   )
 }

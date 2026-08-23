@@ -59,6 +59,8 @@ type Dictionary = {
     formTitle: string
     formDescription: string
     loadingForm: string
+    noscriptFallback: string
+    responseSla: string
     imageAlt: string
     goalsTitle: string
     goalsText: string
@@ -84,6 +86,14 @@ type Dictionary = {
     success: string
     requestFailed: string
     website: string
+  }
+  login: {
+    title: string
+    description: string
+    unavailableTitle: string
+    unavailableDescription: string
+    demoCta: string
+    contactCta: string
   }
 }
 
@@ -158,6 +168,9 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formTitle: 'Book your walkthrough',
       formDescription: 'Share a little context and we’ll make the conversation immediately useful.',
       loadingForm: 'Loading form…',
+      noscriptFallback:
+        'The contact form needs JavaScript. Email info@akademate.com — we reply within 24 business hours.',
+      responseSla: 'We reply within 24 business hours.',
       imageAlt:
         'Akademate implementation planner for academy setup, locations, payments, learner experience and domain launch',
       goalsTitle: 'Start with your goals',
@@ -188,9 +201,18 @@ export const dictionaries: Record<Locale, Dictionary> = {
       submit: 'Send request',
       sending: 'Sending…',
       privacyRequired: 'Please accept the privacy policy before sending your request.',
-      success: 'Thanks. Your request has been received.',
+      success: 'Thanks. Your request has been received. We reply within 24 business hours.',
       requestFailed: 'We could not send your request.',
       website: 'Website',
+    },
+    login: {
+      title: 'Academy workspace',
+      description: 'Sign in to the Akademate workspace for your academy.',
+      unavailableTitle: 'The academy workspace is temporarily unavailable.',
+      unavailableDescription:
+        'We are not sending you to a broken sign-in. Book a demo and we will walk you through the product.',
+      demoCta: 'Book a demo',
+      contactCta: 'Contact us',
     },
   },
   es: {
@@ -265,6 +287,9 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formDescription:
         'Comparte un poco de contexto y haremos que la conversación sea útil desde el inicio.',
       loadingForm: 'Cargando formulario…',
+      noscriptFallback:
+        'El formulario de contacto necesita JavaScript. Escribe a info@akademate.com; responderemos en menos de 24 h laborables.',
+      responseSla: 'Responderemos en menos de 24 h laborables.',
       imageAlt:
         'Planificador de implantación de Akademate para configurar la academia, sedes, pagos, experiencia del alumnado y dominio',
       goalsTitle: 'Empieza por tus objetivos',
@@ -296,9 +321,18 @@ export const dictionaries: Record<Locale, Dictionary> = {
       submit: 'Enviar solicitud',
       sending: 'Enviando…',
       privacyRequired: 'Acepta la política de privacidad antes de enviar tu solicitud.',
-      success: 'Gracias. Hemos recibido tu solicitud.',
+      success: 'Gracias. Hemos recibido tu solicitud. Responderemos en menos de 24 h laborables.',
       requestFailed: 'No hemos podido enviar tu solicitud.',
       website: 'Sitio web',
+    },
+    login: {
+      title: 'Espacio de trabajo',
+      description: 'Entra en el espacio de trabajo de Akademate de tu academia.',
+      unavailableTitle: 'El espacio de trabajo no está disponible ahora.',
+      unavailableDescription:
+        'No te enviamos a un acceso que no responde. Reserva una demo y te mostramos el producto.',
+      demoCta: 'Reservar una demo',
+      contactCta: 'Contactar',
     },
   },
 }

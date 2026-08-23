@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { Inter } from 'next/font/google'
 import { LocaleProvider } from '@/components/i18n/locale-provider'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { publicRootMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 import './globals.css'
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         className={`${fontSans.variable} font-sans antialiased min-h-screen`}
         style={Object.keys(themeVars).length ? themeVars : undefined}
       >
+        <JsonLd />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
       </body>
     </html>
