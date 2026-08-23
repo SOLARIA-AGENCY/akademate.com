@@ -21,6 +21,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { usePreviewCopy } from '@/components/i18n/use-preview-copy'
+import { liveAcademyExampleOrigin, publicCourseExampleDisplay } from '@/lib/public-examples'
 
 const tickets = [
   { id: 'full', price: '€249' },
@@ -34,7 +35,7 @@ const attendees = [
   { name: 'Nora Kelly', image: '/images/avatars/course-attendee-04.jpg' },
 ] as const
 
-const courseUrl = 'academy.akademate.com/creative-leadership'
+const courseUrl = publicCourseExampleDisplay
 const shareIcons = [Copy, Send, Mail, Link2] as const
 
 export function CourseRegistrationPreview() {
@@ -62,13 +63,15 @@ export function CourseRegistrationPreview() {
         >
           <Copy className="h-4 w-4" />
         </button>
-        <button
-          type="button"
+        <a
+          href={liveAcademyExampleOrigin}
+          target="_blank"
+          rel="noreferrer"
           aria-label={copy.course.openCoursePage}
           className="hidden h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-blue-700 sm:flex"
         >
           <ExternalLink className="h-4 w-4" />
-        </button>
+        </a>
         <button
           type="button"
           aria-label={copy.course.shareCourse}

@@ -3,6 +3,10 @@ export const supportedLocales = ['en', 'es'] as const
 export type Locale = (typeof supportedLocales)[number]
 export type LocaleSource = 'path' | 'cookie' | 'accept-language' | 'default'
 
+/**
+ * English remains the hreflang x-default and the unmatched-language fallback.
+ * Spanish visitors (Accept-Language or stored preference) are sent to `/es…`.
+ */
 export const defaultLocale: Locale = 'en'
 export const localePreferenceCookie = 'akademate_locale'
 
@@ -100,7 +104,8 @@ export function getLocaleRoutingPlan({
   acceptLanguage?: string | null
 }):
   | { type: 'next'; locale: Locale; persistLocale: false }
-  | { type: 'rewrite'; locale: Locale; pathname: string; persistLocale: true } {
+  | { type: 'rewrite'; locale: Locale; pathname: string; persistLocale: true }
+  | { type: 'redirect'; locale: Locale; pathname: string; persistLocale: true } {
   const normalizedPathname = toSafePathname(pathname)
   const resolved = resolveLocale({ pathname: normalizedPathname, cookieLocale, acceptLanguage })
 
@@ -110,7 +115,12 @@ export function getLocaleRoutingPlan({
 
   const withoutLocale = stripLocalePrefix(normalizedPathname)
   if (!withoutLocale.locale) {
-    return { type: 'next', locale: resolved.locale, persistLocale: false }
+    return {
+      type: 'redirect',
+      locale: resolved.locale,
+      pathname: localizePathname(normalizedPathname, resolved.locale),
+      persistLocale: true,
+    }
   }
 
   return {

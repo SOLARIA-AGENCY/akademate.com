@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { Suspense } from 'react'
 import { Mail, Route, UsersRound } from 'lucide-react'
 import { ContactForm } from '@/components/forms/contact-form'
 import { Footer } from '@/components/layout/footer'
@@ -79,15 +78,14 @@ export default async function ContactPage() {
                 {dictionary.contact.formTitle}
               </h2>
               <p className="mt-3 text-sm leading-6 text-slate-600">
-                {dictionary.contact.formDescription}
+                {dictionary.contact.formDescription} {dictionary.contact.responseSla}
               </p>
-              <Suspense
-                fallback={
-                  <p className="mt-8 text-sm text-slate-500">{dictionary.contact.loadingForm}</p>
-                }
-              >
-                <ContactForm />
-              </Suspense>
+              <noscript>
+                <p className="mt-8 rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">
+                  {dictionary.contact.noscriptFallback}
+                </p>
+              </noscript>
+              <ContactForm />
             </section>
           </div>
         </section>

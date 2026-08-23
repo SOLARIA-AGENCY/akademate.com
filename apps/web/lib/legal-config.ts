@@ -21,7 +21,20 @@ type LegalCompany = {
   privacyContact: LegalField
 }
 
-type LegalLink = { title: string; href: string }
+export type LegalLink = { title: string; href: string }
+
+const legalIdentityEnv = {
+  registryCode: 'AKADEMATE_LEGAL_REGISTRY_CODE',
+  vatId: 'AKADEMATE_LEGAL_VAT_ID',
+  registeredOffice: 'AKADEMATE_LEGAL_REGISTERED_OFFICE',
+  operatingAddress: 'AKADEMATE_LEGAL_OPERATING_ADDRESS',
+  privacyContact: 'AKADEMATE_LEGAL_PRIVACY_CONTACT',
+} as const
+
+function readLegalEnv(name: string): string | null {
+  const value = process.env[name]?.trim()
+  return value ? value : null
+}
 
 type LegalContent = {
   company: LegalCompany
@@ -79,6 +92,7 @@ const legalContent: Record<Locale, LegalContent> = {
     draftNotice:
       'Working legal information under professional review. Final registry, tax, address and privacy contact details will be published after documentary validation.',
     links: [
+      { title: 'Legal notice', href: '/legal/aviso-legal' },
       { title: 'Privacy', href: '/legal/privacidad' },
       { title: 'Terms', href: '/legal/terminos' },
       { title: 'Cookies', href: '/legal/cookies' },
@@ -139,6 +153,7 @@ const legalContent: Record<Locale, LegalContent> = {
     draftNotice:
       'Información legal de trabajo sometida a revisión profesional. Los datos finales de registro, fiscalidad, dirección y contacto de privacidad se publicarán tras la validación documental.',
     links: [
+      { title: 'Aviso legal', href: '/legal/aviso-legal' },
       { title: 'Privacidad', href: '/legal/privacidad' },
       { title: 'Términos', href: '/legal/terminos' },
       { title: 'Cookies', href: '/legal/cookies' },
@@ -175,7 +190,52 @@ const legalContent: Record<Locale, LegalContent> = {
 }
 
 export function getLegalContent(locale: Locale): LegalContent {
-  return legalContent[locale]
+  const base = legalContent[locale]
+  return {
+    ...base,
+    company: {
+      ...base.company,
+      registryCode: {
+        ...base.company.registryCode,
+        value: readLegalEnv(legalIdentityEnv.registryCode),
+      },
+      vatId: { ...base.company.vatId, value: readLegalEnv(legalIdentityEnv.vatId) },
+      registeredOffice: {
+        ...base.company.registeredOffice,
+        value: readLegalEnv(legalIdentityEnv.registeredOffice),
+      },
+      operatingAddress: {
+        ...base.company.operatingAddress,
+        value: readLegalEnv(legalIdentityEnv.operatingAddress),
+      },
+      privacyContact: {
+        ...base.company.privacyContact,
+        value: readLegalEnv(legalIdentityEnv.privacyContact),
+      },
+    },
+  }
+}
+
+export function isLegalIdentityComplete(
+  company: LegalCompany = getLegalContent('en').company
+): boolean {
+  return [
+    company.registryCode,
+    company.vatId,
+    company.registeredOffice,
+    company.operatingAddress,
+    company.privacyContact,
+  ].every((field) => Boolean(field.value))
+}
+
+/**
+ * Amber draft banner stays visible until identity fields are published via env,
+ * unless counsel explicitly hides it after documentary validation.
+ * Do not invent registry, VAT or address values to dismiss it.
+ */
+export function shouldShowLegalDraftBanner(locale: Locale = 'en'): boolean {
+  if (process.env.AKADEMATE_LEGAL_HIDE_DRAFT_BANNER === 'true') return false
+  return !isLegalIdentityComplete(getLegalContent(locale).company)
 }
 
 // English aliases preserve the existing public import contract for non-localized consumers.

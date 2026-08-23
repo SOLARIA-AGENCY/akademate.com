@@ -15,6 +15,7 @@ import {
   Share2,
 } from 'lucide-react'
 import { distributionModes } from '@/lib/marketing-content'
+import { publicCourseExampleDisplay } from '@/lib/public-examples'
 import { usePreviewCopy } from '@/components/i18n/use-preview-copy'
 
 const modeIcons = [LayoutTemplate, Globe2, Code2, Link2] as const
@@ -220,7 +221,7 @@ function OfferShare({ copy }: { copy: ReturnType<typeof usePreviewCopy> }) {
   return (
     <div className="grid h-full gap-4 sm:grid-cols-[.62fr_.38fr]">
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <BrowserBar address="academy.akademate.com/creative-leadership" copy={copy} />
+        <BrowserBar address={publicCourseExampleDisplay} copy={copy} />
         <div className="p-5">
           <div className="h-28 rounded-xl bg-[linear-gradient(135deg,#071633,#2563eb)]" />
           <p className="mt-4 text-lg font-semibold">{copy.website.offerTitle}</p>

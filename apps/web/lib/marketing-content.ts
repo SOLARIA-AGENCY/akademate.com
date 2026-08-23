@@ -55,7 +55,7 @@ export const reservationModes = [
 export const distributionModes = [
   {
     title: 'Your Akademate website',
-    label: 'academy.akademate.com',
+    label: 'cepformacion.akademate.com',
     text: 'Launch a branded website connected to your operation.',
   },
   {
@@ -803,26 +803,31 @@ export const plans = [
 export const governanceFrameworks = [
   {
     short: 'GDPR',
+    kind: 'regulatory',
     title: 'Privacy operations',
     text: 'Rights, consent and privacy controls.',
   },
   {
     short: 'EU AI Act',
+    kind: 'regulatory',
     title: 'AI transparency',
     text: 'Human oversight and transparent AI use.',
   },
   {
     short: 'ISO 27001',
+    kind: 'roadmap',
     title: 'Security management',
     text: 'Structured information-security controls.',
   },
   {
     short: 'SOC 2',
+    kind: 'roadmap',
     title: 'Trust controls',
     text: 'Security, availability and confidentiality controls.',
   },
   {
     short: 'OWASP',
+    kind: 'roadmap',
     title: 'Application security',
     text: 'Modern web-application security practices.',
   },

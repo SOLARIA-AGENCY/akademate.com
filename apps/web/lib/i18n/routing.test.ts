@@ -51,7 +51,7 @@ describe('public locale routing', () => {
     expect(parseAcceptLanguage('%%% , de;q=not-a-number')).toBeUndefined()
   })
 
-  it('rewrites a locale URL internally and leaves legacy URLs usable', () => {
+  it('rewrites a locale URL internally and sends unprefixed URLs to the resolved locale', () => {
     expect(getLocaleRoutingPlan({ pathname: '/es/contacto', cookieLocale: 'en' })).toEqual({
       type: 'rewrite',
       locale: 'es',
@@ -59,9 +59,22 @@ describe('public locale routing', () => {
       persistLocale: true,
     })
     expect(getLocaleRoutingPlan({ pathname: '/pricing', cookieLocale: 'es' })).toEqual({
-      type: 'next',
+      type: 'redirect',
       locale: 'es',
-      persistLocale: false,
+      pathname: '/es/pricing',
+      persistLocale: true,
+    })
+    expect(getLocaleRoutingPlan({ pathname: '/', acceptLanguage: 'es-ES,es;q=0.9' })).toEqual({
+      type: 'redirect',
+      locale: 'es',
+      pathname: '/es',
+      persistLocale: true,
+    })
+    expect(getLocaleRoutingPlan({ pathname: '/' })).toEqual({
+      type: 'redirect',
+      locale: 'en',
+      pathname: '/en',
+      persistLocale: true,
     })
   })
 
@@ -79,9 +92,10 @@ describe('public locale routing', () => {
     expect(
       getLocaleRoutingPlan({ pathname: '//attacker.example/path', cookieLocale: 'es' })
     ).toEqual({
-      type: 'next',
+      type: 'redirect',
       locale: 'es',
-      persistLocale: false,
+      pathname: '/es',
+      persistLocale: true,
     })
   })
 })

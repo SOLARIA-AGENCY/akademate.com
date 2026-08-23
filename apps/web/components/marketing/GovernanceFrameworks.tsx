@@ -63,8 +63,15 @@ export function GovernanceFrameworks() {
                 </div>
                 <p className="mt-5 text-sm font-bold text-blue-700">{framework.short}</p>
                 <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                  {t('Governance reference')}
+                  {framework.kind === 'regulatory'
+                    ? t('Regulatory framework')
+                    : t('Reference framework')}
                 </p>
+                {framework.kind === 'roadmap' ? (
+                  <p className="mt-1 text-[11px] font-medium text-slate-500">
+                    {t('Roadmap — not a certification')}
+                  </p>
+                ) : null}
                 <h3 className="mt-3 font-semibold text-[#071633]">{t(framework.title)}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{t(framework.text)}</p>
               </article>
@@ -74,7 +81,9 @@ export function GovernanceFrameworks() {
 
         <div className="mt-8 flex flex-col gap-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            {t('Framework references shaping our privacy, security and responsible AI roadmap.')}
+            {t(
+              'These are reference frameworks and a governance roadmap, not completed certifications.'
+            )}
           </p>
           <Link
             href={localizedHref('/legal/ia', locale)}

@@ -99,9 +99,11 @@ describe('marketing copy registry', () => {
       name: 'Nombre completo',
       subjectPlaceholder: 'Selecciona un tema',
       privacyRequired: 'Acepta la política de privacidad antes de enviar tu solicitud.',
-      success: 'Gracias. Hemos recibido tu solicitud.',
+      success: 'Gracias. Hemos recibido tu solicitud. Responderemos en menos de 24 h laborables.',
       requestFailed: 'No hemos podido enviar tu solicitud.',
       sending: 'Enviando…',
+      responseSla: 'Responderemos en menos de 24 h laborables.',
     })
+    expect(spanish.responseSla).toMatch(/24 h laborables/i)
   })
 })

@@ -12,7 +12,7 @@ export function publicPageMetadata({
   locale,
   pathname,
   copy,
-  image = '/images/marketing/akademate-hero-operations.jpg',
+  image = '/images/marketing/akademate-product-ecosystem-v2.png',
 }: {
   locale: Locale
   pathname: string

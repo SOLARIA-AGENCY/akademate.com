@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { formatLegalField, getLegalContent } from '@/lib/legal-config'
+import { formatLegalField, getLegalContent, shouldShowLegalDraftBanner } from '@/lib/legal-config'
 import { localizedHref, type Locale } from '@/lib/i18n/routing'
 
 type LegalSection = { title: string; content: ReactNode }
@@ -37,9 +37,11 @@ export function LegalPage({
         </header>
         <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
           <div className="border-b pb-8">
-            <p className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
-              {legal.draftNotice}
-            </p>
+            {shouldShowLegalDraftBanner(locale) ? (
+              <p className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
+                {legal.draftNotice}
+              </p>
+            ) : null}
             <p className="mt-4 text-sm text-muted-foreground">
               {legal.labels.lastUpdated} {legal.lastUpdated}
             </p>

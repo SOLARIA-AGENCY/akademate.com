@@ -238,8 +238,6 @@ export default async function FeaturesPage() {
 
         <AgenticGrowthShowcase />
 
-        <AppDownloadShowcase compact />
-
         <FeatureModuleExplorer />
 
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
@@ -270,6 +268,8 @@ export default async function FeaturesPage() {
             </div>
           </div>
         </section>
+
+        <AppDownloadShowcase compact />
 
         <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">

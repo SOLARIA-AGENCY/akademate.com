@@ -22,7 +22,13 @@ export function middleware(request: NextRequest) {
           destination.pathname = plan.pathname
           return NextResponse.rewrite(destination, { request: { headers: requestHeaders } })
         })()
-      : NextResponse.next({ request: { headers: requestHeaders } })
+      : plan.type === 'redirect'
+        ? (() => {
+            const destination = request.nextUrl.clone()
+            destination.pathname = plan.pathname
+            return NextResponse.redirect(destination, 307)
+          })()
+        : NextResponse.next({ request: { headers: requestHeaders } })
 
   if (plan.persistLocale) {
     response.cookies.set(localePreferenceCookie, plan.locale, {

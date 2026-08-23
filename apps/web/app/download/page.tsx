@@ -34,7 +34,7 @@ export default async function DownloadPage() {
         <section className="product-texture overflow-hidden bg-[#06142f] px-4 py-12 text-white sm:px-6 lg:px-8 lg:py-16">
           <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[.9fr_1.1fr]">
             <div className="max-w-xl">
-              <p className="text-sm font-semibold text-blue-200">{content.comingSoon}</p>
+              <p className="text-sm font-semibold text-blue-200">{content.heroKicker}</p>
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl">
                 {content.title}
               </h1>
@@ -69,6 +69,9 @@ export default async function DownloadPage() {
         <section className="px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
           <div className="product-texture mx-auto max-w-7xl rounded-2xl bg-[#071633] px-6 py-14 text-center text-white sm:px-12">
             <p className="text-sm font-semibold text-blue-200">{content.roadmap}</p>
+            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-blue-200/70">
+              {content.comingSoon}
+            </p>
             <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
               {content.roadmapTitle}
             </h2>

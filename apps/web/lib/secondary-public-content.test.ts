@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { getSecondaryPublicContent, secondaryPublicContent } from '@/lib/secondary-public-content'
 
-const legalRoutes = ['cookies', 'ia', 'privacidad', 'subencargados', 'terminos'] as const
+const legalRoutes = ['aviso-legal', 'cookies', 'ia', 'privacidad', 'subencargados', 'terminos'] as const
 
 describe('secondary public i18n contract', () => {
   it('keeps company, courses and download metadata/content present in English and Spanish', () => {

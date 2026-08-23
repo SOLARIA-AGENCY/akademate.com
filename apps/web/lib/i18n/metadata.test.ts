@@ -24,5 +24,8 @@ describe('localized public metadata', () => {
       },
     })
     expect(metadata.openGraph).toMatchObject({ locale: 'es_ES', url: '/es/features' })
+    expect(metadata.openGraph).toMatchObject({
+      images: [{ url: '/images/marketing/akademate-product-ecosystem-v2.png', alt: 'Funciones' }],
+    })
   })
 })

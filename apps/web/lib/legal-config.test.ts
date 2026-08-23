@@ -11,6 +11,7 @@ import {
   legalCompany,
   legalDraftNotice,
   legalLinks,
+  shouldShowLegalDraftBanner,
   trackingPolicy,
 } from '@/lib/legal-config'
 
@@ -34,6 +35,7 @@ describe('central legal contract', () => {
 
   it('exposes all required legal routes without legacy paths', () => {
     expect(legalLinks.map((link) => link.href)).toEqual([
+      '/legal/aviso-legal',
       '/legal/privacidad',
       '/legal/terminos',
       '/legal/cookies',
@@ -81,5 +83,44 @@ describe('central legal contract', () => {
     expect(JSON.stringify(spanish.company)).not.toMatch(
       /FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i
     )
+  })
+
+  it('hides the amber draft banner only when identity env is complete or explicitly signed off', () => {
+    const keys = [
+      'AKADEMATE_LEGAL_REGISTRY_CODE',
+      'AKADEMATE_LEGAL_VAT_ID',
+      'AKADEMATE_LEGAL_REGISTERED_OFFICE',
+      'AKADEMATE_LEGAL_OPERATING_ADDRESS',
+      'AKADEMATE_LEGAL_PRIVACY_CONTACT',
+      'AKADEMATE_LEGAL_HIDE_DRAFT_BANNER',
+    ] as const
+    const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]))
+    const restore = () => {
+      for (const key of keys) {
+        if (previous[key] === undefined) delete process.env[key]
+        else process.env[key] = previous[key]
+      }
+    }
+
+    try {
+      for (const key of keys) delete process.env[key]
+      expect(shouldShowLegalDraftBanner('en')).toBe(true)
+      expect(shouldShowLegalDraftBanner('es')).toBe(true)
+
+      process.env.AKADEMATE_LEGAL_REGISTRY_CODE = '12345678'
+      expect(shouldShowLegalDraftBanner()).toBe(true)
+
+      process.env.AKADEMATE_LEGAL_VAT_ID = 'EE12345678'
+      process.env.AKADEMATE_LEGAL_REGISTERED_OFFICE = 'Tallinn'
+      process.env.AKADEMATE_LEGAL_OPERATING_ADDRESS = 'Malmö'
+      process.env.AKADEMATE_LEGAL_PRIVACY_CONTACT = 'privacy@akademate.com'
+      expect(shouldShowLegalDraftBanner()).toBe(false)
+
+      for (const key of keys) delete process.env[key]
+      process.env.AKADEMATE_LEGAL_HIDE_DRAFT_BANNER = 'true'
+      expect(shouldShowLegalDraftBanner()).toBe(false)
+    } finally {
+      restore()
+    }
   })
 })
