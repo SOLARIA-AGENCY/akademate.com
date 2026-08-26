@@ -64,6 +64,7 @@ export const PlanSchema = z.object({
     storage: z.number().int().positive().optional(), // MB
     apiCalls: z.number().int().positive().optional(), // per month
     courses: z.number().int().positive().optional(),
+    tenantSeats: z.number().int().positive().optional(),
   }).optional(),
   stripePriceIdMonthly: z.string().optional(),
   stripePriceIdYearly: z.string().optional(),
