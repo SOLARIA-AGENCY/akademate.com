@@ -29,7 +29,7 @@ import {
   Plus,
   ExternalLink,
 } from 'lucide-react'
-import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
+import { CampusCourseCalendar, DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 
 interface CourseRun {
   id: number
@@ -429,7 +429,8 @@ export default function ProfesorDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-3" data-oid="gcoo2ph">
         {/* Left Column - Photo and Basic Info */}
-        <Card className="md:col-span-1" data-oid="d2j-.g8">
+        <div className="md:col-span-1 space-y-6">
+        <Card data-oid="d2j-.g8">
           <CardContent className="pt-6 space-y-6" data-oid="bzau5u3">
             {/* Photo */}
             <div className="flex flex-col items-center" data-oid="8ush656">
@@ -578,6 +579,18 @@ export default function ProfesorDetailPage() {
             </div>
           </CardContent>
         </Card>
+          <CampusCourseCalendar
+            title="Calendario de convocatorias"
+            runs={(professor.courseRuns ?? []).map((courseRun) => ({
+              id: courseRun.id,
+              title: courseRun.courseName || courseRun.codigo || 'Convocatoria',
+              start: courseRun.startDate,
+              end: courseRun.endDate,
+              status: courseRun.status,
+            }))}
+            onSelectRun={(runId) => router.push(`/dashboard/programacion/${runId}`)}
+          />
+        </div>
 
         {/* Right Column - Detailed Info */}
         <div className="md:col-span-2 space-y-6" data-oid="7zawug:">

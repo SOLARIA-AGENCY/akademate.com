@@ -31,6 +31,30 @@ describe('saas ui wave port', () => {
     expect(source).toContain('title="Calendario de convocatorias"')
   })
 
+  it('ciclo and profesor fichas show convocatorias calendars', () => {
+    const ciclo = read('app/(app)/(dashboard)/ciclos/[id]/page.tsx')
+    const profesor = read('app/(app)/(dashboard)/profesores/[id]/page.tsx')
+    expect(ciclo).toContain('CampusCourseCalendar')
+    expect(ciclo).toContain('title="Calendario de convocatorias"')
+    expect(profesor).toContain('CampusCourseCalendar')
+    expect(profesor).toContain('title="Calendario de convocatorias"')
+  })
+
+  it('convocatorias listing uses PremiumDirectoryShell chrome', () => {
+    const source = read('app/(app)/(dashboard)/cursos/convocatorias/page.tsx')
+    expect(source).toContain('PremiumDirectoryShell')
+    expect(source).toContain('DirectoryAvatarCell')
+    expect(source).not.toContain('DUMMY_REMOVE_REST')
+    expect(source).not.toContain('DashboardListingShell')
+  })
+
+  it('programación lista paginates with Filas por página', () => {
+    const source = read('app/(app)/(dashboard)/programacion/page.tsx')
+    expect(source).toContain('paginateDirectory')
+    expect(source).toContain('Filas por página')
+    expect(source).toContain('<tr className="border-b bg-white">')
+  })
+
   it('planner hides convocatorias that do not run that day', () => {
     const matrix = read('app/(app)/(dashboard)/planner/OccupancyMatrix.tsx')
     expect(matrix).toContain('occupancyCards = shiftCards.filter((card) => cardMatchesDay(card, selectedDay))')

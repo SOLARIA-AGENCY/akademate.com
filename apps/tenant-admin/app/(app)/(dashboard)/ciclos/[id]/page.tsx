@@ -11,7 +11,7 @@ import {
   Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText, ExternalLink,
   Printer, Eye,
 } from 'lucide-react'
-import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
+import { CampusCourseCalendar, DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
@@ -636,6 +636,17 @@ export default function CicloDetailPage({ params }: Props) {
               )}
             </CardContent>
           </Card>
+          <CampusCourseCalendar
+            title="Calendario de convocatorias"
+            runs={convocatorias.map((conv: any) => ({
+              id: conv.id,
+              title: cycle.name || conv.codigo || 'Convocatoria',
+              start: conv.start_date,
+              end: conv.end_date,
+              status: conv.status,
+            }))}
+            onSelectRun={(runId) => router.push(`/dashboard/programacion/${runId}`)}
+          />
         </div>
       </div>
       <div className="flex justify-end gap-4">

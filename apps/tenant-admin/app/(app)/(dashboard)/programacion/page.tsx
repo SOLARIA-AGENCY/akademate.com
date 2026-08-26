@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { EmptyPanel, DirectoryKpiStrip, computeConvocationDirectoryKpis } from '@payload-config/components/akademate/dashboard'
+import { EmptyPanel, DirectoryKpiStrip, computeConvocationDirectoryKpis, DIRECTORY_PAGE_SIZES, directoryPageNumbers, directoryRangeLabel, paginateDirectory } from '@payload-config/components/akademate/dashboard'
 import {
   Plus,
   Calendar,
@@ -818,6 +818,8 @@ export default function ProgramacionPage() {
   const [listMessage, setListMessage] = useState<string | null>(null)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [listPage, setListPage] = useState(1)
+  const [listPageSize, setListPageSize] = useState<(typeof DIRECTORY_PAGE_SIZES)[number]>(10)
 
   const loadData = React.useCallback(async () => {
     try {
@@ -1212,6 +1214,14 @@ export default function ProgramacionPage() {
     if (sedeFilter === 'todas') return operational
     return operational.filter((c) => c.sedeId === sedeFilter)
   }, [convocatorias, sedeFilter])
+  const listSlice = useMemo(
+    () => paginateDirectory(filtered, listPage, listPageSize),
+    [filtered, listPage, listPageSize],
+  )
+
+  useEffect(() => {
+    setListPage(1)
+  }, [sedeFilter, listPageSize, filtered.length])
 
   const exportColumns: ExportColumn<Convocatoria>[] = [
     { header: 'Codigo', getValue: (conv) => conv.codigo || conv.id },
@@ -1887,7 +1897,7 @@ export default function ProgramacionPage() {
             <div className="hidden 2xl:block">
               <table className="w-full table-fixed text-[11px]">
                 <thead>
-                  <tr className="border-b bg-muted/30">
+                  <tr className="border-b bg-white">
                     <th className="w-[11%] p-2 text-left font-semibold text-meta">Convocatoria</th>
                     <th className="w-[6%] p-2 text-left font-semibold text-meta">Sede</th>
                     <th className="w-[6%] p-2 text-left font-semibold text-meta">Aula</th>
@@ -1913,7 +1923,7 @@ export default function ProgramacionPage() {
                       </td>
                     </tr>
                   ) : (
-                    filtered.map((conv) => {
+                    listSlice.items.map((conv) => {
                       const ocupacion =
                         conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
                       const dateStart = conv.fechaInicio
@@ -2040,7 +2050,7 @@ export default function ProgramacionPage() {
               {filtered.length === 0 ? (
                 <EmptyPanel title="No hay convocatorias" />
               ) : (
-                filtered.map((conv) => {
+                listSlice.items.map((conv) => {
                   const ocupacion =
                     conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
                   const dateStart = conv.fechaInicio
@@ -2121,6 +2131,67 @@ export default function ProgramacionPage() {
                   )
                 })
               )}
+            </div>
+            <div className="mt-auto flex flex-col gap-3 border-t border-slate-200/80 bg-white p-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+              <p>
+                {directoryRangeLabel('convocatorias', listSlice.start, listSlice.end, listSlice.total)}
+              </p>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  Filas por página:
+                  <select
+                    className="rounded-md border border-slate-200 bg-white px-2 py-1 font-medium text-slate-700"
+                    value={listPageSize}
+                    onChange={(event) =>
+                      setListPageSize(Number(event.target.value) as (typeof DIRECTORY_PAGE_SIZES)[number])
+                    }
+                  >
+                    {DIRECTORY_PAGE_SIZES.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    disabled={listSlice.page <= 1}
+                    onClick={() => setListPage((current) => Math.max(1, current - 1))}
+                    className="rounded-md border border-slate-200 bg-white p-1.5 disabled:text-slate-300"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  {directoryPageNumbers(listSlice.page, listSlice.pageCount).map((item, index) =>
+                    item === 'ellipsis' ? (
+                      <span key={`e-${index}`} className="px-1 text-slate-400">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setListPage(item)}
+                        className={
+                          item === listSlice.page
+                            ? 'rounded-md bg-blue-600 px-2.5 py-1 font-medium text-white'
+                            : 'rounded-md px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-100'
+                        }
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                  <button
+                    type="button"
+                    disabled={listSlice.page >= listSlice.pageCount}
+                    onClick={() => setListPage((current) => Math.min(listSlice.pageCount, current + 1))}
+                    className="rounded-md border border-slate-200 bg-white p-1.5"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

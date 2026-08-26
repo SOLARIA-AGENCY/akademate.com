@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import * as React from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   AlertTriangle,
   CalendarDays,
@@ -13,23 +13,12 @@ import {
   Eye,
   GraduationCap,
   MapPin,
-  Plus,
-  Search,
-  SlidersHorizontal,
   Users,
 } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { Input } from '@payload-config/components/ui/input'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Progress } from '@payload-config/components/ui/progress'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@payload-config/components/ui/select'
 import {
   Table,
   TableBody,
@@ -39,17 +28,13 @@ import {
   TableRow,
 } from '@payload-config/components/ui/table'
 import {
-  DashboardBreadcrumb,
-  DashboardEntityHeader,
-  DashboardListingShell,
-  DashboardToolbar,
-  DashboardViewToggle,
+  ACADEMIC_LISTING_GRID_CLASS,
+  DirectoryAvatarCell,
+  DirectoryNeutralBadge,
+  PremiumDirectoryShell,
+  computeConvocationDirectoryKpis,
 } from '@payload-config/components/akademate/dashboard'
-import {
-  EmptyPanel,
-  ErrorPanel,
-  LoadingPanel,
-} from '@payload-config/components/akademate/dashboard/Panels'
+import { LoadingPanel } from '@payload-config/components/akademate/dashboard/Panels'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 import {
@@ -58,6 +43,7 @@ import {
   toDashboardStudyType,
   type PublicStudyType,
 } from '@/app/lib/website/study-types'
+import { downloadCsv, type ExportColumn } from '@/app/lib/dashboard-export'
 import { cn } from '@payload-config/lib/utils'
 
 type ViewMode = 'grid' | 'list'
@@ -443,6 +429,7 @@ function ConvocatoriasTable({ runs }: { runs: Convocatoria[] }) {
 }
 
 function ConvocatoriasContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const groupParam = searchParams.get('grupo')
   const selectedGroup: CourseGroup | null =
@@ -538,227 +525,146 @@ function ConvocatoriasContent() {
     search,
   ])
 
-  const groupedByCampus = React.useMemo(() => {
-    const map = new Map<string, Convocatoria[]>()
-    for (const run of filteredRuns) {
-      const campus = run.campusNombre || 'Sin sede'
-      const current = map.get(campus) ?? []
-      current.push(run)
-      map.set(campus, current)
-    }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b))
-  }, [filteredRuns])
-
-  const title = selectedType
-    ? `Convocatorias de ${COURSE_TYPE_CONFIG[selectedType].label.toLowerCase()}`
-    : selectedGroup === 'privados'
-      ? 'Convocatorias de cursos privados'
-      : selectedGroup === 'sce'
-        ? 'Convocatorias Servicio Canario de Empleo'
-        : 'Convocatorias de cursos'
+  const directoryRows = filteredRuns.map((run) => ({ ...run, id: String(run.id) }))
+  const kpis = computeConvocationDirectoryKpis(
+    filteredRuns.map((run) => ({
+      estado: run.estado,
+      plazas: run.plazasTotales,
+      inscritos: run.plazasOcupadas,
+    })),
+  )
+  const exportColumns: ExportColumn<(typeof directoryRows)[number]>[] = [
+    { header: 'Codigo', getValue: (run) => run.codigo || run.id },
+    { header: 'Formacion', getValue: (run) => run.cursoNombre || '' },
+    { header: 'Tipo', getValue: (run) => COURSE_TYPE_CONFIG[normalizeCourseRunType(run)]?.label ?? '' },
+    { header: 'Sede', getValue: (run) => run.campusNombre || '' },
+    { header: 'Inicio', getValue: (run) => formatDate(run.fechaInicio) },
+    { header: 'Plazas', getValue: (run) => `${occupation(run).used}/${occupation(run).total || '—'}` },
+    { header: 'Estado', getValue: (run) => getStatusLabel(run.estado) },
+  ]
 
   return (
-    <DashboardListingShell
-      header={
-        <>
-          <DashboardBreadcrumb
-            items={[
-              { label: 'Dashboard', href: '/dashboard' },
-              { label: 'Cursos', href: '/dashboard/cursos' },
-              { label: 'Convocatorias' },
-            ]}
-          />
-          <DashboardEntityHeader
-            title={title}
-            description="Consulta convocatorias en formato operativo por sede, tipo de curso, matrícula, plazas, docente y horario."
-            actions={
-              <div className="flex flex-wrap gap-2">
-                <Button asChild variant="outline">
-                  <Link href="/dashboard/programacion">Ver calendario</Link>
-                </Button>
-                <Button
-                  asChild
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                >
-                  <Link href="/dashboard/programacion/nueva">
-                    <Plus className="h-4 w-4" />
-                    Nueva convocatoria
-                  </Link>
-                </Button>
-              </div>
-            }
-          />
-        </>
+    <PremiumDirectoryShell
+      scroll="page"
+      title="Convocatorias"
+      description="Ediciones programadas por sede, fechas y plazas internas."
+      icon={CalendarDays}
+      entityPlural="convocatorias"
+      createLabel="Nueva"
+      onCreate={() => router.push('/dashboard/programacion/nueva')}
+      onExportCsv={() =>
+        downloadCsv(
+          `convocatorias-${new Date().toISOString().slice(0, 10)}.csv`,
+          exportColumns,
+          directoryRows,
+        )
       }
-      toolbar={
-        <DashboardToolbar
-          searchValue={search}
-          onSearchChange={setSearch}
-          searchPlaceholder="Buscar por curso, código, docente, aula o sede..."
-          filters={
-            <>
-              <Select
-                value={typeFilter}
-                onValueChange={(value) => setTypeFilter(value as PublicStudyType | 'all')}
-              >
-                <SelectTrigger className="w-full min-w-[170px] md:w-[190px]">
-                  <SelectValue placeholder="Tipo de curso" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los tipos</SelectItem>
-                  {groupTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {COURSE_TYPE_CONFIG[type].label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={campusFilter} onValueChange={setCampusFilter}>
-                <SelectTrigger className="w-full min-w-[170px] md:w-[190px]">
-                  <SelectValue placeholder="Sede" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas las sedes</SelectItem>
-                  {availableCampuses.map((campus) => (
-                    <SelectItem key={campus} value={campus}>
-                      {campus}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full min-w-[170px] md:w-[190px]">
-                  <SelectValue placeholder="Estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los estados</SelectItem>
-                  <SelectItem value="draft">Borrador</SelectItem>
-                  <SelectItem value="published">Publicada</SelectItem>
-                  <SelectItem value="enrollment_open">Inscripción abierta</SelectItem>
-                  <SelectItem value="in_progress">En curso</SelectItem>
-                  <SelectItem value="completed">Finalizada</SelectItem>
-                  <SelectItem value="cancelled">Cancelada</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={enrollmentFilter} onValueChange={setEnrollmentFilter}>
-                <SelectTrigger className="w-full min-w-[170px] md:w-[210px]">
-                  <SelectValue placeholder="Matrícula" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas las matrículas</SelectItem>
-                  <SelectItem value="open">Matrícula abierta</SelectItem>
-                  <SelectItem value="closed">Matrícula cerrada</SelectItem>
-                  <SelectItem value="scheduled">Matrícula programada</SelectItem>
-                  <SelectItem value="always_open">Matrícula permanente</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={shiftFilter} onValueChange={setShiftFilter}>
-                <SelectTrigger className="w-full min-w-[150px] md:w-[170px]">
-                  <SelectValue placeholder="Turno" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los turnos</SelectItem>
-                  <SelectItem value="morning">Mañana</SelectItem>
-                  <SelectItem value="afternoon">Tarde</SelectItem>
-                  <SelectItem value="evening_extra">Tarde/noche</SelectItem>
-                </SelectContent>
-              </Select>
-            </>
-          }
-          actions={
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                setSearch('')
-                setTypeFilter(selectedType ?? 'all')
-                setCampusFilter('all')
-                setStatusFilter('all')
-                setEnrollmentFilter('all')
-                setShiftFilter('all')
-              }}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Limpiar
-            </Button>
-          }
-          viewToggle={
-            <DashboardViewToggle view={view} onViewChange={(next) => setView(next as ViewMode)} />
-          }
-        />
+      kpis={kpis}
+      searchValue={search}
+      onSearchChange={setSearch}
+      searchPlaceholder="Buscar..."
+      extraToolbar={
+        <Button asChild variant="outline" size="sm" className="shrink-0">
+          <Link href="/dashboard/programacion">Calendario</Link>
+        </Button>
       }
-    >
-      {loading ? <LoadingPanel label="Cargando convocatorias..." /> : null}
-      {error && !loading ? <ErrorPanel description={error} /> : null}
-      {!loading && !error && filteredRuns.length === 0 ? (
-        <EmptyPanel
-          title="No hay convocatorias con estos filtros"
-          description="Ajusta los filtros o crea una nueva convocatoria desde Programación."
-          action={
-            <Button asChild>
-              <Link href="/dashboard/programacion/nueva">Nueva convocatoria</Link>
-            </Button>
-          }
-        />
-      ) : null}
-      {!loading && !error && filteredRuns.length > 0 ? (
-        <div className="space-y-8">
-          {groupedByCampus.map(([campus, campusRuns]) => {
-            const runsByType = COURSE_TYPES.map((type) => ({
-              type,
-              runs: campusRuns.filter((run) => normalizeCourseRunType(run) === type),
-            })).filter((group) => group.runs.length > 0)
-
-            return (
-              <section key={campus} className="space-y-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between gap-4">
-                    <div>
-                      <CardTitle className="flex items-center gap-2 text-xl">
-                        <MapPin className="h-5 w-5 text-primary" />
-                        {campus}
-                      </CardTitle>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {campusRuns.length} convocatorias
-                      </p>
-                    </div>
-                    <Badge variant="outline">{view === 'grid' ? 'Cards' : 'Lista'}</Badge>
-                  </CardHeader>
-                </Card>
-
-                {view === 'list' ? (
-                  <ConvocatoriasTable runs={campusRuns} />
-                ) : (
-                  <div className="space-y-6">
-                    {runsByType.map((typeGroup) => (
-                      <div key={`${campus}-${typeGroup.type}`} className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              'h-2.5 w-2.5 rounded-full',
-                              COURSE_TYPE_CONFIG[typeGroup.type].dotColor
-                            )}
-                          />
-                          <h3 className="font-semibold">
-                            {COURSE_TYPE_CONFIG[typeGroup.type].label}
-                          </h3>
-                          <Badge variant="secondary">{typeGroup.runs.length}</Badge>
-                        </div>
-                        <div className="grid gap-5 xl:grid-cols-2">
-                          {typeGroup.runs.map((run) => (
-                            <ConvocatoriaCard key={run.id} run={run} />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )
-          })}
+      filters={[
+        {
+          id: 'tipo',
+          label: 'Tipo',
+          value: typeFilter,
+          onChange: (value) => setTypeFilter(value as PublicStudyType | 'all'),
+          options: [
+            { value: 'all', label: 'Tipo: Todos' },
+            ...groupTypes.map((type) => ({ value: type, label: COURSE_TYPE_CONFIG[type].label })),
+          ],
+        },
+        {
+          id: 'sede',
+          label: 'Sede',
+          value: campusFilter,
+          onChange: setCampusFilter,
+          options: [
+            { value: 'all', label: 'Sede: Todas' },
+            ...availableCampuses.map((campus) => ({ value: campus, label: campus })),
+          ],
+        },
+        {
+          id: 'estado',
+          label: 'Estado',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          options: [
+            { value: 'all', label: 'Estado: Todos' },
+            { value: 'draft', label: 'Borrador' },
+            { value: 'published', label: 'Publicado' },
+            { value: 'enrollment_open', label: 'Abierta' },
+            { value: 'in_progress', label: 'En curso' },
+            { value: 'completed', label: 'Fin' },
+            { value: 'cancelled', label: 'Cancelada' },
+          ],
+        },
+      ]}
+      viewMode={view === 'grid' ? 'grid' : 'table'}
+      onViewModeChange={(mode) => setView(mode === 'grid' ? 'grid' : 'list')}
+      columns={[
+        {
+          id: 'formacion',
+          header: 'Formación',
+          render: (run) => (
+            <DirectoryAvatarCell
+              name={run.cursoNombre || 'Curso'}
+              subtitle={run.codigo || COURSE_TYPE_CONFIG[normalizeCourseRunType(run)]?.label}
+              src={run.cursoImagen || getPublicStudyTypeFallbackImage(normalizeCourseRunType(run))}
+              initials={(run.cursoNombre || 'C').slice(0, 2).toUpperCase()}
+            />
+          ),
+        },
+        {
+          id: 'sede',
+          header: 'Sede',
+          render: (run) => (
+            <DirectoryNeutralBadge>{run.campusNombre || 'Sin sede'}</DirectoryNeutralBadge>
+          ),
+        },
+        {
+          id: 'inicio',
+          header: 'Inicio',
+          render: (run) => formatDate(run.fechaInicio),
+        },
+        {
+          id: 'plazas',
+          header: 'Plazas',
+          render: (run) => (
+            <span className="tabular-nums" data-slot="run-occupancy">
+              {occupation(run).used}/{occupation(run).total || '—'}
+            </span>
+          ),
+        },
+        {
+          id: 'estado',
+          header: 'Estado',
+          render: (run) => (
+            <Badge className={cn('whitespace-nowrap', getStatusClass(run.estado))}>
+              {getStatusLabel(run.estado)}
+            </Badge>
+          ),
+        },
+      ]}
+      rows={directoryRows}
+      loading={loading}
+      error={error}
+      emptyTitle="No hay convocatorias"
+      onRowOpen={(run) => router.push(`/dashboard/programacion/${run.id}`)}
+      onRowEdit={(run) => router.push(`/dashboard/programacion/${run.id}`)}
+      renderGrid={(pageRows) => (
+        <div className={ACADEMIC_LISTING_GRID_CLASS} role="region" aria-label="Lista de convocatorias">
+          {pageRows.map((run) => (
+            <ConvocatoriaCard key={run.id} run={run} />
+          ))}
         </div>
-      ) : null}
-    </DashboardListingShell>
+      )}
+    />
   )
 }
 
