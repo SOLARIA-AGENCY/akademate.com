@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ArrowLeft, Search, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Search, Printer, Download, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -36,8 +36,8 @@ export function AkadematePageShell({
   contentClassName,
 }: AkadematePageShellProps) {
   return (
-    <div className={cn('min-h-full bg-background', className)}>
-      <div className={cn('mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8', contentClassName)}>
+    <div className={cn('min-h-full w-full bg-background', className)}>
+      <div className={cn('flex w-full flex-col gap-6 p-4 sm:p-6 lg:p-8', contentClassName)}>
         {children}
       </div>
     </div>
@@ -48,6 +48,7 @@ export interface DashboardPageHeaderProps {
   title: string
   description?: string
   eyebrow?: string
+  icon?: LucideIcon
   backHref?: string
   backLabel?: string
   actions?: React.ReactNode
@@ -57,9 +58,13 @@ export interface DashboardPageHeaderProps {
 
 export function DashboardPageHeader({
   title,
+  description,
+  eyebrow,
+  icon: HeaderIcon,
   backHref,
   backLabel = 'Volver',
   actions,
+  meta,
   className,
 }: DashboardPageHeaderProps) {
   return (
@@ -73,8 +78,26 @@ export function DashboardPageHeader({
         </Button>
       ) : null}
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="min-w-0">
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">{title}</h1>
+        <div className="flex min-w-0 items-start gap-3">
+          {HeaderIcon ? (
+            <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <HeaderIcon className="h-4 w-4" aria-hidden="true" />
+            </span>
+          ) : null}
+          <div className="min-w-0">
+            {eyebrow ? (
+              <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                {eyebrow}
+              </p>
+            ) : null}
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+            {description ? (
+              <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            ) : null}
+            {meta ? <div className="mt-2 flex flex-wrap items-center gap-2">{meta}</div> : null}
+          </div>
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
@@ -145,7 +168,7 @@ export function DashboardToolbar({
   className,
 }: DashboardToolbarProps) {
   return (
-    <Card className={cn('border-border/80 shadow-sm', className)}>
+    <Card className={cn('border-slate-200/80 dark:border-slate-800 shadow-xs bg-white dark:bg-slate-900 rounded-2xl', className)}>
       <CardContent className="p-4 sm:p-5">
         <div
           className={cn(
@@ -205,6 +228,7 @@ export const DashboardEntityHeader = DashboardPageHeader
 export interface DashboardTitleCardProps {
   title: string
   description?: string
+  icon?: LucideIcon
   actions?: React.ReactNode
   className?: string
 }
@@ -212,20 +236,34 @@ export interface DashboardTitleCardProps {
 export function DashboardTitleCard({
   title,
   description,
+  icon: TitleIcon,
   actions,
   className,
 }: DashboardTitleCardProps) {
   return (
-    <Card className={cn('border-border/80 shadow-sm', className)}>
+    <Card className={cn('border-slate-200/80 dark:border-slate-800 shadow-xs bg-white dark:bg-slate-900 rounded-2xl', className)}>
       <CardContent className="p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1>
-            {description ? (
-              <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">{description}</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3.5">
+            {TitleIcon ? (
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100/80 dark:border-blue-900/60 shadow-2xs">
+                <TitleIcon className="h-5 w-5" aria-hidden="true" />
+              </span>
             ) : null}
+            <div className="min-w-0">
+              <h2 className="truncate text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+                {title}
+              </h2>
+              {description ? (
+                <p className="mt-0.5 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
+                  {description}
+                </p>
+              ) : null}
+            </div>
           </div>
-          {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
+          {actions ? (
+            <div className="flex shrink-0 flex-wrap items-center gap-2.5">{actions}</div>
+          ) : null}
         </div>
       </CardContent>
     </Card>
@@ -241,12 +279,12 @@ export interface DashboardStatItem {
 }
 
 const statToneClass: Record<NonNullable<DashboardStatItem['tone']>, string> = {
-  default: 'text-foreground',
-  primary: 'text-primary',
-  success: 'text-emerald-600',
-  warning: 'text-amber-600',
-  danger: 'text-destructive',
-  info: 'text-primary',
+  default: 'text-slate-950 dark:text-white',
+  primary: 'text-blue-600 dark:text-blue-400',
+  success: 'text-emerald-600 dark:text-emerald-400',
+  warning: 'text-amber-600 dark:text-amber-400',
+  danger: 'text-rose-600 dark:text-rose-400',
+  info: 'text-blue-600 dark:text-blue-400',
 }
 
 export function DashboardStatsGrid({
@@ -264,19 +302,23 @@ export function DashboardStatsGrid({
         const Icon = item.icon
         const tone = item.tone ?? 'default'
         return (
-          <Card key={item.label} className="border-border/80 shadow-sm">
-            <CardContent className="p-4">
+          <Card key={item.label} className="border-slate-200/80 dark:border-slate-800 shadow-xs bg-white dark:bg-slate-900 rounded-2xl">
+            <CardContent className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-muted-foreground">{item.label}</p>
-                  <div className={cn('mt-1 text-2xl font-bold leading-none', statToneClass[tone])}>
+                  <p className="truncate text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{item.label}</p>
+                  <div className={cn('mt-2 text-2xl font-extrabold tabular-nums tracking-tight', statToneClass[tone])}>
                     {item.value}
                   </div>
                   {item.description ? (
-                    <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{item.description}</p>
                   ) : null}
                 </div>
-                {Icon ? <Icon className={cn('h-5 w-5 shrink-0 opacity-70', statToneClass[tone])} /> : null}
+                {Icon ? (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                ) : null}
               </div>
             </CardContent>
           </Card>
@@ -289,7 +331,9 @@ export function DashboardStatsGrid({
 export function DashboardListingLayout({
   title,
   description,
+  icon,
   actions,
+  breadcrumbs,
   stats,
   toolbar,
   children,
@@ -297,17 +341,27 @@ export function DashboardListingLayout({
 }: {
   title: string
   description?: string
+  icon?: LucideIcon
   actions?: React.ReactNode
+  breadcrumbs?: DashboardBreadcrumbItem[]
   stats?: DashboardStatItem[]
   toolbar?: React.ReactNode
   children: React.ReactNode
   className?: string
 }) {
+  const defaultBreadcrumbs: DashboardBreadcrumbItem[] = breadcrumbs ?? [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: title },
+  ]
+
   return (
-    <div className={cn('space-y-6', className)}>
-      <DashboardTitleCard title={title} description={description} actions={actions} />
+    <div className={cn('flex w-full flex-col gap-3', className)}>
+      <DashboardBreadcrumb items={defaultBreadcrumbs} />
+      <div data-slot="dashboard-page-chrome" className="flex shrink-0 flex-col gap-3">
+        <DashboardTitleCard title={title} description={description} icon={icon} actions={actions} />
+        {toolbar}
+      </div>
       {stats ? <DashboardStatsGrid items={stats} /> : null}
-      {toolbar}
       {children}
     </div>
   )
@@ -355,7 +409,7 @@ export function DashboardSection({
       {title || description || actions ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            {title ? <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2> : null}
+            {title ? <h2 className="text-sm font-semibold tracking-tight text-foreground">{title}</h2> : null}
             {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
           </div>
           {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -485,8 +539,180 @@ export function SmallStatusBadge({
   variant?: React.ComponentProps<typeof Badge>['variant']
 }) {
   return (
-    <Badge variant={variant} className="rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.04em]">
+    <Badge variant={variant} className="rounded-full">
       {children}
     </Badge>
+  )
+}
+
+export function ListingActions({
+  children,
+  onPrint,
+  onCsv,
+  className,
+}: {
+  children?: React.ReactNode
+  onPrint?: () => void
+  onCsv?: () => void
+  className?: string
+}) {
+  return (
+    <div className={cn('flex flex-wrap items-center gap-2', className)}>
+      {onPrint ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-2xs h-9 px-3"
+          onClick={onPrint}
+          aria-label="Imprimir listado"
+          title="Imprimir listado"
+        >
+          <Printer className="h-4 w-4" />
+          <span className="hidden xl:inline ml-1.5 text-xs">Imprimir</span>
+        </Button>
+      ) : null}
+      {onCsv ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-2xs h-9 px-3"
+          onClick={onCsv}
+          aria-label="Descargar CSV"
+          title="Descargar CSV"
+        >
+          <Download className="h-4 w-4" />
+          <span className="hidden xl:inline ml-1.5 text-xs">Descargar CSV</span>
+        </Button>
+      ) : null}
+      {children}
+    </div>
+  )
+}
+
+export const ACADEMIC_LISTING_GRID_CLASS = 'grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
+export const ACADEMIC_ENTITY_META_CLASS = 'text-xs text-slate-500 font-medium'
+export const AKADEMATE_ACADEMIC_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80'
+
+export function AcademicEntityCard({
+  title,
+  subtitle,
+  fallbackImage = AKADEMATE_ACADEMIC_FALLBACK_IMAGE,
+  badge,
+  listCells,
+  tiles,
+  variant = 'card',
+  onClick,
+  onCtaClick,
+  className,
+}: {
+  title: string
+  subtitle?: string
+  fallbackImage?: string
+  badge?: React.ReactNode
+  listCells?: React.ReactNode[]
+  tiles?: React.ReactNode[]
+  variant?: 'card' | 'list'
+  onClick?: () => void
+  onCtaClick?: () => void
+  className?: string
+}) {
+  if (variant === 'list') {
+    return (
+      <Card
+        className={cn(
+          'group cursor-pointer overflow-hidden border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-xs transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700',
+          className
+        )}
+        onClick={onClick}
+      >
+        <CardContent className="flex items-center justify-between p-4 sm:p-5 gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <img
+              src={fallbackImage}
+              alt={title}
+              className="h-12 w-12 rounded-full object-cover ring-2 ring-slate-100 dark:ring-slate-800 shrink-0"
+            />
+            <div className="min-w-0">
+              <h3 className="truncate text-sm font-extrabold text-slate-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {title}
+              </h3>
+              {subtitle ? <p className="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{subtitle}</p> : null}
+              {listCells ? (
+                <div className="mt-1 flex flex-wrap gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {listCells.map((cell, idx) => (
+                    <span key={idx} className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                      {cell}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            {badge}
+            <Button
+              size="sm"
+              className="h-8 px-3 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+              onClick={(e) => {
+                e.stopPropagation()
+                onCtaClick ? onCtaClick() : onClick?.()
+              }}
+            >
+              Ver ficha
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card
+      className={cn(
+        'group cursor-pointer overflow-hidden border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-xs transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between',
+        className
+      )}
+      onClick={onClick}
+    >
+      <CardContent className="p-5 flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <img
+            src={fallbackImage}
+            alt={title}
+            className="h-14 w-14 rounded-2xl object-cover ring-2 ring-slate-100 dark:ring-slate-800 shadow-xs shrink-0"
+          />
+          {badge}
+        </div>
+        <div className="space-y-1 min-w-0">
+          <h3 className="text-base font-extrabold text-slate-950 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+            {title}
+          </h3>
+          {subtitle ? (
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 line-clamp-2">{subtitle}</p>
+          ) : null}
+        </div>
+        {tiles && tiles.length > 0 ? (
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            {tiles.map((tile, i) => (
+              <div key={i} className="bg-slate-50 dark:bg-slate-800/60 p-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300">
+                {tile}
+              </div>
+            ))}
+          </div>
+        ) : null}
+        <Button
+          size="sm"
+          className="mt-2 w-full h-9 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+          onClick={(e) => {
+            e.stopPropagation()
+            onCtaClick ? onCtaClick() : onClick?.()
+          }}
+        >
+          Ver detalles
+        </Button>
+      </CardContent>
+    </Card>
   )
 }

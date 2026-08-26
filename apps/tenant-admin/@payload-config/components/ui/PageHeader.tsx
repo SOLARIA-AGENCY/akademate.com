@@ -37,6 +37,11 @@ interface PageHeaderProps {
 
 export function PageHeader({
   title,
+  description,
+  badge,
+  icon: HeaderIcon,
+  iconColor = 'text-muted-foreground',
+  iconBgColor = 'bg-muted',
   showAddButton = false,
   addButtonText = 'Nuevo',
   onAdd,
@@ -46,19 +51,32 @@ export function PageHeader({
   className = '',
 }: PageHeaderProps) {
   const content = (
-    <div className="flex flex-col gap-4" data-oid="nq9arpo">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-center gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          {HeaderIcon ? (
+            <span className={cn('mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', iconBgColor, iconColor)}>
+              <HeaderIcon className="h-4 w-4" aria-hidden="true" />
+            </span>
+          ) : null}
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl" data-oid=".ik_qyi">
-              {title}
-            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-extrabold tracking-tight text-slate-950">
+                {title}
+              </h1>
+              {badge}
+            </div>
+            {description ? (
+              <p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-500 font-medium">
+                {description}
+              </p>
+            ) : null}
           </div>
         </div>
 
         <div
-          className="flex w-full flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end"
-          data-oid="1n2t8tr"
+          data-slot="page-header-actions"
+          className="flex min-w-0 flex-nowrap items-center justify-end gap-2"
         >
           {actions}
           {showAddButton && onAdd && (

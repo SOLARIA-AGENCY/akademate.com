@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { EmptyPanel } from '@payload-config/components/akademate/dashboard'
 import {
   Plus,
   Calendar,
@@ -26,39 +27,16 @@ import {
   X,
 } from 'lucide-react'
 import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
+import {
+  normalizeConvocatoriaRecord,
+  type NormalizedConvocatoria,
+} from '@/app/lib/programacion/convocatoria-normalization'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface Convocatoria {
-  id: string
-  codigo: string
-  curso: string
-  cursoId: string
-  tipo: string
-  sede: string
-  sedeId: string
-  aula: string
-  aulaId: string
-  fechaInicio: string
-  fechaFin: string
-  horaInicio: string
-  horaFin: string
-  dias: string[]
-  plazas: number
-  inscritos: number
-  precio: number
-  matricula?: number
-  horasPracticas?: string | null
-  certificacion?: string | null
-  profesor: string
-  profesores: string[]
-  profesorRefs: Array<{ id: string; name: string }>
-  estado: string
-  planningStatus?: string
-  color: string
-}
+type Convocatoria = NormalizedConvocatoria
 
 interface Campus {
   id: string
@@ -240,14 +218,6 @@ function formatDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function convocatoriaInMonth(conv: Convocatoria, year: number, month: number): boolean {
-  const start = new Date(conv.fechaInicio)
-  const end = new Date(conv.fechaFin)
-  const monthStart = new Date(year, month, 1)
-  const monthEnd = new Date(year, month + 1, 0)
-  return start <= monthEnd && end >= monthStart
-}
-
 function convocatoriaOnDate(conv: Convocatoria, dateKey: string): boolean {
   const d = new Date(dateKey)
   const start = new Date(conv.fechaInicio)
@@ -304,7 +274,7 @@ function formatEnrollmentFee(value?: number | null): string {
 }
 
 function formatTeacherNames(conv: Pick<Convocatoria, 'profesor' | 'profesores'>): string {
-  return conv.profesores.length > 0 ? conv.profesores.join(', ') : conv.profesor
+  return conv.profesores.length > 0 ? conv.profesores.join(', ') : conv.profesor || 'Sin docente'
 }
 
 function formatLongDate(value?: string | null): string {
@@ -331,20 +301,6 @@ function formatDayLabels(days: string[]): string {
 function formatScheduleRange(start?: string, end?: string): string {
   if (!start || !end) return '—'
   return `${start} - ${end}`
-}
-
-function formatSessionHours(start?: string, end?: string): string {
-  if (!start || !end) return '—'
-  const [startHour = '0', startMinute = '0'] = start.split(':')
-  const [endHour = '0', endMinute = '0'] = end.split(':')
-  const startTotal = Number(startHour) * 60 + Number(startMinute)
-  const endTotal = Number(endHour) * 60 + Number(endMinute)
-  const diff = endTotal - startTotal
-  if (!Number.isFinite(diff) || diff <= 0) return '—'
-  const hours = diff / 60
-  return Number.isInteger(hours)
-    ? `${hours} h`
-    : `${hours.toLocaleString('es-ES', { maximumFractionDigits: 1 })} h`
 }
 
 function normalizeRunStatus(value?: string | null): string {
@@ -405,7 +361,7 @@ function AnnualGantt({
             Convocatoria
           </div>
           <div className="flex-1 flex">
-            {MONTHS.map((m, i) => (
+            {MONTHS.map((m) => (
               <div
                 key={m}
                 className="flex-1 text-center text-[10px] font-medium text-muted-foreground border-l border-border/30 first:border-l-0"
@@ -885,50 +841,7 @@ export default function ProgramacionPage() {
       if (convsRes.ok) {
         const convsData = await convsRes.json()
         const items = Array.isArray(convsData.data) ? convsData.data : []
-        setConvocatorias(
-          items.map((c: Record<string, unknown>) => ({
-            id: String(c.id),
-            codigo: (c.codigo as string) || '',
-            curso: (c.cursoNombre as string) || 'Curso',
-            cursoId: String(c.cursoId || ''),
-            tipo: (c.cursoTipo as string) || '',
-            sede: (c.campusNombre as string) || 'Sin sede',
-            sedeId: String(c.campusId || ''),
-            aula: (c.aulaNombre as string) || 'Sin aula',
-            aulaId: String(c.aulaId || ''),
-            fechaInicio: (c.fechaInicio as string) || '',
-            fechaFin: (c.fechaFin as string) || '',
-            horaInicio: (
-              (c.horaInicio as string) ||
-              ((c.horario as string) || '').split(' ').pop()?.split('-')[0] ||
-              '09:00'
-            ).slice(0, 5),
-            horaFin: (
-              (c.horaFin as string) ||
-              ((c.horario as string) || '').split(' ').pop()?.split('-')[1] ||
-              '14:00'
-            ).slice(0, 5),
-            dias: Array.isArray(c.dias) ? (c.dias as string[]) : [],
-            plazas: (c.plazasTotales as number) || 0,
-            inscritos: (c.plazasOcupadas as number) || 0,
-            precio: (c.precio as number) || 0,
-            matricula: c.matricula as number | undefined,
-            horasPracticas: (c.horasPracticas as string | null) || null,
-            certificacion: (c.certificacion as string | null) || null,
-            profesor: (c.profesor as string) || 'Sin docente',
-            profesores: Array.isArray(c.profesores)
-              ? (c.profesores as string[]).filter(Boolean)
-              : [],
-            profesorRefs: Array.isArray(c.profesorRefs)
-              ? (c.profesorRefs as Array<{ id?: string | number; name?: string }>)
-                  .map((person) => ({ id: String(person.id || ''), name: String(person.name || '') }))
-                  .filter((person) => person.id && person.name)
-              : [],
-            estado: (c.estado as string) || 'draft',
-            planningStatus: (c.planningStatus as string) || '',
-            color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
-          }))
-        )
+        setConvocatorias(items.map((item: unknown) => normalizeConvocatoriaRecord(item, STATUS_COLORS)))
       }
 
       if (campusRes.ok) {
@@ -1496,11 +1409,12 @@ export default function ProgramacionPage() {
   const handleConvClick = (id: string) => router.push(`/programacion/${id}`)
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3">
       <PageHeader
         title="Programacion Academica"
         description="Calendario de convocatorias, horarios y ocupacion"
         icon={Calendar}
+        className="sticky top-14 z-20 -mt-3 mb-0 bg-[var(--dashboard-canvas)]"
         badge={
           <div className="flex items-center gap-2">
             <Badge variant="default">{activas} activas</Badge>
@@ -2006,28 +1920,28 @@ export default function ProgramacionPage() {
               <table className="w-full table-fixed text-[11px]">
                 <thead>
                   <tr className="border-b bg-muted/30">
-                    <th className="w-[11%] p-2 text-left font-medium">Convocatoria</th>
-                    <th className="w-[6%] p-2 text-left font-medium">Sede</th>
-                    <th className="w-[6%] p-2 text-left font-medium">Aula</th>
-                    <th className="w-[8%] p-2 text-left font-medium">Docentes</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Inicio</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Fin</th>
-                    <th className="w-[5%] p-2 text-left font-medium">Día</th>
-                    <th className="w-[6%] p-2 text-left font-medium">Horario</th>
-                    <th className="w-[6%] p-2 text-left font-medium">Prácticas</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Certificación</th>
-                    <th className="w-[5%] p-2 text-right font-medium">Matrícula</th>
-                    <th className="w-[5%] p-2 text-right font-medium">Precio</th>
-                    <th className="w-[4%] p-2 text-center font-medium">Plazas</th>
-                    <th className="w-[10%] min-w-[7.5rem] p-2 text-center font-medium">Estado</th>
-                    <th className="w-[4%] p-2 text-right font-medium"></th>
+                    <th className="w-[11%] p-2 text-left font-semibold text-meta">Convocatoria</th>
+                    <th className="w-[6%] p-2 text-left font-semibold text-meta">Sede</th>
+                    <th className="w-[6%] p-2 text-left font-semibold text-meta">Aula</th>
+                    <th className="w-[8%] p-2 text-left font-semibold text-meta">Docentes</th>
+                    <th className="w-[7%] p-2 text-left font-semibold text-meta">Inicio</th>
+                    <th className="w-[7%] p-2 text-left font-semibold text-meta">Fin</th>
+                    <th className="w-[5%] p-2 text-left font-semibold text-meta">Día</th>
+                    <th className="w-[6%] p-2 text-left font-semibold text-meta">Horario</th>
+                    <th className="w-[6%] p-2 text-left font-semibold text-meta">Prácticas</th>
+                    <th className="w-[7%] p-2 text-left font-semibold text-meta">Certificación</th>
+                    <th className="w-[5%] p-2 text-right font-semibold text-meta">Matrícula</th>
+                    <th className="w-[5%] p-2 text-right font-semibold text-meta">Precio</th>
+                    <th className="w-[4%] p-2 text-center font-semibold text-meta">Plazas</th>
+                    <th className="w-[10%] min-w-[7.5rem] p-2 text-center font-semibold text-meta">Estado</th>
+                    <th className="w-[4%] p-2 text-right font-semibold text-meta"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={15} className="py-8 text-center text-muted-foreground">
-                        No hay convocatorias publicadas
+                      <td colSpan={15} className="py-8">
+                        <EmptyPanel title="No hay convocatorias" />
                       </td>
                     </tr>
                   ) : (
@@ -2156,9 +2070,7 @@ export default function ProgramacionPage() {
             </div>
             <div className="space-y-3 2xl:hidden">
               {filtered.length === 0 ? (
-                <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
-                  No hay convocatorias publicadas
-                </div>
+                <EmptyPanel title="No hay convocatorias" />
               ) : (
                 filtered.map((conv) => {
                   const ocupacion =
