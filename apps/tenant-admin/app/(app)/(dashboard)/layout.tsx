@@ -25,6 +25,15 @@ import { DashboardAgentRail } from '@payload-config/components/akademate/dashboa
 import { RealtimeProvider } from '@payload-config/components/providers'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { NotificationProvider } from '@/app/providers/notifications'
+import {
+  DASHBOARD_CENTER_CLASS,
+  DASHBOARD_OVERLAY_HOST_CLASS,
+  DASHBOARD_RAIL_CLASS,
+  DASHBOARD_RAIL_COLLAPSED_WIDTH,
+  DASHBOARD_RAIL_EXPANDED_WIDTH,
+  DASHBOARD_SHELL_LOCKED_CLASS,
+  DASHBOARD_TOPBAR_CLASS,
+} from '@/app/lib/dashboard-listing-scroll'
 
 interface SessionUser {
   id: string | number
@@ -184,27 +193,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <NotificationProvider>
       <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
       <div
-        className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
+        className={DASHBOARD_SHELL_LOCKED_CLASS}
         data-oid="dq:3ws5"
       >
-        {isMobile && sidebarOpen && (
-          <Button
-            type="button"
-            variant="ghost"
-            aria-label="Cerrar menú lateral"
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-30 h-auto w-auto rounded-none bg-black/40 p-0 hover:bg-black/40 md:hidden"
-          />
-        )}
+        <div className={DASHBOARD_OVERLAY_HOST_CLASS} data-slot="dashboard-overlay-host">
+          {isMobile && sidebarOpen ? (
+            <Button
+              type="button"
+              variant="ghost"
+              aria-label="Cerrar menú lateral"
+              onClick={() => setSidebarOpen(false)}
+              className="pointer-events-auto fixed inset-0 z-30 h-auto w-auto rounded-none bg-black/40 p-0 hover:bg-black/40 md:hidden"
+            />
+          ) : null}
+        </div>
 
         <aside
-          className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
+          className={
             isMobile
-              ? `w-[280px] ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`
-              : railExpanded
-                ? 'w-[240px]'
-                : 'w-[80px]'
-          }`}
+              ? `fixed left-0 top-0 z-40 h-screen [grid-area:rail] bg-sidebar border-r border-sidebar-border transition-all duration-300 w-[280px] ${
+                  sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+                }`
+              : `${DASHBOARD_RAIL_CLASS} ${
+                  railExpanded ? DASHBOARD_RAIL_EXPANDED_WIDTH : DASHBOARD_RAIL_COLLAPSED_WIDTH
+                } bg-sidebar border-r border-sidebar-border`
+          }
           onMouseEnter={() => {
             if (!isMobile && !sidebarHoverLocked) setSidebarHover(true)
           }}
@@ -227,13 +240,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
 
         <div
-          className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
-            isMobile ? 'ml-0' : railExpanded ? 'ml-[240px]' : 'ml-[80px]'
-          }`}
+          className={DASHBOARD_CENTER_CLASS}
+          data-slot="dashboard-center"
           data-oid="asfyqnr"
         >
           <header
-            className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6"
+            className={DASHBOARD_TOPBAR_CLASS}
             data-oid="oy8tn.c"
           >
             <div className="flex items-center gap-2 pr-2 md:pr-4" data-oid="w2r2vqk">

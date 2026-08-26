@@ -25,9 +25,9 @@ export function isDashboardListingDocumentScroll(_pathname: string | null | unde
   return false
 }
 
-/** Locked dashboard chrome: the shell never grows past the viewport. */
+/** Locked dashboard chrome: named 3-column grid so overlays cannot steal the agent slot. */
 export const DASHBOARD_SHELL_LOCKED_CLASS =
-  'dashboard-shell flex h-dvh overflow-hidden bg-[#0066CC] text-foreground overscroll-none'
+  'dashboard-shell grid h-dvh grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-1 overflow-hidden bg-[#0066CC] text-foreground overscroll-none [grid-template-areas:"rail_main_agent"]'
 
 /** Same locked chrome for catalog pages (name kept for existing layout imports). */
 export const DASHBOARD_SHELL_LISTING_CLASS = DASHBOARD_SHELL_LOCKED_CLASS
@@ -36,25 +36,33 @@ export const DASHBOARD_RAIL_EXPANDED_WIDTH = 'w-[240px]'
 export const DASHBOARD_RAIL_COLLAPSED_WIDTH = 'w-[80px]'
 export const DASHBOARD_AGENT_RAIL_COLLAPSED_WIDTH = 'w-[40px]'
 
-/** Viewport-fixed left rail. Width is the only motion; never pin to the document. */
+/** In-flow left rail. Same height as the shell; never overlays the topbar. */
 export const DASHBOARD_RAIL_CLASS =
-  'hidden shrink-0 flex-col bg-transparent transition-[width] duration-300 md:flex fixed top-0 left-0 z-30 h-dvh overscroll-none'
+  'hidden h-full shrink-0 flex-col self-stretch bg-transparent transition-[width] duration-300 md:flex overscroll-none [grid-area:rail]'
 
 export const DASHBOARD_AGENT_RAIL_CLASS =
-  'hidden h-dvh shrink-0 flex-col bg-[#0B1D36] overscroll-none md:flex'
+  'hidden h-full min-h-0 shrink-0 flex-col self-stretch bg-[#0B1D36] overscroll-none md:flex [grid-area:agent]'
+
+/** Center column: topbar + main only. Header cannot span into the agent area. */
+export const DASHBOARD_CENTER_CLASS =
+  'flex h-full min-h-0 min-w-0 flex-col overflow-hidden p-1 [grid-area:main]'
+
+/** Portal hosts must not occupy a grid track. */
+export const DASHBOARD_OVERLAY_HOST_CLASS =
+  'pointer-events-none h-0 w-0 overflow-visible [grid-area:rail]'
 
 export const DASHBOARD_RAIL_SPACER_CLASS =
   'pointer-events-none hidden shrink-0 transition-[width] duration-300 md:block'
 
-/** Top bar lives in the center column so the right rail can push it. */
+/** Top bar lives only in the center column so the right rail can reach the top. */
 export const DASHBOARD_TOPBAR_CLASS =
   'relative z-30 flex h-14 shrink-0 items-center gap-2 px-4 overscroll-none bg-[var(--dashboard-canvas)]'
 
 export const DASHBOARD_TOPBAR_SPACER_CLASS = 'h-14 shrink-0'
 
-/** Listing canvas fills the viewport minus the 4px blue inset (`p-1` × 2). */
+/** Listing canvas fills the center column (not the full viewport over the agent). */
 export const DASHBOARD_LISTING_INSET_CLASS =
-  'flex h-[calc(100dvh-0.5rem)] min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-[var(--dashboard-canvas)] text-foreground shadow-none'
+  'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-[var(--dashboard-canvas)] text-foreground shadow-none'
 
 /** No extra top padding: page chrome sits flush under the topbar. */
 export const DASHBOARD_LISTING_MAIN_INNER_CLASS =
