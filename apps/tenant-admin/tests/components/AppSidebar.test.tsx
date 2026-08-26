@@ -82,24 +82,23 @@ describe('AppSidebar', () => {
     expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
   })
 
-  it('keeps submenu entries reachable when collapsed', () => {
+  it('does not open a floating submenu when collapsed', () => {
     render(<AppSidebar {...defaultProps} isCollapsed={true} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Marketing' }))
 
-    expect(screen.getByRole('button', { name: /Campañas/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Creatividades/i })).toBeInTheDocument()
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
   it('renders icons with brand color styles', () => {
     render(<AppSidebar {...defaultProps} />)
-    const sidebarContainer = document.querySelector('[class*="bg-card"]')
+    const sidebarContainer = document.querySelector('[class*="bg-sidebar"]')
     expect(sidebarContainer).toBeInTheDocument()
   })
 
-  it('has theme-aware background (bg-card)', () => {
+  it('has theme-aware background (bg-sidebar)', () => {
     render(<AppSidebar {...defaultProps} />)
-    const container = document.querySelector('[class*="bg-card"]')
+    const container = document.querySelector('[class*="bg-sidebar"]')
     expect(container).toBeInTheDocument()
   })
 

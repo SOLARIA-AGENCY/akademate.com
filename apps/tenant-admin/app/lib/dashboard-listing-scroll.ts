@@ -34,21 +34,21 @@ export const DASHBOARD_SHELL_LISTING_CLASS = DASHBOARD_SHELL_LOCKED_CLASS
 
 export const DASHBOARD_RAIL_EXPANDED_WIDTH = 'w-[240px]'
 export const DASHBOARD_RAIL_COLLAPSED_WIDTH = 'w-[80px]'
-export const DASHBOARD_AGENT_RAIL_COLLAPSED_WIDTH = 'w-[80px]'
+export const DASHBOARD_AGENT_RAIL_COLLAPSED_WIDTH = 'w-[40px]'
 
-/** Viewport-fixed rail. Width is the only motion; never pin to the document. */
+/** Viewport-fixed left rail. Width is the only motion; never pin to the document. */
 export const DASHBOARD_RAIL_CLASS =
   'hidden shrink-0 flex-col bg-transparent transition-[width] duration-300 md:flex fixed top-0 left-0 z-30 h-dvh overscroll-none'
 
 export const DASHBOARD_AGENT_RAIL_CLASS =
-  'hidden shrink-0 flex-col bg-transparent md:flex fixed top-0 right-0 z-30 h-dvh overscroll-none'
+  'hidden h-dvh shrink-0 flex-col bg-[#0B1D36] overscroll-none md:flex'
 
 export const DASHBOARD_RAIL_SPACER_CLASS =
   'pointer-events-none hidden shrink-0 transition-[width] duration-300 md:block'
 
-/** Viewport-fixed top bar. Stays put while panels scroll. */
+/** Top bar lives in the center column so the right rail can push it. */
 export const DASHBOARD_TOPBAR_CLASS =
-  'fixed top-0 z-40 flex h-14 shrink-0 items-center gap-2 px-4 overscroll-none bg-[var(--dashboard-canvas)]'
+  'relative z-30 flex h-14 shrink-0 items-center gap-2 px-4 overscroll-none bg-[var(--dashboard-canvas)]'
 
 export const DASHBOARD_TOPBAR_SPACER_CLASS = 'h-14 shrink-0'
 

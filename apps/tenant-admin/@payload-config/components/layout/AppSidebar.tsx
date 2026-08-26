@@ -50,14 +50,6 @@ import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '../akademate/dashboard/DashboardSidebar'
 import { Button } from '@payload-config/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@payload-config/components/ui/dropdown-menu'
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -378,6 +370,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   // (que requeriría <Suspense> en cada página del árbol)
   const [currentSearch, setCurrentSearch] = React.useState('')
   const [openSections, setOpenSections] = React.useState<string[]>([])
+  const [hoveredSection, setHoveredSection] = React.useState<string | null>(null)
   const { branding } = useTenantBranding()
   const academyName = branding.academyName
   // Menu items used directly (Sedes is a simple link to /sedes)
@@ -418,7 +411,15 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     if (activeParent) {
       setOpenSections([activeParent.title])
     }
-  }, [pathname, currentSearch, isUrlActive])
+  }, [pathname, currentSearch, isUrlActive, dynamicMenuItems])
+
+  React.useEffect(() => {
+    if (isCollapsed || !hoveredSection) return
+    const target = dynamicMenuItems.find((item) => item.title === hoveredSection)
+    if (target?.items?.length) {
+      setOpenSections([hoveredSection])
+    }
+  }, [hoveredSection, isCollapsed, dynamicMenuItems])
 
   // Accordion behavior: only one section open at a time
   const toggleSection = (title: string) => {
@@ -434,63 +435,6 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
   const topLevelInteractionClass =
     'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
-
-  const renderCollapsedSubmenu = (item: MenuItemWithSection, Icon: React.ElementType, hasActiveChild: boolean) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
-            hasActiveChild ? 'bg-sidebar-accent/60' : ''
-          } ${topLevelBaseClass}`}
-          title={item.title}
-          aria-label={item.title}
-        >
-          <Icon
-            className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
-          />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent side="right" align="start" sideOffset={10} className="w-60">
-        <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {item.items?.map((subItem) => {
-          const SubIcon = subItem.icon
-          const hasNestedItems = subItem.items && subItem.items.length > 0
-          if (hasNestedItems) {
-            return (
-              <React.Fragment key={subItem.title}>
-                <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground">
-                  {subItem.title}
-                </DropdownMenuLabel>
-                {subItem.items?.map((nestedItem) => {
-                  const NestedIcon = nestedItem.icon
-                  return (
-                    <DropdownMenuItem key={nestedItem.title} asChild>
-                      <Link href={nestedItem.url!} className="flex items-center gap-2">
-                        <NestedIcon className="h-4 w-4" />
-                        {nestedItem.title}
-                      </Link>
-                    </DropdownMenuItem>
-                  )
-                })}
-              </React.Fragment>
-            )
-          }
-
-          return (
-            <DropdownMenuItem key={subItem.title} asChild>
-              <Link href={subItem.url!} className="flex items-center gap-2">
-                <SubIcon className="h-4 w-4" />
-                {subItem.title}
-              </Link>
-            </DropdownMenuItem>
-          )
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
 
   return (
     <div
@@ -599,7 +543,27 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               return (
                 <React.Fragment key={item.title}>
                   {SectionSeparator}
-                  <li data-oid="mup0i0h">{renderCollapsedSubmenu(item, Icon, hasActiveChild)}</li>
+                  <li data-oid="mup0i0h">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
+                        hasActiveChild ? 'bg-sidebar-accent/60' : ''
+                      } ${topLevelBaseClass}`}
+                      title={item.title}
+                      aria-label={item.title}
+                      data-sidebar-item="collapsed"
+                      onMouseEnter={() => setHoveredSection(item.title)}
+                      onClick={() => {
+                        setHoveredSection(item.title)
+                        onToggle?.()
+                      }}
+                    >
+                      <Icon
+                        className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
+                      />
+                    </Button>
+                  </li>
                 </React.Fragment>
               )
             }
@@ -612,6 +576,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     type="button"
                     variant="ghost"
                     onClick={() => toggleSection(item.title)}
+                    onMouseEnter={() => setHoveredSection(item.title)}
                     className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
                       hasActiveChild && !isCollapsed ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground'
                     } ${topLevelBaseClass}`}

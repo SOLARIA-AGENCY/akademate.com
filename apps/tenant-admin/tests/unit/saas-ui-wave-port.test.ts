@@ -12,8 +12,12 @@ function read(relative: string): string {
 describe('saas ui wave port', () => {
   it('layout uses the right AI agent rail instead of the chat FAB', () => {
     const layout = read('app/(app)/(dashboard)/layout.tsx')
+    const chrome = read('app/lib/dashboard-listing-scroll.ts')
     expect(layout).toContain('DashboardAgentRail')
     expect(layout).not.toContain('ChatbotWidget')
+    expect(layout).toContain('sidebarHover')
+    expect(chrome).toContain('w-[40px]')
+    expect(chrome).not.toContain('fixed top-0 right-0')
   })
 
   it('directory thead stays opaque white and avatars have a photo fallback', () => {

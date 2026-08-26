@@ -66,6 +66,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarHover, setSidebarHover] = useState(false)
+  const [sidebarHoverLocked, setSidebarHoverLocked] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
@@ -156,6 +158,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isMobile, pathname])
 
+  const railExpanded = isMobile ? sidebarOpen : sidebarOpen || sidebarHover
+
   const filteredShortcuts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     if (!query) return shortcuts.slice(0, 6)
@@ -197,22 +201,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
             isMobile
               ? `w-[280px] ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`
-              : sidebarOpen
+              : railExpanded
                 ? 'w-[240px]'
                 : 'w-[80px]'
           }`}
+          onMouseEnter={() => {
+            if (!isMobile && !sidebarHoverLocked) setSidebarHover(true)
+          }}
+          onMouseLeave={() => {
+            setSidebarHover(false)
+            setSidebarHoverLocked(false)
+          }}
           data-oid="044wu:-"
         >
           <AppSidebar
-            isCollapsed={!sidebarOpen}
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
+            isCollapsed={!railExpanded}
+            onToggle={() => {
+              setSidebarOpen((current) => {
+                if (current) setSidebarHoverLocked(true)
+                return !current
+              })
+            }}
             data-oid="lb_jqia"
           />
         </aside>
 
         <div
           className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
-            isMobile ? 'ml-0' : sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
+            isMobile ? 'ml-0' : railExpanded ? 'ml-[240px]' : 'ml-[80px]'
           }`}
           data-oid="asfyqnr"
         >

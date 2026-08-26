@@ -1,4 +1,4 @@
-export { DashboardAgentRail, AGENT_GREETING_PROMPT, AGENT_MOCK_THREADS } from './DashboardAgentRail'
+export { DashboardAgentRail, AGENT_GREETING_PROMPT, AGENT_QUICK_REPLIES } from './DashboardAgentRail'
 export { CampusCourseCalendar } from './CampusCourseCalendar'
 export type { CampusCalendarRun } from './CampusCourseCalendar'
 export { DocumentCard } from './DocumentCard'
