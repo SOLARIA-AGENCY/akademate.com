@@ -436,9 +436,9 @@ export function PremiumDirectoryShell<T extends { id: string }>({
       ) : viewMode === 'grid' && renderGrid ? (
         renderGrid(slice.items)
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col overflow-visible rounded-xl border border-slate-200/80 bg-white shadow-xs">
-          <Table containerClassName="overflow-visible">
-            <TableHeader className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase [&_th]:sticky [&_th]:top-[var(--dashboard-thead-top,11rem)] [&_th]:z-10 [&_th]:bg-slate-50">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs">
+          <Table containerClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <TableHeader className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase [&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-slate-50">
               <TableRow>
                 {onSelectedIdsChange ? (
                   <TableHead className="w-10">
