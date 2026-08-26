@@ -13,6 +13,7 @@ import {
   Plus,
   Search,
   SlidersHorizontal,
+  User,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { DashboardListingLayout } from '../Shell'
@@ -139,8 +140,11 @@ export function DirectoryAvatarCell({
           className="h-10 w-10 rounded-full border border-slate-200 object-cover"
         />
       ) : (
-        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold text-slate-600">
-          {initials}
+        <span
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold text-slate-600"
+          title={name}
+        >
+          {initials || <User className="h-4 w-4 text-slate-500" />}
         </span>
       )}
       <div className="min-w-0">
@@ -432,9 +436,9 @@ export function PremiumDirectoryShell<T extends { id: string }>({
       ) : viewMode === 'grid' && renderGrid ? (
         renderGrid(slice.items)
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs">
-          <Table>
-            <TableHeader className="bg-slate-50/75 text-xs font-semibold tracking-wider text-slate-500 uppercase">
+        <div className="flex min-h-0 flex-1 flex-col overflow-visible rounded-xl border border-slate-200/80 bg-white shadow-xs">
+          <Table containerClassName="overflow-visible">
+            <TableHeader className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase [&_th]:sticky [&_th]:top-[var(--dashboard-thead-top,11rem)] [&_th]:z-10 [&_th]:bg-slate-50">
               <TableRow>
                 {onSelectedIdsChange ? (
                   <TableHead className="w-10">

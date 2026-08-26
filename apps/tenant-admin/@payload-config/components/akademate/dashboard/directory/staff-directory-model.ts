@@ -55,6 +55,13 @@ const CONTRACT_LABELS: Record<string, string> = {
   employee: 'Empleado',
 }
 
+export function resolveDirectoryAvatarUrl(photo?: string | null): string | null {
+  const value = String(photo ?? '').trim()
+  if (!value) return null
+  if (/placeholder-avatar/i.test(value)) return null
+  return value
+}
+
 export function directoryInitials(name: string): string {
   return name
     .split(/\s+/)
@@ -100,7 +107,7 @@ export function mapStaffToDirectoryRow(
     name,
     email: String(staff.email ?? '').trim(),
     phone: String(staff.phone ?? '').trim(),
-    avatarUrl: staff.photo ? String(staff.photo) : null,
+    avatarUrl: resolveDirectoryAvatarUrl(staff.photo),
     initials: directoryInitials(name),
     department,
     campus: campuses[0] ?? 'Sin sede',

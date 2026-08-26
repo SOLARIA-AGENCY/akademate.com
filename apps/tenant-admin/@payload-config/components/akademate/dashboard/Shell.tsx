@@ -231,6 +231,7 @@ export interface DashboardTitleCardProps {
   icon?: LucideIcon
   actions?: React.ReactNode
   className?: string
+  compact?: boolean
 }
 
 export function DashboardTitleCard({
@@ -239,10 +240,11 @@ export function DashboardTitleCard({
   icon: TitleIcon,
   actions,
   className,
+  compact = false,
 }: DashboardTitleCardProps) {
   return (
-    <Card className={cn('border-slate-200/80 dark:border-slate-800 shadow-xs bg-white dark:bg-slate-900 rounded-2xl', className)}>
-      <CardContent className="p-5 sm:p-6">
+    <Card className={cn('border-slate-200/80 dark:border-slate-800 shadow-xs bg-white dark:bg-slate-900 rounded-2xl', compact && 'rounded-xl', className)}>
+      <CardContent className={compact ? 'px-4 py-2.5' : 'p-5 sm:p-6'}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3.5">
             {TitleIcon ? (
@@ -255,7 +257,7 @@ export function DashboardTitleCard({
                 {title}
               </h2>
               {description ? (
-                <p className="mt-0.5 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className={cn('mt-0.5 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400', compact && 'sr-only')}>
                   {description}
                 </p>
               ) : null}
@@ -353,16 +355,51 @@ export function DashboardListingLayout({
     { label: 'Dashboard', href: '/dashboard' },
     { label: title },
   ]
+  const chromeRef = React.useRef<HTMLDivElement>(null)
+  const shellRef = React.useRef<HTMLDivElement>(null)
+
+  React.useLayoutEffect(() => {
+    const chrome = chromeRef.current
+    const shell = shellRef.current
+    if (!chrome || !shell) return
+    const sync = () => {
+      let scroller: HTMLElement | null = chrome.parentElement
+      let top = chrome.getBoundingClientRect().bottom
+      while (scroller) {
+        const overflowY = window.getComputedStyle(scroller).overflowY
+        if (overflowY === 'auto' || overflowY === 'scroll') {
+          top = chrome.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top
+          break
+        }
+        scroller = scroller.parentElement
+      }
+      shell.style.setProperty('--dashboard-thead-top', `${Math.round(top)}px`)
+    }
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(chrome)
+    window.addEventListener('scroll', sync, { passive: true })
+    window.addEventListener('resize', sync)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('scroll', sync)
+      window.removeEventListener('resize', sync)
+    }
+  }, [title, toolbar])
 
   return (
-    <div className={cn('flex w-full flex-col gap-3', className)}>
+    <div ref={shellRef} className={cn('flex min-h-full w-full flex-1 flex-col gap-3', className)}>
       <DashboardBreadcrumb items={defaultBreadcrumbs} />
-      <div data-slot="dashboard-page-chrome" className="flex shrink-0 flex-col gap-3">
-        <DashboardTitleCard title={title} description={description} icon={icon} actions={actions} />
+      <div
+        ref={chromeRef}
+        data-slot="dashboard-page-chrome"
+        className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 bg-background pb-2"
+      >
+        <DashboardTitleCard compact title={title} description={description} icon={icon} actions={actions} />
         {toolbar}
       </div>
       {stats ? <DashboardStatsGrid items={stats} /> : null}
-      {children}
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </div>
   )
 }

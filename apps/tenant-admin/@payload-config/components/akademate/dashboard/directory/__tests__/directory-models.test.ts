@@ -56,6 +56,20 @@ describe('staff directory model', () => {
     expect(row.workloadLabel).toBe('Tiempo completo')
   })
 
+  it('drops placeholder avatar URLs so the cell can render initials', () => {
+    const withPlaceholder = mapStaffToDirectoryRow(
+      { id: 3, fullName: 'Sin Foto', photo: '/placeholder-avatar.svg' },
+      'profesor',
+    )
+    const withPhoto = mapStaffToDirectoryRow(
+      { id: 4, fullName: 'Con Foto', photo: 'https://cdn.example/staff.jpg' },
+      'profesor',
+    )
+    expect(withPlaceholder.avatarUrl).toBeNull()
+    expect(withPlaceholder.initials).toBe('SF')
+    expect(withPhoto.avatarUrl).toBe('https://cdn.example/staff.jpg')
+  })
+
   it('computes KPIs from the live set instead of mock 128/116 figures', () => {
     const rows = [
       mapStaffToDirectoryRow(

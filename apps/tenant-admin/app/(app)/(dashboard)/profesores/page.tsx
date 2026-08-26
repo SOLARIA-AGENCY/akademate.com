@@ -10,6 +10,7 @@ import {
   DirectoryStatusPill,
   PremiumDirectoryShell,
   computeStaffDirectoryKpis,
+  directoryInitials,
   filterStaffDirectoryRows,
   formatContractLabel,
   mapStaffToDirectoryRow,
@@ -311,7 +312,11 @@ export default function ProfesoresPage() {
         <div className="professors-print-list">
           {visibleTeachers.map((teacher) => (
             <article key={teacher.id} className="professors-print-row">
-              <img src={teacher.photo || '/placeholder-avatar.svg'} alt="" />
+              {teacher.photo && !/placeholder-avatar/i.test(teacher.photo) ? (
+                <img src={teacher.photo} alt="" />
+              ) : (
+                <span aria-hidden>{directoryInitials(teacher.fullName)}</span>
+              )}
               <div>
                 <div className="professors-print-line professors-print-main-line">
                   <strong>{teacher.fullName}</strong>

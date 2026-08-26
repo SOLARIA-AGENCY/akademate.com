@@ -20,8 +20,10 @@ export {
 export type { StaffDirectoryStatus } from './directory-status'
 export {
   computeStaffDirectoryKpis,
+  directoryInitials,
   filterStaffDirectoryRows,
   formatContractLabel,
   mapStaffToDirectoryRow,
+  resolveDirectoryAvatarUrl,
 } from './staff-directory-model'
 export type { DirectoryKpi, StaffDirectoryKind, StaffDirectoryRow } from './staff-directory-model'

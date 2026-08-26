@@ -70,11 +70,13 @@ export {
   computeCycleDirectoryKpis,
   computeStaffDirectoryKpis,
   convocationStatusLabel,
+  directoryInitials,
   filterStaffDirectoryRows,
   formatContractLabel,
   mapStaffToDirectoryRow,
   resolveCatalogActiveStatus,
   resolveConvocationDirectoryStatus,
+  resolveDirectoryAvatarUrl,
   resolveStaffDirectoryStatus,
   staffStatusVisual,
 } from './directory'

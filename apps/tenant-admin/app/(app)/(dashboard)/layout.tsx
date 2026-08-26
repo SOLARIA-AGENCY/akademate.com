@@ -44,6 +44,7 @@ interface ShortcutItem {
 }
 
 const shortcuts: ShortcutItem[] = [
+  { label: 'Design Hub (UI Showcase)', href: '/design-hub' },
   { label: 'Dashboard', href: '/dashboard' },
   { label: 'Programación', href: '/programacion' },
   { label: 'Planner Visual', href: '/planner' },
@@ -362,12 +363,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </header>
 
           <main
-            className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 md:p-6"
+            className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain px-4 pt-0 pb-6"
             data-oid="20tk9nh"
           >
-            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">{children}</div>
+            <div className="flex min-h-full w-full flex-1 flex-col gap-3">{children}</div>
           </main>
-
           <DashboardFooter data-oid="jsy7wdn" />
         </div>
 
