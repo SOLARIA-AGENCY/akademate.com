@@ -483,7 +483,7 @@ export default function LeadAppointmentsPage() {
         ))}
       </div>
 
-      <div className="grid h-full min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
+      <div className="grid h-full min-h-[calc(100dvh-12rem)] flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
         <Card className="flex h-full min-h-0 flex-1 flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-3">
             <div>
