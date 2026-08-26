@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 
 @font-face {
   font-family: 'Poppins';
@@ -79,9 +80,20 @@
   --color-info-foreground: hsl(var(--info-foreground));
   --color-neutral: hsl(var(--neutral));
   --color-neutral-foreground: hsl(var(--neutral-foreground));
+  --color-success-soft: hsl(var(--success-soft));
+  --color-success-soft-foreground: hsl(var(--success-soft-foreground));
+  --color-warning-soft: hsl(var(--warning-soft));
+  --color-warning-soft-foreground: hsl(var(--warning-soft-foreground));
+  --color-info-soft: hsl(var(--info-soft));
+  --color-info-soft-foreground: hsl(var(--info-soft-foreground));
+  --color-neutral-soft: hsl(var(--neutral-soft));
+  --color-neutral-soft-foreground: hsl(var(--neutral-soft-foreground));
+  --color-danger-soft: hsl(var(--danger-soft));
+  --color-danger-soft-foreground: hsl(var(--danger-soft-foreground));
   /* Sidebar */
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-foreground-muted: hsl(var(--sidebar-foreground-muted));
   --color-sidebar-primary: hsl(var(--sidebar-primary));
   --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
   --color-sidebar-accent: hsl(var(--sidebar-accent));
@@ -118,22 +130,22 @@ body:not([data-payload-admin]) {
 
 /* Custom Dashboard styles - scoped to avoid Payload Admin conflicts */
 @layer base {
-  :root:not([data-payload-admin]) {
+  :root {
     /* CSS variables for runtime theming - AKADEMATE Design System v1.0 */
-    --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --radius: 0.5rem;
 
     /* Base palette */
-    --background: 0 0% 97%;
+    --background: 210 40% 98%;        /* Gris suave premium #F8FAFC (Slate-50) para contraste perfecto con cards blancas */
     --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
+    --card: 0 0% 100%;                /* #FFFFFF blanco puro */
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
     /* Primary tenant token */
-    --primary: 224 71% 48%;
+    --primary: 224 76% 48%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary / Muted / Accent (shadcn hover state) */
@@ -155,6 +167,16 @@ body:not([data-payload-admin]) {
     --info-foreground: 0 0% 100%;
     --neutral: 220 9% 46%;
     --neutral-foreground: 0 0% 100%;
+    --success-soft: 138 76% 97%;
+    --success-soft-foreground: 142 72% 29%;
+    --warning-soft: 48 96% 94%;
+    --warning-soft-foreground: 32 81% 34%;
+    --info-soft: 214 95% 96%;
+    --info-soft-foreground: 224 71% 42%;
+    --neutral-soft: 220 14% 96%;
+    --neutral-soft-foreground: 220 9% 40%;
+    --danger-soft: 0 86% 97%;
+    --danger-soft-foreground: 0 72% 42%;
 
     /* Borders & input */
     --border: 220 13% 91%;
@@ -164,6 +186,7 @@ body:not([data-payload-admin]) {
     /* Sidebar */
     --sidebar: 0 0% 98%;
     --sidebar-foreground: 222 47% 20%;
+    --sidebar-foreground-muted: 215 20% 65%;
     --sidebar-primary: 224 71% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 93%;
@@ -183,7 +206,7 @@ body:not([data-payload-admin]) {
     --brand-accent-foreground: 0 0% 100%;
   }
 
-  .dark:not([data-payload-admin]) {
+  .dark {
     /* Base */
     --background: 222 47% 7%;
     --foreground: 210 40% 98%;
@@ -214,42 +237,60 @@ body:not([data-payload-admin]) {
     --info-foreground: 0 0% 100%;
     --neutral: 220 9% 58%;
     --neutral-foreground: 0 0% 100%;
+    --success-soft: 142 40% 14%;
+    --success-soft-foreground: 138 70% 80%;
+    --warning-soft: 38 40% 16%;
+    --warning-soft-foreground: 48 96% 76%;
+    --info-soft: 224 40% 16%;
+    --info-soft-foreground: 214 90% 82%;
+    --neutral-soft: 222 20% 16%;
+    --neutral-soft-foreground: 215 20% 75%;
+    --danger-soft: 0 40% 16%;
+    --danger-soft-foreground: 0 86% 80%;
 
     --border: 222 30% 18%;
     --input: 222 30% 18%;
     --ring: 221 83% 63%;
 
     /* Sidebar dark */
-    --sidebar: 222 47% 5%;
-    --sidebar-foreground: 210 40% 90%;
+    --sidebar: 222 47% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-foreground-muted: 215 20% 65%;
     --sidebar-primary: 221 83% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 30% 12%;
-    --sidebar-accent-foreground: 210 40% 90%;
-    --sidebar-border: 222 30% 16%;
+    --sidebar-accent: 222 30% 16%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 30% 18%;
     --sidebar-ring: 221 83% 63%;
 
     /* Charts dark */
     --chart-1: 221 83% 63%;
-    --chart-2: 142 60% 45%;
-    --chart-3: 38 80% 55%;
-    --chart-4: 280 60% 60%;
+    --chart-2: 142 60% 50%;
+    --chart-3: 38 85% 65%;
+    --chart-4: 280 65% 65%;
     --chart-5: 340 70% 60%;
 
     /* Tenant brand dark */
     --brand-accent: 221 83% 63%;
     --brand-accent-foreground: 0 0% 100%;
   }
+}
 
-  body.profesores-route:not([data-payload-admin]) {
-    --primary: 0 100% 42%;
-    --primary-foreground: 0 0% 100%;
-    --ring: 0 100% 42%;
-    --sidebar-primary: 0 100% 42%;
-    --sidebar-ring: 0 100% 42%;
-    --brand-accent: 0 100% 42%;
-    --brand-accent-foreground: 0 0% 100%;
-  }
+/* Permanent navy sidebar — independent of the content theme */
+html:not([data-payload-admin]) [data-testid='dashboard-sidebar-nav'] svg {
+  color: #ffffff;
+}
+
+html:not([data-payload-admin]) {
+  --sidebar: 224 61% 15%;
+  --sidebar-foreground: 214 32% 91%;
+  --sidebar-foreground-muted: 215 20% 65%;
+  --sidebar-accent: 224 45% 20%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-primary: 224 76% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-border: 224 40% 22%;
+  --sidebar-ring: 224 76% 60%;
 }
 
 .public-site {

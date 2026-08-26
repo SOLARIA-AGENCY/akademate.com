@@ -441,14 +441,14 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         <Button
           type="button"
           variant="ghost"
-          className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
+          className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
             hasActiveChild ? 'bg-sidebar-accent/60' : ''
           } ${topLevelBaseClass}`}
           title={item.title}
           aria-label={item.title}
         >
           <Icon
-            className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-sidebar-foreground-muted/50' : 'text-sidebar-foreground'}`}
+            className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
           />
         </Button>
       </DropdownMenuTrigger>
@@ -525,7 +525,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Menu Content */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2" data-oid=".42vml6">
+      <nav className="flex-1 overflow-y-auto py-3 px-2" data-testid="dashboard-sidebar-nav" data-oid=".42vml6">
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
@@ -567,7 +567,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       />
 
                       <Icon
-                        className="h-5 w-5 shrink-0 text-current"
+                        className="h-5 w-5 shrink-0 text-white"
                         data-oid="vtc2v7g"
                       />
 
@@ -612,7 +612,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     type="button"
                     variant="ghost"
                     onClick={() => toggleSection(item.title)}
-                    className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
+                    className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
                       hasActiveChild && !isCollapsed ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground'
                     } ${topLevelBaseClass}`}
                     title={isCollapsed ? item.title : undefined}
@@ -630,7 +630,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     />
 
                     <Icon
-                      className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-sidebar-foreground-muted/50' : 'text-sidebar-foreground'}`}
+                      className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
                       data-oid="o_-brke"
                     />
 

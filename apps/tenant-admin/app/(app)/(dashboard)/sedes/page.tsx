@@ -2,26 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import {
-  ACADEMIC_ENTITY_META_CLASS,
   ACADEMIC_LISTING_GRID_CLASS,
   AcademicEntityCard,
-  CAMPUS_LIST_COLUMNS,
-  DashboardListingLayout,
-  DashboardToolbar,
-  ListingActions,
-  ListingColumnBoard,
+  DirectoryAvatarCell,
+  DirectoryNeutralBadge,
+  PremiumDirectoryShell,
+  computeCampusDirectoryKpis,
 } from '@payload-config/components/akademate/dashboard'
-import { ACADEMIC_FALLBACK_IMAGES } from '@/app/lib/academic-template-mocks'
 import { MapPin, Plus } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
-import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
-import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
-import { isVirtualCampus } from '@/src/domain/cep-operational-units'
-import { getPublicCampusImage } from '@/app/lib/public-campus-assets'
+import { downloadCsv, type ExportColumn } from '@/app/lib/dashboard-export'
 
 /** Sede data structure used for display */
 interface Sede {
@@ -84,6 +77,7 @@ export default function SedesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [kindFilter, setKindFilter] = useState<'todas' | 'physical' | 'virtual'>('todas')
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -143,12 +137,9 @@ export default function SedesPage() {
             color: 'bg-primary',
             borderColor: 'border-primary',
             imagen:
-              getPublicCampusImage(
-                campus.name,
-                campus.image && typeof campus.image === 'object' && campus.image.url
-                  ? campus.image.url
-                  : null,
-              ) ?? ACADEMIC_FALLBACK_IMAGES.campus,
+              campus.image && typeof campus.image === 'object' && campus.image.url
+                ? campus.image.url
+                : null,
             campusKind,
             operationalOwner,
           }
@@ -165,16 +156,15 @@ export default function SedesPage() {
     void fetchCampuses()
   }, [])
 
-  const handleViewSede = (sedeId: string) => {
-    router.push(`/dashboard/sedes/${sedeId}`)
-  }
-
-  const filteredSedes = searchQuery
-    ? sedes.filter((s) => {
-        const q = searchQuery.toLowerCase()
-        return s.nombre.toLowerCase().includes(q) || s.direccion.toLowerCase().includes(q)
-      })
-    : sedes
+  const filteredSedes = sedes.filter((s) => {
+    const q = searchQuery.toLowerCase()
+    const matchesSearch =
+      !searchQuery ||
+      s.nombre.toLowerCase().includes(q) ||
+      s.direccion.toLowerCase().includes(q)
+    const matchesKind = kindFilter === 'todas' || s.campusKind === kindFilter
+    return matchesSearch && matchesKind
+  })
 
   const exportColumns: ExportColumn<Sede>[] = [
     { header: 'Sede', getValue: (sede) => sede.nombre },
@@ -184,88 +174,104 @@ export default function SedesPage() {
     { header: 'Aulas', getValue: (sede) => sede.aulas },
     { header: 'Capacidad', getValue: (sede) => sede.capacidad },
     { header: 'Cursos activos', getValue: (sede) => sede.cursosActivos },
+    { header: 'Tipo', getValue: (sede) => (sede.campusKind === 'virtual' ? 'Virtual' : 'Física') },
   ]
 
-  const handlePrint = () => printTable('Sedes', exportColumns, sedes)
   const handleCsv = () =>
-    downloadCsv(`sedes-${new Date().toISOString().slice(0, 10)}.csv`, exportColumns, sedes)
+    downloadCsv(`sedes-${new Date().toISOString().slice(0, 10)}.csv`, exportColumns, filteredSedes)
+
+  const kpis = computeCampusDirectoryKpis(filteredSedes)
 
   return (
-    <DashboardListingLayout
+    <PremiumDirectoryShell
+      scroll="page"
       title="Sedes"
+      description="Centros físicos y aulas virtuales del tenant, con capacidad real de aulas."
       icon={MapPin}
-      actions={
-        <ListingActions onPrint={handlePrint} onCsv={handleCsv}>
-          <Button size="sm" className="shrink-0" onClick={() => router.push('/dashboard/sedes/nueva')}>
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Nueva sede</span>
-          </Button>
-        </ListingActions>
+      entityPlural="sedes"
+      extraToolbar={
+        <Button size="sm" className="shrink-0" disabled>
+          <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">Nueva sede</span>
+        </Button>
       }
-      toolbar={
-        <DashboardToolbar
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder="Buscar sede…"
-          viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />}
-        />
+      onExportCsv={handleCsv}
+      kpis={kpis}
+      searchValue={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="Buscar sede…"
+      segments={[
+        { id: 'todas', label: 'Todas' },
+        { id: 'physical', label: 'Físicas' },
+        { id: 'virtual', label: 'Virtuales' },
+      ]}
+      selectedSegment={kindFilter}
+      onSegmentChange={(value) => setKindFilter(value as typeof kindFilter)}
+      viewMode={view === 'grid' ? 'grid' : 'table'}
+      onViewModeChange={(mode) => setView(mode === 'grid' ? 'grid' : 'list')}
+      columns={[
+        {
+          id: 'sede',
+          header: 'Sede',
+          render: (sede) => (
+            <DirectoryAvatarCell
+              name={sede.nombre}
+              subtitle={sede.direccion}
+              src={sede.imagen}
+              initials={(sede.nombre ?? 'S').slice(0, 2).toUpperCase()}
+            />
+          ),
+        },
+        {
+          id: 'tipo',
+          header: 'Tipo',
+          render: (sede) => (
+            <DirectoryNeutralBadge>
+              {sede.campusKind === 'virtual' ? 'Virtual' : 'Física'}
+            </DirectoryNeutralBadge>
+          ),
+        },
+        {
+          id: 'aulas',
+          header: 'Aulas',
+          render: (sede) => String(sede.aulas || 0),
+        },
+        {
+          id: 'capacidad',
+          header: 'Capacidad',
+          render: (sede) => String(sede.capacidad || 0),
+        },
+        {
+          id: 'contacto',
+          header: 'Contacto',
+          render: (sede) => sede.telefono || sede.email || '—',
+        },
+      ]}
+      rows={filteredSedes}
+      loading={isLoading}
+      error={errorMessage}
+      emptyTitle={sedes.length === 0 ? 'No hay sedes registradas' : 'Sin resultados'}
+      emptyDescription={
+        sedes.length === 0
+          ? 'Solicita el alta de la primera sede al equipo interno.'
+          : searchQuery
+            ? `Ninguna sede coincide con “${searchQuery}”.`
+            : undefined
       }
-    >
-      {isLoading && (
-        <div
-          className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
-          data-oid="d-5l0yh"
-        >
-          Cargando sedes...
-        </div>
-      )}
-
-      {errorMessage && (
-        <div
-          className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive"
-          data-oid="u6bao05"
-        >
-          {errorMessage}
-        </div>
-      )}
-
-      {!isLoading && sedes.length === 0 ? (
-        <Card data-oid="kmn6z-k">
-          <CardContent className="p-8 text-center" data-oid="z8f:dzt">
-            <p className="text-base font-medium" data-oid="0di11bc">
-              No hay sedes registradas
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground" data-oid="pfv-9.9">
-              Crea la primera sede con Nueva sede.
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {!isLoading && sedes.length > 0 && filteredSedes.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-base font-medium">Sin resultados</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Ninguna sede coincide con &ldquo;{searchQuery}&rdquo;.
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {view === 'grid' ? (
+      onRowOpen={(sede) => router.push(`/dashboard/sedes/${sede.id}`)}
+      onRowEdit={(sede) => router.push(`/dashboard/sedes/${sede.id}/editar`)}
+      renderGrid={(pageRows) => (
         <div className={ACADEMIC_LISTING_GRID_CLASS} data-oid="sgmd.g2">
-          {filteredSedes.map((sede) => (
+          {pageRows.map((sede) => (
             <AcademicEntityCard
               key={sede.id}
               title={sede.nombre}
               image={sede.imagen}
-              fallbackImage={ACADEMIC_FALLBACK_IMAGES.campus}
-              onClick={() => handleViewSede(sede.id)}
+              href={`/dashboard/sedes/${sede.id}`}
               onCtaClick={() => router.push(`/dashboard/sedes/${sede.id}/editar`)}
               badge={
                 <Badge variant="static" className="text-[10px] font-medium">
-                  {isVirtualCampus({ campus_kind: sede.campusKind }) ? 'Virtual' : 'Física'}
+                  {sede.campusKind === 'virtual' ? 'Virtual' : 'Física'}
                 </Badge>
               }
               tiles={[
@@ -277,34 +283,7 @@ export default function SedesPage() {
             />
           ))}
         </div>
-      ) : (
-        <ListingColumnBoard columns={CAMPUS_LIST_COLUMNS}>
-          {filteredSedes.map((sede) => (
-            <AcademicEntityCard
-              key={sede.id}
-              variant="list"
-              title={sede.nombre}
-              image={sede.imagen}
-              fallbackImage={ACADEMIC_FALLBACK_IMAGES.campus}
-              onClick={() => handleViewSede(sede.id)}
-              onCtaClick={() => router.push(`/dashboard/sedes/${sede.id}/editar`)}
-              badge={
-                <Badge variant="static" className="text-[10px] font-medium">
-                  {isVirtualCampus({ campus_kind: sede.campusKind }) ? 'Virtual' : 'Física'}
-                </Badge>
-              }
-              listCells={[
-                <span key="address" className={ACADEMIC_ENTITY_META_CLASS}>
-                  {sede.direccion}
-                </span>,
-                <span key="rooms" className={ACADEMIC_ENTITY_META_CLASS}>
-                  {sede.aulas || 0} / {sede.capacidad || 0}
-                </span>,
-              ]}
-            />
-          ))}
-        </ListingColumnBoard>
       )}
-    </DashboardListingLayout>
+    />
   )
 }

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { EmptyPanel } from '@payload-config/components/akademate/dashboard'
+import { EmptyPanel, DirectoryKpiStrip, computeConvocationDirectoryKpis } from '@payload-config/components/akademate/dashboard'
 import {
   Plus,
   Calendar,
@@ -1398,13 +1398,7 @@ export default function ProgramacionPage() {
     return new Date(d.setDate(diff))
   }, [selectedDate])
 
-  // Stats
-  const totalConvs = filtered.length
-  const activas = filtered.filter(
-    (c) => c.estado === 'published' || c.estado === 'enrollment_open' || c.estado === 'in_progress'
-  ).length
-  const totalPlazas = filtered.reduce((s, c) => s + c.plazas, 0)
-  const totalInscritos = filtered.reduce((s, c) => s + c.inscritos, 0)
+  const kpis = useMemo(() => computeConvocationDirectoryKpis(filtered), [filtered])
 
   const handleConvClick = (id: string) => router.push(`/programacion/${id}`)
 
@@ -1415,11 +1409,7 @@ export default function ProgramacionPage() {
         description="Calendario de convocatorias, horarios y ocupacion"
         icon={Calendar}
         className="sticky top-14 z-20 -mt-3 mb-0 bg-[var(--dashboard-canvas)]"
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="default">{activas} activas</Badge>
-          </div>
-        }
+        badge={null}
         actions={
           <div className="flex flex-wrap gap-2">
             <Button variant={view === 'lista' ? 'default' : 'outline'} onClick={() => setView('lista')}>
@@ -1434,29 +1424,7 @@ export default function ProgramacionPage() {
         }
       />
 
-      {/* KPIs */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: 'Convocatorias', value: totalConvs, icon: GraduationCap },
-          { label: 'Activas', value: activas, icon: Calendar },
-          { label: 'Plazas totales', value: totalPlazas, icon: Users },
-          {
-            label: 'Ocupacion',
-            value: totalPlazas > 0 ? `${Math.round((totalInscritos / totalPlazas) * 100)}%` : '—',
-            icon: BarChart3,
-          },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card key={label}>
-            <CardContent className="p-3 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] text-muted-foreground">{label}</p>
-                <p className="text-lg font-semibold">{value}</p>
-              </div>
-              <Icon className="h-4 w-4 text-primary" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <DirectoryKpiStrip items={kpis} />
 
       {/* Controls bar */}
       <Card className="p-3">
