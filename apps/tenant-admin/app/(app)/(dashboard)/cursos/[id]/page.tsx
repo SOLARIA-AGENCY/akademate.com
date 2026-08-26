@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
-import { DashboardBreadcrumb, EntityMetricCard, StatusBadge } from '@payload-config/components/akademate/dashboard'
+import { CampusCourseCalendar, DashboardBreadcrumb, EntityMetricCard, StatusBadge } from '@payload-config/components/akademate/dashboard'
 import { CoursePrintSheet } from '@payload-config/components/akademate/print'
 
 // ---------------------------------------------------------------------------
@@ -570,6 +570,17 @@ export default function CursoDetailPage({ params }: Props) {
               </div>
             </CardContent>
           </Card>
+          <CampusCourseCalendar
+            title="Calendario de convocatorias"
+            runs={convocatorias.map((conv) => ({
+              id: conv.id,
+              title: conv.cursoNombre || course.name || conv.codigo || 'Convocatoria',
+              start: conv.fechaInicio,
+              end: conv.fechaFin,
+              status: conv.estado,
+            }))}
+            onSelectRun={(runId) => router.push(`/dashboard/programacion/${runId}`)}
+          />
         </div>
       </div>
 

@@ -21,7 +21,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@payload-config/components/
 import { AppSidebar } from '@payload-config/components/layout/AppSidebar'
 import { DashboardFooter } from '@payload-config/components/layout/DashboardFooter'
 import { ThemeToggle } from '@payload-config/components/ui/ThemeToggle'
-import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
+import { DashboardAgentRail } from '@payload-config/components/akademate/dashboard'
 import { RealtimeProvider } from '@payload-config/components/providers'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { NotificationProvider } from '@/app/providers/notifications'
@@ -371,7 +371,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <DashboardFooter data-oid="jsy7wdn" />
         </div>
 
-        <ChatbotWidget data-oid="2282j28" />
+        <DashboardAgentRail />
       </div>
       </RealtimeProvider>
     </NotificationProvider>

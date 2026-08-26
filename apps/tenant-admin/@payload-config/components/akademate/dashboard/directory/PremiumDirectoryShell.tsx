@@ -42,6 +42,7 @@ import {
   TableRow,
 } from '@payload-config/components/ui/table'
 import { cn } from '@payload-config/lib/utils'
+import { AKADEMATE_ACADEMIC_FALLBACK_IMAGE } from '../Shell'
 import {
   DIRECTORY_PAGE_SIZES,
   directoryPageNumbers,
@@ -124,18 +125,21 @@ export function DirectoryAvatarCell({
   subtitle,
   src,
   initials,
+  fallbackSrc = AKADEMATE_ACADEMIC_FALLBACK_IMAGE,
 }: {
   name: string
   subtitle?: string
   src?: string | null
   initials: string
+  fallbackSrc?: string
 }) {
+  const imageSrc = src || fallbackSrc
   return (
     <div className="flex min-w-0 items-center gap-3">
-      {src ? (
+      {imageSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={src}
+          src={imageSrc}
           alt=""
           className="h-10 w-10 rounded-full border border-slate-200 object-cover"
         />
@@ -438,7 +442,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
       ) : (
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs">
           <Table containerClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <TableHeader className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase [&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-slate-50">
+            <TableHeader className="bg-white text-xs font-semibold tracking-wider text-slate-500 uppercase [&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-white">
               <TableRow>
                 {onSelectedIdsChange ? (
                   <TableHead className="w-10">
