@@ -3,8 +3,9 @@
 import * as React from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
+import { cn } from '@payload-config/lib/utils'
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const [isDark, setIsDark] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
   const THEME_KEY = 'akademate-theme'
@@ -12,7 +13,6 @@ export function ThemeToggle() {
 
   React.useEffect(() => {
     setMounted(true)
-    // Check initial theme from localStorage or system preference
     const stored = localStorage.getItem(THEME_KEY) ?? localStorage.getItem(LEGACY_THEME_KEY)
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const isCurrentlyDark = stored === 'dark' || (!stored && systemDark)
@@ -28,7 +28,6 @@ export function ThemeToggle() {
     document.documentElement.classList.toggle('dark', newIsDark)
   }
 
-  // Prevent flash of unstyled content
   if (!mounted) {
     return (
       <Button
@@ -36,9 +35,10 @@ export function ThemeToggle() {
         size="icon"
         aria-label="Toggle theme"
         disabled
+        className={cn('size-11 rounded-xl p-2.5 shadow-sm', className)}
         data-oid="msmnbx8"
       >
-        <Sun className="h-5 w-5" data-oid="_9m1.cy" />
+        <Sun className="size-5" data-oid="_9m1.cy" />
       </Button>
     )
   }
@@ -50,12 +50,13 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       title={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
+      className={cn('size-11 rounded-xl p-2.5 shadow-sm', className)}
       data-oid="r-w_w5w"
     >
       {isDark ? (
-        <Sun className="h-5 w-5" data-oid="tu3-shi" />
+        <Sun className="size-5" data-oid="tu3-shi" />
       ) : (
-        <Moon className="h-5 w-5" data-oid="kmvk501" />
+        <Moon className="size-5" data-oid="kmvk501" />
       )}
       <span className="sr-only" data-oid="51pnpj4">
         Cambiar tema

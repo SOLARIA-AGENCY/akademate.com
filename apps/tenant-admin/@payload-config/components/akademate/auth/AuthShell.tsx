@@ -43,7 +43,7 @@ export function AuthShell({
         className,
       )}
     >
-      <div className="flex max-h-full w-full max-w-md min-h-0 flex-col overflow-y-auto overscroll-contain">
+      <div className="flex max-h-full w-full max-w-md min-h-0 flex-col overflow-y-auto overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="mb-5 flex flex-col items-center gap-3 text-center">
           <div className={cn('flex size-16 items-center justify-center overflow-hidden rounded-full border bg-card shadow-sm transition-opacity', loading && 'opacity-0')}>
             {logoUrl ? <img src={logoUrl} alt={academyName} className="size-12 object-contain" /> : null}
@@ -57,12 +57,12 @@ export function AuthShell({
         <Card className="border shadow-lg">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">{title}</CardTitle>
-            {description ? <CardDescription>{description}</CardDescription> : null}
+            {description ? <CardDescription data-slot="auth-description">{description}</CardDescription> : null}
           </CardHeader>
           <CardContent>{children}</CardContent>
         </Card>
 
-        {footer ? <div className="mt-4 shrink-0">{footer}</div> : null}
+        {footer ? <div data-slot="auth-legal" className="mt-4 shrink-0">{footer}</div> : null}
       </div>
     </main>
   )
