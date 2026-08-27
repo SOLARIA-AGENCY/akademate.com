@@ -15,7 +15,7 @@ describe('saas ui wave port', () => {
     const chrome = read('app/lib/dashboard-listing-scroll.ts')
     expect(layout).toContain('DashboardAgentRail')
     expect(layout).not.toContain('ChatbotWidget')
-    expect(layout).toContain('sidebarHover')
+    expect(layout).not.toContain('sidebarHover')
     expect(chrome).toContain('w-[40px]')
     expect(chrome).not.toContain('fixed top-0 right-0')
   })
@@ -24,7 +24,7 @@ describe('saas ui wave port', () => {
     const directory = read(
       '@payload-config/components/akademate/dashboard/directory/PremiumDirectoryShell.tsx',
     )
-    expect(directory).toContain('[&_th]:bg-white')
+    expect(directory).toContain('[&_th]:bg-card')
     expect(directory).toContain('fallbackSrc = AKADEMATE_ACADEMIC_FALLBACK_IMAGE')
     expect(directory).toContain('Filas por página')
   })

@@ -45,6 +45,7 @@ import {
   UserCog,
 } from 'lucide-react'
 import Link from 'next/link'
+import { collapsedNavTooltip, firstNavUrl } from './sidebar-collapsed-label'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
@@ -540,29 +541,41 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               }) ?? false
 
             if (isCollapsed) {
+              const tooltip = collapsedNavTooltip(item)
+              const href = firstNavUrl(item)
               return (
                 <React.Fragment key={item.title}>
                   {SectionSeparator}
                   <li data-oid="mup0i0h">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
-                        hasActiveChild ? 'bg-sidebar-accent/60' : ''
-                      } ${topLevelBaseClass}`}
-                      title={item.title}
-                      aria-label={item.title}
-                      data-sidebar-item="collapsed"
-                      onMouseEnter={() => setHoveredSection(item.title)}
-                      onClick={() => {
-                        setHoveredSection(item.title)
-                        onToggle?.()
-                      }}
-                    >
-                      <Icon
-                        className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
-                      />
-                    </Button>
+                    {href ? (
+                      <Link
+                        href={href}
+                        prefetch={false}
+                        className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
+                          hasActiveChild ? 'bg-sidebar-accent/60' : ''
+                        } ${topLevelBaseClass}`}
+                        title={tooltip}
+                        aria-label={tooltip}
+                        data-sidebar-item="collapsed"
+                      >
+                        <Icon
+                          className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
+                        />
+                      </Link>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelBaseClass}`}
+                        title={tooltip}
+                        aria-label={tooltip}
+                        data-sidebar-item="collapsed"
+                      >
+                        <Icon
+                          className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
+                        />
+                      </Button>
+                    )}
                   </li>
                 </React.Fragment>
               )

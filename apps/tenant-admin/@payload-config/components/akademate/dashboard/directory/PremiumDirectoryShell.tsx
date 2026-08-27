@@ -73,29 +73,8 @@ export type DirectoryColumn<T> = {
   render: (row: T) => React.ReactNode
 }
 
-export function DirectoryKpiStrip({ items }: { items: readonly DirectoryKpi[] }) {
-  if (items.length === 0) return null
-  return (
-    <div
-      data-slot="directory-kpi-strip"
-      className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
-    >
-      {items.map((item) => (
-        <div
-          key={item.id}
-          className="space-y-1 rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs"
-        >
-          <p className="text-xs font-medium text-slate-500">{item.label}</p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold tabular-nums text-slate-900">{item.value}</span>
-            {item.helper ? (
-              <span className="text-xs font-medium text-slate-500">{item.helper}</span>
-            ) : null}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+export function DirectoryKpiStrip({ items: _items }: { items: readonly DirectoryKpi[] }) {
+  return null
 }
 
 export function DirectoryStatusPill({
@@ -175,7 +154,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
   createLabel,
   onCreate,
   onExportCsv,
-  kpis,
+  kpis: _kpis,
   searchValue,
   onSearchChange,
   searchPlaceholder,
@@ -310,7 +289,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
         </div>
       }
       toolbar={
-          <div className="space-y-3 rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs sm:p-4">
+          <div className="space-y-3 rounded-xl border border-border bg-card p-3 shadow-xs sm:p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="relative max-w-md flex-1">
                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -321,7 +300,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
                   placeholder={searchPlaceholder}
                   className="bg-slate-50/50 pr-12 pl-9"
                 />
-                <kbd className="absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 sm:inline-flex">
+                <kbd className="absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border border-border bg-card px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground sm:inline-flex">
                   ⌘K
                 </kbd>
               </div>
@@ -335,7 +314,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
                       className={cn(
                         'whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-all',
                         selectedSegment === segment.id
-                          ? 'bg-white font-semibold text-slate-900 shadow-xs'
+                          ? 'bg-card font-semibold text-foreground shadow-xs'
                           : 'text-slate-600 hover:text-slate-900',
                       )}
                     >
@@ -368,7 +347,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
                       onClick={() => onViewModeChange('table')}
                       className={cn(
                         'rounded-md p-1.5',
-                        viewMode === 'table' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-400',
+                        viewMode === 'table' ? 'bg-card text-primary shadow-xs' : 'text-muted-foreground',
                       )}
                     >
                       <List className="h-4 w-4" />
@@ -379,7 +358,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
                       onClick={() => onViewModeChange('grid')}
                       className={cn(
                         'rounded-md p-1.5',
-                        viewMode === 'grid' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-400',
+                        viewMode === 'grid' ? 'bg-card text-primary shadow-xs' : 'text-muted-foreground',
                       )}
                     >
                       <LayoutGrid className="h-4 w-4" />
@@ -410,7 +389,6 @@ export function PremiumDirectoryShell<T extends { id: string }>({
           </div>
       }
     >
-      <DirectoryKpiStrip items={kpis} />
       {children ? (
         children
       ) : loading ? (
@@ -440,9 +418,9 @@ export function PremiumDirectoryShell<T extends { id: string }>({
       ) : viewMode === 'grid' && renderGrid ? (
         renderGrid(slice.items)
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xs">
           <Table containerClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <TableHeader className="bg-white text-xs font-semibold tracking-wider text-slate-500 uppercase [&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-white">
+            <TableHeader className="bg-card text-xs font-semibold tracking-wider text-muted-foreground uppercase [&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card">
               <TableRow>
                 {onSelectedIdsChange ? (
                   <TableHead className="w-10">
@@ -545,7 +523,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
               <label className="flex items-center gap-2">
                 Filas por página:
                 <select
-                  className="rounded-md border border-slate-200 bg-white px-2 py-1 font-medium text-slate-700"
+                  className="rounded-md border border-border bg-card px-2 py-1 font-medium text-foreground"
                   value={pageSize}
                   onChange={(event) =>
                     setPageSize(Number(event.target.value) as (typeof DIRECTORY_PAGE_SIZES)[number])

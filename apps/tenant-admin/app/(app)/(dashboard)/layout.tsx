@@ -75,8 +75,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [sidebarHover, setSidebarHover] = useState(false)
-  const [sidebarHoverLocked, setSidebarHoverLocked] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
@@ -167,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isMobile, pathname])
 
-  const railExpanded = isMobile ? sidebarOpen : sidebarOpen || sidebarHover
+  const railExpanded = sidebarOpen
 
   const filteredShortcuts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -218,22 +216,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   railExpanded ? DASHBOARD_RAIL_EXPANDED_WIDTH : DASHBOARD_RAIL_COLLAPSED_WIDTH
                 } bg-sidebar border-r border-sidebar-border`
           }
-          onMouseEnter={() => {
-            if (!isMobile && !sidebarHoverLocked) setSidebarHover(true)
-          }}
-          onMouseLeave={() => {
-            setSidebarHover(false)
-            setSidebarHoverLocked(false)
-          }}
           data-oid="044wu:-"
         >
           <AppSidebar
             isCollapsed={!railExpanded}
             onToggle={() => {
-              setSidebarOpen((current) => {
-                if (current) setSidebarHoverLocked(true)
-                return !current
-              })
+              setSidebarOpen((current) => !current)
             }}
             data-oid="lb_jqia"
           />
