@@ -139,7 +139,7 @@ export default function LoginPage() {
       description="Ingresa tus credenciales para acceder al sistema"
       footer={<AuthLegalFooter academyName={branding.academyName} />}
     >
-            <form onSubmit={handleLogin} className="flex flex-col gap-4" data-oid="-gbykj4">
+            <form onSubmit={handleLogin} className="flex flex-col gap-3 sm:gap-4" data-oid="-gbykj4">
               <AuthError message={error} />
 
               <div className="flex flex-col gap-2" data-oid="m2g:gwu">
@@ -260,7 +260,7 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               disabled
-              className="w-full justify-center gap-3"
+              className="w-full justify-center gap-3 [@media(max-height:640px)]:hidden"
               title="Google SSO estara disponible proximamente"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true" data-oid="no8qira">

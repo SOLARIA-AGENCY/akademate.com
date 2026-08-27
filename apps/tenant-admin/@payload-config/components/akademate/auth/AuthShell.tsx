@@ -36,11 +36,17 @@ export function AuthShell({
   className,
 }: AuthShellProps) {
   return (
-    <main className={cn('flex min-h-screen items-center justify-center bg-background px-4 py-8', className)}>
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className={cn('flex size-20 items-center justify-center overflow-hidden rounded-full border bg-card shadow-sm transition-opacity', loading && 'opacity-0')}>
-            {logoUrl ? <img src={logoUrl} alt={academyName} className="size-14 object-contain" /> : null}
+    <main
+      data-slot="auth-shell"
+      className={cn(
+        'flex h-dvh max-h-dvh w-full items-center justify-center overflow-hidden overscroll-none bg-background px-4 py-4',
+        className,
+      )}
+    >
+      <div className="flex max-h-full w-full max-w-md min-h-0 flex-col overflow-y-auto overscroll-contain">
+        <div className="mb-5 flex flex-col items-center gap-3 text-center">
+          <div className={cn('flex size-16 items-center justify-center overflow-hidden rounded-full border bg-card shadow-sm transition-opacity', loading && 'opacity-0')}>
+            {logoUrl ? <img src={logoUrl} alt={academyName} className="size-12 object-contain" /> : null}
           </div>
           <div className={cn('transition-opacity', loading && 'opacity-0')}>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{academyName}</h1>
@@ -56,7 +62,7 @@ export function AuthShell({
           <CardContent>{children}</CardContent>
         </Card>
 
-        {footer ? <div className="mt-6">{footer}</div> : null}
+        {footer ? <div className="mt-4 shrink-0">{footer}</div> : null}
       </div>
     </main>
   )

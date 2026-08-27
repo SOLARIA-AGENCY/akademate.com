@@ -1,12 +1,26 @@
 import type React from 'react'
 import type { CSSProperties } from 'react'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import '../globals.css'
 import { ClientLayout } from '../ClientLayout'
 import type { TenantBranding } from '@/app/providers/tenant-branding'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
 
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
 export const dynamic = 'force-dynamic'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0066CC',
+}
 
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
@@ -122,8 +136,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <html lang="es" style={tenantThemeVars} suppressHydrationWarning>
-      <body>
+    <html lang="es" className={inter.variable} style={tenantThemeVars} suppressHydrationWarning>
+      <body className={`${inter.className} font-sans antialiased`}>
         <ClientLayout initialBranding={initialBranding}>{children}</ClientLayout>
       </body>
     </html>
