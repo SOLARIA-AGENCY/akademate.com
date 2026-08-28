@@ -6,6 +6,7 @@ import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tena
 import { getTenantWebsite } from '@/app/lib/website/server'
 import { PublicHeaderClient } from './_components/PublicHeaderClient'
 import { PublicPageViewTracker } from './_components/PublicPageViewTracker'
+import { CookieBanner } from './_components/CookieBanner'
 
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
@@ -259,6 +260,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
           </noscript>
         )}
         <PublicPageViewTracker />
+        <CookieBanner />
         {/* Inject brand color as CSS variable */}
         <style>{`
           :root { --brand: ${c}; --brand-dark: color-mix(in srgb, ${c} 80%, black); --brand-light: color-mix(in srgb, ${c} 15%, white); }

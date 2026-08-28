@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-const CONSENT_KEY = 'cep_cookie_consent_v1'
+export const CONSENT_KEY = 'akademate_cookie_consent_v1'
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false)
@@ -29,29 +29,31 @@ export function CookieBanner() {
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-slate-200 bg-white shadow-[0_-12px_28px_rgba(0,0,0,0.16)]">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-        <p className="text-sm leading-6 text-slate-700">
-          <strong className="text-slate-900">Utilizamos cookies para mejorar tu experiencia.</strong> Usamos cookies esenciales para el funcionamiento del sitio y cookies de marketing para personalizar contenido.{' '}
-          <Link href="/legal/cookies" className="font-semibold text-slate-900 underline decoration-slate-300 underline-offset-4">
-            Ver política de cookies
+    <div
+      data-testid="cookie-banner"
+      className="fixed bottom-0 left-0 right-0 z-[60] overflow-x-hidden border-t border-slate-200 bg-white"
+    >
+      <div className="mx-auto flex h-10 max-w-7xl flex-nowrap items-center gap-3 overflow-x-hidden px-4 py-2 text-xs sm:px-6 lg:px-8">
+        <p className="min-w-0 flex-1 truncate whitespace-nowrap text-xs text-slate-700">
+          Usamos cookies.{' '}
+          <Link href="/legal/cookies" className="font-semibold text-slate-900 underline underline-offset-2">
+            Política
           </Link>
-          .
         </p>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-nowrap items-center gap-2 shrink-0">
           <button
             type="button"
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+            className="whitespace-nowrap rounded border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700"
             onClick={() => saveConsent('essential')}
           >
-            Solo esenciales
+            Esenciales
           </button>
           <button
             type="button"
-            className="rounded-full bg-[#f2014b] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#d0013f]"
+            className="brand-btn whitespace-nowrap rounded px-2 py-1 text-xs font-semibold"
             onClick={() => saveConsent('all')}
           >
-            Aceptar todas
+            Aceptar
           </button>
         </div>
       </div>
