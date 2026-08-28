@@ -21,7 +21,7 @@ No se commitea `REF-DASHBOARD-WEAGLE-2026-08-28.jpg` ni SPEC-CALENDARIO. No Holi
 
 - Rama. `feat/foundation-p0-2026-08-28`
 - PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
-- HEAD. `8c525bca85283198c96760f0c57fb4773a1e2c4b`
+- HEAD. `24bfe10ce3053ba135cebce8e90541695b895e95`
 
 ## Tests
 
