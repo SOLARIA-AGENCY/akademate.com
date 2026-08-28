@@ -50,6 +50,8 @@ Fuera de esta orden. Fases 2 a 7. Outbox. ObjectStorage. Health. Stripe en `apps
 
 https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
 
+Ordenes 2 y 3 van en el mismo PR. Ver `GROK-REPORT-ORDEN-2.md` (cookie banner) y `GROK-REPORT-ORDEN-3.md` (ENTERPRISE/ON-PREMISE).
+
 Abierto contra `main`. No mergeado.
 
 ## 4. Tests. comando y resultado
