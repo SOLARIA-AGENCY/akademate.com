@@ -78,6 +78,8 @@ interface TenantBrandingResult {
   id: string
   name: string
   branding: TenantBranding
+  plan?: string
+  deploymentMode?: string
 }
 
 interface TenantDomainsResult {
@@ -199,20 +201,41 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
         favicon: row.branding_logo_url,
       }
     }
-    return { id: String(row.id), name: row.name, branding }
+    return {
+      id: String(row.id),
+      name: row.name,
+      branding,
+      plan: 'starter',
+      deploymentMode: 'managed_cloud',
+    }
   }
 
   // UUID IDs → Drizzle SaaS schema (packages/db)
-  return await queryFirst<TenantBrandingResult>(
-    `SELECT
-       id,
-       name,
-       branding
-     FROM tenants
-     WHERE id = $1
-     LIMIT 1`,
-    [tenantId]
-  )
+  try {
+    return await queryFirst<TenantBrandingResult>(
+      `SELECT
+         id,
+         name,
+         branding,
+         plan,
+         deployment_mode AS "deploymentMode"
+       FROM tenants
+       WHERE id = $1
+       LIMIT 1`,
+      [tenantId]
+    )
+  } catch {
+    return await queryFirst<TenantBrandingResult>(
+      `SELECT
+         id,
+         name,
+         branding
+       FROM tenants
+       WHERE id = $1
+       LIMIT 1`,
+      [tenantId]
+    )
+  }
 }
 
 async function resolveTenantIdFromHost(hostHeader?: string | null): Promise<string | null> {
@@ -493,6 +516,8 @@ export async function GET(request: NextRequest) {
               ...mockConfig.academia,
               nombre: tenant.name || mockConfig.academia.nombre,
               ...(fromBranding.success ? fromBranding.data : {}),
+              plan: tenant.plan ?? 'starter',
+              deploymentMode: tenant.deploymentMode ?? 'managed_cloud',
             }
             return NextResponse.json({
               success: true,
