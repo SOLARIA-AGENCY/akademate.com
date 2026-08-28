@@ -440,10 +440,7 @@ body:not([data-payload-admin]) {
    ESTILOS PARA INSTANCIAS DE CURSOS (Course Cards)
    ============================================================================ */
 
-/* Estandarización de altura de CourseCards */
 .course-instance-card {
-  min-height: 580px;
-  max-height: 580px;
   display: flex;
   flex-direction: column;
 }
@@ -502,12 +499,19 @@ body:not(.payload-admin) img.object-cover:not(.rounded-full) {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Global anti-overflow guard for dashboard/public shells on narrow screens. */
+/* Clip horizontal overflow on the document without creating an inner Y scroller.
+   overflow-x: hidden computes overflow-y to auto. clip does not. */
+html:not([data-payload-admin]),
 body:not(.payload-admin) {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .dashboard-shell,
 .dashboard-shell main {
+  min-width: 0;
+  overflow: visible;
+}
+
+.dashboard-shell main .grid > * {
   min-width: 0;
 }

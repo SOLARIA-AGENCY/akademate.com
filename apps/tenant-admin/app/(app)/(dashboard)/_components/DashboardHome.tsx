@@ -39,6 +39,7 @@ import {
 } from 'recharts'
 import { useDashboardMetrics } from '@payload-config/hooks'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { DASHBOARD_GRID_2_CLASS, DASHBOARD_GRID_CLASS } from '../dashboard-shell'
 
 // Dashboard data types - defined locally to ensure TypeScript resolution
 interface DashboardMetrics {
@@ -381,7 +382,7 @@ export default function DashboardPage() {
 
       {/* Primera línea de KPIs */}
       <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
+        className={DASHBOARD_GRID_CLASS}
         data-oid="gtfb5.8"
       >
         {primaryKpis.map((kpi) => {
@@ -406,7 +407,7 @@ export default function DashboardPage() {
 
       {/* Segunda línea de KPIs */}
       <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
+        className={DASHBOARD_GRID_CLASS}
         data-oid="j786_4e"
       >
         {secondaryKpis.map((kpi) => {
@@ -431,7 +432,7 @@ export default function DashboardPage() {
 
       {/* Ciclos Formativos KPIs */}
       <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
+        className={DASHBOARD_GRID_CLASS}
         data-oid="cycle-kpis"
       >
         <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
@@ -568,7 +569,7 @@ export default function DashboardPage() {
           </Badge>
         </CardHeader>
         <CardContent className="space-y-4" data-oid="zfclf:d">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-oid="n--3jcr">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4" data-oid="n--3jcr">
             <div className="rounded-lg border p-3" data-oid="t3px523">
               <p className="text-xs text-muted-foreground" data-oid="62uhw6-">
                 Inscripciones LMS
@@ -618,7 +619,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2" data-oid="80103c1">
+      <div className={DASHBOARD_GRID_2_CLASS} data-oid="80103c1">
         {/* Próximas Convocatorias */}
         <Card data-oid="mahxjkj">
           <CardHeader data-oid="1smon18">
@@ -710,7 +711,7 @@ export default function DashboardPage() {
       </div>
 
       {/* New Blocks Row 1: Activity Timeline + Activity Chart */}
-      <div className="grid gap-4 md:grid-cols-2" data-oid="fy2n-p0">
+      <div className={DASHBOARD_GRID_2_CLASS} data-oid="fy2n-p0">
         {/* Actividad Reciente */}
         <Card data-oid="gyr4u6s">
           <CardHeader data-oid="_1yx95t">
@@ -822,7 +823,7 @@ export default function DashboardPage() {
       </div>
 
       {/* New Blocks Row 2: Operational Alerts + Campus Distribution */}
-      <div className="grid gap-4 md:grid-cols-2" data-oid="ux:ka67">
+      <div className={DASHBOARD_GRID_2_CLASS} data-oid="ux:ka67">
         {/* Alertas Operativas */}
         <Card data-oid="nn8l4ro">
           <CardHeader data-oid="sw1lpxg">
