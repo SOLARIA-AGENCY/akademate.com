@@ -13,7 +13,7 @@ export const DASHBOARD_RAIL_FOOTER_CLASS =
   'dashboard-rail-footer shrink-0 border-t border-sidebar-border'
 
 export const DASHBOARD_CANVAS_CLASS =
-  'dashboard-canvas flex h-svh min-w-0 flex-col overflow-x-clip'
+  'dashboard-canvas flex h-svh min-w-0 flex-col overflow-x-clip bg-background'
 
 export const DASHBOARD_MAIN_CLASS =
   'dashboard-canvas-scroll min-h-0 min-w-0 flex-1 overflow-x-clip overflow-y-auto p-3 sm:p-4 md:p-6'

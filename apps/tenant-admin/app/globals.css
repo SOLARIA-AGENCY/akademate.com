@@ -122,10 +122,10 @@ body:not([data-payload-admin]) {
     /* CSS variables for runtime theming - AKADEMATE Design System v1.0 */
     --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    /* Base palette */
-    --background: 0 0% 97%;
+    /* Base palette. Light gray canvas, white cards. */
+    --background: 220 16% 95%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -161,14 +161,14 @@ body:not([data-payload-admin]) {
     --input: 220 13% 91%;
     --ring: 224 71% 48%;
 
-    /* Sidebar */
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 222 47% 20%;
+    /* Sidebar navy Akademate. Not the Weagle white rail. */
+    --sidebar: 222 47% 12%;
+    --sidebar-foreground: 210 40% 96%;
     --sidebar-primary: 224 71% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 93%;
-    --sidebar-accent-foreground: 222 47% 15%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-accent: 222 35% 18%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 18%;
     --sidebar-ring: 224 71% 48%;
 
     /* Charts */

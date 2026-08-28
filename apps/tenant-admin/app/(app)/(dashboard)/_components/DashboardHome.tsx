@@ -372,8 +372,7 @@ export default function DashboardPage() {
       <div className={DASHBOARD_STICKY_CHROME_CLASS} data-testid="dashboard-sticky-chrome">
       <PageHeader
         title="Dashboard"
-        description={`Vista general de la operativa de ${branding.academyName}`}
-        badge={
+        actions={
           <Badge
             variant={isConnected ? 'default' : 'outline'}
             className="text-xs"
