@@ -24,7 +24,7 @@ No HolidayCalendar. No if-tenant==CEP. No merge. No deploy.
 
 - Rama. `feat/foundation-p0-2026-08-28`
 - PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
-- HEAD. `a8d72712fb5a9df1ba34d4c922dbcaf7a66d78e3`
+- HEAD. `e7f2a09fcf63e7406da5393cc805784d45a468c7`
 
 ## Tests
 
