@@ -14,7 +14,7 @@ Sidebar fijo intacto. Sin cambios de branding. Sin CEP.
 ## SHA y rama
 
 - Rama. `feat/foundation-p0-2026-08-28`
-- HEAD. `4463f5bb61985d4b7c7ef546701f876cc2645528`
+- HEAD. `12179e4d1f6d1e5c7e364da445edbe21a727fd0e`
 - PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
 
 No merge. No deploy.
