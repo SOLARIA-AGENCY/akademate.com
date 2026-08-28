@@ -7,7 +7,7 @@ export const DASHBOARD_RAIL_CLASS =
   'dashboard-rail flex h-svh flex-col overflow-hidden bg-sidebar'
 
 export const DASHBOARD_RAIL_NAV_CLASS =
-  'dashboard-rail-nav min-h-0 flex-1 overflow-x-clip overflow-y-auto py-3 px-2'
+  'dashboard-rail-nav min-h-0 flex-1 overflow-x-clip overflow-y-auto scrollbar-none py-3 px-2'
 
 export const DASHBOARD_RAIL_FOOTER_CLASS =
   'dashboard-rail-footer shrink-0 border-t border-sidebar-border'

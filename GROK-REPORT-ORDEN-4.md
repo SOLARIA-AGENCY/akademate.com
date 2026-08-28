@@ -13,25 +13,30 @@ Rail y canvas son columnas de viewport (`h-svh`).
 3. Outline. invisible en web. Solo `html[data-ipad-app]` (Capacitor / standalone). Nunca por viewport.
 4. Sidebar `bg-sidebar`. Sin tokens CEP.
 
+Addendum.
+
+- Submenus solo por click. No se montan hasta el click. Cero `onMouseEnter`.
+- Rail nav `overflow-y: auto` + scrollbar hidden (`scrollbar-width: none`, webkit display none).
+
 No HolidayCalendar. No if-tenant==CEP. No merge. No deploy.
 
 ## SHA y rama
 
 - Rama. `feat/foundation-p0-2026-08-28`
 - PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
-- HEAD. `055d03fbaee4459f082e76c58d0d117693fb313c`
+- HEAD. `a8d72712fb5a9df1ba34d4c922dbcaf7a66d78e3`
 
 ## Tests
 
 ```text
 cd apps/tenant-admin && pnpm exec vitest run \
   __tests__/layout/dashboard-overflow.test.ts \
-  __tests__/lib/detect-ipad-app.test.ts \
-  __tests__/dashboard-campus-integration.test.tsx
-# 3 files, 8 passed
+  __tests__/layout/sidebar-click-scroll.test.tsx \
+  __tests__/lib/detect-ipad-app.test.ts
+# click-only submenu + scrollbar hidden + rail pin
 ```
 
-Cubre rail pin, overflow-x clip, Hoy sin clamp, outline solo iPad-app.
+Cubre rail pin, overflow-x clip, Hoy sin clamp, outline solo iPad-app, submenu click-only, scrollbar hidden.
 
 ## Files
 
@@ -43,6 +48,7 @@ Cubre rail pin, overflow-x clip, Hoy sin clamp, outline solo iPad-app.
 - `apps/tenant-admin/app/ClientLayout.tsx`
 - `apps/tenant-admin/lib/detect-ipad-app.ts`
 - `apps/tenant-admin/__tests__/layout/dashboard-overflow.test.ts`
+- `apps/tenant-admin/__tests__/layout/sidebar-click-scroll.test.tsx`
 - `apps/tenant-admin/__tests__/lib/detect-ipad-app.test.ts`
 
 ## Huecos

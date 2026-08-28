@@ -518,6 +518,17 @@ body:not(.payload-admin) {
   overflow-y: auto;
 }
 
+.dashboard-rail-nav {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dashboard-rail-nav::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .dashboard-shell main .grid > * {
   min-width: 0;
 }

@@ -414,7 +414,11 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Menu Content */}
-      <nav className="dashboard-rail-nav min-h-0 flex-1 overflow-x-clip overflow-y-auto py-3 px-2" data-oid=".42vml6">
+      <nav
+        className="dashboard-rail-nav min-h-0 flex-1 overflow-x-clip overflow-y-auto scrollbar-none py-3 px-2"
+        data-testid="dashboard-rail-nav"
+        data-oid=".42vml6"
+      >
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
@@ -544,15 +548,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       />
                     )}
                   </button>
-                  {/* Submenu with smooth height transition */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      !isCollapsed && isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
-                    data-oid="33l6zag"
-                  >
+                  {!isCollapsed && isOpen ? (
                     <ul
                       className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4"
+                      data-testid={`submenu-${item.title}`}
                       data-oid="fu19cwt"
                     >
                       {item.items?.map((subItem) => (
@@ -566,7 +565,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  ) : null}
                 </li>
               </React.Fragment>
             )

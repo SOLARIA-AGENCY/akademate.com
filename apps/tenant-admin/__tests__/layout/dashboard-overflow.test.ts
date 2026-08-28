@@ -38,6 +38,7 @@ describe('dashboard rail and canvas', () => {
     expect(DASHBOARD_RAIL_CLASS.split(/\s+/)).toContain('h-svh')
     expect(DASHBOARD_RAIL_NAV_CLASS.split(/\s+/)).toContain('min-h-0')
     expect(DASHBOARD_RAIL_NAV_CLASS.split(/\s+/)).toContain('overflow-y-auto')
+    expect(DASHBOARD_RAIL_NAV_CLASS.split(/\s+/)).toContain('scrollbar-none')
     expect(railFooterPinned(DASHBOARD_RAIL_FOOTER_CLASS)).toBe(true)
     expect(sidebarSource).toContain('dashboard-rail-nav')
     expect(sidebarSource).toContain('dashboard-rail-footer')
