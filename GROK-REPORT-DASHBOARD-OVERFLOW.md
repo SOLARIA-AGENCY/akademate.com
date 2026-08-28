@@ -26,7 +26,7 @@ Addendum CEP OVH-Ω.
 
 - Rama. `feat/foundation-p0-2026-08-28`
 - PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
-- HEAD. `8692c48e5fb9d5ad7156007d6d48310d2e47588c`
+- HEAD. `b72c3f0ea6772b9e1fc5d9f98c6b33bdfde784f6`
 
 No merge. No deploy. No branding. No if-tenant==CEP.
 
