@@ -25,6 +25,7 @@ import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 import { RealtimeProvider } from '@payload-config/components/providers'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { NotificationProvider } from '@/app/providers/notifications'
+import { DASHBOARD_MAIN_CLASS, DASHBOARD_SHELL_CLASS } from './dashboard-shell'
 
 interface SessionUser {
   id: string | number
@@ -154,7 +155,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <NotificationProvider>
       <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
       <div
-        className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
+        className={DASHBOARD_SHELL_CLASS}
         data-oid="dq:3ws5"
       >
         {isMobile && sidebarOpen && (
@@ -184,7 +185,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
 
         <div
-          className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
+          className={`min-h-screen min-w-0 flex flex-col transition-all duration-300 ${
             isMobile ? 'ml-0' : sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
           }`}
           data-oid="asfyqnr"
@@ -335,7 +336,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </header>
 
           <main
-            className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 md:p-6"
+            className={DASHBOARD_MAIN_CLASS}
+            data-testid="dashboard-main"
             data-oid="20tk9nh"
           >
             {children}
