@@ -7,6 +7,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
 } from 'drizzle-orm/pg-core'
 
@@ -62,6 +63,42 @@ export const pointsSourceTypeEnum = pgEnum('points_source_type', [
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late', 'excused'])
 export const calendarEventTypeEnum = pgEnum('calendar_event_type', ['class', 'exam', 'holiday', 'meeting', 'deadline', 'other'])
 
+export const deploymentModeEnum = pgEnum('deployment_mode', [
+  'managed_cloud',
+  'dedicated_cloud',
+  'on_premise',
+])
+export const organizationModelEnum = pgEnum('organization_model', [
+  'single_tenant',
+  'multi_location',
+  'multi_tenant_group',
+  'franchise',
+])
+export const actorTypeEnum = pgEnum('actor_type', ['human', 'ai_agent', 'service', 'device'])
+export const locationKindEnum = pgEnum('location_kind', ['physical', 'virtual', 'mobile'])
+export const campusKindEnum = pgEnum('campus_kind', ['physical', 'virtual', 'hybrid'])
+export const policyKindEnum = pgEnum('policy_kind', [
+  'attendance',
+  'cancellation',
+  'access',
+  'payment',
+  'ai',
+  'privacy',
+  'campus_adoption',
+  'other',
+])
+export const capabilitySourceEnum = pgEnum('capability_source', ['blueprint', 'plan', 'override'])
+
+export const organizationGroups = pgTable('organization_groups', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  status: text('status').default('active').notNull(),
+  branding: jsonb('branding').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const tenants = pgTable('tenants', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
@@ -71,6 +108,21 @@ export const tenants = pgTable('tenants', {
   mrr: integer('mrr').default(0).notNull(),
   domains: jsonb('domains').$type<string[]>().default([]).notNull(),
   branding: jsonb('branding').$type<Record<string, unknown>>().default({}).notNull(),
+  organizationGroupId: uuid('organization_group_id').references(() => organizationGroups.id, {
+    onDelete: 'set null',
+  }),
+  blueprintKey: text('blueprint_key').default('professional_training').notNull(),
+  blueprintVersion: integer('blueprint_version').default(1).notNull(),
+  parentBlueprintKey: text('parent_blueprint_key'),
+  organizationModel: organizationModelEnum('organization_model').default('single_tenant').notNull(),
+  deploymentMode: deploymentModeEnum('deployment_mode').default('managed_cloud').notNull(),
+  regionId: text('region_id').default('eu').notNull(),
+  cellId: text('cell_id').default('eu-01').notNull(),
+  deploymentId: text('deployment_id').default('eu-01').notNull(),
+  timezone: text('timezone').default('Europe/Madrid').notNull(),
+  locale: text('locale').default('es-ES').notNull(),
+  currency: text('currency').default('EUR').notNull(),
+  config: jsonb('config').$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
@@ -79,6 +131,11 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
+  givenName: text('given_name'),
+  familyName: text('family_name'),
+  locale: text('locale').default('es-ES'),
+  timezone: text('timezone'),
+  status: text('status').default('active').notNull(),
   passwordHash: text('password_hash'),
   mfaSecret: text('mfa_secret'),
   mfaEnabled: boolean('mfa_enabled').default(false).notNull(),
@@ -87,18 +144,46 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
-export const memberships = pgTable('memberships', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  tenantId: uuid('tenant_id')
-    .notNull()
-    .references(() => tenants.id, { onDelete: 'cascade' }),
-  roles: jsonb('roles').$type<string[]>().default([]).notNull(),
-  status: text('status').default('active').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-})
+export const memberships = pgTable(
+  'memberships',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tenantId: uuid('tenant_id')
+      .notNull()
+      .references(() => tenants.id, { onDelete: 'cascade' }),
+    roles: jsonb('roles').$type<string[]>().default([]).notNull(),
+    status: text('status').default('active').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    userTenantUnique: unique('memberships_user_tenant_unique').on(table.userId, table.tenantId),
+  }),
+)
+
+export const organizationGroupMemberships = pgTable(
+  'organization_group_memberships',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    organizationGroupId: uuid('organization_group_id')
+      .notNull()
+      .references(() => organizationGroups.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    roles: jsonb('roles').$type<string[]>().default([]).notNull(),
+    status: text('status').default('active').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    groupUserUnique: unique('org_group_memberships_group_user_unique').on(
+      table.organizationGroupId,
+      table.userId,
+    ),
+  }),
+)
 
 export const courses = pgTable('courses', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -144,6 +229,7 @@ export const featureFlags = pgTable('feature_flags', {
   id: uuid('id').defaultRandom().primaryKey(),
   key: text('key').notNull().unique(),
   type: text('type').notNull(), // boolean, percentage, variant
+  purpose: text('purpose').default('rollout').notNull(),
   defaultValue: jsonb('default_value').$type<unknown>().notNull(),
   overrides: jsonb('overrides')
     .$type<{ tenantId: string; value: unknown }[]>()
@@ -157,11 +243,19 @@ export const auditLogs = pgTable('audit_logs', {
   tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
+  organizationGroupId: uuid('organization_group_id').references(() => organizationGroups.id, {
+    onDelete: 'set null',
+  }),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
   userEmail: text('user_email'),
+  actorType: actorTypeEnum('actor_type').default('human').notNull(),
   action: text('action').notNull(),
   resource: text('resource').notNull(),
   resourceId: text('resource_id').notNull(),
+  purpose: text('purpose'),
+  correlationId: uuid('correlation_id'),
+  channel: text('channel'),
+  policyDecision: text('policy_decision'),
   oldValue: jsonb('old_value'),
   newValue: jsonb('new_value'),
   ipAddress: text('ip_address'),
@@ -340,6 +434,9 @@ export const centers = pgTable('centers', {
   coordinates: jsonb('coordinates').$type<{ lat: number; lng: number }>(),
   capacity: integer('capacity'),
   facilities: jsonb('facilities').$type<string[]>().default([]).notNull(),
+  locationKind: locationKindEnum('location_kind').default('physical').notNull(),
+  timezone: text('timezone'),
+  isPrimary: boolean('is_primary').default(false).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -770,6 +867,122 @@ export const certificates = pgTable('certificates', {
 })
 
 // ============================================================================
+// FOUNDATION P0 (Account, LegalEntity, Campus, Blueprint, Capability, Policy)
+// ============================================================================
+
+export const legalEntities = pgTable('legal_entities', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' })
+    .unique(),
+  legalName: text('legal_name').notNull(),
+  taxId: text('tax_id'),
+  taxIdType: text('tax_id_type'),
+  jurisdiction: text('jurisdiction').default('ES').notNull(),
+  address: jsonb('address').$type<Record<string, unknown>>().default({}).notNull(),
+  taxProfile: jsonb('tax_profile').$type<Record<string, unknown>>().default({}).notNull(),
+  isPrimary: boolean('is_primary').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const campuses = pgTable(
+  'campuses',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id')
+      .notNull()
+      .references(() => tenants.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    kind: campusKindEnum('kind').default('hybrid').notNull(),
+    locationId: uuid('location_id').references(() => centers.id, { onDelete: 'set null' }),
+    isDefault: boolean('is_default').default(false).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantSlugUnique: unique('campuses_tenant_slug_unique').on(table.tenantId, table.slug),
+  }),
+)
+
+export const blueprints = pgTable(
+  'blueprints',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    key: text('key').notNull(),
+    name: text('name').notNull(),
+    baseBlueprintKey: text('base_blueprint_key'),
+    version: integer('version').default(1).notNull(),
+    defaultCapabilities: jsonb('default_capabilities').$type<string[]>().default([]).notNull(),
+    vocabularyPack: jsonb('vocabulary_pack').$type<Record<string, unknown>>().default({}).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    keyVersionUnique: unique('blueprints_key_version_unique').on(table.key, table.version),
+  }),
+)
+
+export const capabilities = pgTable('capabilities', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  key: text('key').notNull().unique(),
+  description: text('description').notNull(),
+  category: text('category').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+})
+
+export const tenantCapabilities = pgTable(
+  'tenant_capabilities',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id')
+      .notNull()
+      .references(() => tenants.id, { onDelete: 'cascade' }),
+    capabilityKey: text('capability_key').notNull(),
+    enabled: boolean('enabled').notNull(),
+    source: capabilitySourceEnum('source').default('override').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantCapabilityUnique: unique('tenant_capabilities_tenant_key_unique').on(
+      table.tenantId,
+      table.capabilityKey,
+    ),
+  }),
+)
+
+export const policies = pgTable(
+  'policies',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }),
+    organizationGroupId: uuid('organization_group_id').references(() => organizationGroups.id, {
+      onDelete: 'cascade',
+    }),
+    kind: policyKindEnum('kind').notNull(),
+    key: text('key').notNull(),
+    document: jsonb('document').$type<Record<string, unknown>>().default({}).notNull(),
+    version: integer('version').default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    scopeKeyUnique: unique('policies_scope_kind_key_unique').on(
+      table.tenantId,
+      table.organizationGroupId,
+      table.kind,
+      table.key,
+    ),
+  }),
+)
+
+// ============================================================================
 // BETTER AUTH TABLES
 // ============================================================================
 
@@ -815,9 +1028,17 @@ export const verifications = pgTable('verifications', {
 
 export const schema = {
   // Core
+  organizationGroups,
   tenants,
   users,
   memberships,
+  organizationGroupMemberships,
+  legalEntities,
+  campuses,
+  blueprints,
+  capabilities,
+  tenantCapabilities,
+  policies,
   courses,
   apiKeys,
   featureFlags,

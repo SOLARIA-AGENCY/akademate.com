@@ -24,6 +24,7 @@ import {
   withTenantRead,
   getCurrentTenantId,
   assertTenantContext,
+  isValidTenantId,
 } from '../src/rls'
 
 // Skip integration tests unless explicitly enabled with DATABASE_URL + RUN_DB_TESTS=true
@@ -35,6 +36,23 @@ const TENANT_A_ID = 100
 const TENANT_B_ID = 200
 const USER_ID = 300
 const DEV_TENANT_ID = 1 // The development tenant from migration
+
+describe('RLS tenant id format (no database)', () => {
+  it('accepts UUID tenant ids used by packages/db', () => {
+    expect(isValidTenantId('11111111-1111-4111-8111-111111111111')).toBe(true)
+  })
+
+  it('still accepts positive integers used by Payload', () => {
+    expect(isValidTenantId(100)).toBe(true)
+    expect(isValidTenantId('100')).toBe(true)
+  })
+
+  it('rejects junk so set_config never sees an unscoped value', () => {
+    expect(isValidTenantId('invalid')).toBe(false)
+    expect(isValidTenantId(0)).toBe(false)
+    expect(isValidTenantId(-1)).toBe(false)
+  })
+})
 
 describe.skipIf(!shouldRunIntegration)('RLS Isolation - Integration Tests', () => {
   let client: ReturnType<typeof postgres>

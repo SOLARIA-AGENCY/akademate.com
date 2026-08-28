@@ -277,6 +277,42 @@ CREATE POLICY tenant_isolation_certificates ON certificates
   USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
   WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
 
+-- -----------------------------------------------------------------------------
+-- Foundation P0 tables
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE legal_entities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE campuses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_capabilities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE policies ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY tenant_isolation_legal_entities ON legal_entities
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+CREATE POLICY tenant_isolation_campuses ON campuses
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+CREATE POLICY tenant_isolation_tenant_capabilities ON tenant_capabilities
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Platform defaults (tenant_id IS NULL) stay visible inside a tenant transaction.
+CREATE POLICY tenant_isolation_policies ON policies
+  FOR ALL
+  USING (
+    tenant_id IS NULL
+    OR tenant_id = current_setting('app.tenant_id', true)::uuid
+  )
+  WITH CHECK (
+    tenant_id IS NULL
+    OR tenant_id = current_setting('app.tenant_id', true)::uuid
+  );
+
 -- ============================================================================
 -- STEP 3: Special policies for public access (web comercial)
 -- ============================================================================
@@ -319,7 +355,8 @@ WHERE schemaname = 'public'
     'webhooks', 'cycles', 'centers', 'instructors', 'course_runs',
     'modules', 'lessons', 'materials', 'assignments', 'enrollments',
     'lesson_progress', 'submissions', 'grades', 'leads', 'campaigns',
-    'invoices', 'payment_methods', 'payment_transactions'
+    'invoices', 'payment_methods', 'payment_transactions',
+    'legal_entities', 'campuses', 'tenant_capabilities', 'policies'
   );
 
 -- List all policies
