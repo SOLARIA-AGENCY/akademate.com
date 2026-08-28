@@ -33,3 +33,8 @@ token.txt
 *.tsbuildinfo
 *.cookies
 .playwright-mcp/Manus-Setup-1-4-1.dmg
+.grok.lock
+README-AISLAMIENTO.md
+.grok-orden-1.md
+.grok-run-orden-1.sh
+.grok-done
