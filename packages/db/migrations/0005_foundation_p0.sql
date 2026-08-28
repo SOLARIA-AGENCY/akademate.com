@@ -77,8 +77,13 @@ ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "timezone" text;
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "status" text DEFAULT 'active' NOT NULL;
 
 DO $$ BEGIN
-  ALTER TABLE "memberships"
-    ADD CONSTRAINT "memberships_user_tenant_unique" UNIQUE ("user_id", "tenant_id");
+  IF EXISTS (
+    SELECT 1 FROM memberships GROUP BY user_id, tenant_id HAVING COUNT(*) > 1
+  ) THEN
+    RAISE NOTICE 'skip memberships_user_tenant_unique: duplicate (user_id, tenant_id) rows exist';
+  ELSE
+    ALTER TABLE memberships ADD CONSTRAINT memberships_user_tenant_unique UNIQUE (user_id, tenant_id);
+  END IF;
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 

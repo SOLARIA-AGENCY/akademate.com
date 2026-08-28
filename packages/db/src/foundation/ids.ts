@@ -10,8 +10,10 @@ export function isUuid(value: string): boolean {
 }
 
 /**
- * Tenant ids in Drizzle are UUIDs. Payload still uses positive integers.
- * Accept both during the expand window.
+ * Drizzle tenant ids are UUIDs. Payload still uses positive integers.
+ * The wrapper accepts both so callers do not throw during the expand window.
+ * RLS policies on Drizzle tables cast app.tenant_id to uuid. Pass a UUID
+ * when querying those tables. An integer setting will not match UUID rows.
  */
 export function isValidTenantId(value: string | number): boolean {
   if (typeof value === 'number') {

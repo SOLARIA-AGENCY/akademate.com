@@ -39,13 +39,12 @@ Fuera de esta orden. Fases 2 a 7. Outbox. ObjectStorage. Health. Stripe en `apps
 ## 2. SHA HEAD y rama
 
 - Rama. `feat/foundation-p0-2026-08-28`
-- HEAD. `d35b06e6d5c2bd8dd94853117515710b29b88800`
+- HEAD. `4a2411c951708f22d2f687da3cee54ae86cf5f0e`
 - Base. `origin/main` `64df89fd1f53372a01fc5f337a17d52ec55b1161`
 - Commits.
   - `1fc477a` docs(architecture): map existing schema to foundation P0
   - `d35b06e` feat(db): evolve foundation P0 core
-
-(Si este informe se commitea despues, HEAD avanzara un commit.)
+  - `4a2411c` docs: add GROK-REPORT-ORDEN-1 for foundation P0
 
 ## 3. URL del PR
 
@@ -103,11 +102,13 @@ No aplicar `0005` sobre la DB Payload serial de produccion.
 
 ### Riesgos
 
-1. Dual schema. Correr `0005_foundation_p0.sql` contra Postgres Payload serial falla o crea tablas paralelas. Owner. Drizzle UUID only.
-2. `withTenantContext` acepta enteros y UUID. Es expand. Contract cuando Payload deje de ser fuente operativa.
-3. Backfill crea un group por tenant (slug = tenant slug). Grupos reales multi-tenant (CEP) hay que reagrupar a mano mas adelante. No se inventan tenants.
-4. `policies` unique con NULLs en Postgres no colapsa defaults de plataforma. Aceptable en P0.
-5. Node 22 no estaba en este runner. Tests en Node 20.
+1. Dual schema. Correr `0005_foundation_p0.sql` contra Postgres Payload serial falla o crea tablas paralelas. `apps/tenant-admin` Payload y el cliente Drizzle leen el mismo `DATABASE_URL`. No hay split de runtime. No aplicar 0005 ahi.
+2. RLS Drizzle castea `app.tenant_id` a uuid. `withTenantContext` acepta enteros para no romper callers Payload, pero un integer en `set_config` no aísla filas UUID. Hay que pasar UUID contra tablas Drizzle.
+3. Isolation Postgres no se ejecuto aqui (16 tests skipped). `rls.isolation.test.ts` sigue usando PKs enteros de la era Payload. Probar con `RUN_DB_TESTS=true` en una DB UUID.
+4. `drizzle-kit migrate` no aplica los SQL sueltos `0001_enable_rls.sql` / `0002_complete_rls.sql`. El journal solo tiene 0000, 0001_slim, 0002_mysterious, 0005.
+5. Backfill crea un group por tenant (slug = tenant slug). Grupos reales multi-tenant (CEP) hay que reagrupar a mano. No se inventan tenants.
+6. `policies` unique con NULLs en Postgres no colapsa defaults de plataforma. Aceptable en P0.
+7. Node 22 no estaba en este runner. Tests en Node 20.
 
 ### Rollback
 
