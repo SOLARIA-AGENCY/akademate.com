@@ -334,8 +334,8 @@ export default function CiclosMedioPage() {
       />
 
       <Card data-oid="y:jjkmt">
-        <CardContent className="pt-6" data-oid="ermbj.a">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ounfs:m">
+        <CardContent className="pt-6 text-left" data-oid="ermbj.a">
+          <div className="flex flex-wrap items-center justify-start gap-3 xl:flex-nowrap" data-oid="ounfs:m">
             <div className="relative min-w-[260px] flex-1" data-oid="gua25gd">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"

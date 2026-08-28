@@ -380,6 +380,29 @@ export default function DashboardPage() {
         data-oid="qqq2bhb"
       />
 
+      <Card data-testid="hoy-en-la-academia">
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="whitespace-normal break-words">Hoy en la academia</CardTitle>
+          <CardDescription className="whitespace-normal break-words">
+            {new Date().toLocaleDateString('es-ES', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-2">
+          <p className="whitespace-normal break-words text-sm leading-snug text-foreground">
+            Operativa del día: {metrics.active_convocations} convocatorias activas,{' '}
+            {metrics.active_students} alumnos, {metrics.leads_this_month} leads este mes
+            {alerts.length > 0
+              ? ` y ${alerts.length} ${alerts.length === 1 ? 'alerta pendiente' : 'alertas pendientes'}.`
+              : '. Sin alertas pendientes.'}
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Primera línea de KPIs */}
       <div
         className={DASHBOARD_GRID_CLASS}
@@ -390,7 +413,7 @@ export default function DashboardPage() {
           return (
             <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="whitespace-normal break-words text-sm font-medium text-muted-foreground">
                   {kpi.title}
                 </CardTitle>
                 <div className="rounded-full bg-primary/10 p-1.5">
@@ -415,7 +438,7 @@ export default function DashboardPage() {
           return (
             <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="whitespace-normal break-words text-sm font-medium text-muted-foreground">
                   {kpi.title}
                 </CardTitle>
                 <div className="rounded-full bg-primary/10 p-1.5">

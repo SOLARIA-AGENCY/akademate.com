@@ -20,6 +20,15 @@ const homeSource = readFileSync(
   'utf8',
 )
 const cssSource = readFileSync(join(dir, '../../app/globals.css'), 'utf8')
+const selectSource = readFileSync(
+  join(dir, '../../@payload-config/components/ui/select.tsx'),
+  'utf8',
+)
+const headerSource = readFileSync(
+  join(dir, '../../@payload-config/components/ui/PageHeader.tsx'),
+  'utf8',
+)
+const cardSource = readFileSync(join(dir, '../../@payload-config/components/ui/card.tsx'), 'utf8')
 
 describe('dashboard overflow', () => {
   it('does not trap the viewport in an h-screen overflow-hidden shell', () => {
@@ -50,6 +59,27 @@ describe('dashboard overflow', () => {
     expect(homeSource).toContain('DASHBOARD_GRID_CLASS')
     expect(homeSource).not.toMatch(/overflow-y-auto/)
     expect(homeSource).not.toMatch(/max-h-\[/)
+  })
+
+  it('keeps Hoy en la academia text uncut and without inner card scroll', () => {
+    expect(homeSource).toContain('Hoy en la academia')
+    expect(homeSource).toContain('whitespace-normal break-words')
+    expect(homeSource).toContain('data-testid="hoy-en-la-academia"')
+    const hoyBlock = homeSource.slice(
+      homeSource.indexOf('hoy-en-la-academia'),
+      homeSource.indexOf('Primera línea de KPIs'),
+    )
+    expect(hoyBlock).not.toMatch(/overflow-y-auto|line-clamp|truncate|max-h-/)
+  })
+
+  it('aligns listing filter text to the start, not centered', () => {
+    expect(selectSource).toContain('text-left')
+    expect(selectSource).not.toContain('line-clamp-1')
+    expect(selectSource).toContain("align = 'start'")
+    expect(headerSource).toContain('justify-start')
+    expect(headerSource).toContain('text-left')
+    expect(cardSource).toContain('leading-snug')
+    expect(cardSource).not.toContain('leading-none')
   })
 
   it('clips horizontal overflow on the document, not on main, at 1440/1024/768', () => {

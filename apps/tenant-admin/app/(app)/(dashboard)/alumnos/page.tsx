@@ -309,8 +309,8 @@ export default function AlumnosPage() {
 
       {/* Filtros */}
       <Card data-oid="evhc1ab">
-        <CardContent className="pt-6" data-oid="vrvrvg9">
-          <div className="grid gap-4 md:grid-cols-5" data-oid="t_sy_:2">
+        <CardContent className="pt-6 text-left" data-oid="vrvrvg9">
+          <div className="grid gap-4 md:grid-cols-5 text-left" data-oid="t_sy_:2">
             <div className="relative" data-oid="606pz0d">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"

@@ -6,34 +6,38 @@ Reporta a. AUDIT-Ω
 
 ## Que se hizo
 
-DoD. Scroll vertical = documento/pantalla. No overflow-y interno en `main`. Cards a tamano natural.
+DoD. Scroll vertical = documento/pantalla. No overflow-y interno en `main`. Cards a tamano natural. Sin scroll interno en la card.
 
-Causa residual. `overflow-x: hidden` en el shell (y en body) computa `overflow-y: auto`. Eso vuelve a crear un scrollport interno aunque `main` ya no tenga `overflow-y-auto`.
+Causa residual. `overflow-x: hidden` computa `overflow-y: auto`.
 
-Cambio.
+Cambio de layout.
 
-- Shell y `main` sin overflow. `overflow: visible`.
-- Clip horizontal en `html`/`body` con `overflow-x: clip` (no `hidden`).
-- Grids del dashboard con `min-w-0`. Items de grid con `min-width: 0`.
-- `course-instance-card` ya no tiene `max-height: 580px`.
-- Sidebar navy no se toco.
+- Shell y `main` con `overflow: visible`.
+- Clip horizontal en `html`/`body` con `overflow-x: clip`.
+- Grids con `min-w-0`.
+- `course-instance-card` sin `max-height: 580px`.
+
+Addendum CEP OVH-Ω.
+
+1. Filtros superiores. texto a la izquierda, no centrado. Select `text-left`, `align=start`, sin `line-clamp-1`. PageHeader filters `justify-start text-left`. Listados cursos/alumnos/ciclos igual.
+2. Card "Hoy en la academia". texto completo con `whitespace-normal break-words`. Sin truncate, line-clamp, max-height ni overflow-y.
 
 ## SHA y rama
 
 - Rama. `feat/foundation-p0-2026-08-28`
 - PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/7
-- HEAD. `19098ff3d6b0765a26d7f51e2bb984defaab39ce`
+- HEAD. `8692c48e5fb9d5ad7156007d6d48310d2e47588c`
 
-No merge. No deploy. No branding.
+No merge. No deploy. No branding. No if-tenant==CEP.
 
 ## Tests
 
 ```text
-cd apps/tenant-admin && pnpm exec vitest run __tests__/layout/dashboard-overflow.test.ts
-# 1 file, 5 passed
+cd apps/tenant-admin && pnpm exec vitest run \
+  __tests__/layout/dashboard-overflow.test.ts \
+  __tests__/dashboard-campus-integration.test.tsx
+# 2 files, 8 passed
 ```
-
-Contrato en 1440 / 1024 / 768. las mismas clases, sin `md:overflow-y-auto`. Falla si `main` vuelve a `overflow-y-auto` o si el shell vuelve a `h-screen` + `overflow-hidden` o `overflow-x-hidden`.
 
 ## Files
 
@@ -41,10 +45,13 @@ Contrato en 1440 / 1024 / 768. las mismas clases, sin `md:overflow-y-auto`. Fall
 - `apps/tenant-admin/app/(app)/(dashboard)/layout.tsx`
 - `apps/tenant-admin/app/(app)/(dashboard)/_components/DashboardHome.tsx`
 - `apps/tenant-admin/app/globals.css`
+- `apps/tenant-admin/@payload-config/components/ui/select.tsx`
+- `apps/tenant-admin/@payload-config/components/ui/card.tsx`
+- `apps/tenant-admin/@payload-config/components/ui/PageHeader.tsx`
+- `apps/tenant-admin/app/(app)/(dashboard)/cursos/page.tsx`
+- `apps/tenant-admin/app/(app)/(dashboard)/alumnos/page.tsx`
+- `apps/tenant-admin/app/(app)/(dashboard)/ciclos-medio/page.tsx`
+- `apps/tenant-admin/app/(app)/(dashboard)/ciclos-superior/page.tsx`
 - `apps/tenant-admin/__tests__/layout/dashboard-overflow.test.ts`
-
-## Huecos
-
-jsdom no mide overflow real en pixels. No hay browser tools en este runner.
 
 GROK BUILD AKADEMATE

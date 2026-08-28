@@ -82,7 +82,7 @@ export function PageHeader({
       {/* Row 2: Filters (optional) */}
       {filters && (
         <div
-          className="flex items-center gap-3 flex-wrap mt-3 pt-3 border-t border-border"
+          className="flex items-center justify-start gap-3 flex-wrap mt-3 pt-3 border-t border-border text-left"
           data-oid="on_hyte"
         >
           {filters}

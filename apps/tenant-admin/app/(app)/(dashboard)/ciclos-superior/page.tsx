@@ -399,7 +399,7 @@ export default function CiclosSuperiorPage() {
       />
 
       <Card data-oid="gnt46a4">
-        <CardContent className="pt-6" data-oid="2x81uca">
+        <CardContent className="pt-6 text-left" data-oid="2x81uca">
           <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="o05:x0u">
             <div className="relative min-w-[260px] flex-1" data-oid="6-ms7wz">
               <Search
