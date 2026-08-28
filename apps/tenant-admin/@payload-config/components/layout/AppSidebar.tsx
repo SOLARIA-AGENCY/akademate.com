@@ -383,13 +383,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
   return (
     <div
-      className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground"
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-sidebar text-sidebar-foreground"
       data-oid="itwxk4a"
     >
       {/* Header - Logo + Text - Smooth transition */}
       {/* Header - Logo fijo h-14, nunca cambia */}
       <div
-        className="flex h-14 items-center border-b border-sidebar-border px-3 overflow-hidden"
+        className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-3 overflow-hidden"
         data-oid="woefz9o"
       >
         <div
@@ -414,7 +414,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Menu Content */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2" data-oid=".42vml6">
+      <nav className="dashboard-rail-nav min-h-0 flex-1 overflow-x-clip overflow-y-auto py-3 px-2" data-oid=".42vml6">
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
@@ -574,8 +574,28 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         </ul>
       </nav>
 
-      {/* Footer - Always Visible */}
-      <div className="border-t border-sidebar-border mt-auto" data-oid="df5f9o3">
+      <div
+        className="dashboard-rail-footer shrink-0 border-t border-sidebar-border"
+        data-testid="dashboard-rail-footer"
+        data-oid="df5f9o3"
+      >
+        <Link
+          href="/matriculas"
+          className={`flex h-10 items-center bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 ease-in-out ${
+            isCollapsed ? 'justify-center' : 'gap-3 px-3'
+          }`}
+          title={isCollapsed ? 'Matriculación' : undefined}
+          data-testid="rail-matriculacion"
+        >
+          <UserPlus className="h-4 w-4 shrink-0" />
+          <span
+            className={`text-sm font-semibold whitespace-nowrap transition-all duration-300 ease-in-out ${
+              isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'opacity-100'
+            }`}
+          >
+            Matriculación
+          </span>
+        </Link>
         {/* Toggle button row - At top of footer, centered when collapsed */}
         {onToggle && (
           <div

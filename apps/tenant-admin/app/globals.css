@@ -506,12 +506,27 @@ body:not(.payload-admin) {
   overflow-x: clip;
 }
 
-.dashboard-shell,
-.dashboard-shell main {
+.dashboard-shell {
   min-width: 0;
-  overflow: visible;
+  overflow-x: clip;
+  overflow-y: hidden;
+}
+
+.dashboard-canvas-scroll {
+  min-height: 0;
+  overflow-x: clip;
+  overflow-y: auto;
 }
 
 .dashboard-shell main .grid > * {
   min-width: 0;
+}
+
+.dashboard-shell {
+  outline: none;
+}
+
+html[data-ipad-app] .dashboard-shell {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -2px;
 }

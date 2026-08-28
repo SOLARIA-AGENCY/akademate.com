@@ -39,7 +39,11 @@ import {
 } from 'recharts'
 import { useDashboardMetrics } from '@payload-config/hooks'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
-import { DASHBOARD_GRID_2_CLASS, DASHBOARD_GRID_CLASS } from '../dashboard-shell'
+import {
+  DASHBOARD_GRID_2_CLASS,
+  DASHBOARD_GRID_CLASS,
+  DASHBOARD_STICKY_CHROME_CLASS,
+} from '../dashboard-shell'
 
 // Dashboard data types - defined locally to ensure TypeScript resolution
 interface DashboardMetrics {
@@ -365,6 +369,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6" data-oid="re7drx3">
+      <div className={DASHBOARD_STICKY_CHROME_CLASS} data-testid="dashboard-sticky-chrome">
       <PageHeader
         title="Dashboard"
         description={`Vista general de la operativa de ${branding.academyName}`}
@@ -379,6 +384,7 @@ export default function DashboardPage() {
         }
         data-oid="qqq2bhb"
       />
+      </div>
 
       <Card data-testid="hoy-en-la-academia">
         <CardHeader className="p-4 pb-2">
