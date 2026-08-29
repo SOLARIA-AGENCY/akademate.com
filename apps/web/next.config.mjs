@@ -7,11 +7,16 @@ const scriptSources =
   process.env.NODE_ENV === 'development'
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
     : "script-src 'self' 'unsafe-inline'"
+const openNext = process.env.OPEN_NEXT === '1'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-  outputFileTracingRoot: path.resolve(__dirname, '../..'),
+  ...(openNext
+    ? {}
+    : {
+        output: 'standalone',
+        outputFileTracingRoot: path.resolve(__dirname, '../..'),
+      }),
   poweredByHeader: false,
 
   // Transpile workspace packages
@@ -21,6 +26,7 @@ const nextConfig = {
 
   // Image optimization
   images: {
+    unoptimized: openNext,
     remotePatterns: [
       {
         protocol: 'https',
