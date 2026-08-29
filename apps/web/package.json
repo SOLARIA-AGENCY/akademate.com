@@ -27,7 +27,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.7.0",
-    "next": "^15.5.14",
+    "next": "15.5.14",
     "pg": "^8.20.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -35,7 +35,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.20.2",
+    "@opennextjs/cloudflare": "1.20.2",
     "@playwright/test": "^1.59.1",
     "@types/node": "^22.19.17",
     "@types/pg": "^8.20.0",
@@ -47,6 +47,6 @@
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
     "vitest": "^4.1.2",
-    "wrangler": "^4.125.0"
+    "wrangler": "4.125.0"
   }
 }

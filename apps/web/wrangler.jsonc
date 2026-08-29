@@ -6,6 +6,9 @@
   "compatibility_date": "2026-08-21",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "workers_dev": true,
+  "vars": {
+    "NEXT_PRIVATE_MINIMAL_MODE": "1"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
