@@ -25,12 +25,12 @@ export async function generateMetadata(): Promise<Metadata> {
       en: {
         title: 'Academy software for every learning model',
         description:
-          'Explore Akademate for professional training, languages, wellness, sport, camps, performing arts, online education and multi-site groups.',
+          'Explore Akademate for professional training, languages, wellness, sport, driving schools, camps, coding academies, performing arts, online education and multi-site groups.',
       },
       es: {
         title: 'Software para cada modelo de academia',
         description:
-          'Descubre Akademate para formación profesional, idiomas, bienestar, deporte, campamentos, artes, educación online y redes multisedes.',
+          'Descubre Akademate para formación profesional, idiomas, bienestar, deporte, autoescuelas, campamentos, programación, artes, educación online y redes multisedes.',
       },
     },
   })
@@ -112,7 +112,7 @@ export default async function SolutionsPage() {
                         </li>
                       ))}
                     </ul>
-                    <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
+                    <span className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#071633] px-5 text-sm font-semibold text-white">
                       {verticalPageChrome[locale].exploreSolution}{' '}
                       <ArrowRight
                         className="h-4 w-4 transition group-hover:translate-x-1"

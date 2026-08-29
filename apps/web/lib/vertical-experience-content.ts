@@ -265,6 +265,66 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       cta: 'Mapear mi red de centros',
     },
   },
+  'driving-schools': {
+    en: {
+      eyebrow: 'Lessons, cars and exams in one diary',
+      title: 'Fill the diary and keep every learner moving.',
+      description:
+        'Reception, instructors and learners share the same view of slots, vehicles and exam dates.',
+      image: '/images/marketing/akademate-driving-school.jpg',
+      imageAlt: 'Driving instructor with a learner in a dual-control car during a lesson',
+      roles: [
+        { title: 'School owners', text: 'Shape packs, cars and instructor load.' },
+        { title: 'Instructors', text: 'See slots, cars and learner progress.' },
+        { title: 'Learners', text: 'Book lessons and track exam readiness.' },
+      ],
+      cta: 'Start free trial',
+    },
+    es: {
+      eyebrow: 'Clases, coches y exámenes en una agenda',
+      title: 'Llena la agenda y avanza a cada alumno.',
+      description:
+        'Recepción, instructores y alumnado comparten huecos, vehículos y fechas de examen.',
+      image: '/images/marketing/akademate-driving-school.jpg',
+      imageAlt: 'Instructor de autoescuela con un alumno en un coche de doble mando',
+      roles: [
+        { title: 'Dirección', text: 'Configura bonos, coches y carga de instructores.' },
+        { title: 'Instructores', text: 'Consulta huecos, coches y progreso.' },
+        { title: 'Alumnado', text: 'Reserva clases y sigue la preparación al examen.' },
+      ],
+      cta: 'Empieza la prueba gratis',
+    },
+  },
+  'coding-academies': {
+    en: {
+      eyebrow: 'From cohort to hired',
+      title: 'Keep projects, mentors and placement in one campus.',
+      description:
+        'Admissions, mentors and career teams share the same view of each learner journey.',
+      image: '/images/marketing/akademate-coding-academy.jpg',
+      imageAlt: 'Mentor and students working together in a coding academy classroom',
+      roles: [
+        { title: 'Admissions', text: 'Fill the next cohort without losing applicants.' },
+        { title: 'Mentors', text: 'Review projects, blockers and office hours.' },
+        { title: 'Career', text: 'Track portfolios, interviews and offers.' },
+      ],
+      cta: 'Start free trial',
+    },
+    es: {
+      eyebrow: 'De la cohorte al empleo',
+      title: 'Mantén proyectos, mentores y colocación en un campus.',
+      description:
+        'Admisiones, mentores y empleo comparten la misma visión de cada alumno.',
+      image: '/images/marketing/akademate-coding-academy.jpg',
+      imageAlt: 'Mentor y alumnado trabajando juntos en un aula de programación',
+      roles: [
+        { title: 'Admisiones', text: 'Llena la siguiente cohorte sin perder solicitudes.' },
+        { title: 'Mentores', text: 'Revisa proyectos, bloqueos y tutorías.' },
+        { title: 'Empleo', text: 'Sigue portafolios, entrevistas y ofertas.' },
+      ],
+      cta: 'Empieza la prueba gratis',
+    },
+  },
 }
 
 export function getVerticalExperienceContent(slug: string, locale: Locale) {

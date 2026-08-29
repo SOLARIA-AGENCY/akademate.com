@@ -30,6 +30,7 @@ describe('marketing copy registry', () => {
     const sources = [
       'Academy models',
       'Explore solution',
+      'See this academy model',
       'Previous academy model',
       'Next academy model',
       'Public learner review presented by CEP Formación',

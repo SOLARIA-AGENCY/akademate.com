@@ -272,7 +272,7 @@ test.describe('Akademate public commercial surface', () => {
     await expect(course.getByRole('dialog', { name: 'Share course' })).toBeVisible()
   })
 
-  test('runs slow accessible carousels with manual control and complete card borders', async ({
+  test('shows every academy model as a clickable card with complete card borders', async ({
     page,
   }) => {
     await page.goto('/')
@@ -294,21 +294,12 @@ test.describe('Akademate public commercial surface', () => {
       .not.toBe('none')
     await expect(marqueeTracks.first()).toHaveCSS('animation-play-state', 'running')
 
-    const carousel = page.getByRole('region', { name: 'Academy models' })
-    await expect(carousel).toBeVisible()
-    await expect(carousel.getByRole('link', { name: 'Explore solution' })).toHaveCount(8)
-    await expect(carousel.getByRole('button', { name: /^Show / })).toHaveCount(8)
-    const rail = carousel.locator('.solution-carousel-track')
-    await expect
-      .poll(() =>
-        rail.evaluate((node) => node.scrollWidth > node.clientWidth && node.scrollLeft > 0)
-      )
-      .toBe(true)
-    await carousel.getByRole('button', { name: 'Next academy model' }).click()
-    await expect(carousel.getByRole('button', { name: /^Show / }).nth(1)).toHaveAttribute(
-      'aria-current',
-      'true'
-    )
+    const solutions = page.locator('#solutions')
+    await expect(solutions.getByRole('heading', { name: 'Built around your academy model.' })).toBeVisible()
+    await expect(solutions.locator('a[href*="/solutions/"]')).toHaveCount(10)
+    await expect(solutions.getByRole('link', { name: /See this academy model/i })).toHaveCount(10)
+    await expect(solutions.getByRole('link', { name: /Driving schools/i })).toBeVisible()
+    await expect(solutions.getByRole('link', { name: /Coding academies/i })).toBeVisible()
 
     const distributionCards = page
       .locator('article')
@@ -389,6 +380,8 @@ test.describe('Akademate public commercial surface', () => {
       '/solutions/seasonal',
       '/solutions/performing-arts',
       '/solutions/online-cohorts',
+      '/solutions/driving-schools',
+      '/solutions/coding-academies',
       '/solutions/networks',
       '/blog',
       '/news',
@@ -480,6 +473,8 @@ test.describe('Akademate public commercial surface', () => {
       '/en/solutions/performing-arts',
       '/en/solutions/online-cohorts',
       '/en/solutions/languages',
+      '/en/solutions/driving-schools',
+      '/en/solutions/coding-academies',
       '/en/solutions/networks',
     ]
     const response = await page.goto('/en/solutions', { waitUntil: 'domcontentloaded' })
@@ -487,9 +482,9 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
       'Your academy. One platform.'
     )
-    await expect(page.locator('main a[href^="/en/solutions/"]')).toHaveCount(8)
+    await expect(page.locator('main a[href^="/en/solutions/"]')).toHaveCount(10)
     const verticalImages = page.locator('main a[href^="/en/solutions/"] img')
-    await expect(verticalImages).toHaveCount(8)
+    await expect(verticalImages).toHaveCount(10)
     for (let index = 0; index < (await verticalImages.count()); index += 1) {
       const image = verticalImages.nth(index)
       await image.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'center' }))
@@ -515,6 +510,10 @@ test.describe('Akademate public commercial surface', () => {
       await expect(page.getByRole('tablist', { name: /Akademate designed for this/ })).toBeVisible()
       await page.getByRole('tab').last().click()
       await expect(page.getByRole('tabpanel').locator('select')).toHaveCount(3)
+      await expect(page.getByRole('link', { name: /Start free trial/i }).first()).toHaveAttribute(
+        'href',
+        new RegExp(`/registro\\?asunto=trial&vertical=${path.split('/').pop()}$`)
+      )
     }
     expect(headings.size).toBe(paths.length)
   })

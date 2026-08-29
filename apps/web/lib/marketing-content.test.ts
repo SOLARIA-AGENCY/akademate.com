@@ -292,18 +292,16 @@ describe('public marketing architecture', () => {
     )
   })
 
-  it('uses an accessible slow infinite carousel for every academy model', () => {
+  it('uses a clickable ten-model grid so every academy type is visible', () => {
     const carousel = readFileSync(
       new URL('../components/marketing/SolutionCarousel.tsx', import.meta.url),
       'utf8'
     )
-    expect(carousel).toContain('aria-roledescription="carousel"')
-    expect(carousel).toContain('overflow-x-auto')
-    expect(carousel).toContain('requestAnimationFrame')
-    expect(carousel).toContain('* 0.006')
-    expect(carousel).toContain('Previous academy model')
-    expect(carousel).toContain('Next academy model')
-    expect(carousel).toContain('prefers-reduced-motion: reduce')
+    expect(carousel).toContain('lg:grid-cols-5')
+    expect(carousel).toContain('See this academy model')
+    expect(carousel).toContain("localizedHref(`/solutions/${vertical.slug}`, locale)")
+    expect(carousel).not.toContain('aria-roledescription="carousel"')
+    expect(carousel).not.toContain('requestAnimationFrame')
   })
 
   it('offers Launch, Business and Enterprise without fabricated prices', () => {
@@ -324,14 +322,14 @@ describe('public marketing architecture', () => {
   })
 
   it('publishes at least eight vertical profiles with project-local imagery', () => {
-    expect(verticals.length).toBeGreaterThanOrEqual(8)
-    expect(academyTypes.length).toBeGreaterThanOrEqual(8)
+    expect(verticals).toHaveLength(10)
+    expect(academyTypes).toHaveLength(10)
     for (const vertical of verticals) {
       expect(existsSync(new URL(`../public${vertical.image}`, import.meta.url))).toBe(true)
       expect(vertical.capabilities.length).toBeGreaterThanOrEqual(3)
     }
     expect(verticals.map((vertical) => vertical.slug)).toEqual(
-      expect.arrayContaining(['wellness', 'sports', 'seasonal', 'performing-arts', 'networks'])
+      expect.arrayContaining(['wellness', 'sports', 'seasonal', 'performing-arts', 'networks', 'driving-schools', 'coding-academies'])
     )
     expect(new Set(verticals.map((vertical) => vertical.image)).size).toBe(verticals.length)
     expect(Object.keys(solutionDetails).sort()).toEqual(
@@ -359,6 +357,8 @@ describe('public marketing architecture', () => {
     expect(JSON.stringify(verticalProductStories.wellness)).toMatch(/Vinyasa Flow|Reformer Pilates/)
     expect(JSON.stringify(verticalProductStories.sports)).toMatch(/guardian|team|season/i)
     expect(JSON.stringify(verticalProductStories.languages)).toMatch(/CEFR|placement/i)
+    expect(JSON.stringify(verticalProductStories['driving-schools'])).toMatch(/lesson|exam|vehicle/i)
+    expect(JSON.stringify(verticalProductStories['coding-academies'])).toMatch(/cohort|mentor|portfolio/i)
     expect(JSON.stringify(verticalProductStories.networks)).toMatch(/campus|consolidated/i)
   })
 

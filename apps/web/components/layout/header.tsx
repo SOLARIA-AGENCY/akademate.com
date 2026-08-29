@@ -58,7 +58,7 @@ export function Header() {
                       aria-hidden="true"
                     />
                   </summary>
-                  <div className="absolute left-1/2 top-9 w-[620px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(7,22,51,.16)]">
+                  <div className="absolute left-1/2 top-9 w-[720px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(7,22,51,.16)]">
                     <div className="grid grid-cols-2 gap-1">
                       {verticals.map((vertical) => {
                         const localizedVertical = getLocalizedVertical(vertical.slug, locale)!

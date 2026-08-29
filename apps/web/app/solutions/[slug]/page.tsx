@@ -89,7 +89,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               {detail.headline}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">{detail.promise}</p>
-            <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-8">
+            <Link href={href(`/registro?asunto=trial&vertical=${slug}`)} className="button-primary-light mt-8">
               {chrome.heroCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -177,7 +177,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-blue-100/70">
               {chrome.closingDescription}
             </p>
-            <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-8">
+            <Link href={href(`/registro?asunto=trial&vertical=${slug}`)} className="button-primary-light mt-8">
               {experience.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>

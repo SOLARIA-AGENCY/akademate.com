@@ -23,7 +23,7 @@ export type LocalizedVerticalProductStory = (typeof verticalProductStories)[stri
 export const verticalPageChrome = {
   en: {
     heroPrefix: 'Akademate for',
-    heroCta: 'See it for your academy',
+    heroCta: 'Start free trial',
     outcomesTitle: 'A smoother journey for everyone.',
     experienceEyebrow: 'A product experience shaped around your model',
     experienceTitle: 'See the workflow come together.',
@@ -31,7 +31,7 @@ export const verticalPageChrome = {
     poweredBy: 'Powered by',
     closingTitle: 'Build a better academy.',
     closingDescription: 'Map your programmes, people and locations.',
-    closingCta: 'Book your walkthrough',
+    closingCta: 'Start free trial',
     designedFor: 'Designed for your',
     operatingContext: 'Example operating context',
     illustrativeExample: 'Illustrative product example',
@@ -39,7 +39,7 @@ export const verticalPageChrome = {
   },
   es: {
     heroPrefix: 'Akademate para',
-    heroCta: 'Descúbrelo para tu academia',
+    heroCta: 'Empieza la prueba gratis',
     outcomesTitle: 'Un recorrido más ágil para todos.',
     experienceEyebrow: 'Una experiencia de producto adaptada a tu modelo',
     experienceTitle: 'Descubre cómo se conecta el flujo de trabajo.',
@@ -47,7 +47,7 @@ export const verticalPageChrome = {
     poweredBy: 'Con la tecnología de',
     closingTitle: 'Construye una academia mejor.',
     closingDescription: 'Conecta tus programas, personas y sedes.',
-    closingCta: 'Reserva tu recorrido',
+    closingCta: 'Empieza la prueba gratis',
     designedFor: 'Diseñado para tu',
     operatingContext: 'Ejemplo de contexto operativo',
     illustrativeExample: 'Ejemplo ilustrativo de producto',
@@ -102,6 +102,18 @@ const spanishVerticalMeta: Record<
     description: 'Nivelación, grupos, facturación e impartición híbrida.',
     imageAlt: 'Personas adultas aprendiendo en una clase colaborativa de idiomas',
     capabilities: ['Nivelación', 'Niveles', 'Facturación mensual'],
+  },
+  'driving-schools': {
+    title: 'Autoescuelas',
+    description: 'Clases, vehículos, exámenes y progreso del alumnado.',
+    imageAlt: 'Instructor de autoescuela con un alumno en un coche de doble mando',
+    capabilities: ['Clases', 'Vehículos', 'Seguimiento de examen'],
+  },
+  'coding-academies': {
+    title: 'Academias de programación',
+    description: 'Cohortes, proyectos, mentores y portafolios listos para empleo.',
+    imageAlt: 'Mentor y alumnado trabajando juntos en un aula de programación',
+    capabilities: ['Cohortes', 'Proyectos', 'Mentores'],
   },
   networks: {
     title: 'Grupos multisede y franquicias',
@@ -219,6 +231,40 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
       'Campus virtual',
       'Tareas y chat',
       'Progreso y finalización',
+    ],
+  },
+  'driving-schools': {
+    headline: 'Llena la agenda. Aprueba más exámenes.',
+    promise: 'Conecta clases, vehículos, exámenes y cobros en un solo expediente.',
+    outcomes: [
+      'Convierte consultas en clases confirmadas',
+      'Alinea coches, instructores y huecos',
+      'Sigue teoría, práctica y fechas de examen',
+      'Cobra sin perseguir hojas de cálculo',
+    ],
+    workflow: ['Reservar clase', 'Asignar coche', 'Seguir progreso', 'Aprobar el examen'],
+    modules: [
+      'Reserva de clases',
+      'Agenda de vehículos e instructores',
+      'Exámenes y progreso',
+      'Cuotas y recibos',
+    ],
+  },
+  'coding-academies': {
+    headline: 'Entrega proyectos. Coloca egresados.',
+    promise: 'Conecta cohortes, trabajo de proyecto, mentores y resultados de empleo.',
+    outcomes: [
+      'Llena la siguiente cohorte sin perder solicitudes',
+      'Mantén proyectos y feedback en un campus',
+      'Da a cada mentor una vista clara del alumnado',
+      'Muestra trabajo listo para contratar sin herramientas extra',
+    ],
+    workflow: ['Solicitar plaza', 'Unirse a una cohorte', 'Construir proyectos', 'Conseguir empleo'],
+    modules: [
+      'Admisiones por cohorte',
+      'Campus de proyectos',
+      'Espacio del mentor',
+      'Portafolio y colocación',
     ],
   },
   networks: {

@@ -289,6 +289,8 @@ export const spanishMarketingCopy = {
   'Explore campus operations': 'Explora la operación del campus',
   'Academy models': 'Modelos de academia',
   'Explore solution': 'Explorar solución',
+  'See this academy model': 'Ver este modelo',
+  'Driving schools': 'Autoescuelas',
   'Show ': 'Mostrar ',
   'Platform categories': 'Categorías de la plataforma',
   'Akademate platform across academy operations, public course pages and learner campus':

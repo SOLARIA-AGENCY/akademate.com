@@ -7,22 +7,36 @@ import { useLocale } from '@/components/i18n/locale-provider'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/routing'
 
-const validSubjects = ['demo', 'pricing', 'support', 'partnership', 'privacy', 'other'] as const
+const validSubjects = [
+  'demo',
+  'pricing',
+  'support',
+  'partnership',
+  'privacy',
+  'trial',
+  'other',
+] as const
 
 export function ContactForm() {
   const locale = useLocale()
   const copy = getDictionary(locale).contact
   const searchParams = useSearchParams()
   const requestedSubject = searchParams.get('asunto')
+  const vertical = searchParams.get('vertical') ?? ''
   const initialSubject = validSubjects.includes(requestedSubject as (typeof validSubjects)[number])
     ? (requestedSubject ?? '')
+    : vertical
+      ? 'trial'
+      : ''
+  const initialMessage = vertical
+    ? `I want to start a free trial for ${vertical.replace(/-/g, ' ')}.`
     : ''
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
     subject: initialSubject,
-    message: '',
+    message: initialMessage,
     website: '',
     privacyAccepted: false,
   })

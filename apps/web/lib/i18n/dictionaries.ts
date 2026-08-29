@@ -73,7 +73,10 @@ type Dictionary = {
     subject: string
     message: string
     subjectPlaceholder: string
-    subjects: Record<'demo' | 'pricing' | 'support' | 'partnership' | 'privacy' | 'other', string>
+    subjects: Record<
+      'demo' | 'pricing' | 'support' | 'partnership' | 'privacy' | 'trial' | 'other',
+      string
+    >
     privacyPrefix: string
     privacyLink: string
     privacySuffix: string
@@ -84,6 +87,13 @@ type Dictionary = {
     success: string
     requestFailed: string
     website: string
+  }
+  trial: {
+    eyebrow: string
+    title: string
+    description: string
+    formTitle: string
+    formDescription: string
   }
 }
 
@@ -179,6 +189,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
         support: 'Customer support',
         partnership: 'Enterprise or partnership',
         privacy: 'Privacy',
+        trial: 'Free trial',
         other: 'Other',
       },
       privacyPrefix: 'I accept the',
@@ -191,6 +202,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       success: 'Thanks. Your request has been received.',
       requestFailed: 'We could not send your request.',
       website: 'Website',
+    },
+    trial: {
+      eyebrow: 'Free trial',
+      title: 'Start your academy on Akademate.',
+      description:
+        'Open a trial for your academy model. We will set the walkthrough around your programmes, people and sites.',
+      formTitle: 'Create your free trial',
+      formDescription: 'Share a little context. We will open the trial around your vertical.',
     },
   },
   es: {
@@ -288,6 +307,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
         support: 'Atención al cliente',
         partnership: 'Enterprise o colaboración',
         privacy: 'Privacidad',
+        trial: 'Prueba gratis',
         other: 'Otro',
       },
       privacyPrefix: 'Acepto la',
@@ -300,6 +320,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       success: 'Gracias. Hemos recibido tu solicitud.',
       requestFailed: 'No hemos podido enviar tu solicitud.',
       website: 'Sitio web',
+    },
+    trial: {
+      eyebrow: 'Prueba gratis',
+      title: 'Empieza tu academia en Akademate.',
+      description:
+        'Abre una prueba para tu modelo de academia. Prepararemos el recorrido alrededor de tus programas, personas y sedes.',
+      formTitle: 'Crea tu prueba gratis',
+      formDescription: 'Comparte un poco de contexto. Abriremos la prueba alrededor de tu vertical.',
     },
   },
 }

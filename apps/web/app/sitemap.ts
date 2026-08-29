@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/news',
     ...newsPosts.map((post) => `/news/${post.slug}`),
     '/contacto',
+    '/registro',
     ...legalLinks.map((link) => link.href),
   ]
 

@@ -544,6 +544,112 @@ const spanishStoryCopy: Record<string, SpanishStoryCopy> = {
       },
     ],
   },
+  'driving-schools': {
+    noun: 'autoescuela',
+    moments: [
+      {
+        label: 'Clases prácticas',
+        title: 'Llena la agenda de clases.',
+        text: 'Convierte consultas en huecos confirmados con el instructor adecuado.',
+        metricLabel: 'clases reservadas esta semana',
+        fields: [
+          field('Tipo de clase', 'Primera clase', 'Autovía', 'Aparcamiento'),
+          field('Horario', 'Mar 10:00', 'Jue 18:30', 'Sáb 09:00'),
+          field('Instructor', 'Marta Ruiz', 'Owen Blake'),
+        ],
+        activity: ['Dos consultas nuevas', 'Sábado por la mañana completo', 'Lista de espera ofrecida'],
+      },
+      {
+        label: 'Vehículos',
+        title: 'Alinea coches y huecos.',
+        text: 'Asigna coches de doble mando sin solapar instructores.',
+        metricLabel: 'coches disponibles hoy',
+        fields: [
+          field('Vehículo', 'Compacto A', 'Compacto B', 'Automático'),
+          field('Estado', 'Listo', 'En clase', 'Taller'),
+          field('Sede', 'Centro ciudad', 'Depósito norte'),
+        ],
+        activity: ['Automático reservado', 'Taller el viernes', 'Combustible registrado'],
+      },
+      {
+        label: 'Exámenes',
+        title: 'Sigue teoría y práctico.',
+        text: 'Ve preparación, fechas de examen y aprobados en un solo expediente.',
+        metricLabel: 'aprobados a la primera',
+        fields: [
+          field('Etapa', 'Teoría', 'Práctico', 'Repesca'),
+          field('Preparación', 'Listo', 'Necesita horas', 'Simulacro reservado'),
+          field('Centro de examen', 'Centro local', 'Centro norte'),
+        ],
+        activity: ['Simulacro reservado', 'Teoría aprobada', 'Fecha de práctico retenida'],
+      },
+      {
+        label: 'Pagos',
+        title: 'Cobra bonos y horas extra.',
+        text: 'Vende bonos, extras y tasas de examen sin perseguir el cobro.',
+        metricLabel: 'ingresos de bonos hoy',
+        fields: [
+          field('Producto', 'Bono 10 horas', 'Hora extra', 'Tasa de examen'),
+          field('Facturación', 'Pagar ahora', 'Plazos'),
+          field('Método', 'Tarjeta con Stripe', 'Domiciliación SEPA'),
+        ],
+        activity: ['Bono iniciado', 'Dos extras cobrados', 'Recibo enviado'],
+      },
+    ],
+  },
+  'coding-academies': {
+    noun: 'academia de programación',
+    moments: [
+      {
+        label: 'Cohorte',
+        title: 'Llena la siguiente cohorte.',
+        text: 'Pasa de interés a una fecha de inicio confirmada.',
+        metricLabel: 'plazas en la cohorte de octubre',
+        fields: [
+          field('Programa', 'Full-stack', 'Datos', 'Ingeniería UX'),
+          field('Inicio', '6 de octubre', '12 de enero'),
+          field('Formato', 'Tiempo completo', 'Tiempo parcial', 'Online'),
+        ],
+        activity: ['12 listos para matricularse', '4 esperan depósito', 'Huecos de entrevista abiertos'],
+      },
+      {
+        label: 'Proyectos',
+        title: 'Mantén el trabajo visible.',
+        text: 'El profesorado ve entregas, revisiones y bloqueos en un campus.',
+        metricLabel: 'proyectos en revisión',
+        fields: [
+          field('Sprint', 'API de acceso', 'Tienda', 'Proyecto final'),
+          field('Estado', 'En curso', 'Revisión', 'Publicado'),
+          field('Repositorio', 'Equipo A', 'Equipo B'),
+        ],
+        activity: ['Brief del proyecto final publicado', 'Dos revisiones pendientes', 'Demo el jueves'],
+      },
+      {
+        label: 'Mentores',
+        title: 'Da a cada mentor una vista clara.',
+        text: 'Asigna mentores, tutorías y feedback sin herramientas extra de chat.',
+        metricLabel: 'mentores activos',
+        fields: [
+          field('Mentor', 'Leah Okonkwo', 'Pavel Novak'),
+          field('Enfoque', 'Backend', 'Carrera', 'Pairing'),
+          field('Cadencia', '1:1 semanal', 'Lab abierto'),
+        ],
+        activity: ['Tutorías publicadas', 'Sesión de carrera reservada', 'Feedback devuelto'],
+      },
+      {
+        label: 'Progreso',
+        title: 'Muestra trabajo listo para contratar.',
+        text: 'Sigue portafolios, entrevistas y ofertas junto al expediente.',
+        metricLabel: 'egresados colocados en 90 días',
+        fields: [
+          field('Etapa', 'Portafolio', 'Entrevista', 'Oferta'),
+          field('Partner', 'Studio North', 'Product Lab'),
+          field('Resultado', 'Entrevistando', 'Oferta', 'Contratado'),
+        ],
+        activity: ['Portafolio publicado', 'Dos entrevistas esta semana', 'Oferta aceptada'],
+      },
+    ],
+  },
 }
 
 export const spanishVerticalProductStories: Record<string, VerticalProductStory> =
