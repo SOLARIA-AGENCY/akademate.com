@@ -38,6 +38,8 @@ import {
   PiggyBank,
   HandCoins,
   ClipboardList,
+  ScanLine,
+  IdCard,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -107,7 +109,20 @@ const menuItems: MenuItemWithSection[] = [
   {
     title: 'Matriculacion',
     icon: UserPlus,
-    url: '/matriculas',
+    items: [
+      { title: 'Solicitudes', icon: ClipboardList, url: '/matriculas' },
+      { title: 'Nueva matrícula', icon: UserPlus, url: '/matriculas/nueva' },
+      { title: 'Planes y tarifas', icon: CreditCard, url: '/matriculas/planes' },
+    ],
+  },
+  {
+    title: 'Accesos',
+    icon: ScanLine,
+    items: [
+      { title: 'Recepción', icon: ScanLine, url: '/accesos/recepcion' },
+      { title: 'Pases', icon: IdCard, url: '/accesos/pases' },
+      { title: 'Histórico', icon: ClipboardList, url: '/accesos/historico' },
+    ],
   },
   {
     title: 'Marketing',

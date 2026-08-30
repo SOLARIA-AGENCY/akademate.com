@@ -342,7 +342,7 @@ export function CourseStep({
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{course.campusName}</p>
                 <p className="text-xs text-muted-foreground">
-                  {course.startDate || 'Sin fecha'} · {course.seatsUsed}/{course.seatsMax || '—'} plazas
+                  {course.startDate || 'Sin fecha'} · {course.seatsUsed}/{course.seatsMax || '-'} plazas
                 </p>
                 <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
                   <div

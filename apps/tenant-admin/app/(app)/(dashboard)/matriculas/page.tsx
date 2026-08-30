@@ -49,8 +49,8 @@ import {
   GraduationCap,
   Upload,
 } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
-import { NewEnrollmentDialog } from './components/NewEnrollmentDialog'
 
 interface MatriculaRow {
   id: string
@@ -157,14 +157,12 @@ export default function MatriculasPage() {
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [tipoFilter, setTipoFilter] = useState('todos')
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
-  const [newEnrollmentDialogOpen, setNewEnrollmentDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [initialLeadId, setInitialLeadId] = useState<string | null>(null)
 
   const loadMatriculas = useCallback(async () => {
     try {
       setLoadError(null)
-      const res = await fetch('/api/matriculas?limit=500', { cache: 'no-store' })
+      const res = await fetch('/api/matriculas?limit=500', { cache: 'no-store', credentials: 'include' })
       if (!res.ok) throw new Error('No se pudieron cargar las matriculas')
 
       const payload = await res.json()
@@ -194,13 +192,11 @@ export default function MatriculasPage() {
   }, [loadMatriculas])
 
   useEffect(() => {
-    const shouldOpen = searchParams.get('nueva')
+    if (searchParams.get('nueva') !== '1') return
     const leadId = searchParams.get('leadId')
-    if (shouldOpen === '1') {
-      setInitialLeadId(leadId || null)
-      setNewEnrollmentDialogOpen(true)
-    }
-  }, [searchParams])
+    const next = leadId ? `/matriculas/nueva?leadId=${encodeURIComponent(leadId)}` : '/matriculas/nueva'
+    router.replace(next)
+  }, [router, searchParams])
 
   const availableSedes = useMemo(
     () => Array.from(new Set(matriculasData.map((m) => m.sede))).sort(),
@@ -248,7 +244,13 @@ export default function MatriculasPage() {
               <Upload className="mr-2 h-4 w-4" data-oid="p-dgxs_" />
               Importar CSV
             </Button>
-            <Button onClick={() => setNewEnrollmentDialogOpen(true)} data-oid="pdb:h9a">
+            <Button variant="outline" onClick={() => router.push('/matriculas/planes')}>
+              Planes y tarifas
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/accesos')}>
+              Accesos
+            </Button>
+            <Button onClick={() => router.push('/matriculas/nueva')} data-oid="pdb:h9a">
               <UserPlus className="mr-2 h-4 w-4" data-oid="tnx7zku" />
               Nueva Matrícula
             </Button>
@@ -257,11 +259,18 @@ export default function MatriculasPage() {
         data-oid="yh2eoy0"
       />
 
-      {loadError && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {loadError}
-        </div>
-      )}
+      {loadError ? (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertTitle>No se pudieron cargar las matrículas</AlertTitle>
+          <AlertDescription className="flex items-center justify-between gap-3">
+            <span>{loadError}</span>
+            <Button size="sm" variant="outline" onClick={() => void loadMatriculas()}>
+              Reintentar
+            </Button>
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-5" data-oid="ejt5ycz">
         <Card data-oid=".8g7trd">
@@ -403,7 +412,7 @@ export default function MatriculasPage() {
       <Card data-oid="ge4hmtc">
         <CardHeader data-oid=":o4gr.2">
           <CardTitle className="flex items-center gap-2" data-oid="9a.1an2">
-            <UserPlus className="h-5 w-5" style={{ color: '#F2014B' }} data-oid="p7ak3tz" />
+            <UserPlus className="h-5 w-5 text-primary" data-oid="p7ak3tz" />
             Solicitudes de Matrícula ({filteredMatriculas.length})
           </CardTitle>
         </CardHeader>
@@ -638,22 +647,6 @@ export default function MatriculasPage() {
           console.log('Bulk enrollment completed')
         }}
         data-oid="ltoz810"
-      />
-      <NewEnrollmentDialog
-        open={newEnrollmentDialogOpen}
-        onOpenChange={(open) => {
-          setNewEnrollmentDialogOpen(open)
-          if (!open) {
-            setInitialLeadId(null)
-            if (searchParams.get('nueva') === '1') {
-              router.replace('/matriculas')
-            }
-          }
-        }}
-        initialLeadId={initialLeadId}
-        onCreated={() => {
-          void loadMatriculas()
-        }}
       />
     </div>
   )
