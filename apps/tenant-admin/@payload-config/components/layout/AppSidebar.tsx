@@ -21,7 +21,6 @@ import {
   BarChart3,
   Settings,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   GraduationCap,
   Shield,
@@ -44,6 +43,15 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  useSidebar,
+} from '../ui/sidebar'
+
+export const SIDEBAR_SUBNAV_ICON_CLASS = 'h-4 w-4'
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -195,9 +203,10 @@ interface SubMenuItemProps {
   subItem: MenuItem
   pathname: string
   currentSearch: string
+  isCollapsed?: boolean
 }
 
-function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
+function SubMenuItem({ subItem, pathname, currentSearch, isCollapsed = false }: SubMenuItemProps) {
   const [nestedOpen, setNestedOpen] = React.useState(false)
   const SubIcon = subItem.icon
   const hasNestedItems = subItem.items && subItem.items.length > 0
@@ -239,16 +248,20 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
             data-oid="bspggu-"
           />
 
-          <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" data-oid="z:_3-_d" />
-          <span className="flex-1 text-left" data-oid="68y.1:a">
-            {subItem.title}
-          </span>
-          <ChevronDown
-            className={`h-3 w-3 transition-transform text-foreground/50 ${
-              nestedOpen || hasActiveNestedChild ? 'rotate-180' : ''
-            }`}
-            data-oid="wu7sv:t"
-          />
+          <SubIcon className={`${SIDEBAR_SUBNAV_ICON_CLASS} shrink-0 text-foreground/70`} data-oid="z:_3-_d" />
+          {!isCollapsed && (
+            <span className="flex-1 text-left" data-oid="68y.1:a">
+              {subItem.title}
+            </span>
+          )}
+          {!isCollapsed && (
+            <ChevronDown
+              className={`h-3 w-3 transition-transform text-foreground/50 ${
+                nestedOpen || hasActiveNestedChild ? 'rotate-180' : ''
+              }`}
+              data-oid="wu7sv:t"
+            />
+          )}
         </button>
         {(nestedOpen || hasActiveNestedChild) && (
           <ul
@@ -277,11 +290,11 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
                     />
 
                     <NestedIcon
-                      className="h-3 w-3 shrink-0 text-foreground/60"
+                      className={`${SIDEBAR_SUBNAV_ICON_CLASS} shrink-0 text-foreground/60`}
                       data-oid="67suuti"
                     />
 
-                    <span data-oid="1qqeq:e">{nestedItem.title}</span>
+                    {!isCollapsed && <span data-oid="1qqeq:e">{nestedItem.title}</span>}
                   </Link>
                 </li>
               )
@@ -307,19 +320,22 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
         data-oid="c:6sgov"
       />
 
-      <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
-      <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
+      <SubIcon className={`${SIDEBAR_SUBNAV_ICON_CLASS} shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
+      {!isCollapsed && (
+        <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
+      )}
     </Link>
   )
 }
 
 interface AppSidebarProps {
   isCollapsed?: boolean
-  onToggle?: () => void
 }
 
-export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
+export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {}) {
   const pathname = usePathname()
+  const { state, isMobile } = useSidebar()
+  const isCollapsed = collapsedProp ?? (!isMobile && state === 'collapsed')
   // Usamos window.location.search en el cliente para evitar useSearchParams
   // (que requeriría <Suspense> en cada página del árbol)
   const [currentSearch, setCurrentSearch] = React.useState('')
@@ -368,9 +384,8 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
   // Accordion behavior: only one section open at a time
   const toggleSection = (title: string) => {
-    if (isCollapsed) return
     setOpenSections(
-      (prev) => (prev.includes(title) ? prev.filter((item) => item !== title) : [title]) // Only keep the new section open, close all others
+      (prev) => (prev.includes(title) ? prev.filter((item) => item !== title) : [title])
     )
   }
 
@@ -382,12 +397,12 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
 
   return (
+    <Sidebar collapsible="icon" className="overflow-x-hidden border-sidebar-border bg-transparent">
     <div
-      className="flex h-full flex-col overflow-hidden bg-transparent text-sidebar-foreground"
+      className="flex h-full flex-col overflow-x-hidden bg-transparent text-sidebar-foreground"
       data-oid="itwxk4a"
     >
-      {/* Header - Logo + Text - Smooth transition */}
-      {/* Header - Logo fijo h-14, nunca cambia */}
+      <SidebarHeader className="p-0">
       <div
         className="flex h-14 items-center border-b border-sidebar-border px-3 overflow-hidden"
         data-oid="woefz9o"
@@ -412,9 +427,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           )}
         </div>
       </div>
+      </SidebarHeader>
 
-      {/* Menu Content */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2" data-oid=".42vml6">
+      <SidebarContent className="overflow-x-hidden">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2" data-oid=".42vml6">
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
@@ -538,21 +554,26 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       {item.title}
                     </span>
                     {!isCollapsed && (
-                      <ChevronDown
-                        className={`h-4 w-4 shrink-0 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : ''}`}
-                        data-oid="h6d1idw"
-                      />
+                      isOpen ? (
+                        <ChevronDown className="h-4 w-4 shrink-0" data-oid="h6d1idw" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 shrink-0" data-oid="h6d1idw" />
+                      )
                     )}
                   </button>
                   {/* Submenu with smooth height transition */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      !isCollapsed && isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                     }`}
                     data-oid="33l6zag"
                   >
                     <ul
-                      className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4"
+                      className={
+                        isCollapsed
+                          ? 'mt-1 flex flex-col items-center space-y-1'
+                          : 'ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4'
+                      }
                       data-oid="fu19cwt"
                     >
                       {item.items?.map((subItem) => (
@@ -561,6 +582,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                             subItem={subItem}
                             pathname={pathname}
                             currentSearch={currentSearch}
+                            isCollapsed={isCollapsed}
                             data-oid="wgazwdi"
                           />
                         </li>
@@ -573,31 +595,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           })}
         </ul>
       </nav>
+      </SidebarContent>
 
-      {/* Footer - Always Visible */}
+      <SidebarFooter className="p-0">
       <div className="border-t border-sidebar-border mt-auto" data-oid="df5f9o3">
-        {/* Toggle button row - At top of footer, centered when collapsed */}
-        {onToggle && (
-          <div
-            className={`py-2 flex items-center border-b border-sidebar-border ${isCollapsed ? 'justify-center' : 'justify-end px-4'}`}
-            data-oid="374s6jy"
-          >
-            <button
-              onClick={onToggle}
-              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent transition-colors text-foreground/70"
-              title={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
-              data-oid=".6.qflx"
-            >
-              {isCollapsed ? (
-                <ChevronRight className="h-4 w-4" data-oid="elvi31c" />
-              ) : (
-                <ChevronLeft className="h-4 w-4" data-oid="0bu6x7h" />
-              )}
-            </button>
-          </div>
-        )}
-
-        {/* Help Section - Always visible with smooth transitions */}
         <Link
           href="/ayuda"
           className={`flex items-center hover:bg-sidebar-accent transition-all duration-300 ease-in-out h-12 ${
@@ -628,6 +629,8 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           </div>
         </Link>
       </div>
+      </SidebarFooter>
     </div>
+    </Sidebar>
   )
 }

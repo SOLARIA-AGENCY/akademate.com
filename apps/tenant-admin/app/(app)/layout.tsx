@@ -74,6 +74,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       success: '#22c55e',
       warning: '#f59e0b',
       danger: '#ef4444',
+      sidebar: '#0F2440',
     },
     tenantId: tenant.tenantId,
   }

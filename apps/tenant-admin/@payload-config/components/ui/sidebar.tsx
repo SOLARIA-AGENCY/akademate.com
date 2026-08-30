@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { PanelLeftIcon } from 'lucide-react'
+import { PanelLeft, PanelLeftClose } from 'lucide-react'
 
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
@@ -20,9 +20,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = '16rem'
+const SIDEBAR_WIDTH = '240px'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
-const SIDEBAR_WIDTH_ICON = '3rem'
+const SIDEBAR_WIDTH_ICON = '80px'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
 
 interface SidebarContextProps {
@@ -129,7 +129,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full',
+            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex h-dvh min-h-0 w-full overflow-hidden',
             className
           )}
           {...props}
@@ -243,7 +243,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+          className="bg-sidebar group-data-[collapsible=icon]:overflow-x-hidden group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col overflow-x-hidden group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
           data-oid="oa9_ers"
         >
           {children}
@@ -254,15 +254,17 @@ function Sidebar({
 }
 
 function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, state, isMobile } = useSidebar()
+  const collapsed = state === 'collapsed' && !isMobile
 
   return (
     <Button
       data-sidebar="trigger"
-      data-slot="sidebar-trigger"
+      data-slot="sidebar-collapse-toggle"
       variant="ghost"
       size="icon"
       className={cn('size-7', className)}
+      aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
@@ -270,10 +272,8 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       {...props}
       data-oid="iueg1ak"
     >
-      <PanelLeftIcon data-oid="bv-u:4j" />
-      <span className="sr-only" data-oid="-:1:ee2">
-        Toggle Sidebar
-      </span>
+      {collapsed ? <PanelLeft /> : <PanelLeftClose />}
+      <span className="sr-only">{collapsed ? 'Expandir menu' : 'Colapsar menu'}</span>
     </Button>
   )
 }
@@ -373,7 +373,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:overflow-x-hidden',
         className
       )}
       {...props}

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { SidebarProvider } from '../../@payload-config/components/ui/sidebar'
 
-// Mock dependencies BEFORE importing the component
 vi.mock('@/app/providers/tenant-branding', () => ({
   useTenantBranding: () => ({
     branding: {
@@ -27,32 +27,33 @@ vi.mock('swr', () => ({
 }))
 
 vi.mock('@/types', () => ({
-  // MenuItem type is only used for TypeScript, but we need the module to resolve
 }))
 
-// Import the REAL component using a relative path to bypass the mock alias
-import { AppSidebar } from '../../@payload-config/components/layout/AppSidebar'
+import { AppSidebar, SIDEBAR_SUBNAV_ICON_CLASS } from '../../@payload-config/components/layout/AppSidebar'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+function renderSidebar(collapsed = false) {
+  return render(
+    <SidebarProvider defaultOpen={!collapsed}>
+      <AppSidebar />
+    </SidebarProvider>
+  )
+}
 
 describe('AppSidebar', () => {
-  const defaultProps = {
-    isCollapsed: false,
-    onToggle: vi.fn(),
-  }
-
-  // ── Existing tests (preserved) ──────────────────────────────────────
-
-  it('renders the AKADEMATE logo', () => {
-    render(<AppSidebar {...defaultProps} />)
+  it('renders the academy logo from TenantBranding', () => {
+    renderSidebar()
     expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
   })
 
   it('renders Dashboard menu item', () => {
-    render(<AppSidebar {...defaultProps} />)
+    renderSidebar()
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
   })
 
   it('renders main navigation sections', () => {
-    render(<AppSidebar {...defaultProps} />)
+    renderSidebar()
     expect(screen.getByText('Programación')).toBeInTheDocument()
     expect(screen.getAllByText('Cursos').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Ciclos').length).toBeGreaterThan(0)
@@ -60,48 +61,40 @@ describe('AppSidebar', () => {
   })
 
   it('does not render logout button (removed from sidebar)', () => {
-    render(<AppSidebar {...defaultProps} />)
+    renderSidebar()
     expect(screen.queryByText('Cerrar sesión')).not.toBeInTheDocument()
   })
 
   it('renders help section link', () => {
-    render(<AppSidebar {...defaultProps} />)
+    renderSidebar()
     expect(screen.getByText('Ayuda y Documentación')).toBeInTheDocument()
   })
 
-  it('renders toggle button', () => {
-    render(<AppSidebar {...defaultProps} />)
-    const toggleButton = screen.getByTitle(/sidebar/i)
-    expect(toggleButton).toBeInTheDocument()
+  it('does not keep a collapse toggle inside the rail', () => {
+    renderSidebar()
+    expect(screen.queryByTitle(/sidebar/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Colapsar menu')).not.toBeInTheDocument()
   })
 
   it('shows collapsed state correctly', () => {
-    render(<AppSidebar {...defaultProps} isCollapsed={true} />)
+    renderSidebar(true)
     expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
   })
 
-  it('renders icons with brand color styles', () => {
-    render(<AppSidebar {...defaultProps} />)
-    const sidebarContainer = document.querySelector('[class*="bg-transparent"]')
-    expect(sidebarContainer).toBeInTheDocument()
-  })
-
   it('has theme-aware background (bg-transparent over tenant --sidebar)', () => {
-    render(<AppSidebar {...defaultProps} />)
+    renderSidebar()
     const container = document.querySelector('[class*="bg-transparent"]')
     expect(container).toBeInTheDocument()
   })
 
-  // ── New tests for recent sidebar changes ────────────────────────────
+  it('uses h-4 w-4 for subnav icons', () => {
+    expect(SIDEBAR_SUBNAV_ICON_CLASS).toBe('h-4 w-4')
+  })
 
   describe('Administración section', () => {
     it('renders "Administración" section with Usuarios, Roles, Suscripción, Actividad items', () => {
-      render(<AppSidebar {...defaultProps} />)
-
-      // The parent menu item
+      renderSidebar()
       expect(screen.getByText('Administración')).toBeInTheDocument()
-
-      // Sub-items are in the DOM (inside a collapsed accordion with max-h-0)
       expect(screen.getByText('Usuarios')).toBeInTheDocument()
       expect(screen.getByText('Roles y Permisos')).toBeInTheDocument()
       expect(screen.getByText('Suscripción')).toBeInTheDocument()
@@ -111,17 +104,14 @@ describe('AppSidebar', () => {
 
   describe('Configuración as direct link', () => {
     it('renders "Configuración" as a direct link (not an expandable submenu)', () => {
-      render(<AppSidebar {...defaultProps} />)
-
+      renderSidebar()
       const configLink = screen.getByText('Configuración').closest('a')
       expect(configLink).toBeInTheDocument()
-      // It should be a link (<a>), not a button (expandable submenus use <button>)
       expect(configLink?.tagName).toBe('A')
     })
 
     it('Configuración link points to /configuracion', () => {
-      render(<AppSidebar {...defaultProps} />)
-
+      renderSidebar()
       const configLink = screen.getByText('Configuración').closest('a')
       expect(configLink).toHaveAttribute('href', '/configuracion')
     })
@@ -129,23 +119,37 @@ describe('AppSidebar', () => {
 
   describe('removed items are not rendered', () => {
     it('does NOT render "Design System" item', () => {
-      render(<AppSidebar {...defaultProps} />)
+      renderSidebar()
       expect(screen.queryByText('Design System')).not.toBeInTheDocument()
     })
 
     it('does NOT render "Impersonar Usuario" item', () => {
-      render(<AppSidebar {...defaultProps} />)
+      renderSidebar()
       expect(screen.queryByText('Impersonar Usuario')).not.toBeInTheDocument()
     })
 
     it('does NOT render "Áreas de Estudio" item', () => {
-      render(<AppSidebar {...defaultProps} />)
+      renderSidebar()
       expect(screen.queryByText('Áreas de Estudio')).not.toBeInTheDocument()
     })
 
     it('does NOT render "Mockup Dashboard" item', () => {
-      render(<AppSidebar {...defaultProps} />)
+      renderSidebar()
       expect(screen.queryByText('Mockup Dashboard')).not.toBeInTheDocument()
     })
+  })
+})
+
+describe('official sidebar contract', () => {
+  it('collapsed class includes overflow-x-hidden and 80px icon width', () => {
+    const source = readFileSync(
+      resolve(__dirname, '../../@payload-config/components/ui/sidebar.tsx'),
+      'utf8'
+    )
+    expect(source).toContain("SIDEBAR_WIDTH_ICON = '80px'")
+    expect(source).toContain("SIDEBAR_WIDTH = '240px'")
+    expect(source).toContain('overflow-x-hidden')
+    expect(source).toContain('data-slot="sidebar-collapse-toggle"')
+    expect(source).toContain('PanelLeft')
   })
 })

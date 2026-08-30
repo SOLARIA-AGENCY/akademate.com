@@ -88,3 +88,44 @@ describe('chrome phase A0+A contract', () => {
     expect(headerFn).not.toContain('bg-muted/40')
   })
 })
+
+describe('chrome phase B+C+D contract', () => {
+  it('CommandPalette uses the official command slug', () => {
+    const source = read('components/layout/CommandPalette.tsx')
+    expect(source).toContain("from '../ui/command'")
+    expect(source).toContain('CommandDialog')
+    expect(source).toContain('CommandInput')
+    expect(source).toContain('CommandItem')
+  })
+
+  it('dashboard layout mounts command, sonner and SidebarProvider', () => {
+    const source = read('app/(app)/(dashboard)/layout.tsx')
+    expect(source).toContain('CommandPalette')
+    expect(source).toContain("from '@payload-config/components/ui/sonner'")
+    expect(source).toContain('SidebarProvider')
+    expect(source).toContain('SidebarTrigger')
+    expect(source).not.toContain('Buscar sección')
+  })
+
+  it('useToast is a sonner bridge', () => {
+    const source = read('@payload-config/hooks/use-toast.ts')
+    expect(source).toContain("from 'sonner'")
+  })
+
+  it('EmptyState wraps the official empty slug', () => {
+    const source = read('components/ui/EmptyState.tsx')
+    expect(source).toContain("from './empty'")
+    expect(source).toContain('<Empty')
+  })
+
+  it('AppSidebar has no in-rail collapse chevron', () => {
+    const source = read('components/layout/AppSidebar.tsx')
+    expect(source).toContain('SIDEBAR_SUBNAV_ICON_CLASS')
+    expect(source).toContain("'h-4 w-4'")
+    expect(source).not.toContain('onToggle')
+    expect(source).not.toContain('ChevronLeft')
+    expect(source).toContain('ChevronRight')
+    expect(source).toContain('<Sidebar')
+    expect(source).not.toContain('SidebarProvider')
+  })
+})
