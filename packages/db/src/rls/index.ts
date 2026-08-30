@@ -11,6 +11,7 @@ export {
   withTenantRead,
   getCurrentTenantId,
   assertTenantContext,
+  isValidTenantId,
   type TenantContext,
   type TenantScopedResult,
 } from './withTenantContext'

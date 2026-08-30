@@ -122,10 +122,10 @@ body:not([data-payload-admin]) {
     /* CSS variables for runtime theming - AKADEMATE Design System v1.0 */
     --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    /* Base palette */
-    --background: 0 0% 97%;
+    /* Base palette. Light gray canvas, white cards. */
+    --background: 220 16% 95%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -161,14 +161,14 @@ body:not([data-payload-admin]) {
     --input: 220 13% 91%;
     --ring: 224 71% 48%;
 
-    /* Sidebar */
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 222 47% 20%;
+    /* Sidebar navy Akademate. Not the Weagle white rail. */
+    --sidebar: 222 47% 12%;
+    --sidebar-foreground: 210 40% 96%;
     --sidebar-primary: 224 71% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 93%;
-    --sidebar-accent-foreground: 222 47% 15%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-accent: 222 35% 18%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 18%;
     --sidebar-ring: 224 71% 48%;
 
     /* Charts */
@@ -440,10 +440,7 @@ body:not([data-payload-admin]) {
    ESTILOS PARA INSTANCIAS DE CURSOS (Course Cards)
    ============================================================================ */
 
-/* Estandarización de altura de CourseCards */
 .course-instance-card {
-  min-height: 580px;
-  max-height: 580px;
   display: flex;
   flex-direction: column;
 }
@@ -502,12 +499,45 @@ body:not(.payload-admin) img.object-cover:not(.rounded-full) {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Global anti-overflow guard for dashboard/public shells on narrow screens. */
+/* Clip horizontal overflow on the document without creating an inner Y scroller.
+   overflow-x: hidden computes overflow-y to auto. clip does not. */
+html:not([data-payload-admin]),
 body:not(.payload-admin) {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
-.dashboard-shell,
-.dashboard-shell main {
+.dashboard-shell {
   min-width: 0;
+  overflow-x: clip;
+  overflow-y: hidden;
+}
+
+.dashboard-canvas-scroll {
+  min-height: 0;
+  overflow-x: clip;
+  overflow-y: auto;
+}
+
+.dashboard-rail-nav {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dashboard-rail-nav::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.dashboard-shell main .grid > * {
+  min-width: 0;
+}
+
+.dashboard-shell {
+  outline: none;
+}
+
+html[data-ipad-app] .dashboard-shell {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -2px;
 }

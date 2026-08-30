@@ -35,6 +35,8 @@ import {
   Plug,
 } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { TenantPlanBadges } from './TenantPlanBadges'
+import { DEFAULT_TENANT_PLAN } from '@/lib/tenantPlanChrome'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -188,6 +190,8 @@ export default function ConfiguracionUnifiedPage() {
   const [savedSection, setSavedSection] = useState<string | null>(null)
 
   // ---- General state ----
+  const [plan, setPlan] = useState(DEFAULT_TENANT_PLAN.plan)
+  const [deploymentMode, setDeploymentMode] = useState(DEFAULT_TENANT_PLAN.deploymentMode)
   const [academia, setAcademia] = useState<AcademiaConfig>({
     nombre: '',
     razonSocial: '',
@@ -270,7 +274,17 @@ export default function ConfiguracionUnifiedPage() {
 
         if (academiaRes.ok) {
           const payload = await academiaRes.json()
-          if (payload.data) setAcademia((prev) => ({ ...prev, ...payload.data }))
+          if (payload.data) {
+            setAcademia((prev) => ({ ...prev, ...payload.data }))
+            setPlan(
+              typeof payload.data.plan === 'string' ? payload.data.plan : DEFAULT_TENANT_PLAN.plan,
+            )
+            setDeploymentMode(
+              typeof payload.data.deploymentMode === 'string'
+                ? payload.data.deploymentMode
+                : DEFAULT_TENANT_PLAN.deploymentMode,
+            )
+          }
         }
         if (logosRes.ok) {
           const payload = await logosRes.json()
@@ -612,6 +626,9 @@ export default function ConfiguracionUnifiedPage() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Datos de la academia, datos fiscales y contacto
                   </p>
+                  <div className="mt-2">
+                    <TenantPlanBadges plan={plan} deploymentMode={deploymentMode} />
+                  </div>
                 </div>
               </div>
               <SaveButton section="academia" onClick={() => void saveSection('academia', academia)} />

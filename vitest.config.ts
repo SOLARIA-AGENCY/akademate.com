@@ -21,6 +21,7 @@ export default defineConfig({
       'packages/operations/vitest.config.ts',
       'packages/realtime/vitest.config.ts',
       'packages/reports/vitest.config.ts',
+      'packages/tenant/vitest.config.ts',
     ],
     // Global excludes
     exclude: [

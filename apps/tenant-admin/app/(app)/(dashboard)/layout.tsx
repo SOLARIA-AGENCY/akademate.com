@@ -25,6 +25,12 @@ import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 import { RealtimeProvider } from '@payload-config/components/providers'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { NotificationProvider } from '@/app/providers/notifications'
+import {
+  DASHBOARD_CANVAS_CLASS,
+  DASHBOARD_MAIN_CLASS,
+  DASHBOARD_RAIL_CLASS,
+  DASHBOARD_SHELL_CLASS,
+} from './dashboard-shell'
 
 interface SessionUser {
   id: string | number
@@ -154,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <NotificationProvider>
       <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
       <div
-        className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
+        className={DASHBOARD_SHELL_CLASS}
         data-oid="dq:3ws5"
       >
         {isMobile && sidebarOpen && (
@@ -167,13 +173,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         <aside
-          className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
+          className={`${DASHBOARD_RAIL_CLASS} fixed left-0 top-0 z-40 border-r border-sidebar-border transition-all duration-300 ${
             isMobile
               ? `w-[280px] ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`
               : sidebarOpen
                 ? 'w-[240px]'
                 : 'w-[80px]'
           }`}
+          data-testid="dashboard-rail"
           data-oid="044wu:-"
         >
           <AppSidebar
@@ -184,13 +191,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
 
         <div
-          className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
+          className={`${DASHBOARD_CANVAS_CLASS} transition-all duration-300 ${
             isMobile ? 'ml-0' : sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
           }`}
+          data-testid="dashboard-canvas"
           data-oid="asfyqnr"
         >
           <header
-            className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6"
+            className="z-30 flex h-14 shrink-0 items-center border-b border-black/5 bg-background px-4 md:px-6"
             data-oid="oy8tn.c"
           >
             <div className="flex items-center gap-2 pr-2 md:pr-4" data-oid="w2r2vqk">
@@ -335,13 +343,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </header>
 
           <main
-            className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 md:p-6"
+            className={DASHBOARD_MAIN_CLASS}
+            data-testid="dashboard-main"
             data-oid="20tk9nh"
           >
             {children}
           </main>
 
-          <DashboardFooter data-oid="jsy7wdn" />
+          <div className="shrink-0">
+            <DashboardFooter data-oid="jsy7wdn" />
+          </div>
         </div>
 
         <ChatbotWidget data-oid="2282j28" />

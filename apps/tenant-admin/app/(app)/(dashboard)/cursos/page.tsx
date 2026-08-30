@@ -316,8 +316,8 @@ function CursosPageContent() {
 
       {/* Filtros - Estandarizados para todas las vistas */}
       {!isTypeLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
-        <CardContent className="pt-6" data-oid=".w7czcl">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
+        <CardContent className="pt-6 text-left" data-oid=".w7czcl">
+          <div className="flex flex-wrap items-center justify-start gap-3 xl:flex-nowrap" data-oid="ohwi565">
             <div className="min-w-[260px] flex-1" data-oid="gnnziad">
               {/* BÚSQUEDA: Siempre visible */}
               <div className="relative" data-oid="k6ryv0w">

@@ -7,6 +7,10 @@ import {
   auditLogs,
   subscriptions,
   webhooks,
+  legalEntities,
+  campuses,
+  tenantCapabilities,
+  policies,
   // Billing tables
   invoices,
   paymentMethods,
@@ -59,6 +63,11 @@ const TENANT_SCOPED_TABLES = {
   auditLogs,
   subscriptions,
   webhooks,
+  // Foundation P0
+  legalEntities,
+  campuses,
+  tenantCapabilities,
+  policies,
   // Billing (3)
   invoices,
   paymentMethods,
@@ -187,16 +196,16 @@ describe('RLS: Marketing tables have required fields', () => {
 })
 
 describe('RLS: Table count verification', () => {
-  it('has 31 tenant-scoped tables', () => {
-    // Count of tables that require tenant_id
+  it('has 35 tenant-scoped tables', () => {
     // Core: courses, memberships, apiKeys, auditLogs, subscriptions, webhooks (6)
+    // Foundation: legalEntities, campuses, tenantCapabilities, policies (4)
     // Billing: invoices, paymentMethods, paymentTransactions (3)
     // Catalog: cycles, centers, instructors, courseRuns (4)
     // LMS: modules, lessons, materials, assignments, enrollments, lessonProgress, submissions, grades (8)
     // Marketing: leads, campaigns (2)
     // Gamification: badgeDefinitions, userBadges, pointsTransactions, userStreaks (4)
     // Operations: attendance, calendarEvents, liveSessions, certificates (4)
-    // Total: 31
-    expect(Object.keys(TENANT_SCOPED_TABLES).length).toBe(31)
+    // Total: 35
+    expect(Object.keys(TENANT_SCOPED_TABLES).length).toBe(35)
   })
 })

@@ -10,13 +10,15 @@
  * INVARIANT: All database operations on tenant-scoped tables MUST use this wrapper.
  * Accessing the database outside of this wrapper is a SECURITY BUG.
  *
- * NOTE: Schema uses INTEGER PKs (Payload pattern), not UUIDs.
+ * Tenant ids are UUIDs in packages/db. Positive integers remain valid during
+ * the Payload expand window.
  */
 
 import { sql } from 'drizzle-orm'
 import type { TablesRelationalConfig } from 'drizzle-orm/relations'
 import type { PgQueryResultHKT, PgTransaction } from 'drizzle-orm/pg-core'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+import { isValidTenantId } from '../foundation/ids'
 
 /**
  * Database schema type for transactions
@@ -55,7 +57,7 @@ interface QueryResult {
  * Tenant context for RLS enforcement
  */
 export interface TenantContext {
-  /** ID of the current tenant (integer as string for set_config compatibility) */
+  /** Tenant id. UUID in Drizzle. Positive integer still accepted for Payload. */
   tenantId: string | number
   /** ID of the current user (optional, for audit) */
   userId?: string | number
@@ -63,6 +65,12 @@ export interface TenantContext {
   siteId?: string | number
   /** Role key (optional, for permission checks) */
   role?: string
+  /** Actor type for audit (human, ai_agent, service, device) */
+  actorType?: string
+  /** Correlation id for the request */
+  correlationId?: string
+  /** Purpose of the action */
+  purpose?: string
 }
 
 /**
@@ -76,13 +84,7 @@ export type TenantScopedResult<T> = {
   error: Error
 }
 
-/**
- * Validate tenant ID format (accepts positive integers or integer strings)
- */
-function isValidTenantId(value: string | number): boolean {
-  const numValue = typeof value === 'number' ? value : parseInt(value, 10)
-  return !isNaN(numValue) && numValue > 0 && Number.isInteger(numValue)
-}
+export { isValidTenantId }
 
 /**
  * Execute a database operation within a tenant context transaction.
@@ -114,13 +116,12 @@ export async function withTenantContext<T>(
   context: TenantContext,
   callback: (tx: DatabaseTransaction) => Promise<T>
 ): Promise<TenantScopedResult<T>> {
-  const { tenantId, userId, siteId, role } = context
+  const { tenantId, userId, siteId, role, actorType, correlationId, purpose } = context
 
-  // Validate tenant ID format (positive integer)
   if (!isValidTenantId(tenantId)) {
     return {
       success: false,
-      error: new Error(`Invalid tenant_id format: ${tenantId}. Expected positive integer.`)
+      error: new Error(`Invalid tenant_id format: ${tenantId}. Expected UUID or positive integer.`),
     }
   }
 
@@ -148,14 +149,30 @@ export async function withTenantContext<T>(
         )
       }
 
-      // Set app.role (optional, for permission checks in policies)
       if (role) {
         await tx.execute(
           sql`SELECT set_config('app.role', ${role}, true)`
         )
       }
 
-      // Execute the callback within the tenant context
+      if (actorType) {
+        await tx.execute(
+          sql`SELECT set_config('app.actor_type', ${actorType}, true)`
+        )
+      }
+
+      if (correlationId) {
+        await tx.execute(
+          sql`SELECT set_config('app.correlation_id', ${correlationId}, true)`
+        )
+      }
+
+      if (purpose) {
+        await tx.execute(
+          sql`SELECT set_config('app.purpose', ${purpose}, true)`
+        )
+      }
+
       return await callback(tx)
     })
 

@@ -1,0 +1,9 @@
+ts	phase	decision	why	evidence	result
+2026-08-28T08:00:00Z	frame	Evolve packages/db UUID schema as P0 core. Do not rewrite Payload serial tables.	Payload is CMS. Spec 21. Dual PK types would make a big-bang.	docs/architecture/MAPPING-MASTER-2026-08-28.md	mapping written
+2026-08-28T08:10:00Z	schema	New organization_groups table. Do not reuse Better Auth accounts.	accounts is OAuth. Spec Account is the commercial group.	packages/db/src/schema.ts	schema expanded
+2026-08-28T08:15:00Z	schema	Keep plan enum starter/pro/enterprise. Map Launch/Business/Enterprise in types.	Expand, not rewrite. Billing already stores those values.	packages/types/src/foundation.ts	mapping functions
+2026-08-28T08:20:00Z	schema	users stay Person. No persons table.	Email unique global already. Spec says evolve existing.	packages/db/src/schema.ts	columns added
+2026-08-28T08:25:00Z	rls	Accept UUID and positive integer tenant ids in withTenantContext.	Drizzle is UUID. Payload still integer. Expand window.	packages/db/src/foundation/ids.ts	unit tests
+2026-08-28T08:30:00Z	scope	Skip Outbox, ObjectStorage, health from spec 27.2.	Orden 1 task B list does not include them.	docs/architecture/MIGRATION-FOUNDATION-P0-2026-08-28.md	documented gap
+2026-08-28T09:20:00Z	rls	Keep UUID cast in RLS policies. Integer tenant ids are wrapper-only.	Drizzle tenant_id is uuid. Integer set_config would throw or fail to match.	packages/db/src/rls/policies.sql	documented
+2026-08-28T09:25:00Z	migrate	Skip memberships unique if duplicate pairs exist.	ADD CONSTRAINT would abort the expand on dirty data.	packages/db/migrations/0005_foundation_p0.sql	guard added

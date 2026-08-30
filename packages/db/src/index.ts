@@ -6,6 +6,14 @@ import {
   courses,
   featureFlags,
   memberships,
+  organizationGroups,
+  organizationGroupMemberships,
+  legalEntities,
+  campuses,
+  blueprints,
+  capabilities,
+  tenantCapabilities,
+  policies,
   schema,
   subscriptions,
   tenants,
@@ -60,9 +68,16 @@ import {
   pointsSourceTypeEnum,
   attendanceStatusEnum,
   calendarEventTypeEnum,
+  deploymentModeEnum,
+  organizationModelEnum,
+  actorTypeEnum,
+  locationKindEnum,
+  campusKindEnum,
+  policyKindEnum,
+  capabilitySourceEnum,
 } from './schema'
 
-export const schemaVersion = '0.1.0' // Bumped for new tables
+export const schemaVersion = '0.2.0'
 
 export interface TenantScopedRecord {
   tenant_id: TenantId
@@ -95,13 +110,23 @@ export {
   type TenantScopedResult,
 } from './rls'
 
+export * from './foundation'
+
 export {
   // Schema object
   schema,
   // Core tables
+  organizationGroups,
+  organizationGroupMemberships,
   tenants,
   users,
   memberships,
+  legalEntities,
+  campuses,
+  blueprints,
+  capabilities,
+  tenantCapabilities,
+  policies,
   courses,
   apiKeys,
   featureFlags,
@@ -157,4 +182,11 @@ export {
   pointsSourceTypeEnum,
   attendanceStatusEnum,
   calendarEventTypeEnum,
+  deploymentModeEnum,
+  organizationModelEnum,
+  actorTypeEnum,
+  locationKindEnum,
+  campusKindEnum,
+  policyKindEnum,
+  capabilitySourceEnum,
 }

@@ -12,6 +12,15 @@ describe('db schema', () => {
     expect(hasColumn(tenants, 'domains')).toBe(true)
   })
 
+  it('tenants has independent blueprint, deployment and cell metadata', () => {
+    expect(hasColumn(tenants, 'blueprintKey')).toBe(true)
+    expect(hasColumn(tenants, 'deploymentMode')).toBe(true)
+    expect(hasColumn(tenants, 'organizationModel')).toBe(true)
+    expect(hasColumn(tenants, 'regionId')).toBe(true)
+    expect(hasColumn(tenants, 'cellId')).toBe(true)
+    expect(hasColumn(tenants, 'deploymentId')).toBe(true)
+  })
+
   it('users has auth fields', () => {
     expect(hasColumn(users, 'email')).toBe(true)
     expect(hasColumn(users, 'passwordHash')).toBe(true)

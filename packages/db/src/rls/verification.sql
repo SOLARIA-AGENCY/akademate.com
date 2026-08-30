@@ -20,7 +20,8 @@ WHERE schemaname = 'public'
     'badge_definitions', 'user_badges', 'points_transactions',
     'user_streaks', 'attendance', 'calendar_events',
     'live_sessions', 'certificates', 'invoices',
-    'payment_methods', 'payment_transactions'
+    'payment_methods', 'payment_transactions',
+    'legal_entities', 'campuses', 'tenant_capabilities', 'policies'
   )
 ORDER BY tablename;
 
@@ -61,6 +62,7 @@ WHERE schemaname = 'public'
     'badge_definitions', 'user_badges', 'points_transactions',
     'user_streaks', 'attendance', 'calendar_events',
     'live_sessions', 'certificates', 'invoices',
-    'payment_methods', 'payment_transactions'
+    'payment_methods', 'payment_transactions',
+    'legal_entities', 'campuses', 'tenant_capabilities', 'policies'
   )
   AND rowsecurity = false;
