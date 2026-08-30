@@ -42,9 +42,9 @@ import {
   UserCheck,
   CalendarPlus,
 } from 'lucide-react'
-import { DashboardToolbar } from '@payload-config/components/layout/DashboardToolbar'
 import {
   ListingSearch,
+  PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import {
   resolveFullLeadName,
@@ -344,7 +344,7 @@ async function fetchWithTimeout(input: string, timeoutMs = 12000): Promise<Respo
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    return await fetch(input, { signal: controller.signal })
+    return await fetch(input, { signal: controller.signal, credentials: 'include', cache: 'no-store' })
   } finally {
     clearTimeout(timeout)
   }
@@ -425,6 +425,7 @@ export default function LeadsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
+  const [kpiError, setKpiError] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
@@ -463,8 +464,10 @@ export default function LeadsPage() {
 
         if (kpisResult.status === 'fulfilled' && kpisResult.value.ok) {
           setKpis(await kpisResult.value.json())
+          setKpiError(null)
         } else {
           setKpis(null)
+          setKpiError('No se pudieron cargar los indicadores del CRM')
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar leads')
@@ -689,17 +692,21 @@ export default function LeadsPage() {
         </Card>
       </div>
 
-      {/* Barra de trabajo */}
-      <Card>
-        <CardContent className="space-y-4 p-4">
-          <DashboardToolbar
-            search={
-              <ListingSearch value={search} onChange={setSearch} placeholder="Buscar lead..." />
-            }
-            filters={
+      {kpiError && !error ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {kpiError}
+        </div>
+      ) : null}
+
+      <div className="space-y-4">
+        <PremiumDirectoryShell
+          search={
+            <ListingSearch value={search} onChange={setSearch} placeholder="Buscar lead..." />
+          }
+          filters={
             <Sheet open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="w-full lg:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto">
                   <Filter className="h-4 w-4" />
                   Filtros avanzados
                 </Button>
@@ -766,28 +773,27 @@ export default function LeadsPage() {
                 </SheetFooter>
               </SheetContent>
             </Sheet>
-            }
-          />
+          }
+        />
 
-          <Tabs
-            value={queueFilter}
-            onValueChange={(value) => setQueueFilter(value as QueueFilter)}
-            className="w-full"
-          >
-            <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
-              {QUEUE_TABS.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} className="flex-none">
-                  {tab.label} ({queueCounts[tab.value]})
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <Tabs
+          value={queueFilter}
+          onValueChange={(value) => setQueueFilter(value as QueueFilter)}
+          className="w-full"
+        >
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
+            {QUEUE_TABS.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="flex-none">
+                {tab.label} ({queueCounts[tab.value]})
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-          {advancedFilterSummary && (
-            <p className="text-xs text-muted-foreground">Filtros activos: {advancedFilterSummary}</p>
-          )}
-        </CardContent>
-      </Card>
+        {advancedFilterSummary && (
+          <p className="text-xs text-muted-foreground">Filtros activos: {advancedFilterSummary}</p>
+        )}
+      </div>
 
       {(error || inlineError) && (
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive">

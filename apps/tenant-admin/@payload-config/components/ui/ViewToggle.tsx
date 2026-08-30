@@ -23,7 +23,7 @@ export function ViewToggle({ view, onViewChange, className }: ViewToggleProps) {
       size="sm"
       aria-label="Modo de visualizacion"
       className={cn(
-        'inline-flex h-10 items-center rounded-md border border-input bg-background p-0.5',
+        'inline-flex h-10 shrink-0 items-center rounded-md border border-input bg-background p-0.5',
         className
       )}
     >

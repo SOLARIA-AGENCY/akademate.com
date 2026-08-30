@@ -270,6 +270,18 @@ Si el standing GO del repo es “commit + staging + prod”, CEP puede pinnear A
 
 ---
 
+## 12. Correcciones de auditoría visual (post A–D)
+
+Referencia de diseño: Académico > Convocatorias. Aplicar en SaaS y CEP.
+
+1. Canvas inset: el área de contenido no llega al borde inferior de la ventana; margen inferior alineado con el bloque Ayuda del sidebar (`md:mb-3 md:mr-3 md:rounded-xl`).
+2. Toolbars: `PremiumDirectoryShell` envuelve controles; búsqueda a la izquierda, filtros a la derecha; sin `flex-nowrap` que recorte ViewToggle ni solape ⌘K con pestañas.
+3. Tablas: cadena `min-w-0` + overflow interno; columnas colapsables y truncado con `title`; cero recorte de Fechas/Estado.
+4. Fichas: cards sobre el canvas, sin caja blanca extra envolvente.
+5. **Sidebar: scroll vertical sin barra visible.** Al abrir grupos largos (Campus Virtual, Contenido Web) el rail debe desplazarse en vertical para alcanzar todas las subpáginas. El indicador de scrollbar se oculta en todo el sistema (`scrollbar-width: none` / `::-webkit-scrollbar { display: none }`). El overflow sigue funcionando con rueda, trackpad y toque. Los submenús no se recortan con `max-h-96`; el contenedor del menú (`SidebarContent`, `min-h-0 flex-1 overflow-y-auto`) es el que hace scroll.
+
+---
+
 ## 11. Prompt corto para el agente SaaS (pegar encima si hace falta)
 
 Eres el agente de akademate.com SaaS. Implementa el plan “chrome dashboard shadcn + tokens de tenant”.

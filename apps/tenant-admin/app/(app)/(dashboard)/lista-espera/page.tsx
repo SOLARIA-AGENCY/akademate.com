@@ -10,9 +10,9 @@ import {
   CardTitle,
 } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { ListingSearch, PremiumDirectoryShell } from '@payload-config/components/directory/PremiumDirectoryShell'
 import {
   Select,
   SelectContent,
@@ -37,9 +37,7 @@ import {
 } from '@payload-config/components/ui/dropdown-menu'
 import {
   Plus,
-  Search,
   ListTodo,
-  Mail,
   Eye,
   MoreHorizontal,
   CheckCircle2,
@@ -310,7 +308,7 @@ export default function ListaEsperaPage() {
               <Download className="mr-2 h-4 w-4" data-oid="4i5_man" />
               Exportar
             </Button>
-            <Button style={{ backgroundColor: '#F2014B' }} data-oid="1nzhime">
+            <Button data-oid="1nzhime">
               <Plus className="mr-2 h-4 w-4" data-oid="ovglfi1" />
               Añadir a Lista
             </Button>
@@ -378,21 +376,18 @@ export default function ListaEsperaPage() {
         </Card>
       </div>
 
-      <Card data-oid="0u79uyp">
-        <CardContent className="pt-6" data-oid="0mvn09s">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center" data-oid="o9suy7i">
-            <div className="relative flex-1" data-oid="0aaltmb">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" data-oid=".7uaf9w" />
-              <Input
-                placeholder="Buscar por nombre, email o curso..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                data-oid="3z7b7m-"
-              />
-            </div>
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar por nombre, email o curso"
+          />
+        }
+        filters={
+          <>
             <Select value={estadoFilter} onValueChange={setEstadoFilter} data-oid="7dgx4rv">
-              <SelectTrigger className="w-full md:w-[160px]" data-oid="yu3j8f.">
+              <SelectTrigger className="h-10 w-full min-w-0 bg-background sm:w-[160px]" data-oid="yu3j8f.">
                 <SelectValue placeholder="Estado" data-oid="93sn777" />
               </SelectTrigger>
               <SelectContent data-oid="uk41dlm">
@@ -404,7 +399,7 @@ export default function ListaEsperaPage() {
               </SelectContent>
             </Select>
             <Select value={prioridadFilter} onValueChange={setPrioridadFilter} data-oid="s1r.oqf">
-              <SelectTrigger className="w-full md:w-[160px]" data-oid=".fs52rt">
+              <SelectTrigger className="h-10 w-full min-w-0 bg-background sm:w-[160px]" data-oid=".fs52rt">
                 <SelectValue placeholder="Prioridad" data-oid="p1zkq3g" />
               </SelectTrigger>
               <SelectContent data-oid="j5qs2rf">
@@ -415,7 +410,7 @@ export default function ListaEsperaPage() {
               </SelectContent>
             </Select>
             <Select value={sedeFilter} onValueChange={setSedeFilter} data-oid="4o6lea0">
-              <SelectTrigger className="w-full md:w-[160px]" data-oid="xh4o4t2">
+              <SelectTrigger className="h-10 w-full min-w-0 bg-background sm:w-[160px]" data-oid="xh4o4t2">
                 <SelectValue placeholder="Sede" data-oid="e2qqst:" />
               </SelectTrigger>
               <SelectContent data-oid=".0v:swn">
@@ -427,29 +422,29 @@ export default function ListaEsperaPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        }
+      />
 
-      <Card data-oid="azi5ug-">
+      <Card className="min-w-0 overflow-hidden" data-oid="azi5ug-">
         <CardHeader data-oid=":ga6fxb">
           <CardTitle className="flex items-center gap-2" data-oid="vh64q2n">
-            <ListTodo className="h-5 w-5" style={{ color: '#F2014B' }} data-oid="97xaqye" />
+            <ListTodo className="h-5 w-5 text-primary" data-oid="97xaqye" />
             Cola de Espera ({filteredLista.length})
           </CardTitle>
         </CardHeader>
-        <CardContent data-oid="ht.2qc.">
-          <Table data-oid="kp7wko7">
+        <CardContent className="min-w-0 p-0 sm:p-6 sm:pt-0" data-oid="ht.2qc.">
+          <Table className="table-fixed" data-oid="kp7wko7">
             <TableHeader data-oid="-3ef:-6">
               <TableRow data-oid="uzh.aqg">
-                <TableHead className="w-[60px]" data-oid="zapr59u">#</TableHead>
-                <TableHead data-oid="1_8hm1j">Alumno</TableHead>
-                <TableHead data-oid="zpjgupt">Origen/Curso</TableHead>
-                <TableHead data-oid="c4ymqb6">Convocatoria</TableHead>
-                <TableHead data-oid="2wnxep0">Prioridad</TableHead>
-                <TableHead data-oid="nggta-g">Interesados</TableHead>
-                <TableHead data-oid="3f3e9zc">Estado</TableHead>
-                <TableHead className="text-right" data-oid="-0nl6gc">Acciones</TableHead>
+                <TableHead className="w-[56px]" data-oid="zapr59u">#</TableHead>
+                <TableHead className="w-[22%]" data-oid="1_8hm1j">Alumno</TableHead>
+                <TableHead className="hidden w-[20%] md:table-cell" data-oid="zpjgupt">Origen/Curso</TableHead>
+                <TableHead className="hidden w-[16%] lg:table-cell" data-oid="c4ymqb6">Convocatoria</TableHead>
+                <TableHead className="hidden w-[12%] sm:table-cell" data-oid="2wnxep0">Prioridad</TableHead>
+                <TableHead className="hidden w-[10%] xl:table-cell" data-oid="nggta-g">Interesados</TableHead>
+                <TableHead className="w-[16%]" data-oid="3f3e9zc">Estado</TableHead>
+                <TableHead className="w-[72px] text-right" data-oid="-0nl6gc">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody data-oid="v.z4srb">
@@ -471,48 +466,47 @@ export default function ListaEsperaPage() {
                           {item.posicion}
                         </div>
                       </TableCell>
-                      <TableCell data-oid="onq6rhv">
-                        <div className="flex items-center gap-3" data-oid=":fq6::r">
-                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center" data-oid="mg53wj-">
+                      <TableCell className="max-w-0 whitespace-normal" data-oid="onq6rhv">
+                        <div className="flex min-w-0 items-center gap-3" data-oid=":fq6::r">
+                          <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted sm:flex" data-oid="mg53wj-">
                             <User className="h-5 w-5 text-muted-foreground" data-oid="ddxz:k:" />
                           </div>
-                          <div className="flex flex-col" data-oid="tvev8qb">
-                            <span className="font-medium" data-oid="gukinnx">{item.alumno.nombre}</span>
-                            <span className="text-sm text-muted-foreground flex items-center gap-1" data-oid="w30yd86">
-                              <Mail className="h-3 w-3" data-oid="qu399.w" />
+                          <div className="min-w-0 flex flex-col" data-oid="tvev8qb">
+                            <span className="truncate font-medium" title={item.alumno.nombre} data-oid="gukinnx">{item.alumno.nombre}</span>
+                            <span className="truncate text-sm text-muted-foreground" title={item.alumno.email} data-oid="w30yd86">
                               {item.alumno.email}
                             </span>
-                            <span className="text-xs text-muted-foreground">{item.asesor}</span>
+                            <span className="truncate text-xs text-muted-foreground md:hidden">{item.curso}</span>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell data-oid="s7_5_6s">
-                        <div className="flex flex-col" data-oid="4h3h3f1">
-                          <span className="font-medium" data-oid="2av1dt8">{item.curso}</span>
-                          <span className="text-xs text-muted-foreground">{item.origen}</span>
+                      <TableCell className="hidden max-w-0 md:table-cell" data-oid="s7_5_6s">
+                        <div className="min-w-0 flex flex-col" data-oid="4h3h3f1">
+                          <span className="truncate font-medium" title={item.curso} data-oid="2av1dt8">{item.curso}</span>
+                          <span className="truncate text-xs text-muted-foreground" title={item.origen}>{item.origen}</span>
                         </div>
                       </TableCell>
-                      <TableCell data-oid="k2lp3kw">
-                        <div className="flex flex-col" data-oid="4h5-tmf">
-                          <span className="font-mono text-sm" data-oid="g0ccc7a">{item.convocatoria}</span>
-                          <span className="text-xs text-muted-foreground">{item.sede}</span>
+                      <TableCell className="hidden max-w-0 lg:table-cell" data-oid="k2lp3kw">
+                        <div className="min-w-0 flex flex-col" data-oid="4h5-tmf">
+                          <span className="truncate font-mono text-sm" title={item.convocatoria} data-oid="g0ccc7a">{item.convocatoria}</span>
+                          <span className="truncate text-xs text-muted-foreground" title={item.sede}>{item.sede}</span>
                         </div>
                       </TableCell>
-                      <TableCell data-oid="7_2_q5k">
+                      <TableCell className="hidden whitespace-normal sm:table-cell" data-oid="7_2_q5k">
                         <Badge className={`${prioridadInfo.bgColor} ${prioridadInfo.color}`} data-oid="loxzcn_">
                           {item.prioridad === 'alta' && <ArrowUp className="h-3 w-3 mr-1" data-oid="k-drmc7" />}
                           {item.prioridad === 'baja' && <ArrowDown className="h-3 w-3 mr-1" data-oid="nhb-89d" />}
                           {prioridadInfo.label}
                         </Badge>
                       </TableCell>
-                      <TableCell data-oid="d09b7b_">
+                      <TableCell className="hidden whitespace-normal xl:table-cell" data-oid="d09b7b_">
                         <span className="font-bold text-lg" data-oid="q40i-s0">{item.interesadosActuales}</span>
                         <span className="text-xs text-muted-foreground ml-1" data-oid="_.izh8j">/ {item.umbralApertura}</span>
                       </TableCell>
-                      <TableCell data-oid=":884hq1">
-                        <Badge className={`${estadoInfo.bgColor} ${estadoInfo.color} flex items-center gap-1 w-fit`} data-oid="bg:eqsf">
-                          <StatusIcon className="h-3 w-3" data-oid="d6doip4" />
-                          {estadoInfo.label}
+                      <TableCell className="whitespace-normal" data-oid=":884hq1">
+                        <Badge className={`${estadoInfo.bgColor} ${estadoInfo.color} flex max-w-full items-center gap-1 w-fit`} data-oid="bg:eqsf">
+                          <StatusIcon className="h-3 w-3 shrink-0" data-oid="d6doip4" />
+                          <span className="truncate">{estadoInfo.label}</span>
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right" data-oid="ew9or93">

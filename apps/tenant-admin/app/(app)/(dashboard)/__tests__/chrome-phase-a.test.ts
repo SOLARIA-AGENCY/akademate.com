@@ -75,8 +75,8 @@ describe('chrome phase A0+A contract', () => {
     expect(source).not.toMatch(/<thead/)
   })
 
-  it('leads and campanas use DashboardToolbar', () => {
-    expect(read('app/(app)/(dashboard)/leads/page.tsx')).toContain('DashboardToolbar')
+  it('leads and campanas use directory chrome', () => {
+    expect(read('app/(app)/(dashboard)/leads/page.tsx')).toContain('PremiumDirectoryShell')
     expect(read('app/(app)/(dashboard)/campanas/page.tsx')).toContain('DashboardToolbar')
   })
 
@@ -127,5 +127,34 @@ describe('chrome phase B+C+D contract', () => {
     expect(source).toContain('ChevronRight')
     expect(source).toContain('<Sidebar')
     expect(source).not.toContain('SidebarProvider')
+  })
+})
+
+describe('visual audit corrections', () => {
+  it('canvas is inset from the window edge', () => {
+    const source = read('components/layout/dashboard-shell.ts')
+    expect(source).toContain('md:mb-3')
+    expect(source).toContain('md:rounded-xl')
+  })
+
+  it('dashboard main does not clip horizontal overflow', () => {
+    const source = read('app/(app)/(dashboard)/layout.tsx')
+    expect(source).toContain('min-w-0')
+    expect(source).not.toContain('overflow-x-hidden')
+  })
+
+  it('hides scrollbar indicators globally while keeping overflow', () => {
+    const css = read('app/globals.css')
+    expect(css).toContain('scrollbar-width: none')
+    expect(css).toContain('::-webkit-scrollbar')
+    expect(css).toContain('display: none')
+  })
+
+  it('sidebar nav scrolls vertically when groups expand', () => {
+    const sidebar = read('components/layout/AppSidebar.tsx')
+    expect(sidebar).toContain('overflow-y-auto')
+    expect(sidebar).toContain('min-h-0')
+    expect(sidebar).toContain('max-h-[2000px]')
+    expect(sidebar).not.toContain('max-h-96')
   })
 })

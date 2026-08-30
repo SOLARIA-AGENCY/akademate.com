@@ -513,3 +513,15 @@ body:not(.payload-admin) {
 .dashboard-shell main {
   min-width: 0;
 }
+
+/* Keep overflow scrolling, hide the scrollbar indicator everywhere. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}

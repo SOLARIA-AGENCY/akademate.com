@@ -4,7 +4,11 @@ import { cn } from '@/lib/utils'
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
-    <div data-slot="table-container" className="relative w-full overflow-x-auto" data-oid=".wvrv8:">
+    <div
+      data-slot="table-container"
+      className="relative w-full min-w-0 max-w-full overflow-x-auto"
+      data-oid=".wvrv8:"
+    >
       <table
         data-slot="table"
         className={cn('w-full caption-bottom text-sm', className)}

@@ -243,7 +243,7 @@ export default function ProfesoresPage() {
           <ListingSearch
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Buscar por nombre, email, departamento..."
+            placeholder="Buscar profesor..."
           />
         }
         segments={
@@ -260,7 +260,7 @@ export default function ProfesoresPage() {
         }
         filters={
           <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-            <SelectTrigger className="h-10 w-full min-w-[200px] bg-background md:w-[240px]">
+            <SelectTrigger className="h-10 w-full min-w-0 bg-background md:w-[240px]">
               <SelectValue placeholder="Todos los departamentos" />
             </SelectTrigger>
             <SelectContent>

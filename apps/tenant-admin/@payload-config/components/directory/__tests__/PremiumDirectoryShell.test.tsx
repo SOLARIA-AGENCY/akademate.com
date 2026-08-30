@@ -21,8 +21,9 @@ describe('PremiumDirectoryShell', () => {
   })
 
   it('places search on the left and the control cluster on the right', () => {
-    expect(SHELL_SOURCE).toContain('lg:ml-auto')
-    expect(SHELL_SOURCE).toContain('lg:h-10')
+    expect(SHELL_SOURCE).toContain('xl:ml-auto')
+    expect(SHELL_SOURCE).toContain('flex-wrap')
+    expect(SHELL_SOURCE).not.toContain('lg:flex-nowrap')
   })
 
   it('renders search and view slots', () => {

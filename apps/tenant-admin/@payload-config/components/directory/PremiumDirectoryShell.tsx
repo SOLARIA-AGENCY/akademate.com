@@ -10,22 +10,30 @@ export function ListingSearch({
   value,
   onChange,
   placeholder = 'Buscar...',
+  shortcut = false,
   className,
 }: {
   value: string
   onChange: (value: string) => void
   placeholder?: string
+  shortcut?: boolean
   className?: string
 }) {
   return (
-    <div className={cn('relative min-w-[220px] flex-1', className)}>
+    <div className={cn('relative min-w-0 w-full flex-1', className)}>
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-10 bg-background pl-9"
+        className={cn(
+          'h-10 min-w-0 bg-background pl-9 placeholder:truncate',
+          shortcut && 'pr-16'
+        )}
       />
+      {shortcut ? (
+        <CommandShortcutHint className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+      ) : null}
     </div>
   )
 }
@@ -63,14 +71,16 @@ export function PremiumDirectoryShell({
   className?: string
 }) {
   return (
-    <div className={cn('space-y-4', className)} data-slot="premium-directory-shell">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        {search}
-        <div className="ml-0 flex h-auto flex-wrap items-center gap-2 lg:ml-auto lg:h-10 lg:flex-nowrap">
+    <div className={cn('min-w-0 space-y-4', className)} data-slot="premium-directory-shell">
+      <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {search}
+          {shortcut ? <CommandShortcutHint className="shrink-0" /> : null}
+        </div>
+        <div className="flex min-w-0 flex-wrap items-center gap-2 xl:ml-auto">
           {segments}
           {filters}
           {view}
-          {shortcut ? <CommandShortcutHint /> : null}
         </div>
       </div>
       {children}

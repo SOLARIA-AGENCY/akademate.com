@@ -397,12 +397,12 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
     'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
 
   return (
-    <Sidebar collapsible="icon" className="overflow-x-hidden border-sidebar-border bg-transparent">
+    <Sidebar collapsible="icon" className="overflow-hidden border-sidebar-border bg-transparent">
     <div
-      className="flex h-full flex-col overflow-x-hidden bg-transparent text-sidebar-foreground"
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-transparent text-sidebar-foreground"
       data-oid="itwxk4a"
     >
-      <SidebarHeader className="p-0">
+      <SidebarHeader className="shrink-0 p-0">
       <div
         className="flex h-14 items-center border-b border-sidebar-border px-3 overflow-hidden"
         data-oid="woefz9o"
@@ -429,8 +429,8 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
       </div>
       </SidebarHeader>
 
-      <SidebarContent className="overflow-x-hidden">
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2" data-oid=".42vml6">
+      <SidebarContent className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+      <nav className="py-3 px-2" data-oid=".42vml6">
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
@@ -564,7 +564,7 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
                   {/* Submenu with smooth height transition */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
                     }`}
                     data-oid="33l6zag"
                   >
@@ -597,7 +597,7 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
       </nav>
       </SidebarContent>
 
-      <SidebarFooter className="p-0">
+      <SidebarFooter className="shrink-0 p-0">
       <div className="border-t border-sidebar-border mt-auto" data-oid="df5f9o3">
         <Link
           href="/ayuda"

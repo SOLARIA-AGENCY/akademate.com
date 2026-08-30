@@ -329,7 +329,7 @@ function CursosPageContent() {
           }
           filters={
             <Select value={filterArea} onValueChange={setFilterArea}>
-              <SelectTrigger className="h-10 w-full min-w-[180px] bg-background md:w-[210px]">
+              <SelectTrigger className="h-10 w-full min-w-0 bg-background md:w-[210px]">
                 <SelectValue placeholder="Todas las areas" />
               </SelectTrigger>
               <SelectContent>

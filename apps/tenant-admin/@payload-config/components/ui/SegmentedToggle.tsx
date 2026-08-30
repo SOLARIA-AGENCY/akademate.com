@@ -32,7 +32,7 @@ export function SegmentedToggle({
       size="sm"
       aria-label={ariaLabel}
       className={cn(
-        'inline-flex h-10 items-center rounded-md border border-input bg-background p-0.5',
+        'inline-flex h-auto min-h-10 max-w-full flex-wrap items-center rounded-md border border-input bg-background p-0.5',
         className
       )}
     >

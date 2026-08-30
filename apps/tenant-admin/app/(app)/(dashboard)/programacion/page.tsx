@@ -24,6 +24,22 @@ import {
   List,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -671,57 +687,35 @@ export default function ProgramacionPage() {
         ))}
       </div>
 
-      {/* Controls bar */}
-      <Card className="p-3">
-        <div className="flex flex-wrap items-center gap-3">
-          {/* View tabs */}
-          <div className="flex rounded-lg border overflow-hidden">
-            {viewButtons.map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                onClick={() => setView(key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                  view === key ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Navigation */}
+      <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center">
+        <SegmentedToggle
+          ariaLabel="Vista de programacion"
+          value={view}
+          onValueChange={(value) => setView(value as ViewMode)}
+          options={viewButtons.map(({ key, label }) => ({ value: key, label }))}
+        />
+        <div className="flex min-w-0 flex-wrap items-center gap-2 xl:ml-auto">
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="sm" onClick={navPrev}><ChevronLeft className="h-4 w-4" /></Button>
-            <span className="text-sm font-medium min-w-[140px] text-center">{navLabel()}</span>
+            <span className="min-w-0 max-w-[180px] truncate text-center text-sm font-medium sm:max-w-none sm:min-w-[140px]">{navLabel()}</span>
             <Button variant="ghost" size="sm" onClick={navNext}><ChevronRight className="h-4 w-4" /></Button>
-            <Button variant="outline" size="sm" className="text-xs ml-1" onClick={navToday}>Hoy</Button>
+            <Button variant="outline" size="sm" className="text-xs" onClick={navToday}>Hoy</Button>
           </div>
-
-          {/* Sede filter */}
-          <div className="flex items-center gap-1 ml-auto">
-            <button
-              onClick={() => setSedeFilter('todas')}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                sedeFilter === 'todas' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
-            >
-              Todas
-            </button>
-            {campuses.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setSedeFilter(c.id)}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                  sedeFilter === c.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                {c.name}
-              </button>
-            ))}
-          </div>
+          <Select value={sedeFilter} onValueChange={setSedeFilter}>
+            <SelectTrigger className="h-10 w-full min-w-0 bg-background sm:w-[210px]">
+              <SelectValue placeholder="Sede" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todas">Todas las sedes</SelectItem>
+              {campuses.map((campus) => (
+                <SelectItem key={campus.id} value={campus.id}>
+                  {campus.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </Card>
+      </div>
 
       {/* Loading */}
       {isLoading && (
@@ -749,63 +743,83 @@ export default function ProgramacionPage() {
 
       {/* List View */}
       {!isLoading && view === 'lista' && (
-        <Card>
-          <CardContent className="p-0">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left p-3 font-medium">Curso / Ciclo</th>
-                  <th className="text-left p-3 font-medium hidden sm:table-cell">Sede</th>
-                  <th className="text-left p-3 font-medium hidden md:table-cell">Fechas</th>
-                  <th className="text-left p-3 font-medium hidden lg:table-cell">Horario</th>
-                  <th className="text-center p-3 font-medium">Plazas</th>
-                  <th className="text-center p-3 font-medium">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
+        <Card className="min-w-0 overflow-hidden">
+          <CardContent className="min-w-0 p-0">
+            <Table className="table-fixed">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[32%]">Curso / Ciclo</TableHead>
+                  <TableHead className="hidden w-[18%] sm:table-cell">Sede</TableHead>
+                  <TableHead className="hidden w-[18%] md:table-cell">Fechas</TableHead>
+                  <TableHead className="hidden w-[14%] lg:table-cell">Horario</TableHead>
+                  <TableHead className="w-[12%] text-center">Plazas</TableHead>
+                  <TableHead className="w-[16%] text-center">Estado</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">No hay convocatorias</td></tr>
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                      No hay convocatorias
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   filtered.map((conv) => {
                     const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
+                    const fechasLabel = [
+                      conv.fechaInicio
+                        ? new Date(conv.fechaInicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+                        : null,
+                      conv.fechaFin
+                        ? new Date(conv.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })
+                        : null,
+                    ].filter(Boolean).join(' – ')
+                    const horarioLabel = [conv.horaInicio, conv.horaFin].filter(Boolean).join('–')
                     return (
-                      <tr
+                      <TableRow
                         key={conv.id}
-                        className="border-b hover:bg-muted/20 cursor-pointer transition-colors"
+                        className="cursor-pointer"
                         onClick={() => handleConvClick(conv.id)}
                       >
-                        <td className="p-3">
-                          <p className="font-medium">{conv.curso}</p>
-                          <p className="text-xs text-muted-foreground sm:hidden">{conv.sede}</p>
-                        </td>
-                        <td className="p-3 text-muted-foreground hidden sm:table-cell">
-                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{conv.sede}</span>
-                        </td>
-                        <td className="p-3 text-muted-foreground hidden md:table-cell whitespace-nowrap">
-                          {conv.fechaInicio ? new Date(conv.fechaInicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
-                          {conv.fechaFin ? ` — ${new Date(conv.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}` : ''}
-                        </td>
-                        <td className="p-3 text-muted-foreground hidden lg:table-cell">
-                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{conv.horaInicio}–{conv.horaFin}</span>
-                        </td>
-                        <td className="p-3 text-center">
+                        <TableCell className="max-w-0 whitespace-normal">
+                          <p className="truncate font-medium" title={conv.curso}>{conv.curso}</p>
+                          <p className="truncate text-xs text-muted-foreground sm:hidden" title={conv.sede}>{conv.sede}</p>
+                        </TableCell>
+                        <TableCell className="hidden max-w-0 sm:table-cell">
+                          <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            <span className="truncate" title={conv.sede}>{conv.sede}</span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden max-w-0 md:table-cell">
+                          <span className="block truncate text-muted-foreground" title={fechasLabel}>
+                            {fechasLabel || '—'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden max-w-0 lg:table-cell">
+                          <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                            <Clock className="h-3 w-3 shrink-0" />
+                            <span className="truncate" title={horarioLabel}>{horarioLabel || '—'}</span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center whitespace-normal">
                           <span className="font-medium">{conv.inscritos}</span>
                           <span className="text-muted-foreground">/{conv.plazas}</span>
-                          <div className="w-full h-1 bg-muted rounded-full mt-1">
+                          <div className="mt-1 h-1 w-full rounded-full bg-muted">
                             <div className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${ocupacion}%` }} />
                           </div>
-                        </td>
-                        <td className="p-3 text-center">
-                          <Badge className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}>
+                        </TableCell>
+                        <TableCell className="text-center whitespace-normal">
+                          <Badge className={`max-w-full truncate text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}>
                             {STATUS_LABELS[conv.estado] || conv.estado}
                           </Badge>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     )
                   })
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       )}

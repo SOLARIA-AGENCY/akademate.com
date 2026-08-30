@@ -15,10 +15,10 @@ export function DashboardToolbar({
   return (
     <div
       data-slot="dashboard-toolbar"
-      className={cn('flex flex-col gap-3 lg:flex-row lg:items-center', className)}
+      className={cn('flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center', className)}
     >
-      {search}
-      <div className="ml-0 flex h-auto flex-wrap items-center gap-2 lg:ml-auto lg:h-10 lg:flex-nowrap">
+      <div className="min-w-0 flex-1">{search}</div>
+      <div className="flex min-w-0 flex-wrap items-center gap-2 xl:ml-auto">
         {filters}
       </div>
     </div>

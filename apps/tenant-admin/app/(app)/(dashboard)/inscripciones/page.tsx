@@ -4,15 +4,14 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Input } from '@payload-config/components/ui/input'
 import {
   UserPlus,
-  Search,
   Loader2,
   AlertCircle,
   CheckCircle2,
   Clock,
 } from 'lucide-react'
+import { ListingSearch, PremiumDirectoryShell } from '@payload-config/components/directory/PremiumDirectoryShell'
 import { CommercialIntakeCard } from '../_components/CommercialIntakeCard'
 import {
   resolveFullLeadName,
@@ -151,15 +150,15 @@ export default function InscripcionesPage() {
         ))}
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por nombre, email o teléfono..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          className="pl-9"
-        />
-      </div>
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar por nombre, email o teléfono"
+          />
+        }
+      />
 
       {loading ? (
         <div className="flex justify-center py-12">
