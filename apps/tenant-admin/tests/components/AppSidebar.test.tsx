@@ -14,6 +14,7 @@ vi.mock('@/app/providers/tenant-branding', () => ({
         success: '#22C55E',
         warning: '#F59E0B',
         danger: '#EF4444',
+        sidebar: '#0F2440',
       },
       tenantId: 'test-tenant',
     },
@@ -81,13 +82,13 @@ describe('AppSidebar', () => {
 
   it('renders icons with brand color styles', () => {
     render(<AppSidebar {...defaultProps} />)
-    const sidebarContainer = document.querySelector('[class*="bg-card"]')
+    const sidebarContainer = document.querySelector('[class*="bg-transparent"]')
     expect(sidebarContainer).toBeInTheDocument()
   })
 
-  it('has theme-aware background (bg-card)', () => {
+  it('has theme-aware background (bg-transparent over tenant --sidebar)', () => {
     render(<AppSidebar {...defaultProps} />)
-    const container = document.querySelector('[class*="bg-card"]')
+    const container = document.querySelector('[class*="bg-transparent"]')
     expect(container).toBeInTheDocument()
   })
 

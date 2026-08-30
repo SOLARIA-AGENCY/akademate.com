@@ -3,11 +3,10 @@
 // Force dynamic rendering - bypass static generation for client-side hooks
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect, Suspense, type ChangeEvent } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
@@ -17,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, Lock, Briefcase, Building2, Monitor, List } from 'lucide-react'
+import { Plus, Lock, Briefcase, Building2, Monitor, List } from 'lucide-react'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
@@ -26,6 +25,10 @@ import { CourseTemplateCard } from '@payload-config/components/ui/CourseTemplate
 import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import { fetchCoursesCatalog } from '@/app/lib/client/courses-catalog'
 import {
@@ -315,66 +318,33 @@ function CursosPageContent() {
       )}
 
       {/* Filtros - Estandarizados para todas las vistas */}
-      {!isTypeLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
-        <CardContent className="pt-6" data-oid=".w7czcl">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
-            <div className="min-w-[260px] flex-1" data-oid="gnnziad">
-              {/* BÚSQUEDA: Siempre visible */}
-              <div className="relative" data-oid="k6ryv0w">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                  data-oid="decf-bv"
-                />
-                <Input
-                  placeholder="Buscar por nombre o área..."
-                  value={searchTerm}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-full"
-                  data-oid="o8f_d28"
-                />
-              </div>
-            </div>
-
-            {/* FILTRO POR ÁREA */}
-            <Select value={filterArea} onValueChange={setFilterArea} data-oid="i0ek:n_">
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="zwfzshz">
-                <SelectValue placeholder="Todas las áreas" data-oid="_p-h3ai" />
+      {!isTypeLandingPage && (
+        <PremiumDirectoryShell
+          search={
+            <ListingSearch
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Buscar por nombre o area..."
+            />
+          }
+          filters={
+            <Select value={filterArea} onValueChange={setFilterArea}>
+              <SelectTrigger className="h-10 w-full min-w-[180px] bg-background md:w-[210px]">
+                <SelectValue placeholder="Todas las areas" />
               </SelectTrigger>
-              <SelectContent data-oid="g6_9ait">
-                <SelectItem value="all" data-oid="evmmpxb">
-                  Todas las áreas
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="all">Todas las areas</SelectItem>
                 {areas.map((area) => (
-                  <SelectItem key={area.id} value={area.nombre} data-oid="s0ssimh">
+                  <SelectItem key={area.id} value={area.nombre}>
                     {area.nombre}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {/* View Toggle */}
-            <div className="hidden xl:block xl:ml-auto" data-oid="w_7hauj">
-              <ViewToggle view={view} onViewChange={setView} data-oid="g1tt1yo" />
-            </div>
-          </div>
-
-          {(searchTerm || filterType !== 'all' || filterArea !== 'all') && (
-            <div className="flex items-center gap-4 mt-4" data-oid="wwhwrwt">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterArea('all')
-                }}
-                data-oid="fb8q3px"
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>}
+          }
+          view={<ViewToggle view={view} onViewChange={setView} />}
+        />
+      )}
 
       {/* Loading State */}
       {loading && (

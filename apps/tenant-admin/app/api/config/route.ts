@@ -16,6 +16,7 @@ const PersonalizacionSchema = z.object({
   success: z.string().min(4).default('#22c55e'),
   warning: z.string().min(4).default('#f59e0b'),
   danger: z.string().min(4).default('#ef4444'),
+  sidebar: z.string().min(4).default('#0F2440'),
 })
 const DomainsSchema = z.array(z.string().min(3))
 const LogosSchema = z.object({
@@ -127,6 +128,7 @@ const mockConfig: ConfigData = {
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
+    sidebar: '#0F2440',
   },
   domains: ['akademate.com', 'www.akademate.com'],
 }
@@ -180,6 +182,7 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
       success: mockConfig.personalizacion.success,
       warning: mockConfig.personalizacion.warning,
       danger: mockConfig.personalizacion.danger,
+      sidebar: mockConfig.personalizacion.sidebar,
     }
     // Map Payload contact columns to academia structure
     branding.academia = {

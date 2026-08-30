@@ -70,6 +70,7 @@ interface ColorScheme {
   success: string
   warning: string
   danger: string
+  sidebar: string
 }
 
 
@@ -159,6 +160,7 @@ const DEFAULT_COLORS: ColorScheme = {
   success: '#22c55e',
   warning: '#f59e0b',
   danger: '#ef4444',
+  sidebar: '#0F2440',
 }
 
 const CONSENT_LABELS: Record<string, string> = {
@@ -922,6 +924,36 @@ export default function ConfiguracionUnifiedPage() {
                       style={{ backgroundColor: colors.primary }}
                     >
                       Vista previa
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="color"
+                      id="color-sidebar"
+                      value={colors.sidebar}
+                      onChange={(e) => {
+                        const hex = e.target.value
+                        setColors((prev) => ({ ...prev, sidebar: hex }))
+                      }}
+                      className="h-12 w-12 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
+                    />
+                    <div className="space-y-1">
+                      <Input
+                        value={colors.sidebar}
+                        onChange={(e) => {
+                          const hex = e.target.value
+                          setColors((prev) => ({ ...prev, sidebar: hex }))
+                        }}
+                        className="font-mono text-sm max-w-28"
+                        maxLength={7}
+                      />
+                      <p className="text-xs text-muted-foreground">Color del sidebar</p>
+                    </div>
+                    <div
+                      className="h-10 flex-1 rounded-lg border border-border flex items-center justify-center text-sm font-medium text-white"
+                      style={{ backgroundColor: colors.sidebar }}
+                    >
+                      Rails
                     </div>
                   </div>
                 </div>

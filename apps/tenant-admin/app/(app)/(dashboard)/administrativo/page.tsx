@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
@@ -14,7 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import { Plus, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface AdminStaff {
   id: string
@@ -179,57 +182,30 @@ export default function AdministrativosPage() {
         data-oid="a_ioxi."
       />
 
-      <Card data-oid="pz5ian6">
-        <CardContent className="pt-6" data-oid="ei37n:m">
-          <div className="grid gap-4 md:grid-cols-2" data-oid="n87:n39">
-            <div className="relative" data-oid="gzhnjcu">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="r_ieulf"
-              />
-              <Input
-                placeholder="Buscar por nombre, email o departamento..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="pl-9"
-                data-oid="wk9dzf:"
-              />
-            </div>
-
-            <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="-xzyyj3">
-              <SelectTrigger data-oid="7v98u3e">
-                <SelectValue placeholder="Todos los departamentos" data-oid="lssmc78" />
-              </SelectTrigger>
-              <SelectContent data-oid="p9-i57:">
-                <SelectItem value="all" data-oid="w5074d7">
-                  Todos los departamentos
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar por nombre, email o departamento..."
+          />
+        }
+        filters={
+          <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+            <SelectTrigger className="h-10 bg-background">
+              <SelectValue placeholder="Todos los departamentos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los departamentos</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
                 </SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept} data-oid="1rwzxt-">
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {(searchTerm || filterDepartment !== 'all') && (
-            <div className="flex items-center gap-4 mt-4" data-oid="zfwgtt1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterDepartment('all')
-                }}
-                data-oid="zcoz4.4"
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=".qyvxmm">
         {filteredAdmins.map((admin) => (

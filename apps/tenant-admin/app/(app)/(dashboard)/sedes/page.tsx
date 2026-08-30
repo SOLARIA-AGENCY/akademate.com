@@ -14,6 +14,10 @@ import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
 import { getLimit } from '@payload-config/lib/planLimits'
+import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 
 /** Sede data structure used for display */
 interface Sede {
@@ -68,6 +72,7 @@ export default function SedesPage() {
   const router = useRouter()
   const [view, setView] = useViewPreference('sedes')
   const [sedes, setSedes] = useState<Sede[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [limitModal, setLimitModal] = useState<{ open: boolean; current: number; limit: number } | null>(null)
@@ -156,6 +161,14 @@ export default function SedesPage() {
     router.push('/dashboard/sedes/nueva')
   }
 
+  const filteredSedes = sedes.filter((sede) => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return true
+    return (
+      sede.nombre.toLowerCase().includes(query) || sede.direccion.toLowerCase().includes(query)
+    )
+  })
+
   return (
     <div className="space-y-6" data-oid="5.ig9gq">
       {isLoading && (
@@ -182,7 +195,7 @@ export default function SedesPage() {
         icon={MapPin}
         badge={
           <Badge variant="secondary" data-oid="0fk8_-.">
-            {sedes.length} centros
+            {filteredSedes.length} centros
           </Badge>
         }
         actions={
@@ -191,12 +204,18 @@ export default function SedesPage() {
             Nueva Sede
           </Button>
         }
-        filters={
-          <div className="flex w-full items-center justify-end gap-3" data-oid="-_wk.s:">
-            <ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />
-          </div>
-        }
         data-oid="e1:wo92"
+      />
+
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar sede..."
+          />
+        }
+        view={<ViewToggle view={view} onViewChange={setView} />}
       />
 
       <UsageBar resource="sedes" current={sedes.length} limit={getLimit(plan, 'sedes')} />
@@ -216,7 +235,7 @@ export default function SedesPage() {
 
       {view === 'grid' ? (
         <div className="grid gap-6 lg:grid-cols-2" data-oid="sgmd.g2">
-          {sedes.map((sede) => (
+          {filteredSedes.map((sede) => (
             <Card
               key={sede.id}
               className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
@@ -309,7 +328,7 @@ export default function SedesPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-2" data-oid="fc.70tp">
-          {sedes.map((sede) => (
+          {filteredSedes.map((sede) => (
             <SedeListItem
               key={sede.id}
               sede={sede}

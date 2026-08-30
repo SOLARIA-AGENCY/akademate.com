@@ -127,6 +127,7 @@ body:not([data-payload-admin]) {
     /* Base palette */
     --background: 0 0% 97%;
     --foreground: 222 47% 11%;
+    --dashboard-canvas: 0 0% 100%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
@@ -187,6 +188,7 @@ body:not([data-payload-admin]) {
     /* Base */
     --background: 222 47% 7%;
     --foreground: 210 40% 98%;
+    --dashboard-canvas: 222 47% 7%;
     --card: 222 47% 10%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 10%;

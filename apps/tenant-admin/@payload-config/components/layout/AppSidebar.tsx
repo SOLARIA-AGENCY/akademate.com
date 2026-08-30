@@ -383,7 +383,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
   return (
     <div
-      className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground"
+      className="flex h-full flex-col overflow-hidden bg-transparent text-sidebar-foreground"
       data-oid="itwxk4a"
     >
       {/* Header - Logo + Text - Smooth transition */}

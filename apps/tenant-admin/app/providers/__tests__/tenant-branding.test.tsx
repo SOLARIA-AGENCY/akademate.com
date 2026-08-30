@@ -28,15 +28,26 @@ beforeEach(() => {
 // ─── applyThemeVariables — what it MUST set ──────────────────────────────────
 
 describe('TenantBrandingProvider - CSS variable injection', () => {
-  it('sets --primary from the tenant brand color', async () => {
+  it('sets --sidebar from the platform sidebar token', async () => {
     render(
-      <TenantBrandingProvider data-oid="19am2fv">
-        <span data-oid="y:m-l75">child</span>
+      <TenantBrandingProvider>
+        <span>child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
-      // CEP default primary: #F2014B → expect a non-empty HSL string
-      expect(getRootVar('--primary')).not.toBe('')
+      expect(getRootVar('--sidebar')).not.toBe('')
+    })
+  })
+
+  it('sets --ring and --brand from the tenant primary', async () => {
+    render(
+      <TenantBrandingProvider>
+        <span>child</span>
+      </TenantBrandingProvider>
+    )
+    await waitFor(() => {
+      expect(getRootVar('--ring')).toBe(getRootVar('--primary'))
+      expect(getRootVar('--brand')).toBe(getRootVar('--primary'))
     })
   })
 
@@ -193,6 +204,7 @@ describe('TenantBrandingProvider - theme API update', () => {
                 success: '#00ff00',
                 warning: '#ffff00',
                 danger: '#ff0000',
+                sidebar: '#112233',
               },
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -217,6 +229,7 @@ describe('TenantBrandingProvider - theme API update', () => {
       // #ffffff → 0 0% 100%
       const brandSecondary = getRootVar('--brand-secondary')
       expect(brandSecondary).toBe('0 0% 100%')
+      expect(getRootVar('--sidebar')).not.toBe('')
     })
   })
 
@@ -272,8 +285,8 @@ describe('TenantBrandingProvider - theme API update', () => {
     )
 
     await waitFor(() => {
-      // Fallback defaults are applied: CEP navy → 240 28% 14%
       expect(getRootVar('--brand-secondary')).toBe('240 28% 14%')
+      // Fallback comments previously mentioned CEP; platform fallback is Akademate navy.
       expect(getRootVar('--secondary')).toBe('')
     })
   })

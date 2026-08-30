@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import { Label } from '@payload-config/components/ui/label'
@@ -31,7 +30,6 @@ import {
 } from '@payload-config/components/ui/sheet'
 import {
   Users,
-  Search,
   Loader2,
   Phone,
   Mail,
@@ -44,7 +42,10 @@ import {
   UserCheck,
   CalendarPlus,
 } from 'lucide-react'
-import { CommercialIntakeCard } from '../_components/CommercialIntakeCard'
+import { DashboardToolbar } from '@payload-config/components/layout/DashboardToolbar'
+import {
+  ListingSearch,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 import {
   resolveFullLeadName,
   resolveLeadProgramLabel as resolveProgramLabel,
@@ -691,17 +692,11 @@ export default function LeadsPage() {
       {/* Barra de trabajo */}
       <Card>
         <CardContent className="space-y-4 p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <div className="relative w-full lg:max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Buscar lead..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="pl-9"
-              />
-            </div>
-
+          <DashboardToolbar
+            search={
+              <ListingSearch value={search} onChange={setSearch} placeholder="Buscar lead..." />
+            }
+            filters={
             <Sheet open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" className="w-full lg:w-auto">
@@ -771,7 +766,8 @@ export default function LeadsPage() {
                 </SheetFooter>
               </SheetContent>
             </Sheet>
-          </div>
+            }
+          />
 
           <Tabs
             value={queueFilter}

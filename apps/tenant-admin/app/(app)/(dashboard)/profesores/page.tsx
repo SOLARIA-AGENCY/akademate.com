@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { StatusDotBadge } from '@payload-config/components/ui/listing-pills'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
@@ -14,10 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
+import { Plus, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
+import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface Certification {
   title: string
@@ -233,77 +238,43 @@ export default function ProfesoresPage() {
         data-oid="i_jz_am"
       />
 
-      <Card data-oid="u0-zxep">
-        <CardContent className="pt-6" data-oid="ie6f8wq">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="pnn908d">
-            <div className="relative min-w-[260px] flex-1" data-oid="wsgdaqp">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="ouumgj-"
-              />
-              <Input
-                placeholder="Buscar por nombre, email, departamento..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="w-full pl-9"
-                data-oid="jmj.zg-"
-              />
-            </div>
-
-            <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="mrhrz82">
-              <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="9cxbj.j">
-                <SelectValue placeholder="Todos los departamentos" data-oid="d9jzw43" />
-              </SelectTrigger>
-              <SelectContent data-oid="el2al_u">
-                <SelectItem value="all" data-oid="r-jroyq">
-                  Todos los departamentos
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar por nombre, email, departamento..."
+          />
+        }
+        segments={
+          <SegmentedToggle
+            ariaLabel="Estado"
+            value={filterStatus}
+            onValueChange={setFilterStatus}
+            options={[
+              { value: 'all', label: 'Todas' },
+              { value: 'active', label: 'Activos' },
+              { value: 'inactive', label: 'Inactivos' },
+            ]}
+          />
+        }
+        filters={
+          <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+            <SelectTrigger className="h-10 w-full min-w-[200px] bg-background md:w-[240px]">
+              <SelectValue placeholder="Todos los departamentos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los departamentos</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
                 </SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept} data-oid="a.:d.aa">
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="h95d028">
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="hfo3rek">
-                <SelectValue placeholder="Todos los estados" data-oid="sbtozd9" />
-              </SelectTrigger>
-              <SelectContent data-oid="7b:8uhb">
-                <SelectItem value="all" data-oid="f-e6w5g">
-                  Todos los estados
-                </SelectItem>
-                <SelectItem value="active" data-oid="tm3l5zf">
-                  Activos
-                </SelectItem>
-                <SelectItem value="inactive" data-oid="z4_gy17">
-                  Inactivos
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="hidden xl:ml-auto xl:block" data-oid="e6sxh7_">
-              <ViewToggle view={view} onViewChange={setView} data-oid="3q7lfq3" />
-            </div>
-
-            {(searchTerm || filterDepartment !== 'all' || filterStatus !== 'all') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterDepartment('all')
-                  setFilterStatus('all')
-                }}
-                data-oid="0d.n:bw"
-              >
-                Limpiar filtros
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+        view={<ViewToggle view={view} onViewChange={setView} />}
+      />
 
       {view === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="39mqpx7">
@@ -345,13 +316,12 @@ export default function ProfesoresPage() {
                       <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
                       <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
                     </p>
-                    <Badge
-                      variant={teacher.active ? 'default' : 'secondary'}
+                    <StatusDotBadge
+                      tone={teacher.active ? 'success' : 'neutral'}
                       className="mt-2"
-                      data-oid="vtx5757"
                     >
                       {teacher.active ? 'Activo' : 'Inactivo'}
-                    </Badge>
+                    </StatusDotBadge>
                   </div>
                 </div>
 

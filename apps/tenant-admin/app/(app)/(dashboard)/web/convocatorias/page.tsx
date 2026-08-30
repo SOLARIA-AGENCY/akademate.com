@@ -17,6 +17,11 @@ import {
   TableRow,
 } from '@payload-config/components/ui/table'
 import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
+import {
   Globe,
   ExternalLink,
   Pencil,
@@ -284,6 +289,8 @@ export default function WebConvocatoriasPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set())
+  const [searchTerm, setSearchTerm] = useState('')
+  const [publishFilter, setPublishFilter] = useState<'all' | 'published' | 'draft'>('all')
 
   useEffect(() => {
     const fetchConvocatorias = async () => {
@@ -393,6 +400,18 @@ export default function WebConvocatoriasPage() {
   }
 
   const publishedCount = convocatorias.filter((c) => c.isPublishable).length
+  const visibleConvocatorias = convocatorias.filter((conv) => {
+    const query = searchTerm.trim().toLowerCase()
+    const matchesSearch =
+      !query ||
+      conv.cursoNombre.toLowerCase().includes(query) ||
+      conv.sedeName.toLowerCase().includes(query)
+    const matchesPublish =
+      publishFilter === 'all' ||
+      (publishFilter === 'published' && conv.isPublishable) ||
+      (publishFilter === 'draft' && !conv.isPublishable)
+    return matchesSearch && matchesPublish
+  })
 
   return (
     <div className="space-y-6">
@@ -405,6 +424,28 @@ export default function WebConvocatoriasPage() {
             <Badge variant="secondary">{convocatorias.length} total</Badge>
             <Badge variant="success">{publishedCount} publicadas</Badge>
           </div>
+        }
+      />
+
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar convocatoria..."
+          />
+        }
+        segments={
+          <SegmentedToggle
+            ariaLabel="Publicacion"
+            value={publishFilter}
+            onValueChange={(value) => setPublishFilter(value as 'all' | 'published' | 'draft')}
+            options={[
+              { value: 'all', label: 'Todas' },
+              { value: 'published', label: 'Publicadas' },
+              { value: 'draft', label: 'Borrador' },
+            ]}
+          />
         }
       />
 
@@ -447,7 +488,7 @@ export default function WebConvocatoriasPage() {
       {/* MOBILE: Card layout (visible on sm and below) */}
       {!isLoading && convocatorias.length > 0 && (
         <div className="space-y-3 lg:hidden">
-          {convocatorias.map((conv) => {
+          {visibleConvocatorias.map((conv) => {
             const estadoConfig = ESTADO_MAP[conv.estado] ?? { label: conv.estado, variant: 'outline' as const }
             const isToggling = togglingIds.has(conv.id)
             const ocupacion = conv.plazasTotales > 0
@@ -560,7 +601,7 @@ export default function WebConvocatoriasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {convocatorias.map((conv) => {
+              {visibleConvocatorias.map((conv) => {
                 const estadoConfig = ESTADO_MAP[conv.estado] ?? {
                   label: conv.estado,
                   variant: 'outline' as const,

@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import {
   Select,
@@ -15,14 +14,19 @@ import {
 import { Badge } from '@payload-config/components/ui/badge'
 import { OcupacionBadge } from '@payload-config/components/ui/OcupacionBadge'
 import { useRouter } from 'next/navigation'
-import { Search, GraduationCap, Users, BookOpen, Clock, Calendar, Plus } from 'lucide-react'
+import { GraduationCap, Users, BookOpen, Clock, Calendar, Plus } from 'lucide-react'
 import { usePlanLimits } from '@/hooks/usePlanLimits'
 import { PlanLimitModal } from '@/components/ui/PlanLimitModal'
 import { UsageBar } from '@/components/ui/UsageBar'
 import { getLimit } from '@/lib/planLimits'
 import { CicloListItem } from '@payload-config/components/ui/CicloListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
+import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 import type { CicloPlantilla } from '@/types'
 
 function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
@@ -287,101 +291,56 @@ export default function TodosLosCiclosPage() {
 
       <UsageBar resource="ciclos" current={ciclosData.length} limit={getLimit(plan, 'ciclos')} />
 
-      <Card data-oid="53yqrbe">
-        <CardContent className="pt-6" data-oid="lw2_c6e">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="3s0b37y">
-            <div className="relative min-w-0 flex-1" data-oid="yjrwj2q">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="_:q8q:p"
-              />
-              <Input
-                placeholder="Buscar ciclos..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="w-full pl-10"
-                data-oid="04h2w4u"
-              />
-            </div>
-
-            <Select value={nivelFilter} onValueChange={setNivelFilter} data-oid="blzx:fd">
-              <SelectTrigger className="w-full min-w-0 md:w-[210px]" data-oid="pi-0r.c">
-                <SelectValue placeholder="Todos los niveles" data-oid="hd:j28v" />
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar ciclos..."
+          />
+        }
+        segments={
+          <SegmentedToggle
+            ariaLabel="Nivel"
+            value={nivelFilter}
+            onValueChange={setNivelFilter}
+            options={[
+              { value: 'todos', label: 'Todas' },
+              { value: 'Grado Medio', label: 'Medio' },
+              { value: 'Grado Superior', label: 'Superior' },
+            ]}
+          />
+        }
+        filters={
+          <>
+            <Select value={familiaFilter} onValueChange={setFamiliaFilter}>
+              <SelectTrigger className="h-10 w-full min-w-0 bg-background md:w-[220px]">
+                <SelectValue placeholder="Todas las familias" />
               </SelectTrigger>
-              <SelectContent data-oid="igtax0_">
-                <SelectItem value="todos" data-oid="ey2v6a_">
-                  Todos los niveles
-                </SelectItem>
-                <SelectItem value="Grado Medio" data-oid="yw124d9">
-                  Grado Medio
-                </SelectItem>
-                <SelectItem value="Grado Superior" data-oid="k0e::_c">
-                  Grado Superior
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={familiaFilter} onValueChange={setFamiliaFilter} data-oid="c5ha4_7">
-              <SelectTrigger className="w-full min-w-0 md:w-[220px]" data-oid="p:13p.5">
-                <SelectValue placeholder="Todas las familias" data-oid="exi7wr:" />
-              </SelectTrigger>
-              <SelectContent data-oid="9:1vgmq">
-                <SelectItem value="todas" data-oid="52xr:un">
-                  Todas las familias
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="todas">Todas las familias</SelectItem>
                 {familiasProfesionales.map((familia) => (
-                  <SelectItem key={familia} value={familia} data-oid="6ahpvi.">
+                  <SelectItem key={familia} value={familia}>
                     {familia}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            <Select value={modalidadFilter} onValueChange={setModalidadFilter} data-oid=":5r4u9g">
-              <SelectTrigger className="w-full min-w-0 md:w-[210px]" data-oid="zi8xj2q">
-                <SelectValue placeholder="Todas las modalidades" data-oid=":09f_6q" />
+            <Select value={modalidadFilter} onValueChange={setModalidadFilter}>
+              <SelectTrigger className="h-10 w-full min-w-0 bg-background md:w-[210px]">
+                <SelectValue placeholder="Todas las modalidades" />
               </SelectTrigger>
-              <SelectContent data-oid="ixi74or">
-                <SelectItem value="todas" data-oid="g9iyos8">
-                  Todas las modalidades
-                </SelectItem>
-                <SelectItem value="Presencial" data-oid="a9v5sra">
-                  Presencial
-                </SelectItem>
-                <SelectItem value="Semipresencial" data-oid="qfts69s">
-                  Semipresencial
-                </SelectItem>
-                <SelectItem value="Telemático" data-oid="r8-1al8">
-                  Telemático
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="todas">Todas las modalidades</SelectItem>
+                <SelectItem value="Presencial">Presencial</SelectItem>
+                <SelectItem value="Semipresencial">Semipresencial</SelectItem>
+                <SelectItem value="Telemático">Telemático</SelectItem>
               </SelectContent>
             </Select>
-
-            <div className="hidden xl:block xl:ml-auto" data-oid="3yrq3qi">
-              <ViewToggle view={view} onViewChange={setView} data-oid="hbmlqvq" />
-            </div>
-
-            {(searchTerm ||
-              nivelFilter !== 'todos' ||
-              familiaFilter !== 'todas' ||
-              modalidadFilter !== 'todas') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setNivelFilter('todos')
-                  setFamiliaFilter('todas')
-                  setModalidadFilter('todas')
-                }}
-                data-oid="cu2brtn"
-              >
-                Limpiar filtros
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        }
+        view={<ViewToggle view={view} onViewChange={setView} />}
+      />
 
       {/* Ciclos Grid o Lista */}
       {view === 'grid' ? (
@@ -402,7 +361,7 @@ export default function TodosLosCiclosPage() {
                   />
                   <div className="absolute left-4 top-4" data-oid="k5si0ro">
                     <Badge
-                      className="border-[#f2014b]/50 bg-[#f2014b] text-xs font-semibold text-white shadow-sm hover:bg-[#d80143]"
+                      className="border-primary/50 bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
                       data-oid="t:ogjxr"
                     >
                       {formatCycleLevelLabel(ciclo.nivel)}

@@ -24,6 +24,7 @@ interface ColorScheme {
   success: string
   warning: string
   danger: string
+  sidebar: string
 }
 
 interface ThemePreset {
@@ -45,6 +46,7 @@ const DEFAULT_THEMES: ThemePreset[] = [
       success: '#22c55e',
       warning: '#f59e0b',
       danger: '#ef4444',
+      sidebar: '#0F2440',
     },
   },
   {
@@ -56,6 +58,7 @@ const DEFAULT_THEMES: ThemePreset[] = [
       success: '#22c55e',
       warning: '#f59e0b',
       danger: '#ef4444',
+      sidebar: '#0F2440',
     },
   },
   {
@@ -67,6 +70,7 @@ const DEFAULT_THEMES: ThemePreset[] = [
       success: '#10b981',
       warning: '#f59e0b',
       danger: '#ef4444',
+      sidebar: '#0F2440',
     },
   },
   {
@@ -78,6 +82,7 @@ const DEFAULT_THEMES: ThemePreset[] = [
       success: '#22c55e',
       warning: '#f97316',
       danger: '#dc2626',
+      sidebar: '#0F2440',
     },
   },
   {
@@ -89,6 +94,7 @@ const DEFAULT_THEMES: ThemePreset[] = [
       success: '#84cc16',
       warning: '#eab308',
       danger: '#dc2626',
+      sidebar: '#0F2440',
     },
   },
 ]
@@ -102,6 +108,7 @@ const fallbackTheme: ThemePreset = {
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
+    sidebar: '#0F2440',
   },
 }
 
@@ -158,11 +165,13 @@ export default function PersonalizacionPage() {
     const currentColors = previewMode ? colors : savedColors
 
     root.style.setProperty('--primary', hexToHSL(currentColors.primary))
-    root.style.setProperty('--secondary', hexToHSL(currentColors.secondary))
+    root.style.setProperty('--ring', hexToHSL(currentColors.primary))
+    root.style.setProperty('--brand', hexToHSL(currentColors.primary))
     root.style.setProperty('--accent', hexToHSL(currentColors.accent))
     root.style.setProperty('--success', hexToHSL(currentColors.success))
     root.style.setProperty('--warning', hexToHSL(currentColors.warning))
     root.style.setProperty('--destructive', hexToHSL(currentColors.danger))
+    root.style.setProperty('--sidebar', hexToHSL(currentColors.sidebar))
   }, [colors, savedColors, previewMode])
 
   useEffect(() => {
@@ -177,8 +186,9 @@ export default function PersonalizacionPage() {
         const payload = (await response.json()) as PersonalizacionApiResponse
         if (payload.data) {
           if (!isMounted) return
-          setColors(payload.data)
-          setSavedColors(payload.data)
+          const next = { ...fallbackTheme.colors, ...payload.data }
+          setColors(next)
+          setSavedColors(next)
         }
       } catch {
         if (isMounted) {

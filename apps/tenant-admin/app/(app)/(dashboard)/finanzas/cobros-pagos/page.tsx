@@ -2,6 +2,14 @@
 
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { UpcomingPlaceholder } from '@payload-config/components/ui/UpcomingPlaceholder'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
 import { HandCoins } from 'lucide-react'
 
 export default function CobrosPagosPage() {
@@ -12,6 +20,26 @@ export default function CobrosPagosPage() {
         description="Gestion de pagos de alumnos y pagos a proveedores"
         icon={HandCoins}
       />
+      <div className="overflow-hidden rounded-lg border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Fecha</TableHead>
+              <TableHead>Concepto</TableHead>
+              <TableHead>Alumno / Proveedor</TableHead>
+              <TableHead>Importe</TableHead>
+              <TableHead>Estado</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                Aun no hay movimientos. El modulo de cobros se conectara a datos reales en una fase posterior.
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
       <UpcomingPlaceholder
         title="Cobros y Pagos"
         description="Control total de los movimientos economicos: cobros a alumnos, pagos a profesores y proveedores."

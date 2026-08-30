@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useState, type ChangeEvent, type MouseEvent, type KeyboardEvent } from 'react'
+import { useEffect, useState, type MouseEvent, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
-import { Badge } from '@payload-config/components/ui/badge'
+import { StatusDotBadge } from '@payload-config/components/ui/listing-pills'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
@@ -15,7 +14,6 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import {
-  Search,
   User,
   Mail,
   Phone,
@@ -23,12 +21,16 @@ import {
   CheckCircle2,
   Eye,
   Edit,
-  LayoutGrid,
-  List,
   MapPin,
   GraduationCap,
   UserPlus,
 } from 'lucide-react'
+import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
+import {
+  ListingSearch,
+  PremiumDirectoryShell,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface Student {
   id: string
@@ -184,38 +186,6 @@ export default function AlumnosPage() {
         title="Alumnos"
         description={`${filteredStudents.length} alumnos de ${students.length} totales`}
         icon={User}
-        actions={
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg" data-oid="mddf.5b">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              className={
-                viewMode === 'list'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }
-              onClick={() => setViewMode('list')}
-              data-oid="f.4b31g"
-            >
-              <List className="h-4 w-4 mr-2" data-oid="skj-s5p" />
-              Listado
-            </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              className={
-                viewMode === 'grid'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }
-              onClick={() => setViewMode('grid')}
-              data-oid="t_--gmp"
-            >
-              <LayoutGrid className="h-4 w-4 mr-2" data-oid="frog:b0" />
-              Fichas
-            </Button>
-          </div>
-        }
         data-oid="2bu4ozx"
       />
 
@@ -307,114 +277,71 @@ export default function AlumnosPage() {
         </Card>
       </div>
 
-      {/* Filtros */}
-      <Card data-oid="evhc1ab">
-        <CardContent className="pt-6" data-oid="vrvrvg9">
-          <div className="grid gap-4 md:grid-cols-5" data-oid="t_sy_:2">
-            <div className="relative" data-oid="606pz0d">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="0d7hxhx"
-              />
-              <Input
-                placeholder="Buscar por nombre o email..."
-                value={searchTerm}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="pl-9"
-                data-oid="6l4uu5l"
-              />
-            </div>
-
-            <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="8gn04-c">
-              <SelectTrigger data-oid=":.:.p3e">
-                <SelectValue placeholder="Estado" data-oid="wrk4a2x" />
+      <PremiumDirectoryShell
+        search={
+          <ListingSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar por nombre o email..."
+          />
+        }
+        segments={
+          <SegmentedToggle
+            ariaLabel="Estado"
+            value={filterStatus}
+            onValueChange={setFilterStatus}
+            options={[
+              { value: 'all', label: 'Todas' },
+              { value: 'active', label: 'Activos' },
+              { value: 'inactive', label: 'Inactivos' },
+            ]}
+          />
+        }
+        filters={
+          <>
+            <Select value={filterSede} onValueChange={setFilterSede}>
+              <SelectTrigger className="h-10 bg-background">
+                <SelectValue placeholder="Sede" />
               </SelectTrigger>
-              <SelectContent data-oid="neuz-.3">
-                <SelectItem value="all" data-oid="itl3tn_">
-                  Todos los estados
-                </SelectItem>
-                <SelectItem value="active" data-oid=":zs2vyc">
-                  Activos
-                </SelectItem>
-                <SelectItem value="inactive" data-oid="2jzbrsm">
-                  Inactivos
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filterSede} onValueChange={setFilterSede} data-oid="ah85kl0">
-              <SelectTrigger data-oid="_-je2:c">
-                <SelectValue placeholder="Sede" data-oid="hg5vqi2" />
-              </SelectTrigger>
-              <SelectContent data-oid=":p47ksq">
-                <SelectItem value="all" data-oid="_5ra9.d">
-                  Todas las sedes
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="all">Todas las sedes</SelectItem>
                 {sedes.map((sede) => (
-                  <SelectItem key={sede} value={sede} data-oid="mqcbyh_">
+                  <SelectItem key={sede} value={sede}>
                     {sede}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            <Select value={filterCurso} onValueChange={setFilterCurso} data-oid="zd.guip">
-              <SelectTrigger data-oid="5mx06il">
-                <SelectValue placeholder="Curso" data-oid="oj62xzc" />
+            <Select value={filterCurso} onValueChange={setFilterCurso}>
+              <SelectTrigger className="h-10 bg-background">
+                <SelectValue placeholder="Curso" />
               </SelectTrigger>
-              <SelectContent data-oid="xo2qpfm">
-                <SelectItem value="all" data-oid=":4n:frr">
-                  Todos los cursos
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="all">Todos los cursos</SelectItem>
                 {cursos.map((curso) => (
-                  <SelectItem key={curso} value={curso} data-oid="o3rms35">
+                  <SelectItem key={curso} value={curso}>
                     {curso}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            <Select value={filterCiclo} onValueChange={setFilterCiclo} data-oid="yzzmgac">
-              <SelectTrigger data-oid="8w3syz2">
-                <SelectValue placeholder="Ciclo" data-oid="x676wrn" />
+            <Select value={filterCiclo} onValueChange={setFilterCiclo}>
+              <SelectTrigger className="h-10 bg-background">
+                <SelectValue placeholder="Ciclo" />
               </SelectTrigger>
-              <SelectContent data-oid="min-q8c">
-                <SelectItem value="all" data-oid="c3ijif3">
-                  Todos los ciclos
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="all">Todos los ciclos</SelectItem>
                 {ciclos.map((ciclo) => (
-                  <SelectItem key={ciclo} value={ciclo} data-oid="oe33wrz">
+                  <SelectItem key={ciclo} value={ciclo}>
                     {ciclo}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {(searchTerm ||
-            filterStatus !== 'all' ||
-            filterSede !== 'all' ||
-            filterCurso !== 'all' ||
-            filterCiclo !== 'all') && (
-            <div className="flex items-center gap-4 mt-4" data-oid="80uls9:">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterStatus('all')
-                  setFilterSede('all')
-                  setFilterCurso('all')
-                  setFilterCiclo('all')
-                }}
-                data-oid="dqkla-s"
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </>
+        }
+        view={<ViewToggle view={viewMode} onViewChange={setViewMode} />}
+      />
 
       {/* Vista LISTADO (default) */}
       {viewMode === 'list' && (
@@ -477,13 +404,9 @@ export default function AlumnosPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0" data-oid="781miv9">
-                        <Badge
-                          variant={student.active ? 'default' : 'secondary'}
-                          className="text-xs"
-                          data-oid="59eo6fh"
-                        >
+                        <StatusDotBadge tone={student.active ? 'success' : 'neutral'}>
                           {student.active ? 'Activo' : 'Inactivo'}
-                        </Badge>
+                        </StatusDotBadge>
                         <div
                           className="flex items-center gap-1 text-xs text-muted-foreground"
                           data-oid="y06a2rj"
@@ -555,13 +478,12 @@ export default function AlumnosPage() {
                       <h3 className="font-bold text-lg" data-oid="4tlfq.5">
                         {selectedStudent.first_name} {selectedStudent.last_name}
                       </h3>
-                      <Badge
-                        variant={selectedStudent.active ? 'default' : 'secondary'}
+                      <StatusDotBadge
+                        tone={selectedStudent.active ? 'success' : 'neutral'}
                         className="mt-1"
-                        data-oid="k.6:xpr"
                       >
                         {selectedStudent.active ? 'Activo' : 'Inactivo'}
-                      </Badge>
+                      </StatusDotBadge>
                     </div>
                   </div>
 
@@ -712,13 +634,12 @@ export default function AlumnosPage() {
                     <h3 className="font-bold text-lg leading-tight truncate" data-oid="eobcsk7">
                       {student.first_name} {student.last_name}
                     </h3>
-                    <Badge
-                      variant={student.active ? 'default' : 'secondary'}
-                      className="mt-1 text-xs"
-                      data-oid="lbyczpn"
+                    <StatusDotBadge
+                      tone={student.active ? 'success' : 'neutral'}
+                      className="mt-1"
                     >
                       {student.active ? 'Activo' : 'Inactivo'}
-                    </Badge>
+                    </StatusDotBadge>
                   </div>
                 </div>
 

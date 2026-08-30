@@ -88,7 +88,7 @@ function buildOrigin(host: string): string {
 }
 
 function resolveDefaults(host: string): BrandingDefaults {
-  if (isLocalHost(host)) return CEP_DEFAULTS
+  if (isLocalHost(host)) return AKADEMATE_DEFAULTS
   return hostLooksLikeCep(host) ? CEP_DEFAULTS : AKADEMATE_DEFAULTS
 }
 

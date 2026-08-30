@@ -26,7 +26,11 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { AlertTriangle, CalendarClock, Megaphone, RefreshCw, Search } from 'lucide-react'
+import { AlertTriangle, CalendarClock, Megaphone, RefreshCw } from 'lucide-react'
+import { DashboardToolbar } from '@payload-config/components/layout/DashboardToolbar'
+import {
+  ListingSearch,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 import type { CampaignListItem, CampaignStatus, CampaignsResponse } from './_components/types'
 
 type StatusFilter = 'all' | 'active' | 'paused' | 'draft' | 'completed'
@@ -374,79 +378,65 @@ export default function CampanasPage() {
       </div>
 
       <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-3 md:grid-cols-4">
-            <div>
-              <Label>Ad Account</Label>
-              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {accountOptions.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Rango de fechas</Label>
-              <Select value={range} onValueChange={(value) => setRange(value as RangeOption)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {RANGE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Estado</Label>
-              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="active">Activa</SelectItem>
-                  <SelectItem value="paused">Pausada</SelectItem>
-                  <SelectItem value="draft">Borrador</SelectItem>
-                  <SelectItem value="completed">Finalizada</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Búsqueda</Label>
-              <div className="relative mt-1">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  className="pl-8"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Nombre o ID Meta"
-                />
-              </div>
-            </div>
-          </div>
-
+        <CardContent className="space-y-3 pt-6">
+          <DashboardToolbar
+            search={
+              <ListingSearch
+                value={query}
+                onChange={setQuery}
+                placeholder="Nombre o ID Meta"
+              />
+            }
+            filters={
+              <>
+                <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                  <SelectTrigger className="h-10 w-[200px] bg-background">
+                    <SelectValue placeholder="Ad Account" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accountOptions.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={range} onValueChange={(value) => setRange(value as RangeOption)}>
+                  <SelectTrigger className="h-10 w-[180px] bg-background">
+                    <SelectValue placeholder="Rango" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {RANGE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
+                  <SelectTrigger className="h-10 w-[160px] bg-background">
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="active">Activa</SelectItem>
+                    <SelectItem value="paused">Pausada</SelectItem>
+                    <SelectItem value="draft">Borrador</SelectItem>
+                    <SelectItem value="completed">Finalizada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </>
+            }
+          />
           {range === 'custom' && (
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <Label>Desde</Label>
-                <Input type="date" className="mt-1" value={customSince} onChange={(event) => setCustomSince(event.target.value)} />
+                <Input type="date" className="mt-1 h-10" value={customSince} onChange={(event) => setCustomSince(event.target.value)} />
               </div>
               <div>
                 <Label>Hasta</Label>
-                <Input type="date" className="mt-1" value={customUntil} onChange={(event) => setCustomUntil(event.target.value)} />
+                <Input type="date" className="mt-1 h-10" value={customUntil} onChange={(event) => setCustomUntil(event.target.value)} />
               </div>
             </div>
           )}

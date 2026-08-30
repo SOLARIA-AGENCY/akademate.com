@@ -2,6 +2,11 @@
 
 import * as React from 'react'
 
+/** Platform defaults. Dashboard chrome reads these tokens, never a host hex. */
+export const AKADEMATE_PRIMARY = '#0066CC'
+export const AKADEMATE_SIDEBAR = '#0F2440'
+export const AKADEMATE_ACCENT = '#0088FF'
+
 type TenantTheme = {
   primary: string
   secondary: string
@@ -9,6 +14,7 @@ type TenantTheme = {
   success: string
   warning: string
   danger: string
+  sidebar: string
 }
 
 type TenantLogos = {
@@ -40,49 +46,18 @@ const DEFAULT_BRANDING: TenantBranding = {
     favicon: '/logos/akademate-favicon.svg',
   },
   theme: {
-    primary: '#0066CC',
+    primary: AKADEMATE_PRIMARY,
     secondary: '#1a1a2e',
-    accent: '#0088FF',
+    accent: AKADEMATE_ACCENT,
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
+    sidebar: AKADEMATE_SIDEBAR,
   },
   tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? 'default',
 }
 
-const CEP_DEFAULT_BRANDING: TenantBranding = {
-  academyName: 'CEP Formación',
-  logos: {
-    principal: '/logos/cep-formacion-logo-rectangular.png',
-    oscuro: '/logos/cep-formacion-logo-rectangular.png',
-    claro: '/logos/cep-formacion-logo-rectangular.png',
-    favicon: '/logos/cep-formacion-isotipo.svg',
-  },
-  theme: {
-    primary: '#f2014b',
-    secondary: '#1a1a2e',
-    accent: '#f2014b',
-    success: '#22c55e',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-  },
-  tenantId: '1',
-}
-
 const TenantBrandingContext = React.createContext<TenantBrandingContextValue | undefined>(undefined)
-
-function getRuntimeHost(): string {
-  if (typeof window === 'undefined') return ''
-  return window.location.hostname.toLowerCase()
-}
-
-function isCepHost(hostname: string): boolean {
-  return /(^|\.)cepformacion(\.|$)/i.test(hostname) || hostname.includes('cep-formacion')
-}
-
-function getHostAwareDefaultBranding(): TenantBranding {
-  return isCepHost(getRuntimeHost()) ? CEP_DEFAULT_BRANDING : DEFAULT_BRANDING
-}
 
 function hexToHSL(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
@@ -118,10 +93,25 @@ function hexToHSL(hex: string): string {
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`
 }
 
+function hexLightness(hex: string): number {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!result) return 50
+  const r = parseInt(result[1] ?? '00', 16) / 255
+  const g = parseInt(result[2] ?? '00', 16) / 255
+  const b = parseInt(result[3] ?? '00', 16) / 255
+  return ((Math.max(r, g, b) + Math.min(r, g, b)) / 2) * 100
+}
+
 function applyThemeVariables(theme: TenantTheme): void {
   if (typeof document === 'undefined') return
   const root = document.documentElement
-  root.style.setProperty('--primary', hexToHSL(theme.primary))
+  const primaryHsl = hexToHSL(theme.primary)
+  const sidebarHsl = hexToHSL(theme.sidebar)
+  const sidebarIsDark = hexLightness(theme.sidebar) < 45
+
+  root.style.setProperty('--primary', primaryHsl)
+  root.style.setProperty('--ring', primaryHsl)
+  root.style.setProperty('--brand', primaryHsl)
   // NOTE: --secondary is intentionally NOT overridden here.
   // shadcn/ui uses --secondary as a neutral surface color (light gray / dark gray).
   // The tenant brand secondary (#1a1a2e navy) is stored in --brand-secondary for
@@ -132,6 +122,27 @@ function applyThemeVariables(theme: TenantTheme): void {
   root.style.setProperty('--success', hexToHSL(theme.success))
   root.style.setProperty('--warning', hexToHSL(theme.warning))
   root.style.setProperty('--destructive', hexToHSL(theme.danger))
+  root.style.setProperty('--sidebar', sidebarHsl)
+  root.style.setProperty('--sidebar-foreground', sidebarIsDark ? '210 40% 98%' : '222 47% 15%')
+  root.style.setProperty('--sidebar-accent', sidebarIsDark ? '214 45% 22%' : '220 14% 93%')
+  root.style.setProperty('--sidebar-accent-foreground', sidebarIsDark ? '210 40% 98%' : '222 47% 15%')
+  root.style.setProperty('--sidebar-border', sidebarIsDark ? '214 32% 24%' : '220 13% 91%')
+  root.style.setProperty('--sidebar-primary', primaryHsl)
+  root.style.setProperty('--sidebar-ring', primaryHsl)
+}
+
+function mergeTheme(base: TenantTheme, patch?: Partial<TenantTheme> | null): TenantTheme {
+  return {
+    ...base,
+    ...patch,
+    primary: patch?.primary?.trim() || base.primary,
+    secondary: patch?.secondary?.trim() || base.secondary,
+    accent: patch?.accent?.trim() || base.accent,
+    success: patch?.success?.trim() || base.success,
+    warning: patch?.warning?.trim() || base.warning,
+    danger: patch?.danger?.trim() || base.danger,
+    sidebar: patch?.sidebar?.trim() || base.sidebar,
+  }
 }
 
 export function TenantBrandingProvider({
@@ -142,12 +153,12 @@ export function TenantBrandingProvider({
   initialBranding?: TenantBranding
 }) {
   const [branding, setBranding] = React.useState<TenantBranding>(
-    () => initialBranding ?? getHostAwareDefaultBranding()
+    () => initialBranding ?? DEFAULT_BRANDING
   )
   const [loading, setLoading] = React.useState(true)
 
   const refresh = React.useCallback(async () => {
-    const fallbackBranding = initialBranding ?? getHostAwareDefaultBranding()
+    const fallbackBranding = initialBranding ?? DEFAULT_BRANDING
     setLoading(true)
     try {
       const [logosRes, academyRes, themeRes] = await Promise.all([
@@ -174,7 +185,7 @@ export function TenantBrandingProvider({
 
       if (themeRes.ok) {
         const themePayload = (await themeRes.json()) as { data?: Partial<TenantTheme> }
-        nextBranding.theme = { ...fallbackBranding.theme, ...themePayload.data }
+        nextBranding.theme = mergeTheme(fallbackBranding.theme, themePayload.data)
       }
 
       setBranding(nextBranding)
@@ -221,9 +232,8 @@ export function TenantBrandingProvider({
 export function useTenantBranding(): TenantBrandingContextValue {
   const context = React.useContext(TenantBrandingContext)
   if (!context) {
-    const fallbackBranding = getHostAwareDefaultBranding()
     return {
-      branding: fallbackBranding,
+      branding: DEFAULT_BRANDING,
       loading: false,
       refresh: async () => undefined,
     }

@@ -25,6 +25,7 @@ vi.mock('@/app/providers/tenant-branding', () => ({
         success: '#22c55e',
         warning: '#f59e0b',
         danger: '#ef4444',
+        sidebar: '#0F2440',
       },
     },
     loading: false,
