@@ -216,7 +216,7 @@ export const AnonymizeRequestSchema = z.object({
   userId: z.string().uuid(),
   reason: z.string().min(10).max(500).optional(),
   confirmDeletion: z.literal(true, {
-    errorMap: () => ({ message: 'Must confirm deletion by setting confirmDeletion to true' }),
+    error: 'Must confirm deletion by setting confirmDeletion to true',
   }),
 })
 

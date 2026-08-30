@@ -1444,11 +1444,11 @@ export default function DesignSystemPage() {
               </div>
               <div className="flex items-start gap-2" data-oid="vsskr7r">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="xh:d3wk" />
-                Mantener `withCard=true` por defecto para bloques de título encuadrados.
+                Mantener `withCard=false` por defecto para títulos sobre el canvas.
               </div>
               <div className="flex items-start gap-2" data-oid="assft1q">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="n.tljnk" />
-                En detalle/edición usar `withCard=false` solo si hay hero contextual justificado.
+                En detalle/edición `withCard` es opcional si hay hero contextual.
               </div>
               <div className="flex items-start gap-2" data-oid="q-d:otd">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="olg6ano" />

@@ -259,7 +259,7 @@
 ├─ apps/
 │  ├─ ops/             # Dashboard global
 │  ├─ admin-client/    # Dashboard cliente
-│  ├─ campus/          # Campus alumno
+│  ├─ campus/          # Campus alumno y docente (identidad distinta de Users Payload)
 │  └─ payload/         # Next + Payload API
 ├─ packages/
 │  ├─ db/              # Drizzle schema/migrations/seeds

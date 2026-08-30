@@ -68,6 +68,10 @@ export const DASHBOARD_LISTING_INSET_CLASS =
 export const DASHBOARD_LISTING_MAIN_INNER_CLASS =
   'flex min-h-0 w-full flex-1 flex-col overflow-hidden px-4 pt-0 pb-[var(--dashboard-fab-clearance,0rem)]'
 
+/** Scrollable listing/table body inside a locked dashboard panel. */
+export const DASHBOARD_FILL_PANEL_BODY =
+  'overflow-y-auto overscroll-contain min-h-0 flex-1'
+
 export function dashboardShellClass(_listingDocumentScroll: boolean): string {
   return DASHBOARD_SHELL_LOCKED_CLASS
 }

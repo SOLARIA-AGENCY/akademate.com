@@ -32,6 +32,10 @@ const OPENAPI_SPEC = {
       description: 'Production server',
     },
     {
+      url: 'https://cepformacion.akademate.com',
+      description: 'CEP Formación current host',
+    },
+    {
       url: 'http://localhost:3000',
       description: 'Local development server',
     },

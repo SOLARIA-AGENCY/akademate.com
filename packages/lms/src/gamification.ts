@@ -519,8 +519,10 @@ export class GamificationService {
   // ==========================================================================
 
   async seedDefaultBadges(): Promise<BadgeDefinition[]> {
+    const defaultBadgeFields = { criteria: {}, isActive: true }
     const defaultBadges: CreateBadgeDefinitionInput[] = [
       {
+        ...defaultBadgeFields,
         code: 'first_lesson',
         name: 'First Steps',
         description: 'Completed your first lesson',
@@ -528,6 +530,7 @@ export class GamificationService {
         pointsValue: 10,
       },
       {
+        ...defaultBadgeFields,
         code: 'module_complete',
         name: 'Module Master',
         description: 'Completed a module',
@@ -535,6 +538,7 @@ export class GamificationService {
         pointsValue: 25,
       },
       {
+        ...defaultBadgeFields,
         code: 'course_complete',
         name: 'Course Champion',
         description: 'Completed an entire course',
@@ -542,6 +546,7 @@ export class GamificationService {
         pointsValue: 100,
       },
       {
+        ...defaultBadgeFields,
         code: 'perfect_score',
         name: 'Perfectionist',
         description: 'Achieved a perfect score on a quiz',
@@ -549,6 +554,7 @@ export class GamificationService {
         pointsValue: 25,
       },
       {
+        ...defaultBadgeFields,
         code: 'streak_7',
         name: 'Week Warrior',
         description: '7-day learning streak',
@@ -556,6 +562,7 @@ export class GamificationService {
         pointsValue: 50,
       },
       {
+        ...defaultBadgeFields,
         code: 'streak_30',
         name: 'Monthly Master',
         description: '30-day learning streak',
@@ -563,6 +570,7 @@ export class GamificationService {
         pointsValue: 200,
       },
       {
+        ...defaultBadgeFields,
         code: 'streak_100',
         name: 'Century Club',
         description: '100-day learning streak',
@@ -570,6 +578,7 @@ export class GamificationService {
         pointsValue: 500,
       },
       {
+        ...defaultBadgeFields,
         code: 'early_bird',
         name: 'Early Bird',
         description: 'Completed a lesson before 8 AM',
@@ -577,6 +586,7 @@ export class GamificationService {
         pointsValue: 15,
       },
       {
+        ...defaultBadgeFields,
         code: 'night_owl',
         name: 'Night Owl',
         description: 'Completed a lesson after 10 PM',
@@ -584,6 +594,7 @@ export class GamificationService {
         pointsValue: 15,
       },
       {
+        ...defaultBadgeFields,
         code: 'speed_learner',
         name: 'Speed Learner',
         description: 'Completed a module in record time',
@@ -591,6 +602,7 @@ export class GamificationService {
         pointsValue: 50,
       },
       {
+        ...defaultBadgeFields,
         code: 'dedicated',
         name: 'Dedicated Learner',
         description: 'Spent over 10 hours learning',

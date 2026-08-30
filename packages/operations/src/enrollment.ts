@@ -23,6 +23,11 @@ const VALID_TRANSITIONS: Record<EnrollmentStatus, EnrollmentStatus[]> = {
   [EnrollmentStatus.FAILED]: [EnrollmentStatus.PENDING], // Can retry
 }
 
+const ACTIVE_ENROLLMENT_STATUSES: EnrollmentStatus[] = [
+  EnrollmentStatus.PENDING,
+  EnrollmentStatus.ACTIVE,
+]
+
 /**
  * Check if status transition is valid
  */
@@ -285,7 +290,7 @@ export class EnrollmentService {
     // Check if already enrolled in this course run
     const existingInCourseRun = existingEnrollments.find(
       e => e.courseRunId === courseRunId && e.userId === userId &&
-        [EnrollmentStatus.PENDING, EnrollmentStatus.ACTIVE].includes(e.status as EnrollmentStatus)
+        ACTIVE_ENROLLMENT_STATUSES.includes(e.status)
     )
     if (existingInCourseRun) {
       return { canEnroll: false, reason: 'Ya está matriculado en esta convocatoria' }
@@ -294,14 +299,18 @@ export class EnrollmentService {
     // Check max enrollments per user
     const activeEnrollments = existingEnrollments.filter(
       e => e.userId === userId &&
-        [EnrollmentStatus.PENDING, EnrollmentStatus.ACTIVE].includes(e.status as EnrollmentStatus)
+        ACTIVE_ENROLLMENT_STATUSES.includes(e.status)
     )
     if (activeEnrollments.length >= (this.config.maxEnrollmentsPerUser ?? 5)) {
       return { canEnroll: false, reason: `Límite de ${this.config.maxEnrollmentsPerUser} matrículas activas alcanzado` }
     }
 
     // Check course run capacity
-    if (courseRunCapacity && currentEnrollmentCount && currentEnrollmentCount >= courseRunCapacity) {
+    if (
+      courseRunCapacity !== undefined &&
+      currentEnrollmentCount !== undefined &&
+      currentEnrollmentCount >= courseRunCapacity
+    ) {
       return { canEnroll: false, reason: 'La convocatoria está completa' }
     }
 

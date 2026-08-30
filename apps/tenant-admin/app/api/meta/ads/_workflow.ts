@@ -247,7 +247,11 @@ export async function preflightMetaAd(input: { request: NextRequest; body: AdPre
       { media_id: 2, ratio: '9:16', type: 'image' },
     ],
   } satisfies AdWorkflowBody
-  const convocatoria = await getConvocatoria(ctx.payload, input.body.convocatoria_id)
+  const convocatoria = await getConvocatoria(
+    ctx.payload,
+    input.body.convocatoria_id,
+    ctx.metaContext.tenantId
+  )
   const plan = resolveConvocatoriaPlan({ request: input.request, body: syntheticBody, convocatoria })
 
   return {
@@ -327,8 +331,16 @@ export async function ensureWorkflowTables(drizzle: any) {
   `)
 }
 
-export async function getConvocatoria(payload: any, id: number) {
-  return payload.findByID({ collection: 'course-runs', id, depth: 2 })
+export async function getConvocatoria(payload: any, id: number, tenantId: string | number) {
+  const convocatoria = await payload.findByID({ collection: 'course-runs', id, depth: 2 })
+  const ownerTenantId =
+    typeof convocatoria?.tenant === 'object' && convocatoria.tenant !== null
+      ? convocatoria.tenant.id
+      : convocatoria?.tenant
+  if (!convocatoria || String(ownerTenantId ?? '') !== String(tenantId)) {
+    throw new Error('CONVOCATORIA_TENANT_SCOPE_MISMATCH')
+  }
+  return convocatoria
 }
 
 export function resolveConvocatoriaPlan(input: { request: NextRequest; body: AdWorkflowBody; convocatoria: any }) {
@@ -527,7 +539,11 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
   }
 
   const ctx = await getWorkflowContext(input.request)
-  const convocatoria = await getConvocatoria(ctx.payload, input.body.convocatoria_id)
+  const convocatoria = await getConvocatoria(
+    ctx.payload,
+    input.body.convocatoria_id,
+    ctx.metaContext.tenantId
+  )
   const plan = resolveConvocatoriaPlan({ request: input.request, body: input.body, convocatoria })
   const preview = buildPreview({ body: input.body, convocatoria, plan })
 

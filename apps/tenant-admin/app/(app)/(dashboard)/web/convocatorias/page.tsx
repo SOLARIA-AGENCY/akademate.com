@@ -16,17 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import {
-  Globe,
-  ExternalLink,
-  Pencil,
-  Calendar,
-  Loader2,
-  Plus,
-  MapPin,
-  Users,
-} from 'lucide-react'
-import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import { Globe, ExternalLink, Pencil, Calendar, Loader2, Plus, MapPin, Users } from 'lucide-react'
+import { ConvocatoriaCampaignBadge } from '@payload-config/components/ui/ConvocatoriaCampaignBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -108,7 +99,13 @@ interface Convocatoria {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const ESTADO_MAP: Record<string, { label: string; variant: 'info' | 'success' | 'default' | 'neutral' | 'destructive' | 'outline' | 'warning' }> = {
+const ESTADO_MAP: Record<
+  string,
+  {
+    label: string
+    variant: 'info' | 'success' | 'default' | 'neutral' | 'destructive' | 'outline' | 'warning'
+  }
+> = {
   draft: { label: 'Sin publicar', variant: 'outline' },
   published: { label: 'Publicada', variant: 'info' },
   enrollment_open: { label: 'Abierta', variant: 'success' },
@@ -118,14 +115,13 @@ const ESTADO_MAP: Record<string, { label: string; variant: 'info' | 'success' | 
   cancelled: { label: 'Cancelada', variant: 'destructive' },
 }
 
-function formatProfesorName(
-  profesor: ConvocatoriaApiItem['profesor'],
-): string {
+function formatProfesorName(profesor: ConvocatoriaApiItem['profesor']): string {
   if (typeof profesor === 'string') return profesor
   if (profesor && typeof profesor === 'object') {
     const full = profesor.full_name?.trim()
     if (full) return full
-    const combined = `${profesor.first_name?.trim() ?? ''} ${profesor.last_name?.trim() ?? ''}`.trim()
+    const combined =
+      `${profesor.first_name?.trim() ?? ''} ${profesor.last_name?.trim() ?? ''}`.trim()
     if (combined) return combined
   }
   return 'Sin asignar'
@@ -187,7 +183,8 @@ function normalizeText(value: string | undefined | null): string {
 
 function normalizeCampaignStatus(value: string | undefined | null): CampaignStatus {
   const raw = normalizeText(value).replace(/\s+/g, '_')
-  if (raw === 'active' || raw === 'in_process' || raw === 'with_issues' || raw === 'pending_review') return 'active'
+  if (raw === 'active' || raw === 'in_process' || raw === 'with_issues' || raw === 'pending_review')
+    return 'active'
   if (raw === 'paused' || raw === 'campaign_paused') return 'paused'
   if (raw === 'completed') return 'completed'
   if (raw === 'archived' || raw === 'deleted') return 'archived'
@@ -208,12 +205,14 @@ function parsePathname(rawUrl: string | null): string {
 function toMeaningfulTokens(value: string): string[] {
   return normalizeText(value)
     .split(/[^a-z0-9]+/g)
-    .filter((token) => token.length >= 4 && !COURSE_TOKEN_STOPWORDS.has(token) && !/^\d+$/.test(token))
+    .filter(
+      (token) => token.length >= 4 && !COURSE_TOKEN_STOPWORDS.has(token) && !/^\d+$/.test(token)
+    )
 }
 
 function campaignMatchesConvocatoria(
   campaign: CampaignCandidate,
-  convocatoria: Pick<Convocatoria, 'codigo' | 'cursoNombre'>,
+  convocatoria: Pick<Convocatoria, 'codigo' | 'cursoNombre'>
 ): boolean {
   const code = normalizeText(convocatoria.codigo)
   const campaignNameNormalized = normalizeText(campaign.name)
@@ -240,9 +239,11 @@ function campaignMatchesConvocatoria(
 
 function buildCampaignSummary(
   convocatoria: Pick<Convocatoria, 'codigo' | 'cursoNombre'>,
-  campaigns: CampaignCandidate[],
+  campaigns: CampaignCandidate[]
 ): ConvocatoriaCampaignSummary {
-  const matched = campaigns.filter((campaign) => campaignMatchesConvocatoria(campaign, convocatoria))
+  const matched = campaigns.filter((campaign) =>
+    campaignMatchesConvocatoria(campaign, convocatoria)
+  )
   if (matched.length === 0) return EMPTY_CAMPAIGN_SUMMARY
 
   const active = matched.filter((item) => item.status === 'active')
@@ -297,9 +298,12 @@ export default function WebConvocatoriasPage() {
 
         let campaigns: CampaignCandidate[] = []
         try {
-          const campaignsResponse = await fetch('/api/meta/campaigns?limit=100&sort=updated_time&order=desc', {
-            cache: 'no-cache',
-          })
+          const campaignsResponse = await fetch(
+            '/api/meta/campaigns?limit=100&sort=updated_time&order=desc',
+            {
+              cache: 'no-cache',
+            }
+          )
           if (campaignsResponse.ok) {
             const campaignsPayload = (await campaignsResponse.json()) as MetaCampaignsApiPayload
             const docs = Array.isArray(campaignsPayload.docs) ? campaignsPayload.docs : []
@@ -313,7 +317,8 @@ export default function WebConvocatoriasPage() {
                   name: String(campaign?.name || `Campaña ${id}`),
                   status: normalizeCampaignStatus(campaign?.status),
                   destinationUrl:
-                    typeof campaign?.destination_url === 'string' && campaign.destination_url.trim().length > 0
+                    typeof campaign?.destination_url === 'string' &&
+                    campaign.destination_url.trim().length > 0
                       ? campaign.destination_url
                       : null,
                 } satisfies CampaignCandidate
@@ -326,7 +331,12 @@ export default function WebConvocatoriasPage() {
 
         const mapped: Convocatoria[] = data.map((item) => {
           const estado = item.estado ?? 'draft'
-          const publishableStatuses = ['published', 'enrollment_open', 'enrollment_closed', 'in_progress']
+          const publishableStatuses = [
+            'published',
+            'enrollment_open',
+            'enrollment_closed',
+            'in_progress',
+          ]
           const codigo = String(item.codigo || item.id || '').trim()
           return {
             id: String(item.id),
@@ -345,7 +355,7 @@ export default function WebConvocatoriasPage() {
                 codigo,
                 cursoNombre: item.cursoNombre ?? 'Curso',
               },
-              campaigns,
+              campaigns
             ),
           }
         })
@@ -375,10 +385,8 @@ export default function WebConvocatoriasPage() {
       if (response.ok) {
         setConvocatorias((prev) =>
           prev.map((c) =>
-            c.id === conv.id
-              ? { ...c, estado: newStatus, isPublishable: newStatus !== 'draft' }
-              : c,
-          ),
+            c.id === conv.id ? { ...c, estado: newStatus, isPublishable: newStatus !== 'draft' } : c
+          )
         )
       }
     } catch {
@@ -448,11 +456,15 @@ export default function WebConvocatoriasPage() {
       {!isLoading && convocatorias.length > 0 && (
         <div className="space-y-3 lg:hidden">
           {convocatorias.map((conv) => {
-            const estadoConfig = ESTADO_MAP[conv.estado] ?? { label: conv.estado, variant: 'outline' as const }
+            const estadoConfig = ESTADO_MAP[conv.estado] ?? {
+              label: conv.estado,
+              variant: 'outline' as const,
+            }
             const isToggling = togglingIds.has(conv.id)
-            const ocupacion = conv.plazasTotales > 0
-              ? Math.round((conv.plazasOcupadas / conv.plazasTotales) * 100)
-              : 0
+            const ocupacion =
+              conv.plazasTotales > 0
+                ? Math.round((conv.plazasOcupadas / conv.plazasTotales) * 100)
+                : 0
 
             return (
               <Card key={conv.id} className="overflow-hidden">
@@ -460,15 +472,21 @@ export default function WebConvocatoriasPage() {
                   {/* Header row */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-sm leading-tight line-clamp-2">{conv.cursoNombre}</h3>
+                      <h3 className="font-semibold text-sm leading-tight line-clamp-2">
+                        {conv.cursoNombre}
+                      </h3>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        <Badge variant={estadoConfig.variant} className="text-[10px]">{estadoConfig.label}</Badge>
+                        <Badge variant={estadoConfig.variant} className="text-[10px]">
+                          {estadoConfig.label}
+                        </Badge>
                       </div>
                     </div>
                     <Switch
                       checked={conv.isPublishable}
                       onCheckedChange={() => void handleTogglePublish(conv)}
-                      disabled={isToggling || conv.estado === 'completed' || conv.estado === 'cancelled'}
+                      disabled={
+                        isToggling || conv.estado === 'completed' || conv.estado === 'cancelled'
+                      }
                       aria-label={`Publicar ${conv.cursoNombre}`}
                     />
                   </div>
@@ -481,21 +499,20 @@ export default function WebConvocatoriasPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Calendar className="h-3 w-3 shrink-0" />
-                      <span>{formatDateShort(conv.fechaInicio)} — {formatDateShort(conv.fechaFin)}</span>
+                      <span>
+                        {formatDateShort(conv.fechaInicio)} — {formatDateShort(conv.fechaFin)}
+                      </span>
                     </div>
                   </div>
 
                   {/* Campaign badge */}
                   <div className="flex flex-col gap-1">
-                    <CampaignBadge
-                      status={conv.campaign.status}
-                      campaignId={conv.campaign.primaryCampaignId}
+                    <ConvocatoriaCampaignBadge
+                      convocatoriaId={conv.id}
+                      fallbackStatus={conv.campaign.status}
+                      fallbackCampaignId={conv.campaign.primaryCampaignId}
+                      fallbackCampaignName={conv.campaign.primaryCampaignName}
                     />
-                    {conv.campaign.primaryCampaignName && (
-                      <span className="text-[11px] text-muted-foreground truncate">
-                        {conv.campaign.primaryCampaignName}
-                      </span>
-                    )}
                     {conv.campaign.detail && (
                       <span className="text-[11px] text-muted-foreground">
                         {conv.campaign.detail}
@@ -507,9 +524,12 @@ export default function WebConvocatoriasPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground flex items-center gap-1">
-                        <Users className="h-3 w-3" />Plazas
+                        <Users className="h-3 w-3" />
+                        Plazas
                       </span>
-                      <span className="font-medium">{conv.plazasOcupadas}/{conv.plazasTotales} ({ocupacion}%)</span>
+                      <span className="font-medium">
+                        {conv.plazasOcupadas}/{conv.plazasTotales} ({ocupacion}%)
+                      </span>
                     </div>
                     <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
                       <div
@@ -572,9 +592,7 @@ export default function WebConvocatoriasPage() {
                     <TableCell className="font-medium max-w-[220px] truncate">
                       {conv.cursoNombre}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {conv.sedeName}
-                    </TableCell>
+                    <TableCell className="text-muted-foreground">{conv.sedeName}</TableCell>
                     <TableCell className="whitespace-nowrap text-sm">
                       {formatDate(conv.fechaInicio)} - {formatDate(conv.fechaFin)}
                     </TableCell>
@@ -588,15 +606,12 @@ export default function WebConvocatoriasPage() {
                     {/* Campaign status */}
                     <TableCell className="text-center">
                       <div className="flex flex-col items-center gap-1">
-                        <CampaignBadge
-                          status={conv.campaign.status}
-                          campaignId={conv.campaign.primaryCampaignId}
+                        <ConvocatoriaCampaignBadge
+                          convocatoriaId={conv.id}
+                          fallbackStatus={conv.campaign.status}
+                          fallbackCampaignId={conv.campaign.primaryCampaignId}
+                          fallbackCampaignName={conv.campaign.primaryCampaignName}
                         />
-                        {conv.campaign.primaryCampaignName && (
-                          <span className="max-w-[220px] truncate text-[11px] text-muted-foreground">
-                            {conv.campaign.primaryCampaignName}
-                          </span>
-                        )}
                         {conv.campaign.detail && (
                           <span className="text-[11px] text-muted-foreground">
                             {conv.campaign.detail}
@@ -608,7 +623,9 @@ export default function WebConvocatoriasPage() {
                       <Switch
                         checked={conv.isPublishable}
                         onCheckedChange={() => void handleTogglePublish(conv)}
-                        disabled={isToggling || conv.estado === 'completed' || conv.estado === 'cancelled'}
+                        disabled={
+                          isToggling || conv.estado === 'completed' || conv.estado === 'cancelled'
+                        }
                         aria-label={`Publicar convocatoria ${conv.cursoNombre}`}
                       />
                     </TableCell>

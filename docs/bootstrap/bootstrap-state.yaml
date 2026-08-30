@@ -1,0 +1,125 @@
+# Akademate bootstrap state — PHASE 0 preflight
+# No secrets. IDs and status only.
+# Source: MASTER_EXECUTION_PROMPT_v2.0.md §5
+# Updated: 2026-08-29 (agent read-only inventory from this repository)
+
+mode: ARCHITECTURE_AUDIT
+phase: PHASE_0
+write_authority: READ_ONLY
+prompt_version: "2.0"
+recorded_at: "2026-08-29T17:16:00+02:00"
+actor: AGENT
+
+steps:
+  B-000:
+    name: Preflight and existing-asset inventory
+    status: IN_PROGRESS
+    next_step: B-010
+  B-010:
+    name: Domain and registrant custody
+    status: NOT_STARTED
+  B-020:
+    name: Independent Google Workspace
+    status: NOT_STARTED
+  B-030:
+    name: Product-specific 1Password perimeter
+    status: NOT_STARTED
+  B-040:
+    name: Independent Cloudflare account
+    status: NOT_STARTED
+  B-050:
+    name: Cloudflare for Startups / Workers Launchpad
+    status: NOT_STARTED
+  B-060:
+    name: Independent GitHub organization
+    status: NOT_STARTED
+  B-070:
+    name: Independent Google Cloud organization/projects
+    status: NOT_STARTED
+  B-080:
+    name: Developer applications
+    status: NOT_STARTED
+  B-090:
+    name: Product finance segmentation
+    status: NOT_STARTED
+  B-100:
+    name: Cloud environments DEV/STAGING/PROD
+    status: NOT_STARTED
+  B-110:
+    name: Evidence and recovery check
+    status: NOT_STARTED
+
+inventory:
+  domain_akademate_com:
+    exists: true
+    dns_provider: cloudflare
+    live_origin: "Cloudflare Worker akademate-web (OpenNext) — documented 2026-08-29"
+    hetzner_container_akademate_web: "exists but is NOT public origin for akademate.com"
+    registrar_owner: UNKNOWN
+    auto_renew: UNKNOWN
+    dnssec: UNKNOWN
+    notes: "Do not move zone until B-010/B-040 verified. Marketing depends on current Worker."
+
+  google_workspace:
+    exists: UNKNOWN
+    independent_of_brik64: UNKNOWN
+    institutional_mailboxes: UNKNOWN
+
+  gcp:
+    akademate_org: UNKNOWN
+    projects: UNKNOWN
+    notes: "Must not reuse BRIK64 GCP. GCP is integrations-only, not SaaS runtime."
+
+  cloudflare:
+    dedicated_akademate_account: UNKNOWN
+    observed_account_name: NAZCAMEDIA
+    observed_account_id: "522997f4f57193b06db3286d8d6f2778"
+    worker_akademate_web: CONFIRMED_IN_DOCS
+    wrangler_in_current_branch: ABSENT
+    wrangler_in_git_history: true
+    wrangler_shas:
+      - d4d54cc7
+      - d35729db
+      - 7f0cd9fe
+    notes: >-
+      Current git branch cep/platform-optimize has no apps/web/wrangler.jsonc.
+      Public site is documented as Worker on NAZCAMEDIA, not a dedicated Akademate account.
+      B-040 must not create a duplicate zone without an owner decision.
+
+  github:
+    repository: "https://github.com/SOLARIA-AGENCY/akademate.com"
+    dedicated_akademate_org: false
+    observed_org: SOLARIA-AGENCY
+    current_branch: cep/platform-optimize
+    environments_dev_staging_prod: UNKNOWN
+    notes: "Product code lives in a foundry/agency org. B-060 is isolation, not 'create a repo'."
+
+  onepassword:
+    brik64_org_in_use: LIKELY
+    akademate_vaults: UNKNOWN
+
+  stripe:
+    legal_merchant: "BRIK64 Inc. (frozen decision, shared corporate)"
+    akademate_product_codes: UNKNOWN
+
+  current_deployments:
+    marketing: "akademate.com / www → Cloudflare Worker akademate-web"
+    tenant_saas: "cepformacion.akademate.com / app.akademate.com → Hetzner akademate-tenant"
+    ops: "admin.akademate.com → Hetzner akademate-ops"
+    production_host: "46.62.222.138"
+
+  oauth_apps:
+    google_meet_calendar: UNKNOWN
+    zoom: UNKNOWN
+    microsoft_graph: UNKNOWN
+    meta_ads: "present in tenant-admin (not conference BYO)"
+
+  production_traffic: CONFIRMED
+  customer_data_on_postgres: CONFIRMED
+
+unknowns_that_block_creation:
+  - independent_workspace_exists
+  - domain_registrar_custody
+  - whether_nazcamedia_cf_account_is_akademate_or_shared
+  - akademate_1password_vaults
+  - akademate_stripe_product_codes

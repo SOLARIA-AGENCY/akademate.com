@@ -290,6 +290,80 @@ export const Tenants: CollectionConfig = {
       ],
     },
 
+    // ===== OPERATING PROFILE (plan × deployment × blueprint) =====
+    {
+      name: 'operatingProfile',
+      type: 'group',
+      label: 'Plan, deployment y blueprint',
+      admin: {
+        description: 'Contrato Akademate. Un administrador normal no puede cambiarlo.',
+      },
+      access: {
+        update: ({ req }) => req.user?.role === 'superadmin',
+      },
+      fields: [
+        {
+          name: 'planTier',
+          type: 'select',
+          label: 'Plan',
+          options: [
+            { label: 'Launch (starter)', value: 'starter' },
+            { label: 'Business (pro)', value: 'pro' },
+            { label: 'Enterprise', value: 'enterprise' },
+          ],
+          admin: { readOnly: true },
+        },
+        {
+          name: 'deploymentMode',
+          type: 'select',
+          label: 'Deployment',
+          options: [
+            { label: 'Managed Cloud', value: 'managed_cloud' },
+            { label: 'Dedicated Cloud', value: 'dedicated_cloud' },
+            { label: 'On-Premise', value: 'on_premise' },
+          ],
+          admin: { readOnly: true },
+        },
+        {
+          name: 'academyBlueprint',
+          type: 'select',
+          label: 'Academy Blueprint',
+          options: [
+            { label: 'Professional Training', value: 'professional_training' },
+            { label: 'Professional Training Advanced', value: 'professional_training_advanced' },
+            { label: 'CEP Professional Training Enterprise v1', value: 'cep-professional-training-enterprise-v1' },
+            { label: 'Yoga / Pilates / Wellness', value: 'yoga_pilates_wellness' },
+            { label: 'Language Academy', value: 'language_academy' },
+          ],
+          admin: { readOnly: true },
+        },
+        {
+          name: 'blueprintVersion',
+          type: 'text',
+          label: 'Blueprint version',
+          admin: { readOnly: true },
+        },
+        {
+          name: 'enabledCapabilities',
+          type: 'json',
+          label: 'Capabilities extra',
+          admin: { readOnly: true },
+        },
+        {
+          name: 'lockedCapabilities',
+          type: 'json',
+          label: 'Capabilities locked',
+          admin: { readOnly: true },
+        },
+        {
+          name: 'customCapabilities',
+          type: 'json',
+          label: 'Enterprise overrides',
+          admin: { readOnly: true },
+        },
+      ],
+    },
+
     // ===== STATUS =====
     {
       name: 'active',
@@ -303,8 +377,7 @@ export const Tenants: CollectionConfig = {
     },
 
     // ===== LIMITS =====
-    // For enterprise tenants, set all limits to 999999 to bypass plan restrictions.
-    // The usePlanLimits hook infers plan='enterprise' when maxUsers or maxCourses >= 999999.
+    // Limits remain operational quotas. Plan is operatingProfile.planTier, never inferred from 999999.
     {
       name: 'limits',
       type: 'group',

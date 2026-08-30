@@ -1,133 +1,110 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { mockGetPayloadHMR, mockFindByID, mockFind, mockPayload } = vi.hoisted(() => {
-  const mockFindByID = vi.fn()
-  const mockFind = vi.fn()
-  const mockGetPayloadHMR = vi.fn()
-
-  const mockPayload = {
-    findByID: mockFindByID,
-    find: mockFind,
-  }
-
-  return {
-    mockGetPayloadHMR,
-    mockFindByID,
-    mockFind,
-    mockPayload,
-  }
-})
-
-vi.mock('@payloadcms/next/utilities', () => ({
-  getPayloadHMR: mockGetPayloadHMR,
+const { mockSql, mockReadCampusSession, mockEnrollmentBelongsToStudent } = vi.hoisted(() => ({
+  mockSql: vi.fn(),
+  mockReadCampusSession: vi.fn(),
+  mockEnrollmentBelongsToStudent: vi.fn(),
 }))
 
-vi.mock('@payload-config', () => ({
-  default: {},
+vi.mock('@/src/lib/campus/environment', () => ({
+  campusEnvironmentError: vi.fn(() => null),
+}))
+
+vi.mock('@/src/lib/campus/auth', () => ({
+  campusSql: mockSql,
+  readCampusSession: mockReadCampusSession,
+  campusEnrollmentBelongsToStudent: mockEnrollmentBelongsToStudent,
 }))
 
 import { GET } from '@/app/api/lms/enrollments/[id]/route'
 
-function buildContext(id = '31') {
+const session = {
+  student: { id: 'student-1', tenantId: 7 },
+  enrollments: [{ id: '31', courseId: '12' }],
+  token: {},
+}
+
+function request(id: string): NextRequest {
+  return new NextRequest(`http://localhost/api/lms/enrollments/${id}`)
+}
+
+function context(id: string) {
   return { params: Promise.resolve({ id }) }
 }
 
-describe('LMS enrollment detail route - GET /api/lms/enrollments/:id', () => {
+describe('LMS enrollment detail route', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockGetPayloadHMR.mockResolvedValue(mockPayload)
+    process.env.CAMPUS_INTERNAL_ENABLED = 'true'
+    process.env.CAMPUS_ENVIRONMENT = 'staging'
+    mockSql.array = vi.fn((values: unknown[]) => values)
+    mockReadCampusSession.mockResolvedValue(session)
+    mockEnrollmentBelongsToStudent.mockResolvedValue(true)
   })
 
-  it('returns 404 when enrollment does not exist', async () => {
-    mockFindByID.mockResolvedValue(null)
+  it('rejects malformed, zero and negative enrollment ids before querying SQL', async () => {
+    for (const id of ['abc', '0', '-2', '1.5']) {
+      const response = await GET(request(id), context(id))
+      expect(response.status).toBe(400)
+    }
 
-    const request = new NextRequest('http://localhost/api/lms/enrollments/31')
-    const response = await GET(request, buildContext('31'))
+    expect(mockReadCampusSession).not.toHaveBeenCalled()
+    expect(mockSql).not.toHaveBeenCalled()
+  })
+
+  it('rejects unauthenticated and cross-student reads', async () => {
+    mockReadCampusSession.mockResolvedValueOnce(null)
+    const unauthenticated = await GET(request('31'), context('31'))
+    expect(unauthenticated.status).toBe(401)
+
+    mockEnrollmentBelongsToStudent.mockResolvedValueOnce(false)
+    const crossStudent = await GET(request('31'), context('31'))
+    expect(crossStudent.status).toBe(403)
+    expect(mockSql).not.toHaveBeenCalled()
+  })
+
+  it('returns 404 when the tenant-scoped enrollment query has no row', async () => {
+    mockSql.mockResolvedValueOnce([])
+
+    const response = await GET(request('31'), context('31'))
     const payload = await response.json()
 
     expect(response.status).toBe(404)
-    expect(payload).toMatchObject({
-      success: false,
-      error: 'Enrollment not found',
-    })
+    expect(payload).toMatchObject({ success: false, error: 'Matrícula no encontrada.' })
   })
 
-  it('queries modules by course (not courseRun) to avoid invalid path errors', async () => {
-    mockFindByID.mockResolvedValue({
-      id: '31',
-      status: 'pending',
-      createdAt: '2026-04-01T10:00:00.000Z',
-      course_run: {
-        id: '77',
-        title: 'Convocatoria Abril',
-        course: {
-          id: '12',
-          title: 'Farmacia',
-          slug: 'farmacia',
-        },
-      },
-    })
+  it('loads modules by course and keeps progress scoped to published lesson ids', async () => {
+    mockSql
+      .mockResolvedValueOnce([{
+        id: 31,
+        status: 'pending',
+        enrolled_at: '2026-04-01T10:00:00.000Z',
+        course_run_id: 77,
+        course_run_title: 'Convocatoria Abril',
+        course_id: 12,
+        course_title: 'Farmacia',
+        course_slug: 'farmacia',
+        start_date: '2026-04-01',
+        end_date: '2026-05-01',
+        course_run_status: 'published',
+      }])
+      .mockResolvedValueOnce([{ id: 1, title: 'Módulo 1', order: 1, estimated_duration_minutes: 60 }])
+      .mockResolvedValueOnce([{ id: 2, module_id: 1, title: 'Lección 1', order: 1, estimated_duration_minutes: 30, requires_completion: true }])
+      .mockResolvedValueOnce([{ lesson_id: 2, is_completed: true, watched_percentage: 100 }])
 
-    mockFind.mockImplementation(async (args: any) => {
-      if (args.collection === 'modules') {
-        return {
-          docs: [{ id: 'm1', title: 'Módulo 1', order: 1, estimatedMinutes: 60 }],
-          totalDocs: 1,
-        }
-      }
-
-      if (args.collection === 'lessons') {
-        return {
-          docs: [{ id: 'l1', title: 'Lección 1', order: 1, estimatedMinutes: 30, isMandatory: true }],
-          totalDocs: 1,
-        }
-      }
-
-      if (args.collection === 'lesson-progress') {
-        return {
-          docs: [{ lesson: 'l1', status: 'completed', progressPercent: 100 }],
-          totalDocs: 1,
-        }
-      }
-
-      return { docs: [], totalDocs: 0 }
-    })
-
-    const request = new NextRequest('http://localhost/api/lms/enrollments/31')
-    const response = await GET(request, buildContext('31'))
+    const response = await GET(request('31'), context('31'))
     const payload = await response.json()
+    const queries = mockSql.mock.calls.map(([strings]: [TemplateStringsArray]) => strings.join(' '))
 
     expect(response.status).toBe(200)
-    expect(payload.success).toBe(true)
-
-    const modulesCall = mockFind.mock.calls.find(([args]: [any]) => args.collection === 'modules')?.[0]
-    expect(modulesCall).toBeDefined()
-    expect(modulesCall.where).toEqual({ course: { equals: '12' } })
-    expect(JSON.stringify(modulesCall.where)).not.toContain('courseRun')
-  })
-
-  it('does not query modules when enrollment has no base course relation', async () => {
-    mockFindByID.mockResolvedValue({
-      id: '44',
-      status: 'pending',
-      createdAt: '2026-04-01T10:00:00.000Z',
-      course_run: null,
-    })
-
-    mockFind.mockResolvedValue({ docs: [], totalDocs: 0 })
-
-    const request = new NextRequest('http://localhost/api/lms/enrollments/44')
-    const response = await GET(request, buildContext('44'))
-    const payload = await response.json()
-
-    expect(response.status).toBe(200)
-    expect(payload.success).toBe(true)
-    expect(payload.data.course).toBeNull()
-    expect(payload.data.modules).toEqual([])
-    expect(
-      mockFind.mock.calls.some(([args]: [any]) => args.collection === 'modules')
-    ).toBe(false)
+    expect(payload.data.course.title).toBe('Farmacia')
+    expect(payload.data.modules[0].lessons[0].progress.status).toBe('completed')
+    expect(payload.data.progress.progressPercent).toBe(100)
+    expect(queries[1]).toContain('WHERE course_id =')
+    expect(queries[1]).not.toContain('course_run_id')
+    expect(queries[3]).toContain('lesson_progress')
+    expect(mockSql.array).toHaveBeenCalledWith([1])
+    expect(mockSql.array).toHaveBeenCalledWith([2])
   })
 })
-

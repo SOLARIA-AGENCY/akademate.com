@@ -9,7 +9,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = normalizeAdWorkflowBody(await request.json())
     const ctx = await getWorkflowContext(request)
-    const convocatoria = await getConvocatoria(ctx.payload, body.convocatoria_id)
+    const convocatoria = await getConvocatoria(
+      ctx.payload,
+      body.convocatoria_id,
+      ctx.metaContext.tenantId
+    )
     const plan = resolveConvocatoriaPlan({ request, body, convocatoria })
     const preview = buildPreview({ body, convocatoria, plan })
     const draftId = await upsertDraft({

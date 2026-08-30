@@ -1,184 +1,77 @@
 import Link from 'next/link'
-import { BriefcaseBusiness, Building2, CheckCircle2, MapPin, Phone, ShieldCheck, UserRoundSearch } from 'lucide-react'
-
-const candidateSteps = [
-  'Registro del perfil profesional y datos de contacto.',
-  'Alta de formación, experiencia y ocupaciones de interés.',
-  'Valoración de candidaturas para ofertas compatibles.',
-  'Orientación para mejorar empleabilidad, CV y entrevista.',
-]
-
-const companyServices = [
-  'Publicación de ofertas de empleo en el portal de la agencia.',
-  'Preselección de candidatos inscritos según el perfil solicitado.',
-  'Coordinación con empresas para entrevistas y seguimiento del proceso.',
-]
-
-const highlights = [
-  {
-    icon: ShieldCheck,
-    title: 'Agencia autorizada',
-    text: 'Servicio vinculado a la Agencia de Colocación 0500000212.',
-  },
-  {
-    icon: UserRoundSearch,
-    title: 'Candidatos',
-    text: 'Registro externo para completar perfil, formación, experiencia y ocupaciones.',
-  },
-  {
-    icon: Building2,
-    title: 'Empresas',
-    text: 'Canal para publicar ofertas y localizar perfiles profesionales adecuados.',
-  },
-]
+import { ArrowRight, BriefcaseBusiness, Building2 } from 'lucide-react'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
+import { SYNTHETIC_PLACEMENT_AGENCIES } from '@/src/domain/placement-agency'
 
 export default function AgenciaColocacionPage() {
   return (
     <div className="bg-white text-slate-950">
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_12%,rgba(242,1,75,0.24),transparent_34%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
-          <div className="flex flex-col justify-center">
-            <span className="inline-flex w-fit rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white">
-              Empleo CEP Formación
-            </span>
-            <h1 className="mt-6 text-balance text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
-              Agencia de colocación y bolsa de empleo para candidatos y empresas
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
-              CEP Formación conecta orientación laboral, formación y oportunidades profesionales a través de su agencia de colocación autorizada.
-            </p>
-            <div className="mt-7 rounded-2xl border border-white/15 bg-white/[0.08] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Próximamente</p>
-              <p className="mt-2 text-sm leading-7 text-white/78">
-                Estamos preparando la activación pública del portal de empleo. Hasta entonces, el equipo de CEP Formación atiende las consultas de orientación laboral de forma directa.
-              </p>
-            </div>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <span aria-disabled="true" className="inline-flex min-h-14 cursor-not-allowed items-center justify-center rounded-full bg-white/20 px-7 text-sm font-black text-white/60">
-                Registrarme como candidato
-              </span>
-              <span aria-disabled="true" className="inline-flex min-h-14 cursor-not-allowed items-center justify-center rounded-full bg-white/10 px-7 text-sm font-black text-white/55 ring-1 ring-white/15">
-                Ver ofertas activas
-              </span>
-            </div>
-          </div>
-          <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl">
-            <img src="/media/admin-1.jpg" alt="Orientación laboral y empleabilidad en CEP Formación" className="h-full min-h-[420px] w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-white/95 p-5 text-slate-950 shadow-xl">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#f2014b]">Agencia autorizada</p>
-              <p className="mt-1 text-2xl font-black">0500000212</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">ACATEN 2020 S.L · Plaza José Antonio Barrios Olivero s/n, Santa Cruz de Tenerife.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PublicPageHero
+        eyebrow="Empleo"
+        title="Agencia de colocación"
+        description="Talento y empresas, en la sede que te queda cerca."
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.agencia}
+        imageAlt="Atención profesional en una agencia de colocación"
+      />
 
-      <section className="bg-[#fff7fa]">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <div className="grid gap-5 md:grid-cols-3">
-            {highlights.map((item) => {
-              const Icon = item.icon
-              return (
-                <article key={item.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <Icon className="h-9 w-9 text-[#f2014b]" aria-hidden="true" />
-                  <h2 className="mt-5 text-xl font-black">{item.title}</h2>
-                  <p className="mt-3 text-sm leading-7 text-slate-600">{item.text}</p>
-                </article>
-              )
-            })}
+      <section className="bg-[#fff7fa] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Elige tu sede</h2>
+            <p className="mt-3 text-base leading-7 text-slate-600">
+              Tres agencias. El mismo servicio. De 11:00 a 16:00.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {SYNTHETIC_PLACEMENT_AGENCIES.map((agency) => (
+              <Link
+                key={agency.slug}
+                href={`/p/agencia-colocacion/${agency.slug}`}
+                className="group flex flex-col rounded-[1.6rem] border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-[#f2014b]/40 hover:shadow-lg"
+              >
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">
+                  Agencia autorizada 0500000212
+                </p>
+                <h3 className="mt-4 text-2xl font-black">{agency.campusLabel}</h3>
+                <p className="mt-2 text-sm font-semibold text-slate-600">{agency.hoursLabel}</p>
+                <span className="mt-8 inline-flex items-center gap-2 text-sm font-black text-[#f2014b]">
+                  Entrar
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
-          <article className="rounded-2xl border border-slate-200 p-8 shadow-sm">
-            <BriefcaseBusiness className="h-10 w-10 text-[#f2014b]" aria-hidden="true" />
-            <h2 className="mt-5 text-3xl font-black">Para candidatos</h2>
-            <p className="mt-4 text-base leading-8 text-slate-600">
-              El servicio permite registrar tu perfil profesional para participar en procesos de selección, recibir orientación y mejorar tus posibilidades de inserción laboral.
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <article className="rounded-[1.6rem] bg-slate-950 p-8 text-white">
+            <BriefcaseBusiness className="h-9 w-9 text-[#f2014b]" aria-hidden="true" />
+            <h2 className="mt-5 text-3xl font-black">Candidatos</h2>
+            <p className="mt-4 text-base leading-7 text-white/75">
+              Presenta tu perfil, recibe orientación y entra en procesos abiertos.
             </p>
-            <ul className="mt-6 grid gap-3">
-              {candidateSteps.map((step) => (
-                <li key={step} className="flex gap-3 text-sm font-semibold leading-7 text-slate-700">
-                  <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-[#f2014b]" aria-hidden="true" />
-                  {step}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full bg-slate-200 px-6 text-sm font-black text-slate-500">
-                Alta de candidato
-              </span>
-              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full border border-slate-200 px-6 text-sm font-black text-slate-400">
-                Acceder a mi perfil
-              </span>
-            </div>
           </article>
-
-          <article className="rounded-2xl border border-slate-200 p-8 shadow-sm">
-            <Building2 className="h-10 w-10 text-[#f2014b]" aria-hidden="true" />
-            <h2 className="mt-5 text-3xl font-black">Para empresas</h2>
-            <p className="mt-4 text-base leading-8 text-slate-600">
-              Las empresas pueden publicar ofertas y solicitar perfiles profesionales para cubrir vacantes con candidatos inscritos en la agencia.
+          <article className="rounded-[1.6rem] border border-slate-200 p-8">
+            <Building2 className="h-9 w-9 text-[#f2014b]" aria-hidden="true" />
+            <h2 className="mt-5 text-3xl font-black">Empresas</h2>
+            <p className="mt-4 text-base leading-7 text-slate-600">
+              Publica la vacante y recibe candidatos preseleccionados.
             </p>
-            <ul className="mt-6 grid gap-3">
-              {companyServices.map((service) => (
-                <li key={service} className="flex gap-3 text-sm font-semibold leading-7 text-slate-700">
-                  <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-[#f2014b]" aria-hidden="true" />
-                  {service}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full bg-slate-200 px-6 text-sm font-black text-slate-500">
-                Alta de empresa
-              </span>
-              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full border border-slate-200 px-6 text-sm font-black text-slate-400">
-                Ver ofertas
-              </span>
-            </div>
           </article>
         </div>
       </section>
 
-      <section className="bg-slate-950 text-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-          <div>
-            <h2 className="text-3xl font-black">Contacto de la agencia</h2>
-            <p className="mt-4 text-sm leading-7 text-white/70">
-              Para gestiones de la agencia de colocación, usa el portal oficial o contacta con el equipo responsable.
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <MapPin className="h-6 w-6 text-[#f2014b]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-bold">Plaza José Antonio Barrios Olivero s/n, 38005 Santa Cruz de Tenerife</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <Phone className="h-6 w-6 text-[#f2014b]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-bold">922 219 257</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <ShieldCheck className="h-6 w-6 text-[#f2014b]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-bold">carmen.diaz@cursostenerife.es</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white">
+      <section className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-5 px-4 py-12 sm:px-6 lg:flex-row lg:items-center lg:px-8">
-          <div>
-            <h2 className="text-2xl font-black">¿Quieres formarte antes de buscar empleo?</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-600">
-              Revisa convocatorias abiertas y cursos vinculados a sectores con demanda profesional.
-            </p>
-          </div>
-          <Link href="/convocatorias" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f2014b] px-6 text-sm font-black text-white">
-            Ver convocatorias abiertas
+          <h2 className="text-2xl font-black">Formación con salida laboral</h2>
+          <Link
+            href="/convocatorias"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f2014b] px-6 text-sm font-black text-white hover:bg-[#d0013f]"
+          >
+            Ver convocatorias
           </Link>
         </div>
       </section>

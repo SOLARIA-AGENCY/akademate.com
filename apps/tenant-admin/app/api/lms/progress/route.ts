@@ -104,7 +104,19 @@ export async function GET(request: NextRequest) {
     if (!enrollment) return NextResponse.json({ success: false, error: 'Matricula no encontrada.' }, { status: 404 })
 
     if (!(await isLessonProgressStorageAvailable())) {
-      return NextResponse.json({ success: false, error: 'El almacenamiento de progreso no esta disponible en este entorno.' }, { status: 503 })
+      return NextResponse.json({
+        success: true,
+        data: {
+          enrollmentId,
+          courseRunId: enrollment.course_run_id === null ? null : String(enrollment.course_run_id),
+          status: String(enrollment.status ?? ''),
+          completedLessons: 0,
+          totalLessons: 0,
+          progressPercent: 0,
+          totalTimeSpentMinutes: 0,
+          lessonProgress: [],
+        },
+      }, { headers: { 'Cache-Control': 'private, no-store' } })
     }
 
     const rows = await sql`

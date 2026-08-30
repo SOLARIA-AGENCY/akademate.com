@@ -10,23 +10,24 @@ import { StaffCard } from '../StaffCard'
 import { PersonalListItem } from '../PersonalListItem'
 
 describe('StaffBadges', () => {
-  it('keeps staff badges on fixed semantic widths by type', () => {
-    const { container } = render(
+  it('uses the shared listing pill shape', () => {
+    render(
       <div>
         <StaffCampusBadge>Sede Santa Cruz</StaffCampusBadge>
-        <StaffCampusBadge>Sede Norte</StaffCampusBadge>
         <StaffContractBadge>Tiempo completo</StaffContractBadge>
         <StaffStatusBadge status="active" />
       </div>
     )
 
-    const campusBadges = container.querySelectorAll('.w-\\[9\\.25rem\\]')
-    const contractBadges = container.querySelectorAll('.w-\\[8\\.75rem\\]')
-    const statusBadges = container.querySelectorAll('.w-\\[6\\.75rem\\]')
-
-    expect(campusBadges).toHaveLength(2)
-    expect(contractBadges).toHaveLength(1)
-    expect(statusBadges).toHaveLength(1)
+    const campus = screen.getByText('Sede Santa Cruz')
+    const contract = screen.getByText('Tiempo completo')
+    const status = screen.getByText('Activo')
+    for (const node of [campus, contract, status]) {
+      const pill = node.closest('[class*="rounded-full"]')
+      expect(pill).not.toBeNull()
+      expect(pill?.className).toContain('py-1')
+      expect(pill?.className).not.toContain('py-0.5')
+    }
   })
 
   it('renders full area names without truncating the badge text', () => {
@@ -36,7 +37,8 @@ describe('StaffBadges', () => {
 
     expect(screen.getByText('Área Salud, Bienestar y Deporte')).toBeInTheDocument()
     expect(container.querySelector('.truncate')).toBeNull()
-    expect(container.querySelector('.min-h-6')).not.toBeNull()
+    expect(container.firstElementChild?.className).toContain('rounded-full')
+    expect(container.firstElementChild?.className).toContain('py-1')
   })
 })
 
@@ -117,12 +119,7 @@ describe('PersonalListItem', () => {
 
     const action = screen.getByRole('button', { name: 'Ver ficha' })
 
-    expect(action).toHaveClass(
-      'w-fit',
-      'sm:justify-self-end',
-      'lg:col-start-3',
-      'lg:row-start-1'
-    )
+    expect(action).toHaveClass('shrink-0')
     expect(action).not.toHaveClass('w-full')
   })
 })
@@ -150,7 +147,7 @@ describe('StaffCard', () => {
 
     expect(screen.getByText('Sheila Méndez')).toBeInTheDocument()
     expect(screen.getByText('Sin área habilitada')).toBeInTheDocument()
-    expect(screen.getByText('0 convocatorias')).toBeInTheDocument()
+    expect(screen.queryByText('0 convocatorias')).not.toBeInTheDocument()
   })
 
   it('does not show teaching area warning for administrative staff', () => {

@@ -192,7 +192,7 @@ function getSessionToken(request: NextRequest): string | null {
   return null;
 }
 
-async function authenticateRequest(
+export async function authenticateRequest(
   request: NextRequest,
   payload: Awaited<ReturnType<typeof getPayload>>,
 ): Promise<PayloadRequestUser | null> {

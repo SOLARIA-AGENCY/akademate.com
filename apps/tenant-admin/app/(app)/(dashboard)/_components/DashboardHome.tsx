@@ -27,6 +27,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { traducirEstado } from '@payload-config/lib/estados'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { MetricCard, MetricGrid } from '@payload-config/components/akademate/dashboard'
 import {
   LineChart,
   Line,
@@ -379,173 +380,26 @@ export default function DashboardPage() {
         data-oid="qqq2bhb"
       />
 
-      {/* Primera línea de KPIs */}
-      <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
-        data-oid="gtfb5.8"
-      >
-        {primaryKpis.map((kpi) => {
-          const Icon = kpi.icon
-          return (
-            <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {kpi.title}
-                </CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5">
-                  <Icon className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-1">
-                <div className="text-2xl font-bold">{kpi.value}</div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+      <MetricGrid className="xl:grid-cols-3">
+        {primaryKpis.map((kpi) => (
+          <MetricCard key={kpi.title} label={kpi.title} value={kpi.value} icon={kpi.icon} href={kpi.href} />
+        ))}
+      </MetricGrid>
 
-      {/* Segunda línea de KPIs */}
-      <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
-        data-oid="j786_4e"
-      >
-        {secondaryKpis.map((kpi) => {
-          const Icon = kpi.icon
-          return (
-            <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {kpi.title}
-                </CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5">
-                  <Icon className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-1">
-                <div className="text-2xl font-bold">{kpi.value}</div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+      <MetricGrid className="xl:grid-cols-3">
+        {secondaryKpis.map((kpi) => (
+          <MetricCard key={kpi.title} label={kpi.title} value={kpi.value} icon={kpi.icon} href={kpi.href} />
+        ))}
+      </MetricGrid>
 
-      {/* Ciclos Formativos KPIs */}
-      <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
-        data-oid="cycle-kpis"
-      >
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-          >
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Ciclos Grado Medio
-            </CardTitle>
-            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-gm-i">
-              <GraduationCap className="h-4 w-4 text-primary" data-oid="kpi-gm-ic" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-1" data-oid="kpi-gm-c">
-            <div className="text-2xl font-bold" data-oid="kpi-gm-v">
-              {cycleStats.gradoMedio}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-          >
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Ciclos Grado Superior
-            </CardTitle>
-            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-gs-i">
-              <GraduationCap className="h-4 w-4 text-primary" data-oid="kpi-gs-ic" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-1" data-oid="kpi-gs-c">
-            <div className="text-2xl font-bold" data-oid="kpi-gs-v">
-              {cycleStats.gradoSuperior}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/matriculas')}>
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-            data-oid="kpi-ti-h"
-          >
-            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-ti-t">
-              Total Inscritos Ciclos
-            </CardTitle>
-            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-ti-i">
-              <Users className="h-4 w-4 text-primary" data-oid="kpi-ti-ic" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-1" data-oid="kpi-ti-c">
-            <div className="text-2xl font-bold" data-oid="kpi-ti-v">
-              {cycleStats.totalInscritos}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-            data-oid="kpi-pd-h"
-          >
-            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-pd-t">
-              Plazas Disponibles Ciclos
-            </CardTitle>
-            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-pd-i">
-              <BookOpen className="h-4 w-4 text-primary" data-oid="kpi-pd-ic" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-1" data-oid="kpi-pd-c">
-            <div className="text-2xl font-bold" data-oid="kpi-pd-v">
-              {cycleStats.plazasDisponibles}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/programacion')}>
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-            data-oid="kpi-ca-h"
-          >
-            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-ca-t">
-              Conv. Abiertas
-            </CardTitle>
-            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-ca-i">
-              <Calendar className="h-4 w-4 text-primary" data-oid="kpi-ca-ic" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-1" data-oid="kpi-ca-c">
-            <div className="text-2xl font-bold" data-oid="kpi-ca-v">
-              {cycleStats.convAbiertas}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/programacion')}>
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-            data-oid="kpi-cp-h"
-          >
-            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-cp-t">
-              Conv. Planificadas
-            </CardTitle>
-            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-cp-i">
-              <CalendarClock className="h-4 w-4 text-primary" data-oid="kpi-cp-ic" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-1" data-oid="kpi-cp-c">
-            <div className="text-2xl font-bold" data-oid="kpi-cp-v">
-              {cycleStats.convPlanificadas}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <MetricGrid className="xl:grid-cols-3">
+        <MetricCard label="Ciclos Grado Medio" value={cycleStats.gradoMedio} icon={GraduationCap} href="/dashboard/ciclos" />
+        <MetricCard label="Ciclos Grado Superior" value={cycleStats.gradoSuperior} icon={GraduationCap} href="/dashboard/ciclos" />
+        <MetricCard label="Total Inscritos Ciclos" value={cycleStats.totalInscritos} icon={Users} href="/matriculas" />
+        <MetricCard label="Plazas Disponibles Ciclos" value={cycleStats.plazasDisponibles} icon={BookOpen} href="/dashboard/ciclos" />
+        <MetricCard label="Conv. Abiertas" value={cycleStats.convAbiertas} icon={Calendar} href="/programacion" />
+        <MetricCard label="Conv. Planificadas" value={cycleStats.convPlanificadas} icon={CalendarClock} href="/programacion" />
+      </MetricGrid>
 
       {/* Integración Campus Virtual */}
       <Card data-oid="22e-.p_">

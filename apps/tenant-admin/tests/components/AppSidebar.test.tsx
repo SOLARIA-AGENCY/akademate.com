@@ -83,11 +83,32 @@ describe('AppSidebar', () => {
   })
 
   it('does not open a floating submenu when collapsed', () => {
-    render(<AppSidebar {...defaultProps} isCollapsed={true} />)
+    const { container } = render(<AppSidebar {...defaultProps} isCollapsed={true} />)
+    const marketing = container.querySelector('[data-sidebar-item="collapsed"][aria-label="Marketing"]')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Marketing' }))
+    expect(marketing).not.toBeNull()
+    expect(marketing?.tagName).toBe('BUTTON')
+    fireEvent.click(marketing as HTMLElement)
 
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(container.querySelector('[role="menu"]')).not.toBeInTheDocument()
+  })
+
+  it('opens and closes Marketing on click, not hover', () => {
+    render(<AppSidebar {...defaultProps} />)
+    const marketing = screen.getByText('Marketing').closest('button')
+    const panel = marketing?.nextElementSibling
+
+    expect(marketing).not.toBeNull()
+    expect(panel?.className).toContain('max-h-0')
+
+    fireEvent.mouseEnter(marketing as HTMLElement)
+    expect(panel?.className).toContain('max-h-0')
+
+    fireEvent.click(marketing as HTMLElement)
+    expect(panel?.className).toContain('max-h-96')
+
+    fireEvent.click(marketing as HTMLElement)
+    expect(panel?.className).toContain('max-h-0')
   })
 
   it('renders icons with brand color styles', () => {

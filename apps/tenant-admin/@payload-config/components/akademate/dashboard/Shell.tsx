@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { ArrowLeft, Search, Printer, Download, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
-import { Badge } from '@payload-config/components/ui/badge'
+import { Badge, LISTING_PILL_CLASS } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import {
   Card,
@@ -23,6 +23,7 @@ import {
 import { Input } from '@payload-config/components/ui/input'
 import { Separator } from '@payload-config/components/ui/separator'
 import { cn } from '@payload-config/lib/utils'
+import { DASHBOARD_FILL_PANEL_BODY } from '@/app/lib/dashboard-listing-scroll'
 
 export interface AkadematePageShellProps {
   children: React.ReactNode
@@ -243,32 +244,30 @@ export function DashboardTitleCard({
   compact = false,
 }: DashboardTitleCardProps) {
   return (
-    <Card className={cn('border-slate-200/80 dark:border-slate-800 shadow-xs bg-white dark:bg-slate-900 rounded-2xl', compact && 'rounded-xl', className)}>
-      <CardContent className={compact ? 'px-4 py-2.5' : 'p-5 sm:p-6'}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-3.5">
-            {TitleIcon ? (
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100/80 dark:border-blue-900/60 shadow-2xs">
-                <TitleIcon className="h-5 w-5" aria-hidden="true" />
-              </span>
-            ) : null}
-            <div className="min-w-0">
-              <h2 className="truncate text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white">
-                {title}
-              </h2>
-              {description ? (
-                <p className={cn('mt-0.5 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400', compact && 'sr-only')}>
-                  {description}
-                </p>
-              ) : null}
-            </div>
-          </div>
-          {actions ? (
-            <div className="flex shrink-0 flex-wrap items-center gap-2.5">{actions}</div>
+    <div data-slot="dashboard-title" className={cn('shrink-0', compact && 'py-1', className)}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3.5">
+          {TitleIcon ? (
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100/80 dark:border-blue-900/60 shadow-2xs">
+              <TitleIcon className="h-5 w-5" aria-hidden="true" />
+            </span>
           ) : null}
+          <div className="min-w-0">
+            <h1 className="truncate text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+              {title}
+            </h1>
+            {description ? (
+              <p className={cn('mt-0.5 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400', compact && 'sr-only')}>
+                {description}
+              </p>
+            ) : null}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+        {actions ? (
+          <div className="flex shrink-0 flex-wrap items-center gap-2.5">{actions}</div>
+        ) : null}
+      </div>
+    </div>
   )
 }
 
@@ -367,7 +366,7 @@ export function DashboardListingLayout({
         {toolbar}
       </div>
       {stats ? <DashboardStatsGrid items={stats} /> : null}
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
+      <div className={cn('flex flex-col', DASHBOARD_FILL_PANEL_BODY)}>{children}</div>
     </div>
   )
 }
@@ -647,7 +646,7 @@ export function AcademicEntityCard({
               {listCells ? (
                 <div className="mt-1 flex flex-wrap gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                   {listCells.map((cell, idx) => (
-                    <span key={idx} className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                    <span key={idx} className={cn(LISTING_PILL_CLASS, 'border-transparent bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300')}>
                       {cell}
                     </span>
                   ))}

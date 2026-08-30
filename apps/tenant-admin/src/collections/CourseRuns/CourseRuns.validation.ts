@@ -5,7 +5,7 @@
  * These schemas are used by hooks to ensure data integrity.
  */
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Valid weekday values for schedule_days array
@@ -18,9 +18,9 @@ export const VALID_WEEKDAYS = [
   'friday',
   'saturday',
   'sunday',
-] as const;
+] as const
 
-export type Weekday = typeof VALID_WEEKDAYS[number];
+export type Weekday = (typeof VALID_WEEKDAYS)[number]
 
 /**
  * Valid status values for course run workflow
@@ -33,18 +33,13 @@ export const VALID_STATUSES = [
   'in_progress',
   'completed',
   'cancelled',
-] as const;
+] as const
 
-export type CourseRunStatus = typeof VALID_STATUSES[number];
+export type CourseRunStatus = (typeof VALID_STATUSES)[number]
 
-export const VALID_ENROLLMENT_STATUSES = [
-  'open',
-  'closed',
-  'scheduled',
-  'always_open',
-] as const;
+export const VALID_ENROLLMENT_STATUSES = ['open', 'closed', 'scheduled', 'always_open'] as const
 
-export type CourseRunEnrollmentStatus = typeof VALID_ENROLLMENT_STATUSES[number];
+export type CourseRunEnrollmentStatus = (typeof VALID_ENROLLMENT_STATUSES)[number]
 
 /**
  * Schema for validating date logic
@@ -53,15 +48,15 @@ export const dateValidationSchema = z
   .object({
     start_date: z.string().refine(
       (val) => {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
+        const date = new Date(val)
+        return !isNaN(date.getTime())
       },
       { message: 'start_date must be a valid date' }
     ),
     end_date: z.string().refine(
       (val) => {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
+        const date = new Date(val)
+        return !isNaN(date.getTime())
       },
       { message: 'end_date must be a valid date' }
     ),
@@ -69,18 +64,19 @@ export const dateValidationSchema = z
       .string()
       .refine(
         (val) => {
-          const date = new Date(val);
-          return !isNaN(date.getTime());
+          const date = new Date(val)
+          return !isNaN(date.getTime())
         },
         { message: 'enrollment_deadline must be a valid date' }
       )
       .optional(),
+    training_type: z.enum(['private', 'fped', 'cycle', 'other']).optional(),
   })
   .refine(
     (data) => {
-      const startDate = new Date(data.start_date);
-      const endDate = new Date(data.end_date);
-      return endDate > startDate;
+      const startDate = new Date(data.start_date)
+      const endDate = new Date(data.end_date)
+      return endDate > startDate
     },
     {
       message: 'end_date must be after start_date',
@@ -89,35 +85,42 @@ export const dateValidationSchema = z
   )
   .refine(
     (data) => {
-      if (!data.enrollment_deadline) return true;
-      const startDate = new Date(data.start_date);
-      const enrollmentDeadline = new Date(data.enrollment_deadline);
-      return enrollmentDeadline < startDate;
+      if (!data.enrollment_deadline) return true
+      if (data.training_type === 'cycle') return true
+      const startDate = new Date(data.start_date)
+      const enrollmentDeadline = new Date(data.enrollment_deadline)
+      return enrollmentDeadline < startDate
     },
     {
-      message: 'enrollment_deadline must be before start_date',
+      message: 'enrollment_deadline must be before start_date for non-cycle training',
       path: ['enrollment_deadline'],
     }
-  );
+  )
 
 /**
  * Schema for validating time logic
  */
 export const timeValidationSchema = z
   .object({
-    schedule_time_start: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/).optional(),
-    schedule_time_end: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/).optional(),
+    schedule_time_start: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
+      .optional(),
+    schedule_time_end: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
+      .optional(),
   })
   .refine(
     (data) => {
       // If one is provided, both must be provided
       if (data.schedule_time_start && !data.schedule_time_end) {
-        return false;
+        return false
       }
       if (!data.schedule_time_start && data.schedule_time_end) {
-        return false;
+        return false
       }
-      return true;
+      return true
     },
     {
       message: 'Both schedule_time_start and schedule_time_end must be provided together',
@@ -126,21 +129,21 @@ export const timeValidationSchema = z
   )
   .refine(
     (data) => {
-      if (!data.schedule_time_start || !data.schedule_time_end) return true;
+      if (!data.schedule_time_start || !data.schedule_time_end) return true
 
-      const [startHour, startMin, startSec] = data.schedule_time_start.split(':').map(Number);
-      const [endHour, endMin, endSec] = data.schedule_time_end.split(':').map(Number);
+      const [startHour, startMin, startSec] = data.schedule_time_start.split(':').map(Number)
+      const [endHour, endMin, endSec] = data.schedule_time_end.split(':').map(Number)
 
-      const startSeconds = startHour * 3600 + startMin * 60 + startSec;
-      const endSeconds = endHour * 3600 + endMin * 60 + endSec;
+      const startSeconds = startHour * 3600 + startMin * 60 + startSec
+      const endSeconds = endHour * 3600 + endMin * 60 + endSec
 
-      return endSeconds > startSeconds;
+      return endSeconds > startSeconds
     },
     {
       message: 'schedule_time_end must be after schedule_time_start',
       path: ['schedule_time_end'],
     }
-  );
+  )
 
 /**
  * Schema for validating schedule days
@@ -150,15 +153,15 @@ export const scheduleDaysSchema = z
   .optional()
   .refine(
     (days) => {
-      if (!days) return true;
+      if (!days) return true
       // Check for duplicates
-      const uniqueDays = new Set(days);
-      return uniqueDays.size === days.length;
+      const uniqueDays = new Set(days)
+      return uniqueDays.size === days.length
     },
     {
       message: 'schedule_days cannot contain duplicate weekdays',
     }
-  );
+  )
 
 /**
  * Schema for validating capacity logic
@@ -171,7 +174,7 @@ export const capacityValidationSchema = z
   })
   .refine(
     (data) => {
-      return data.max_students > data.min_students;
+      return data.max_students > data.min_students
     },
     {
       message: 'max_students must be greater than min_students',
@@ -180,7 +183,7 @@ export const capacityValidationSchema = z
   )
   .refine(
     (data) => {
-      return data.current_enrollments <= data.max_students;
+      return data.current_enrollments <= data.max_students
     },
     {
       message: 'current_enrollments cannot exceed max_students',
@@ -189,34 +192,31 @@ export const capacityValidationSchema = z
   )
   .refine(
     (data) => {
-      return data.min_students > 0;
+      return data.min_students > 0
     },
     {
       message: 'min_students must be greater than 0',
       path: ['min_students'],
     }
-  );
+  )
 
 /**
  * Schema for validating price override
  */
 export const priceValidationSchema = z.object({
-  price_override: z
-    .number()
-    .min(0, { message: 'price_override cannot be negative' })
-    .optional(),
-});
+  price_override: z.number().min(0, { message: 'price_override cannot be negative' }).optional(),
+})
 
 /**
  * Schema for validating status enum
  */
 export const statusValidationSchema = z.object({
   status: z.enum(VALID_STATUSES).default('draft'),
-});
+})
 
 export const enrollmentStatusValidationSchema = z.object({
   enrollment_status: z.enum(VALID_ENROLLMENT_STATUSES).default('open'),
-});
+})
 
 /**
  * Complete CourseRun validation schema (for reference/documentation)
@@ -261,27 +261,27 @@ export const courseRunSchema = z.object({
   // Timestamps (auto-managed)
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
-});
+})
 
-export type CourseRunData = z.infer<typeof courseRunSchema>;
+export type CourseRunData = z.infer<typeof courseRunSchema>
 
 /**
  * Helper function to validate weekday
  */
 export function isValidWeekday(day: string): day is Weekday {
-  return VALID_WEEKDAYS.includes(day as Weekday);
+  return VALID_WEEKDAYS.includes(day as Weekday)
 }
 
 /**
  * Helper function to validate status
  */
 export function isValidStatus(status: string): status is CourseRunStatus {
-  return VALID_STATUSES.includes(status as CourseRunStatus);
+  return VALID_STATUSES.includes(status as CourseRunStatus)
 }
 
 /**
  * Helper function to format validation errors
  */
 export function formatValidationError(error: z.ZodError): string {
-  return error.issues.map((err) => `${err.path.join('.')}: ${err.message}`).join('; ');
+  return error.issues.map((err) => `${err.path.join('.')}: ${err.message}`).join('; ')
 }

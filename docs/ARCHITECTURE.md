@@ -1,8 +1,10 @@
 # Akademate Architecture Overview
 
-**Version:** 2.0.0
-**Last Updated:** March 2026
-**Status:** Production — Hetzner Docker Stack
+**Version:** 2.1.0
+**Last Updated:** August 2026
+**Status:** Snapshot operativo. Dominio: [Master Spec v1.2](./specs/AKADEMATE_MASTER_ARCHITECTURE_SPEC.md). Cloud SaaS: [Cloudflare-native v1.0](./specs/AKADEMATE_CLOUDFLARE_NATIVE_SAAS.md).
+
+Campus identidad alumno/docente (P1): spec §5.5, §7.5, §8.7, §16.4, Apéndice F, y [plan de implementación](./plans/2026-08-29-campus-identity-teacher-student.md).
 
 ---
 
@@ -294,7 +296,7 @@ Akademate is a multi-tenant SaaS platform for training institutions. The archite
                     │               │                           │                           │               │
                     │   ┌───────────▼───────────┐   ┌───────────▼───────────┐   ┌───────────▼───────────┐   │
                     │   │   @akademate/payload  │   │  @akademate/campus    │   │ @akademate/tenant-admin│   │
-                    │   │   API + CMS           │   │  Student Campus       │   │  Academy Dashboard    │   │
+                    │   │   API + CMS           │   │  Campus alumno+docente│   │  Academy Dashboard    │   │
                     │   │   :3003               │   │  :3005                │   │  :3009                │   │
                     │   └───────────┬───────────┘   └───────────┬───────────┘   └───────────┬───────────┘   │
                     │               │                           │                           │               │
@@ -422,11 +424,23 @@ export async function tenantMiddleware(req, res, next) {
 | `portal` | Tenant student portal | Next.js 15 | 3002 |
 | `admin-client` | SaaS administration | Next.js 15 | 3001 |
 | `tenant-admin` | Academy management | Next.js 15 | 3009 |
-| `campus` | Student LMS | Next.js 15 | 3005 |
+| `campus` | LMS alumno y docente (hoy servido desde `tenant-admin` en `/campus`) | Next.js 15 | 3005 |
 | `payload` | CMS + API backend | Payload 3 | 3003 |
 | `ops` | Operations dashboard | Next.js 15 | - |
 
 ### Authentication Flow
+
+Tres planos. No unificarlos en un User Payload.
+
+```
+Ops ──────────────▶ host admin SaaS ──────────────▶ sesión ops
+Staff operativo ──▶ host tenant-admin /auth/login ──▶ cookie payload-token ──▶ /dashboard
+Alumno | Docente ─▶ host campus /campus/login ──────▶ cookie campus_session ──▶ /campus
+```
+
+El docente de campus **no** es un User Payload. Un User Payload le daría el dashboard de administración.
+
+Detalle de identidad, tokens XOR, badges y CTA pública: [Master Spec §5.5 / Apéndice F](./specs/AKADEMATE_MASTER_ARCHITECTURE_SPEC.md) y [plan 2026-08-29](./plans/2026-08-29-campus-identity-teacher-student.md).
 
 ```
 ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
@@ -440,6 +454,8 @@ export async function tenantMiddleware(req, res, next) {
                                                │ (Redis) │
                                                └─────────┘
 ```
+
+El contrato P1 completo (schema, badges, host split, CTA, tests, DoD) vive en el Master Spec, no en este snapshot.
 
 ---
 
@@ -478,6 +494,21 @@ export async function tenantMiddleware(req, res, next) {
                         └─────────────────┘
 ```
 
+Campus no vive en `USERS` (Payload). Identidades de LMS:
+
+```
+STUDENTS                          STAFF (staff_type=profesor)
+  password_hash (hidden)            campus_password_hash (hidden)
+  last_login_at                     campus_last_login_at
+         \                          campus_invite_sent_at
+          \                                /
+           └── campus_auth_tokens ────────┘
+               student_id XOR staff_id
+               purpose=setup|reset, 7d
+```
+
+JWT `campus_session`: `{ kind: 'student'|'teacher', id, tenantId }`. El docente no entra a `/dashboard`.
+
 ### GDPR Data Handling
 
 - **Article 5:** Data minimization in collection
@@ -491,15 +522,16 @@ export async function tenantMiddleware(req, res, next) {
 
 ### Authentication
 
-- **Method:** JWT + Session tokens
-- **Storage:** Redis for sessions, HTTPOnly cookies for tokens
-- **Password:** Argon2id hashing (via `@akademate/auth`)
+- **Method:** JWT + Session tokens. Campus usa `campus_session` (httpOnly, host-only), no `payload-token`.
+- **Storage:** Redis for sessions (admin). Campus: cookie host-only, sin `Domain=.akademate.com`.
+- **Password:** Argon2id / bcrypt según plano. Campus: hash en `students.password_hash` o `staff.campus_password_hash`. Nunca en API.
 
 ### Authorization
 
 - **Model:** Role-Based Access Control (RBAC)
-- **Roles:** `super_admin`, `admin`, `manager`, `user`, `student`
-- **Granularity:** Tenant-scoped permissions
+- **Roles (admin Payload):** `super_admin`, `admin`, `manager`, `user`
+- **Campus kinds (no son Users Payload):** `student`, `teacher`
+- **Granularity:** Tenant-scoped permissions. Un `teacher` de campus no hereda `/dashboard`.
 
 ### Rate Limiting
 
@@ -581,10 +613,14 @@ El deploy es manual actualmente (no hay GitHub Actions para producción). La aut
 ## Related Documentation
 
 - [Multitenancy ADR](./adr/0001-multitenancy.md)
+- [Master Architecture Spec](./specs/AKADEMATE_MASTER_ARCHITECTURE_SPEC.md) (dominio)
+- [Cloudflare-native Cloud SaaS](./specs/AKADEMATE_CLOUDFLARE_NATIVE_SAAS.md)
 - [Authentication ADR](./adr/0002-auth.md)
 - [Storage ADR](./adr/0003-storage.md)
 - [UI Kit ADR](./adr/0004-ui-kit.md)
 - [CI/CD ADR](./adr/0005-ci-cd.md)
+- [Campus interno (MVP alumno)](./plans/2026-07-13-campus-virtual-interno-aislado.md)
+- [Campus identidad alumno/docente, badges, CTA](./plans/2026-08-29-campus-identity-teacher-student.md)
 - [Audit Report December 2025](./AUDIT_REPORT_DIC2025.md)
 - [Project Milestones](./PROJECT_MILESTONES.md)
 
@@ -622,11 +658,15 @@ pnpm format
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `REDIS_URL` | Redis connection string | Yes |
 | `JWT_SECRET` | JWT signing secret (min 32 chars) | Yes |
+| `CAMPUS_INTERNAL_ENABLED` | Gate del Campus Virtual (`true` solo fuera de production) | Yes para campus |
+| `CAMPUS_ENVIRONMENT` | Etiqueta `staging` / `development` / `test` / `local` | Yes para campus |
+| `CAMPUS_JWT_SECRET` | Firma de `campus_session` (min 32 chars) | Yes para campus |
+| `CAMPUS_PUBLIC_URL` | Origin del host campus del tenant, sin path | Yes para mails y CTA |
 | `S3_ENDPOINT` | R2/MinIO endpoint | Yes |
 | `S3_ACCESS_KEY` | Storage access key | Yes |
 | `S3_SECRET_KEY` | Storage secret key | Yes |
 
 ---
 
-*Actualizado: Marzo 2026*
-*Akademate v1.x — Stack Docker/Hetzner*
+*Actualizado: Agosto 2026*
+*Akademate v2.1 — Campus Dual Identity añadido al contrato SaaS*

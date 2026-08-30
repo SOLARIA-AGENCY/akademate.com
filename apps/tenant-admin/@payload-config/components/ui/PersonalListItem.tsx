@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
-import { Badge } from '@payload-config/components/ui/badge'
+import { Badge, LISTING_PILL_CLASS } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Separator } from '@payload-config/components/ui/separator'
@@ -92,7 +92,7 @@ export function PersonalListItem({
   return (
     <Card
       className={cn(
-        'group cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring',
+        'group cursor-pointer overflow-hidden border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-xs transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500/20',
         className
       )}
       onClick={onClick}
@@ -105,8 +105,8 @@ export function PersonalListItem({
         }
       }}
     >
-      <CardContent className="grid min-h-24 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-4 p-4 lg:grid-cols-[4.75rem_minmax(0,1fr)_auto] lg:gap-5 min-[1700px]:grid-cols-[5rem_minmax(0,1fr)_auto]">
-        <Avatar className="h-[4.5rem] w-[4.5rem] overflow-visible bg-muted min-[1700px]:h-20 min-[1700px]:w-20">
+      <CardContent className="grid min-h-20 grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-4 p-4 sm:p-5">
+        <Avatar className="h-14 w-14 overflow-visible ring-2 ring-slate-100 dark:ring-slate-800 shadow-sm shrink-0">
           {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
             <AvatarImage
               src={teacher.photo ?? undefined}
@@ -115,19 +115,20 @@ export function PersonalListItem({
               onError={() => setPhotoError(true)}
             />
           ) : null}
-          <AvatarFallback className="bg-transparent">
+          <AvatarFallback className="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold">
             <StaffListFallback staffType={teacher.staffType} />
           </AvatarFallback>
         </Avatar>
 
-        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)] xl:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)_minmax(12rem,18rem)] min-[1700px]:grid-cols-[minmax(14rem,1fr)_minmax(13rem,19rem)_minmax(12rem,18rem)_minmax(13rem,16rem)] min-[1700px]:gap-4">
-          <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold leading-tight">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-4 lg:grid lg:grid-cols-4 xl:gap-6">
+          {/* Nombre y Cargo */}
+          <div className="min-w-[180px] flex-1">
+            <h3 className="truncate text-sm font-extrabold text-slate-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {teacher.firstName} {teacher.lastName}
             </h3>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">{roleLabel}</p>
+            <p className="mt-0.5 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{roleLabel}</p>
             {!isAdministrative && !missingQualifiedAreas ? (
-              <div className="mt-2 flex max-w-full flex-wrap gap-1">
+              <div className="mt-1.5 flex max-w-full flex-wrap gap-1">
                 {qualifiedAreas.slice(0, 2).map((area) => (
                   <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id}>
                     {area.nombre}
@@ -141,44 +142,46 @@ export function PersonalListItem({
               </div>
             ) : null}
             {!isAdministrative && missingQualifiedAreas ? (
-              <Badge variant="destructive" className="mt-2 h-6 w-fit px-2 text-[11px]">
+              <span className={`mt-1.5 ${LISTING_PILL_CLASS} border-rose-200/80 bg-rose-50 text-rose-700`}>
                 Sin área habilitada
-              </Badge>
+              </span>
             ) : null}
           </div>
 
-          <div className="hidden min-w-0 flex-col gap-1.5 text-xs md:flex">
-            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
-              <Mail className="h-3 w-3 shrink-0" />
+          {/* Contacto */}
+          <div className="hidden min-w-0 flex-col gap-1 text-xs sm:flex">
+            <span className="flex min-w-0 items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
+              <Mail className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
               {email ? (
                 <a
                   href={`mailto:${email}`}
-                  className="min-w-0 truncate font-medium text-primary hover:underline"
+                  className="min-w-0 truncate font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   onClick={(event) => event.stopPropagation()}
                 >
                   {email}
                 </a>
               ) : (
-                <span className="truncate italic text-muted-foreground/70">Sin mail</span>
+                <span className="truncate italic text-slate-400 dark:text-slate-500">Sin mail</span>
               )}
             </span>
-            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
-              <Phone className="h-3 w-3 shrink-0" />
+            <span className="flex min-w-0 items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
+              <Phone className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
               {phone ? (
                 <a
                   href={`tel:${phone.replace(/\s+/g, '')}`}
-                  className="min-w-0 truncate font-medium text-primary hover:underline"
+                  className="min-w-0 truncate font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   onClick={(event) => event.stopPropagation()}
                 >
                   {phone}
                 </a>
               ) : (
-                <span className="truncate italic text-muted-foreground/70">Sin teléfono</span>
+                <span className="truncate italic text-slate-400 dark:text-slate-500">Sin teléfono</span>
               )}
             </span>
           </div>
 
-          <div className="hidden min-w-0 flex-col gap-1 text-xs lg:flex">
+          {/* Contrato y Sedes */}
+          <div className="hidden min-w-0 flex-col gap-1.5 text-xs lg:flex">
             {teacher.contractLabel ? (
               <StaffContractBadge>{teacher.contractLabel}</StaffContractBadge>
             ) : null}
@@ -189,33 +192,25 @@ export function PersonalListItem({
                 ))}
               </div>
             ) : null}
-            {!isAdministrative && !campuses.length
-              ? (teacher.specialties ?? []).slice(0, 2).map((specialty) => (
-                  <span key={specialty} className="truncate leading-tight text-muted-foreground">
-                    {specialty}
-                  </span>
-                ))
-              : null}
           </div>
 
-          <div className="hidden min-w-0 items-center gap-2 xl:flex min-[1700px]:gap-3">
+          {/* Estado y Convocatorias */}
+          <div className="hidden min-w-0 items-center gap-2 xl:flex">
             <StaffStatusBadge status={teacher.active} />
             {typeof teacher.courseRunsCount === 'number' ? (
-              <>
-                <Separator orientation="vertical" className="h-5" />
-                <StaffCountBadge
-                  count={teacher.courseRunsCount}
-                  label={countLabel ?? 'cursos'}
-                  className="min-w-0"
-                />
-              </>
+              <StaffCountBadge
+                count={teacher.courseRunsCount}
+                label={countLabel ?? 'cursos'}
+                className="min-w-0"
+              />
             ) : null}
           </div>
         </div>
 
+        {/* Botón CTA */}
         <Button
           size="sm"
-          className="col-start-2 h-8 w-fit max-w-full justify-self-start px-4 text-xs font-semibold uppercase tracking-wide sm:justify-self-end lg:col-start-3 lg:row-start-1 lg:h-8 lg:justify-self-end"
+          className="h-9 px-4 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-xs shrink-0"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

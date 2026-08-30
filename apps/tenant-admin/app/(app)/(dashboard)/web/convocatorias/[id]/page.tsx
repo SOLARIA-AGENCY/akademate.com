@@ -24,6 +24,7 @@ import {
   AlertCircle,
   Megaphone,
 } from 'lucide-react'
+import { OfferPaymentCard } from '@payload-config/components/akademate/dashboard'
 import { MetaAdvertisingWizard } from './MetaAdvertisingWizard'
 
 // ---------------------------------------------------------------------------
@@ -282,6 +283,8 @@ export default function WebConvocatoriaPreviewPage() {
           Vista previa. Esta convocatoria no esta publicada aun.
         </div>
       )}
+
+      <OfferPaymentCard courseRunId={id} />
 
       {/* ================================================================
           HERO SECTION

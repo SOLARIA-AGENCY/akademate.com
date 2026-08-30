@@ -1,0 +1,23 @@
+flowchart TB
+  LEGAL[BRIK64 Inc]
+  LEGAL --> DOMAIN[akademate.com]
+  LEGAL --> WS[Google Workspace]
+  LEGAL --> PASS[1Password]
+  LEGAL --> CF[CF Account AKADEMATE]
+  LEGAL --> GH[GitHub akademate]
+  LEGAL --> GCP[GCP Organization]
+  LEGAL --> MS[Entra app]
+  LEGAL --> ZOOM[Zoom app]
+  LEGAL --> AI[AI provider projects]
+  LEGAL --> STRIPE[Stripe BRIK64]
+  STRIPE --> MERCURY[Mercury]
+  WS --> ADMIN["admin@"]
+  WS --> BREAK["breakglass@"]
+  WS --> INFRA["infra@"]
+  WS --> SEC["security@"]
+  ADMIN --> CF
+  ADMIN --> GCP
+  ADMIN --> GH
+  ADMIN --> PASS
+  BREAK -.-> CF
+  BREAK -.-> GCP

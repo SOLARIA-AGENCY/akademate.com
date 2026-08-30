@@ -136,7 +136,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <html lang="es" className={inter.variable} style={tenantThemeVars} suppressHydrationWarning>
+    <html lang="es" className={`${inter.variable} light`} style={tenantThemeVars} suppressHydrationWarning>
       <body className={`${inter.className} font-sans antialiased`}>
         <ClientLayout initialBranding={initialBranding}>{children}</ClientLayout>
       </body>

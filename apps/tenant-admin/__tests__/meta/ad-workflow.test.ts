@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { activateMetaAd, buildMetaAdUrlParameters, buildPreview, normalizeAdPreflightBody, normalizeAdWorkflowBody, publishToMeta, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
+import {
+  activateMetaAd,
+  buildMetaAdUrlParameters,
+  buildPreview,
+  getConvocatoria,
+  normalizeAdPreflightBody,
+  normalizeAdWorkflowBody,
+  publishToMeta,
+  resolveConvocatoriaPlan,
+} from '../../app/api/meta/ads/_workflow'
 
 const request = {
   nextUrl: new URL('https://cepformacion.akademate.com/api/meta/ads/preview'),
@@ -123,6 +132,17 @@ describe('Meta ad workflow', () => {
     expect(params.get('campaign_id')).toBe('6966251962240')
     expect(params.get('utm_id')).toBe('6966251962240')
     expect(params.get('utm_content')).toBe('9:16')
+  })
+
+  it('requires the convocatoria to belong to the authenticated Meta tenant', async () => {
+    const payload = {
+      findByID: async () => ({ id: 2, tenant: { id: 17 }, status: 'published' }),
+    }
+
+    await expect(getConvocatoria(payload, 2, '17')).resolves.toMatchObject({ id: 2 })
+    await expect(getConvocatoria(payload, 2, '18')).rejects.toThrow(
+      'CONVOCATORIA_TENANT_SCOPE_MISMATCH'
+    )
   })
 
   it('blocks activation windows when convocatoria already started', () => {

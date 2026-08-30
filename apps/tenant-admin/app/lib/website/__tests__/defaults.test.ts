@@ -44,8 +44,11 @@ describe('CEP_DEFAULT_WEBSITE', () => {
       'Nuevas formaciones',
       'Quiénes Somos',
       'APROEM',
-      'Empleo',
+      'Colabora',
       'Blog',
     ])
+
+    const colabora = CEP_DEFAULT_WEBSITE.navigation.items.find((item) => item.label === 'Colabora')
+    expect(colabora?.children?.map((item) => item.label)).toContain('Bolsa de empleo')
   })
 })

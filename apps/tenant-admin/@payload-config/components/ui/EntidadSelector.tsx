@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Label } from '@payload-config/components/ui/label'
 import { Button } from '@payload-config/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn } from '@payload-config/lib/utils'
 import { getEntidadesDisponibles } from '@payload-config/lib/entidadesFinanciadoras'
 import type { EntidadFinanciadoraKey } from '@/types'
 

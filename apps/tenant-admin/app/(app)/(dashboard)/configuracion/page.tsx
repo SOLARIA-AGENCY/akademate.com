@@ -36,6 +36,7 @@ import {
   Plug,
 } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { LearnerStripeSettingsCard } from '@payload-config/components/akademate/dashboard'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -952,6 +953,7 @@ export default function ConfiguracionUnifiedPage() {
             INTEGRACIONES
         ================================================================ */}
         <section id="integraciones" ref={setRef('integraciones')} className="scroll-mt-20 space-y-4">
+          <LearnerStripeSettingsCard />
           {/* Google */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -1121,6 +1123,7 @@ export default function ConfiguracionUnifiedPage() {
             Integraciones
         ================================================================ */}
         <section id="integraciones" ref={setRef('integraciones')} className="scroll-mt-20 space-y-4">
+          <LearnerStripeSettingsCard />
           {/* Google */}
           <Card>
             <CardHeader>
@@ -1389,12 +1392,13 @@ export default function ConfiguracionUnifiedPage() {
               <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                 <p><strong>Base URL:</strong> <code className="bg-background px-1 rounded">https://app.akademate.com/api/v1/</code></p>
                 <p className="mt-1"><strong>Autenticacion:</strong> <code className="bg-background px-1 rounded">Authorization: Bearer {'<tu-api-key>'}</code></p>
+                <p className="mt-1"><strong>MCP HTTP:</strong> <code className="bg-background px-1 rounded">/mcp</code> · discovery <code className="bg-background px-1 rounded">/.well-known/mcp.json</code></p>
                 <p className="mt-1"><strong>Documentacion:</strong>{' '}
                   <a href="/api/v1/openapi" target="_blank" className="text-primary hover:underline">
                     OpenAPI Spec (JSON)
                   </a>
                 </p>
-                <p className="mt-1">17 endpoints disponibles: ciclos, cursos, sedes, personal, convocatorias, alumnos, matriculas, leads, analiticas, media.</p>
+                <p className="mt-1">Mismo contrato que CEP: /mcp y /api/v1. 17 endpoints REST + tools MCP.</p>
               </div>
             </CardContent>
           </Card>

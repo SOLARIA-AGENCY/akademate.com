@@ -1,8 +1,12 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import path from 'path'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 export default defineConfig({
+  root: __dirname,
   plugins: [react()],
   test: {
     environment: 'jsdom',
@@ -88,6 +92,10 @@ export default defineConfig({
       {
         find: '@payload-config/components/layout',
         replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components/layout'),
+      },
+      {
+        find: '@payload-config/components/ui/QualifiedAreasMultiSelect',
+        replacement: path.resolve(__dirname, './@payload-config/components/ui/QualifiedAreasMultiSelect'),
       },
       {
         find: '@payload-config/components/ui',

@@ -1,0 +1,6 @@
+flowchart LR
+  REQ[Request] --> AUTH[Identity]
+  AUTH --> TEN[Tenant Resolver]
+  TEN --> CTX[TenantDataContext]
+  CTX --> CTRL[(D1 Control mapping)]
+  CTX --> DB[(D1 tenant or shard)]

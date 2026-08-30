@@ -80,8 +80,12 @@ export type TenantScopedResult<T> = {
  * Validate tenant ID format (accepts positive integers or integer strings)
  */
 function isValidTenantId(value: string | number): boolean {
-  const numValue = typeof value === 'number' ? value : parseInt(value, 10)
-  return !isNaN(numValue) && numValue > 0 && Number.isInteger(numValue)
+  if (typeof value === 'number') {
+    return Number.isSafeInteger(value) && value > 0
+  }
+
+  const normalized = value.trim()
+  return /^[1-9]\d*$/.test(normalized) && Number.isSafeInteger(Number(normalized))
 }
 
 /**
@@ -125,7 +129,7 @@ export async function withTenantContext<T>(
   }
 
   // Convert to string for set_config
-  const tenantIdStr = String(tenantId)
+  const tenantIdStr = typeof tenantId === 'string' ? tenantId.trim() : String(tenantId)
 
   try {
     const result = await db.transaction(async (tx) => {

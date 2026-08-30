@@ -1,0 +1,10 @@
+Sources used:
+- docs/AKADEMATE_PRESENTACION_CLIENTE.md: client-facing feature narrative.
+- docs/sessions/2026-03-05-cep-enterprise-plan.md: CEP enterprise plan and target domains.
+- docs/reports/2026-04-08-project-status-and-cep-deployment-audit.md: verified state and claim limits.
+- cepformacion.akademate.com: public page verified 2026-06-04 with 200 response.
+- Local assets copied into assets/: CEP dashboard, login, Meta/Facebook screenshots and course images.
+
+Identity asset policy:
+- CEP identity appears through verified screenshots and existing local images.
+- No recreated CEP logo or unofficial mark is drawn.

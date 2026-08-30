@@ -1,0 +1,8 @@
+task mode: create
+primary deck-profile: product-platform
+secondary gates: consumer-retail asset quality, GTM automation story
+required proof objects: public web capture, CEP dashboard capture, course image strip, workflow diagram from convocatoria to lead to matricula, deployment/access map focused on CEP
+source/asset requirements: local CEP screenshots and course images only; no invented logo marks
+brand authenticity constraints: use visible CEP screenshots as identity proof; do not draw a fake CEP logo
+profile-specific QA gates: every slide has a CEP-specific claim, proof object and no multitenant/SaaS wording
+known missing inputs: fresh logged-in dashboard/campus screenshots and official CEP brand manual are not available in repo

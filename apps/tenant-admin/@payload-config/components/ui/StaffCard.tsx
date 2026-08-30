@@ -147,17 +147,19 @@ export function StaffCard({
 
   return (
     <Card
-      className="group flex min-h-[18rem] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-lg"
+      className="group flex min-h-[18rem] cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700"
       data-oid="zwb_yf-"
     >
       <div className="flex flex-1 flex-col" onClick={() => onView(id)} data-oid="i0zslmk">
-        <CardHeader className="flex-row items-start justify-between space-y-0 p-4 pb-3">
-          <div className="flex min-w-0 items-start gap-3">
+        <CardHeader className="flex-row items-start justify-between space-y-0 p-5 pb-3">
+          <div className="flex min-w-0 items-start gap-3.5">
             <StaffPhoto fullName={fullName} photo={photo} staffType={staffType} />
-            <div className="min-w-0 space-y-1.5">
-              <CardTitle className="line-clamp-2 text-base leading-tight">{fullName}</CardTitle>
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Briefcase className="h-3.5 w-3.5 shrink-0" />
+            <div className="min-w-0 space-y-1">
+              <CardTitle className="line-clamp-2 text-base font-extrabold text-slate-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+                {fullName}
+              </CardTitle>
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <Briefcase className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
                 <span className="truncate">{position}</span>
               </p>
             </div>
@@ -291,55 +293,49 @@ export function StaffCard({
           </div>
 
           {/* Bio Preview */}
-          {bio && (
+          {bio ? (
             <p className="mb-3 line-clamp-2 text-xs text-muted-foreground" data-oid="tgiu333">
               {bio}
             </p>
-          )}
+          ) : null}
 
-          {/* Assigned Campuses */}
-          <div className="mt-auto space-y-2" data-oid="f0-qctf">
-            <p
-              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
-              data-oid="7d5jh7a"
-            >
-              Sedes Asignadas
-            </p>
-            <div className="flex gap-1 flex-wrap" data-oid="fpgw5-j">
-              {assignedCampuses.length === 0 ? (
-                <span className="text-xs text-muted-foreground" data-oid="xgrw:yc">
-                  Sin sedes asignadas
-                </span>
-              ) : (
-                assignedCampuses.slice(0, 2).map((campus) => (
+          {/* Assigned Campuses & Course runs */}
+          <div className="mt-auto space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800" data-oid="vj:l813">
+            {assignedCampuses.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5" data-oid="4k_2.r3">
+                {assignedCampuses.map((campus) => (
                   <StaffCampusBadge
                     key={campus.id}
-                    className="w-auto max-w-[10rem]"
-                    data-oid=":pfs_wt"
+                    className="max-w-[10rem]"
+                    data-oid="1736k_7"
                   >
                     {campus.name}
                   </StaffCampusBadge>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            ) : null}
+
+            {courseRunsCount !== undefined && courseRunsCount > 0 ? (
+              <div data-oid="3e83p92">
+                <StaffCountBadge
+                  count={courseRunsCount}
+                  label={teaching ? 'convocatorias' : 'asignaciones'}
+                  data-oid="2v1v70-"
+                />
+              </div>
+            ) : null}
           </div>
-          {typeof courseRunsCount === 'number' ? (
-            <div className="mt-3 border-t pt-3">
-              <StaffCountBadge count={courseRunsCount} className="w-auto min-w-[7rem]" />
-            </div>
-          ) : null}
         </CardContent>
       </div>
 
-      <CardFooter className="border-t bg-muted/50 p-3" data-oid="m18tdm8">
+      <CardFooter className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-3" data-oid="v1:e4t:">
         <Button
           variant="outline"
           size="sm"
-          className="h-8 w-full text-xs font-semibold uppercase"
+          className="w-full text-xs font-bold rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-colors shadow-2xs"
           onClick={() => onView(id)}
-          data-oid="hs3__v2"
+          data-oid="55e0t3."
         >
-          <Eye className="mr-2 h-4 w-4" data-oid="qq_tri7" />
           {detailLabel}
         </Button>
       </CardFooter>

@@ -60,3 +60,27 @@ export {
   calculateDuration,
   type AttendanceServiceConfig,
 } from './attendance.js'
+
+// Staff-only region-pack roster. Sibling of LMS AttendanceService; do not reuse LMS codes.
+export {
+  COMPLIANCE_CONTRACT_VERSION,
+  EMPTY_REGION_PACK,
+  ES_CANARIAS_SCE_PACK,
+  REGION_PACK_CATALOG,
+  findRegionPack,
+  mergePolicy,
+  resolvePolicy,
+  assertKnownCode,
+  attendedHours,
+  canApplyDropout,
+  consecutiveUnjustifiedAbsences,
+  crossedMilestones,
+  dedupeEvents,
+  evaluateAttendance,
+  hourProgressPercent,
+  staffCanSeeRoster,
+  learnerCanSeeRoster,
+  normalizeSelectionStage,
+} from './compliance-ops.js'
+export { OFFICIAL_PROFESSIONAL_FAMILIES, officialFamilyByCode } from './official-families.js'
+export { SYNTHETIC_PLACEMENT_AGENCIES, findSyntheticAgency, isPublicPlacementEmail } from './placement-agency.js'

@@ -48,19 +48,19 @@ describe('badgeVariants', () => {
   it('destructive variant uses destructive token', () => {
     const classes = badgeVariants({ variant: 'destructive' })
     expect(classes).toContain('bg-destructive')
-    expect(classes).toContain('text-white')
+    expect(classes).toContain('text-destructive-foreground')
   })
 
-  it('success variant uses semantic green', () => {
+  it('success variant uses success tokens', () => {
     const classes = badgeVariants({ variant: 'success' })
-    expect(classes).toContain('bg-emerald-600')
-    expect(classes).toContain('text-white')
+    expect(classes).toContain('bg-success')
+    expect(classes).toContain('text-success-foreground')
   })
 
-  it('warning variant uses semantic orange', () => {
+  it('warning variant uses warning tokens', () => {
     const classes = badgeVariants({ variant: 'warning' })
-    expect(classes).toContain('bg-amber-500')
-    expect(classes).toContain('text-white')
+    expect(classes).toContain('bg-warning')
+    expect(classes).toContain('text-warning-foreground')
   })
 
   it('info variant uses tenant primary tokens', () => {
@@ -69,12 +69,11 @@ describe('badgeVariants', () => {
     expect(classes).toContain('text-primary-foreground')
   })
 
-  it('neutral variant uses semantic gray', () => {
+  it('neutral variant uses muted tokens, not hardcoded gray', () => {
     const classes = badgeVariants({ variant: 'neutral' })
-    expect(classes).toContain('bg-gray-100')
-    expect(classes).toContain('text-gray-700')
-    expect(classes).toContain('dark:bg-gray-800')
-    expect(classes).toContain('dark:text-gray-300')
+    expect(classes).toContain('bg-muted')
+    expect(classes).toContain('text-muted-foreground')
+    expect(classes).not.toContain('dark:bg-gray-')
   })
 
   it('outline variant uses foreground text', () => {
@@ -86,6 +85,14 @@ describe('badgeVariants', () => {
     const withDefault = badgeVariants({})
     const withExplicit = badgeVariants({ variant: 'default' })
     expect(withDefault).toBe(withExplicit)
+  })
+
+  it('uses LISTING_PILL_CLASS height and radius', () => {
+    const classes = badgeVariants({ variant: 'default' })
+    expect(classes).toContain('px-2.5')
+    expect(classes).toContain('py-1')
+    expect(classes).toContain('rounded-full')
+    expect(classes).not.toContain('py-0.5')
   })
 })
 
@@ -135,26 +142,33 @@ describe('Badge component', () => {
     expect(el.className).toContain('bg-secondary')
   })
 
-  it('renders success variant with green classes', () => {
+  it('renders success variant with success tokens', () => {
     const { container } = render(
-      <Badge variant="success" data-oid="v1b6vns">
+      <Badge variant="success">
         Activo
       </Badge>
     )
     const el = container.firstChild as HTMLElement
-    expect(el.className).toContain('bg-emerald-600')
-    expect(el.className).toContain('text-white')
+    expect(el.className).toContain('bg-success')
+    expect(el.className).toContain('text-success-foreground')
   })
 
-  it('renders warning variant with orange classes', () => {
+  it('renders a soft success tone without hardcoded greens', () => {
+    const { container } = render(<Badge tone="success">Connected</Badge>)
+    const el = container.firstChild as HTMLElement
+    expect(el.className).toContain('bg-success-soft')
+    expect(el.className).not.toMatch(/bg-emerald-/)
+  })
+
+  it('renders warning variant with warning tokens', () => {
     const { container } = render(
-      <Badge variant="warning" data-oid="9r3v2js">
+      <Badge variant="warning">
         Pendiente
       </Badge>
     )
     const el = container.firstChild as HTMLElement
-    expect(el.className).toContain('bg-amber-500')
-    expect(el.className).toContain('text-white')
+    expect(el.className).toContain('bg-warning')
+    expect(el.className).toContain('text-warning-foreground')
   })
 
   it('renders info variant with tenant primary classes', () => {

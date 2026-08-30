@@ -127,6 +127,13 @@ describe('Public website routing middleware', () => {
     )
   })
 
+  it('keeps hosted MCP discovery public', () => {
+    const mcp = middleware(new NextRequest('https://app.akademate.com/mcp'))
+    const wellKnown = middleware(new NextRequest('https://app.akademate.com/.well-known/mcp.json'))
+    expect(mcp.status).toBe(200)
+    expect(wellKnown.status).toBe(200)
+  })
+
   it('keeps dashboard-prefixed internal routes protected without auth', () => {
     const request = new NextRequest('https://cepformacion.akademate.com/dashboard/cursos')
     const response = middleware(request)

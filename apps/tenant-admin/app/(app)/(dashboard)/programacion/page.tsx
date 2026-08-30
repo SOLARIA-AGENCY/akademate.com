@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Badge } from '@payload-config/components/ui/badge'
+import { Badge, LISTING_PILL_CLASS } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { EmptyPanel, DirectoryKpiStrip, computeConvocationDirectoryKpis, DIRECTORY_PAGE_SIZES, directoryPageNumbers, directoryRangeLabel, paginateDirectory } from '@payload-config/components/akademate/dashboard'
 import {
@@ -1413,12 +1413,11 @@ export default function ProgramacionPage() {
   const handleConvClick = (id: string) => router.push(`/programacion/${id}`)
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden">
       <PageHeader
         title="Programacion Academica"
         description="Calendario de convocatorias, horarios y ocupacion"
         icon={Calendar}
-        className="sticky top-14 z-20 -mt-3 mb-0 bg-[var(--dashboard-canvas)]"
         badge={null}
         actions={
           <div className="flex flex-wrap gap-2">
@@ -1434,6 +1433,7 @@ export default function ProgramacionPage() {
         }
       />
 
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain">
       <DirectoryKpiStrip items={kpis} />
 
       {/* Controls bar */}
@@ -1523,7 +1523,7 @@ export default function ProgramacionPage() {
 
       {/* List View */}
       {!isLoading && view === 'lista' && (
-        <Card>
+        <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <CardHeader className="flex flex-col gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
               <List className="h-4 w-4" />
@@ -1540,7 +1540,7 @@ export default function ProgramacionPage() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain">
             {listMessage ? (
               <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
                 {listMessage}
@@ -2022,7 +2022,7 @@ export default function ProgramacionPage() {
                           <td className="p-2 text-center">
                             <Badge
                               title={STATUS_LABELS[conv.estado] || conv.estado}
-                              className="inline-flex min-w-[6.75rem] max-w-full justify-center whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-1 text-[9px] font-semibold leading-none text-green-700 shadow-none"
+                              className={`${LISTING_PILL_CLASS} min-w-[6.75rem] max-w-full justify-center whitespace-nowrap border-green-200 bg-green-50 font-semibold text-green-700 shadow-none`}
                             >
                               <span className="truncate">
                                 {STATUS_LABELS[conv.estado] || conv.estado}
@@ -2074,7 +2074,7 @@ export default function ProgramacionPage() {
                         </div>
                         <Badge
                           title={STATUS_LABELS[conv.estado] || conv.estado}
-                          className="shrink-0 whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-1 text-[10px] font-semibold leading-none text-green-700 shadow-none"
+                          className={`${LISTING_PILL_CLASS} shrink-0 whitespace-nowrap border-green-200 bg-green-50 font-semibold text-green-700 shadow-none`}
                         >
                           {STATUS_LABELS[conv.estado] || conv.estado}
                         </Badge>
@@ -2214,6 +2214,7 @@ export default function ProgramacionPage() {
           <span className="h-2.5 w-2.5 rounded-sm bg-red-300" />
           Festivo
         </span>
+      </div>
       </div>
     </div>
   )

@@ -116,7 +116,7 @@ export function CourseDashboardCard({ course, onClick, className }: CourseDashbo
           </div>
 
           <Button
-            className="mt-auto w-full bg-[#f2014b] text-white hover:bg-[#d80143] hover:text-white"
+            className="mt-auto w-full bg-blue-600 font-bold text-white hover:bg-blue-700 rounded-xl shadow-xs"
             onClick={(event) => {
               event.stopPropagation()
               onClick?.()

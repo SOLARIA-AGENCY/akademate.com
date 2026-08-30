@@ -1,0 +1,17 @@
+16-slide rhythm:
+01 cover image wall
+02 operating map
+03 screenshot-led public web
+04 editorial catalog strip
+05 stage board
+06 hero workflow diagram
+07 CRM pipeline
+08 enrollment conversion board
+09 marketing evidence collage
+10 campus module map
+11 operations matrix
+12 dashboard screenshot with callouts
+13 brand/editorial proof
+14 access map
+15 implementation timeline
+16 decision checklist

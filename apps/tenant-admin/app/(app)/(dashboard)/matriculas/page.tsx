@@ -221,6 +221,7 @@ export default function MatriculasPage() {
           <Button
             variant="outline"
             size="sm"
+            className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-2xs h-9 px-3"
             onClick={() => {
               const columns: ExportColumn<MatriculaRow>[] = [
                 { header: 'Alumno', getValue: (row) => row.alumno.nombre },
@@ -232,14 +233,14 @@ export default function MatriculasPage() {
               downloadCsv(`matriculas-${new Date().toISOString().slice(0, 10)}.csv`, columns, filteredMatriculas)
             }}
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4 mr-1.5" />
             <span className="hidden sm:inline">Exportar</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setBulkDialogOpen(true)}>
-            <Upload className="h-4 w-4" />
+          <Button size="sm" variant="outline" className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-2xs h-9 px-4" onClick={() => setBulkEnrollmentDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-1.5 text-slate-400" />
             <span className="hidden sm:inline">Importar</span>
           </Button>
-          <Button size="sm" onClick={() => setNewEnrollmentDialogOpen(true)}>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-xs h-9 px-4 gap-1.5" onClick={() => setNewEnrollmentDialogOpen(true)}>
             <UserPlus className="h-4 w-4" />
             <span className="hidden sm:inline">Nueva matrícula</span>
           </Button>

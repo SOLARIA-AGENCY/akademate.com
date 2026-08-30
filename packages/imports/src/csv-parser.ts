@@ -204,10 +204,15 @@ export class CsvParser<T> {
 
     // Extract errors from Zod
     for (const issue of result.error.issues) {
+      const firstPathSegment = issue.path[0]
+      const value =
+        typeof firstPathSegment === 'string' || typeof firstPathSegment === 'number'
+          ? record[firstPathSegment]
+          : undefined
       errors.push({
         row: rowNumber,
-        column: issue.path.join('.'),
-        value: String(record[issue.path[0]] ?? ''),
+        column: issue.path.map(String).join('.'),
+        value: String(value ?? ''),
         message: issue.message,
         code: issue.code,
       });
@@ -286,7 +291,13 @@ export function validateCsvStructure(
 
   return {
     valid: missing.length === 0,
-    missing: missing.map((m) => requiredColumns[normalizedRequired.indexOf(m)]),
-    extra: headers.filter((_, i) => extra.includes(normalizedHeaders[i])),
+    missing: missing.flatMap((m) => {
+      const original = requiredColumns[normalizedRequired.indexOf(m)]
+      return original === undefined ? [] : [original]
+    }),
+    extra: headers.filter((_, i) => {
+      const normalized = normalizedHeaders[i]
+      return normalized !== undefined && extra.includes(normalized)
+    }),
   };
 }

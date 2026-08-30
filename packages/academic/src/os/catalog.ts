@@ -1,0 +1,280 @@
+import {
+  type BlueprintId,
+  type CapabilityId,
+  type PlanTier,
+} from './types'
+
+export const PLAN_ENTITLEMENTS: Record<PlanTier, readonly CapabilityId[]> = {
+  starter: [
+    'courses',
+    'recurring_sessions',
+    'memberships',
+    'academic_levels',
+    'room_resource_scheduling',
+  ],
+  pro: [
+    'courses',
+    'recurring_sessions',
+    'memberships',
+    'academic_levels',
+    'room_resource_scheduling',
+    'lms',
+    'advanced_course_runs',
+    'multi_instructor_courses',
+  ],
+  enterprise: [
+    'courses',
+    'course_cycles',
+    'advanced_course_runs',
+    'academic_phases',
+    'session_level_scheduling',
+    'multi_instructor_courses',
+    'external_practices',
+    'partner_organizations',
+    'external_venues',
+    'room_resource_scheduling',
+    'instructor_workload',
+    'instructor_finance',
+    'regulated_programmes',
+    'academic_documents',
+    'advanced_conflict_detection',
+    'recurring_sessions',
+    'memberships',
+    'academic_levels',
+    'lms',
+  ],
+}
+
+const PROFESSIONAL_TRAINING_CAPABILITIES: readonly CapabilityId[] = [
+  'courses',
+  'course_cycles',
+  'advanced_course_runs',
+  'academic_phases',
+  'session_level_scheduling',
+  'multi_instructor_courses',
+  'external_practices',
+  'partner_organizations',
+  'external_venues',
+  'room_resource_scheduling',
+  'instructor_workload',
+  'instructor_finance',
+  'regulated_programmes',
+  'academic_documents',
+  'advanced_conflict_detection',
+  'lms',
+]
+
+export type BlueprintDefinition = {
+  id: BlueprintId
+  version: string
+  baseBlueprint: BlueprintId | null
+  academyModelLabel: string
+  blueprintLabel: string
+  customisationLabel: string | null
+  availableCapabilities: readonly CapabilityId[]
+  defaultLocked: readonly CapabilityId[]
+}
+
+export const BLUEPRINTS: Record<BlueprintId, BlueprintDefinition> = {
+  professional_training: {
+    id: 'professional_training',
+    version: 'v1',
+    baseBlueprint: null,
+    academyModelLabel: 'Formación profesional',
+    blueprintLabel: 'Professional Training',
+    customisationLabel: null,
+    availableCapabilities: PROFESSIONAL_TRAINING_CAPABILITIES,
+    defaultLocked: [],
+  },
+  professional_training_advanced: {
+    id: 'professional_training_advanced',
+    version: 'v1',
+    baseBlueprint: 'professional_training',
+    academyModelLabel: 'Formación profesional avanzada',
+    blueprintLabel: 'Professional Training Advanced',
+    customisationLabel: null,
+    availableCapabilities: PROFESSIONAL_TRAINING_CAPABILITIES,
+    defaultLocked: [
+      'course_cycles',
+      'academic_phases',
+      'session_level_scheduling',
+      'external_practices',
+    ],
+  },
+  'cep-professional-training-enterprise-v1': {
+    id: 'cep-professional-training-enterprise-v1',
+    version: 'v1',
+    baseBlueprint: 'professional_training_advanced',
+    academyModelLabel: 'Formación profesional avanzada',
+    blueprintLabel: 'CEP Professional Training',
+    customisationLabel: 'CEP Formación',
+    availableCapabilities: PROFESSIONAL_TRAINING_CAPABILITIES,
+    defaultLocked: PROFESSIONAL_TRAINING_CAPABILITIES,
+  },
+  yoga_pilates_wellness: {
+    id: 'yoga_pilates_wellness',
+    version: 'v1',
+    baseBlueprint: null,
+    academyModelLabel: 'Yoga / Pilates / Wellness',
+    blueprintLabel: 'Yoga Pilates Wellness',
+    customisationLabel: null,
+    availableCapabilities: [
+      'courses',
+      'recurring_sessions',
+      'memberships',
+      'room_resource_scheduling',
+      'lms',
+    ],
+    defaultLocked: [],
+  },
+  language_academy: {
+    id: 'language_academy',
+    version: 'v1',
+    baseBlueprint: null,
+    academyModelLabel: 'Academia de idiomas',
+    blueprintLabel: 'Language Academy',
+    customisationLabel: null,
+    availableCapabilities: [
+      'courses',
+      'academic_levels',
+      'recurring_sessions',
+      'advanced_course_runs',
+      'room_resource_scheduling',
+      'lms',
+    ],
+    defaultLocked: [],
+  },
+}
+
+export const VOCABULARY: Record<BlueprintId, Record<string, { singular: string; plural: string }>> = {
+  professional_training: {
+    offering: { singular: 'Curso', plural: 'Cursos' },
+    run: { singular: 'Convocatoria', plural: 'Convocatorias' },
+    participant: { singular: 'Alumno', plural: 'Alumnos' },
+    instructor: { singular: 'Docente', plural: 'Docentes' },
+    session: { singular: 'Sesión', plural: 'Sesiones' },
+    location: { singular: 'Sede', plural: 'Sedes' },
+  },
+  professional_training_advanced: {
+    offering: { singular: 'Curso', plural: 'Cursos' },
+    run: { singular: 'Convocatoria', plural: 'Convocatorias' },
+    participant: { singular: 'Alumno', plural: 'Alumnos' },
+    instructor: { singular: 'Docente', plural: 'Docentes' },
+    session: { singular: 'Sesión', plural: 'Sesiones' },
+    location: { singular: 'Sede', plural: 'Sedes' },
+  },
+  'cep-professional-training-enterprise-v1': {
+    offering: { singular: 'Curso', plural: 'Cursos' },
+    run: { singular: 'Convocatoria', plural: 'Convocatorias' },
+    participant: { singular: 'Alumno', plural: 'Alumnos' },
+    instructor: { singular: 'Docente', plural: 'Docentes' },
+    session: { singular: 'Sesión', plural: 'Sesiones' },
+    location: { singular: 'Sede', plural: 'Sedes' },
+  },
+  yoga_pilates_wellness: {
+    offering: { singular: 'Clase', plural: 'Clases' },
+    run: { singular: 'Horario', plural: 'Horarios' },
+    participant: { singular: 'Socio', plural: 'Socios' },
+    instructor: { singular: 'Instructor', plural: 'Instructores' },
+    session: { singular: 'Clase', plural: 'Clases' },
+    location: { singular: 'Sala', plural: 'Salas' },
+  },
+  language_academy: {
+    offering: { singular: 'Curso', plural: 'Cursos' },
+    run: { singular: 'Grupo', plural: 'Grupos' },
+    participant: { singular: 'Alumno', plural: 'Alumnos' },
+    instructor: { singular: 'Docente', plural: 'Docentes' },
+    session: { singular: 'Clase', plural: 'Clases' },
+    location: { singular: 'Aula', plural: 'Aulas' },
+  },
+}
+
+export const NAV_PRESETS: Record<BlueprintId, readonly string[]> = {
+  professional_training: [
+    'dashboard',
+    'programacion',
+    'cursos',
+    'programas-formativos',
+    'convocatorias',
+    'sedes',
+    'profesores',
+    'alumnos',
+    'campus',
+    'finanzas',
+    'web',
+    'configuracion',
+  ],
+  professional_training_advanced: [
+    'dashboard',
+    'programacion',
+    'cursos',
+    'programas-formativos',
+    'convocatorias',
+    'sedes',
+    'profesores',
+    'practicas',
+    'alumnos',
+    'campus',
+    'finanzas',
+    'web',
+    'configuracion',
+  ],
+  'cep-professional-training-enterprise-v1': [
+    'dashboard',
+    'crm',
+    'alumnos',
+    'cursos',
+    'programacion',
+    'programas-formativos',
+    'calendario',
+    'profesores',
+    'sedes',
+    'practicas',
+    'campus',
+    'finanzas',
+    'web',
+    'informes',
+    'configuracion',
+  ],
+  yoga_pilates_wellness: [
+    'dashboard',
+    'cursos',
+    'calendario',
+    'alumnos',
+    'profesores',
+    'sedes',
+    'finanzas',
+    'web',
+    'configuracion',
+  ],
+  language_academy: [
+    'dashboard',
+    'cursos',
+    'convocatorias',
+    'alumnos',
+    'profesores',
+    'sedes',
+    'campus',
+    'finanzas',
+    'web',
+    'configuracion',
+  ],
+}
+
+export const ROUTE_CAPABILITIES: Record<string, CapabilityId> = {
+  '/dashboard/programas-formativos': 'course_cycles',
+  '/web/ciclos': 'course_cycles',
+  '/ciclos': 'course_cycles',
+  '/api/occupancy': 'session_level_scheduling',
+  '/api/cronogramas/import': 'session_level_scheduling',
+  '/api/academic/placements': 'external_practices',
+  '/api/academic/partners': 'partner_organizations',
+  '/api/academic/venues': 'external_venues',
+  '/api/academic/instructor-availability': 'instructor_workload',
+}
+
+export const MCP_TOOL_CAPABILITIES: Record<string, CapabilityId> = {
+  list_cycles: 'course_cycles',
+  get_cycle: 'course_cycles',
+  list_placement_agencies: 'external_practices',
+}

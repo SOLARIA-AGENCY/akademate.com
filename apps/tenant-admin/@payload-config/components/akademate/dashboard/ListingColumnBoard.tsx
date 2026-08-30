@@ -4,7 +4,7 @@ import { createContext, useContext, type CSSProperties, type ReactNode } from 'r
 import { Card } from '@payload-config/components/ui/card'
 import { cn } from '@payload-config/lib/utils'
 
-const LISTING_SURFACE_CLASS = 'rounded-xl border border-border/80 bg-muted/70 shadow-none'
+const LISTING_SURFACE_CLASS = 'rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700'
 
 export type ListingColumnDef = {
   id: string
@@ -71,8 +71,7 @@ export const WAITLIST_LIST_COLUMNS: ListingColumnDef[] = [
 ]
 
 export const LISTING_COLUMN_HEADER_CLASS = cn(
-  'grid min-w-0 items-center gap-3 px-3 py-2.5 text-xs font-semibold text-foreground',
-  LISTING_SURFACE_CLASS,
+  'grid min-w-0 items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs'
 )
 
 const ListingColumnsContext = createContext<ListingColumnDef[] | null>(null)
@@ -107,7 +106,7 @@ export function ListingColumnBoard({
 }) {
   return (
     <ListingColumnsContext.Provider value={columns}>
-      <div data-slot="listing-column-board" className={cn('flex min-w-0 flex-col gap-2', className)}>
+      <div data-slot="listing-column-board" className={cn('flex min-w-0 flex-col gap-2.5', className)}>
         <div
           data-slot="listing-column-header"
           className={LISTING_COLUMN_HEADER_CLASS}
@@ -140,7 +139,7 @@ export function ListingColumnCard({
     <Card
       data-slot="listing-column-card"
       className={cn(
-        'grid min-w-0 cursor-pointer items-center gap-3 px-3 py-2',
+        'grid min-w-0 cursor-pointer items-center gap-3 px-4 py-3.5',
         LISTING_SURFACE_CLASS,
         className,
       )}
@@ -148,7 +147,7 @@ export function ListingColumnCard({
       onClick={onClick}
     >
       {columns.map((column, index) => (
-        <div key={column.id} className="min-w-0">
+        <div key={column.id} className="min-w-0 font-medium text-slate-800 dark:text-slate-200 text-xs sm:text-sm">
           {cells[index] ?? null}
         </div>
       ))}

@@ -1,0 +1,2 @@
+No source/template deck supplied. Existing docs include a previous client presentation in MD/PDF/DOCX, but this output is a fresh CEP-only presentation.
+Anti-patterns avoided: multitenant terminology, SaaS platform positioning, other-client language, broad infrastructure details.

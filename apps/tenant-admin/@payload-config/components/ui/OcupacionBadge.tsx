@@ -1,5 +1,7 @@
 'use client'
 
+import { LISTING_PILL_CLASS } from '@payload-config/components/ui/badge'
+
 interface OcupacionBadgeProps {
   plazasOcupadas: number
   plazasTotal: number
@@ -49,7 +51,7 @@ export function OcupacionBadge({
     <div className={`flex flex-col gap-1 ${className}`} data-oid="1xy51b5">
       <div className="flex items-center gap-2" data-oid="_hb7-rg">
         <span
-          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${colorConfig.badge}`}
+          className={`${LISTING_PILL_CLASS} ${colorConfig.badge}`}
           data-oid="tzrovy6"
         >
           {estaCompleto ? colorConfig.label : `${colorConfig.label} plazas`}

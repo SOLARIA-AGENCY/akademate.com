@@ -118,8 +118,8 @@ const publicRoutes = [
   '/convocatorias',
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
-  // DEV-ONLY: design-system accessible without auth for Onlook visual editing
-  ...(process.env.NODE_ENV !== 'production' ? ['/design-system', '/shadcn-preview'] : []),
+  // DEV-ONLY: design-system & design-hub accessible without auth for previewing
+  ...(process.env.NODE_ENV !== 'production' ? ['/design-system', '/shadcn-preview', '/design-hub', '/teacher-management', '/dashboard/profesores', '/dashboard/cursos', '/profesores', '/cursos', '/alumnos', '/matriculas', '/sedes', '/planner'] : []),
 ]
 
 function isPublicRoute(pathname: string): boolean {

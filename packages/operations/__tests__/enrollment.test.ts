@@ -451,22 +451,38 @@ describe('Enrollment Service', () => {
       expect(result.reason).toContain('completa')
     })
 
-    it('should allow if withdrawn from same course run', () => {
+    it.each([EnrollmentStatus.COMPLETED, EnrollmentStatus.WITHDRAWN, EnrollmentStatus.FAILED])(
+      'should allow if an existing %s enrollment is not active',
+      (status) => {
+        const result = service.canEnroll({
+          userId: validUserId,
+          courseRunId: validCourseRunId,
+          existingEnrollments: [{
+            id: '1',
+            tenantId: validTenantId,
+            userId: validUserId,
+            courseRunId: validCourseRunId,
+            status,
+            progress: 0,
+            metadata: {},
+          }],
+        })
+
+        expect(result.canEnroll).toBe(true)
+      },
+    )
+
+    it('should treat zero capacity as full', () => {
       const result = service.canEnroll({
         userId: validUserId,
         courseRunId: validCourseRunId,
-        existingEnrollments: [{
-          id: '1',
-          tenantId: validTenantId,
-          userId: validUserId,
-          courseRunId: validCourseRunId,
-          status: EnrollmentStatus.WITHDRAWN, // Not active
-          progress: 0,
-          metadata: {},
-        }],
+        existingEnrollments: [],
+        courseRunCapacity: 0,
+        currentEnrollmentCount: 0,
       })
 
-      expect(result.canEnroll).toBe(true)
+      expect(result.canEnroll).toBe(false)
+      expect(result.reason).toContain('completa')
     })
   })
 })

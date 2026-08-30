@@ -632,7 +632,18 @@ La activacion se hara progresivamente:
 - Integraciones externas.
 - Migracion directa de alumnos reales.
 
-## 13. Estado del plan
+## 13. Sucesor SaaS (identidad docente + CTA pública)
+
+Este plan permanece como contrato del **MVP alumno interno**. No lo reescribe.
+
+Lo que aquí quedó fuera a propósito (sección 5.1 solo alumno, sección 12 sin web pública) pasa al contrato de plataforma, para todos los tenants:
+
+- [Master Architecture Spec v1.1](../specs/AKADEMATE_MASTER_ARCHITECTURE_SPEC.md) §5.5, §7.5, §8.7, §16.4, Apéndice F
+- [docs/plans/2026-08-29-campus-identity-teacher-student.md](./2026-08-29-campus-identity-teacher-student.md)
+
+Ahí: docente sin User Payload, tokens XOR, tres badges en ficha, host campus vs host admin, CTA pública a `/campus/login`. Chat y notificaciones ricas siguen en P2.
+
+## 14. Estado del plan
 
 - Plan documentado: completado.
 - Goal de ejecucion: completado para el alcance MVP tecnico interno; la promocion futura sigue bloqueada por gates.

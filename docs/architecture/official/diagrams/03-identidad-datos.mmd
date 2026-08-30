@@ -1,0 +1,11 @@
+flowchart LR
+  APP[akademate-app]
+  APP --> SESS[Session / Auth Context]
+  SESS --> GID[GlobalIdentity]
+  SESS --> MEM[Tenant Membership]
+  MEM --> POL[RBAC + ABAC + capabilities]
+  APP --> TDC[TenantDataContext]
+  TDC --> CTRLDB[(D1 Control)]
+  TDC --> SHARD[(D1 shard / tenant)]
+  APP --> R2[(R2 tenant/id)]
+  CTRL[akademate-control] --> CTRLDB

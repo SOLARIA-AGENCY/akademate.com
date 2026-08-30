@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         data-oid="z1l9dhm"
       >
         <div className="pointer-events-auto">
-          <ThemeToggle className="bg-card" data-oid="c-sfidw" />
+          <ThemeToggle data-oid="c-sfidw" />
         </div>
       </div>
       {children}

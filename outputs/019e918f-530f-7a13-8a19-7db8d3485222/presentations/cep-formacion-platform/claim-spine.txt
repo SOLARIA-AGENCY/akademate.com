@@ -1,0 +1,20 @@
+Thesis: CEP can run the academy from one branded operational platform: public web, course planning, campaign generation, lead management, campus and reporting.
+Audience: CEP Formacion direction and operating team.
+Arc: Show the new CEP digital operating system, then prove the daily workflows and the highest-value automation: convocatoria -> publicidad -> leads -> matricula.
+
+01 Portada: CEP gets a platform built around its academy. Proof: branded capture wall.
+02 Vision: one workspace connects web, admin, leads, campus and reporting. Proof: operating map.
+03 Web: CEP public site already presents courses and calls to action. Proof: public web capture.
+04 Catalog: all offer types live in one catalog. Proof: course image strip and counts.
+05 Convocatorias: each course run becomes a managed commercial opportunity. Proof: stage board.
+06 Automation: convocatoria creation can launch advertising assets and lead routing. Proof: workflow diagram.
+07 Leads: every form/contact becomes a tracked sales file. Proof: CRM lane.
+08 Matriculas: commercial follow-up converts into enrollment status. Proof: conversion pipeline.
+09 Marketing: Meta assets and campaign data connect to the operating flow. Proof: Meta screenshots.
+10 Campus: students access lessons, progress, attendance and certificates. Proof: campus module map.
+11 Team: CEP can coordinate staff, teachers, rooms and campuses. Proof: operations grid.
+12 Dashboard: management sees courses, leads, campaigns and activity. Proof: dashboard capture.
+13 Brand: CEP image, courses and language are foregrounded. Proof: brand treatment slide.
+14 Access: CEP has clear access points for web, dashboard, campus and admin. Proof: domain/access map.
+15 Implantation: launch is a controlled validation sequence. Proof: timeline.
+16 Next steps: align content, capture final screens, confirm domains and demo. Proof: decision checklist.

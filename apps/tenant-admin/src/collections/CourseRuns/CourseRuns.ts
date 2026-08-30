@@ -1,10 +1,10 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig } from 'payload'
 import {
   canCreateCourseRun,
   canReadCourseRuns,
   canUpdateCourseRun,
   canDeleteCourseRun,
-} from './access';
+} from './access'
 import {
   validateCourseRunDates,
   validateCourseRunRelationships,
@@ -14,9 +14,9 @@ import {
   captureCompletionSnapshot,
   applyCourseRunPriceSnapshot,
   detectPlanningConflicts,
-} from './hooks';
-import { VALID_WEEKDAYS, VALID_STATUSES, VALID_ENROLLMENT_STATUSES } from './CourseRuns.validation';
-import { tenantField } from '../../access/tenantAccess';
+} from './hooks'
+import { VALID_WEEKDAYS, VALID_STATUSES, VALID_ENROLLMENT_STATUSES } from './CourseRuns.validation'
+import { tenantField } from '../../access/tenantAccess'
 
 /**
  * CourseRuns Collection - Course Instance Management
@@ -141,7 +141,15 @@ export const CourseRuns: CollectionConfig = {
 
   admin: {
     useAsTitle: 'id',
-    defaultColumns: ['course', 'campus', 'start_date', 'end_date', 'status', 'current_enrollments', 'max_students'],
+    defaultColumns: [
+      'course',
+      'campus',
+      'start_date',
+      'end_date',
+      'status',
+      'current_enrollments',
+      'max_students',
+    ],
     group: 'Academic',
     description: 'Specific course offerings with scheduling, capacity, and enrollment tracking',
   },
@@ -225,11 +233,11 @@ export const CourseRuns: CollectionConfig = {
         description: 'Código único auto-generado (ej: NOR-2025-001)',
       },
       validate: (val: string | undefined) => {
-        if (!val) return 'El código es obligatorio';
+        if (!val) return 'El código es obligatorio'
         if (!/^[A-Z]{2,3}-\d{4}-\d{3}$/.test(val)) {
-          return 'Formato inválido. Debe ser: CAMPUS-YEAR-001';
+          return 'Formato inválido. Debe ser: CAMPUS-YEAR-001'
         }
-        return true;
+        return true
       },
     },
 
@@ -249,8 +257,8 @@ export const CourseRuns: CollectionConfig = {
         },
       },
       validate: (val: any) => {
-        if (!val) return 'Start date is required';
-        return true;
+        if (!val) return 'Start date is required'
+        return true
       },
     },
 
@@ -265,8 +273,8 @@ export const CourseRuns: CollectionConfig = {
         },
       },
       validate: (val: any) => {
-        if (!val) return 'End date is required';
-        return true;
+        if (!val) return 'End date is required'
+        return true
       },
     },
 
@@ -274,7 +282,8 @@ export const CourseRuns: CollectionConfig = {
       name: 'enrollment_deadline',
       type: 'date',
       admin: {
-        description: 'Last date to enroll (must be before start_date)',
+        description:
+          'Fecha límite de matrícula. En ciclos puede ser posterior al inicio según el plazo anual oficial.',
         date: {
           displayFormat: 'yyyy-MM-dd',
         },
@@ -305,12 +314,12 @@ export const CourseRuns: CollectionConfig = {
         description: 'Class start time (HH:MM:SS format, e.g., 09:00:00)',
       },
       validate: (val: any) => {
-        if (!val) return true; // Optional field
-        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+        if (!val) return true // Optional field
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/
         if (!timeRegex.test(val)) {
-          return 'Time must be in HH:MM:SS format (e.g., 09:00:00)';
+          return 'Time must be in HH:MM:SS format (e.g., 09:00:00)'
         }
-        return true;
+        return true
       },
     },
 
@@ -321,12 +330,12 @@ export const CourseRuns: CollectionConfig = {
         description: 'Class end time (HH:MM:SS format, e.g., 13:00:00)',
       },
       validate: (val: any) => {
-        if (!val) return true; // Optional field
-        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+        if (!val) return true // Optional field
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/
         if (!timeRegex.test(val)) {
-          return 'Time must be in HH:MM:SS format (e.g., 13:00:00)';
+          return 'Time must be in HH:MM:SS format (e.g., 13:00:00)'
         }
-        return true;
+        return true
       },
     },
     {
@@ -358,9 +367,9 @@ export const CourseRuns: CollectionConfig = {
         description: 'Maximum number of students allowed (must be greater than min_students)',
       },
       validate: (val: any) => {
-        if (val === undefined || val === null) return 'Max students is required';
-        if (val < 1) return 'Max students must be at least 1';
-        return true;
+        if (val === undefined || val === null) return 'Max students is required'
+        if (val < 1) return 'Max students must be at least 1'
+        return true
       },
     },
 
@@ -374,9 +383,9 @@ export const CourseRuns: CollectionConfig = {
         description: 'Minimum number of students required to run the course',
       },
       validate: (val: any) => {
-        if (val === undefined || val === null) return 'Min students is required';
-        if (val < 1) return 'Min students must be at least 1';
-        return true;
+        if (val === undefined || val === null) return 'Min students is required'
+        if (val < 1) return 'Min students must be at least 1'
+        return true
       },
     },
 
@@ -434,12 +443,13 @@ export const CourseRuns: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        description: 'Estado comercial de matrícula, independiente del estado operativo de la convocatoria',
+        description:
+          'Estado comercial de matrícula, independiente del estado operativo de la convocatoria',
       },
       validate: (val: string | undefined) => {
-        if (!val) return 'El estado de matrícula es obligatorio';
-        if (!VALID_ENROLLMENT_STATUSES.includes(val as any)) return 'Estado de matrícula no válido';
-        return true;
+        if (!val) return 'El estado de matrícula es obligatorio'
+        if (!VALID_ENROLLMENT_STATUSES.includes(val as any)) return 'Estado de matrícula no válido'
+        return true
       },
     },
     {
@@ -491,9 +501,9 @@ export const CourseRuns: CollectionConfig = {
         description: 'Override course default price (leave empty to use course price)',
       },
       validate: (val: any) => {
-        if (val === undefined || val === null) return true; // Optional field
-        if (val < 0) return 'Price override cannot be negative';
-        return true;
+        if (val === undefined || val === null) return true // Optional field
+        if (val < 0) return 'Price override cannot be negative'
+        return true
       },
     },
     {
@@ -501,7 +511,8 @@ export const CourseRuns: CollectionConfig = {
       type: 'number',
       min: 0,
       admin: {
-        description: 'Precio congelado de la convocatoria. Se copia del curso al crear si no hay override.',
+        description:
+          'Precio congelado de la convocatoria. Se copia del curso al crear si no hay override.',
         step: 0.01,
       },
     },
@@ -587,7 +598,7 @@ export const CourseRuns: CollectionConfig = {
         return {
           staff_type: { equals: 'profesor' },
           is_active: { equals: true },
-        };
+        }
       },
     },
     {
@@ -757,4 +768,4 @@ export const CourseRuns: CollectionConfig = {
    * Timestamps - Automatically add createdAt and updatedAt
    */
   timestamps: true,
-};
+}

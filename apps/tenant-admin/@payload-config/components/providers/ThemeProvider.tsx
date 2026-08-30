@@ -13,7 +13,7 @@ interface ThemeContextType {
 const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = React.useState<Theme>('system')
+  const [theme, setThemeState] = React.useState<Theme>('light')
   const [mounted, setMounted] = React.useState(false)
   const THEME_KEY = 'akademate-theme'
   const LEGACY_THEME_KEY = 'cep-theme'
@@ -33,7 +33,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const stored =
       (localStorage.getItem(THEME_KEY) as Theme | null) ??
       (localStorage.getItem(LEGACY_THEME_KEY) as Theme | null)
-    if (stored) {
+    if (stored === 'dark' || stored === 'light') {
       setThemeState(stored)
     }
   }, [])

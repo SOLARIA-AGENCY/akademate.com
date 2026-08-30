@@ -125,8 +125,22 @@ export class AttendanceService {
       }
     }
 
-    const enrollmentId = attendances[0].enrollmentId
-    const userId = attendances[0].userId
+    const firstAttendance = attendances[0]
+    if (!firstAttendance) {
+      return {
+        enrollmentId: '',
+        userId: '',
+        totalSessions: 0,
+        attended: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+        attendanceRate: 0,
+      }
+    }
+
+    const enrollmentId = firstAttendance.enrollmentId
+    const userId = firstAttendance.userId
 
     const counts = {
       present: 0,
@@ -295,7 +309,7 @@ export class AttendanceService {
  * Check if attendance can be modified
  */
 export function canModifyAttendance(
-  attendance: Attendance,
+  _attendance: Attendance,
   sessionEndTime: Date,
   modificationWindowHours = 48
 ): boolean {

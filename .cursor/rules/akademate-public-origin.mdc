@@ -1,0 +1,30 @@
+---
+description: akademate.com and www are Cloudflare Workers, not Hetzner Docker. Do not docker-deploy the public marketing site.
+alwaysApply: true
+---
+
+# Public site origin (akademate.com)
+
+`akademate.com` and `www.akademate.com` are the Cloudflare Worker `akademate-web` (OpenNext), account NAZCAMEDIA.
+
+They are not the Hetzner container `akademate-web`. Docker compose on `46.62.222.138` does not update the live marketing site.
+
+## Deploy public marketing (`apps/web`)
+
+```bash
+cd apps/web
+OPEN_NEXT=1 pnpm cf:deploy
+# equivalent: opennextjs-cloudflare build && wrangler deploy --autoconfig=false
+```
+
+Worker: `akademate-web`. Config: `apps/web/wrangler.jsonc`. Verify on `https://akademate.com`.
+
+## Hetzner is tenant/ops only
+
+| Host | Origin |
+|------|--------|
+| `akademate.com`, `www.akademate.com` | Cloudflare Worker `akademate-web` |
+| `cepformacion.akademate.com`, `app.akademate.com` | Hetzner `akademate-tenant` |
+| `admin.akademate.com` | Hetzner `akademate-ops` |
+
+Do not `docker buildx` / `compose up akademate-web` to publish the public website.

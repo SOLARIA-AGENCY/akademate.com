@@ -148,9 +148,9 @@ export class ApiError extends Error {
     }
   }
 
-  static fromZodError(error: { issues: { path: (string | number)[]; message: string }[] }): ApiError {
+  static fromZodError(error: { issues: { path: PropertyKey[]; message: string }[] }): ApiError {
     const details: ApiErrorDetails[] = error.issues.map((issue) => ({
-      field: issue.path.join('.'),
+      field: issue.path.map(String).join('.'),
       constraint: issue.message,
     }))
 

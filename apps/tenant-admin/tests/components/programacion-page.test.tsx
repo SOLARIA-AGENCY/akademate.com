@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ProgramacionPage from '@/app/(dashboard)/programacion/page'
@@ -57,6 +57,45 @@ describe('ProgramacionPage', () => {
       expect(screen.getAllByText('Gestión Académica').length).toBeGreaterThan(0)
     })
 
-    expect(screen.getByText('Campus Madrid Centro')).toBeInTheDocument()
+    expect(screen.getAllByText('Campus Madrid Centro').length).toBeGreaterThan(0)
+  })
+
+  it('renders an explicit empty state when dependencies return non-success responses', async () => {
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({ error: 'upstream failure' }), { status: 500 })),
+    )
+
+    render(<ProgramacionPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('No hay convocatorias').length).toBeGreaterThan(0)
+    })
+  })
+
+  it('stops rendering protected data and explains session expiry on 401', async () => {
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 })),
+    )
+
+    render(<ProgramacionPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Tu sesión ha caducado/)).toBeInTheDocument()
+    })
+  })
+
+  it('switches from list to annual view without losing the empty state', async () => {
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({ data: [] }), { status: 200 })),
+    )
+
+    render(<ProgramacionPage />)
+    await waitFor(() => {
+      expect(screen.getByText('Lista operativa de convocatorias')).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /Cronograma/ }))
+
+    expect(screen.getByText(`No hay convocatorias para ${new Date().getFullYear()}`)).toBeInTheDocument()
   })
 })

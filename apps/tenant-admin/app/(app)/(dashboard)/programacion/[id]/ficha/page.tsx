@@ -7,6 +7,9 @@ import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { ArrowLeft, BookOpen, Calendar, Download, FileText, GraduationCap, Loader2, MapPin, Printer, Users } from 'lucide-react'
 
+import { OfferPaymentCard } from '@payload-config/components/akademate/dashboard'
+import { ConvocatoriaCampaignSummary } from './ConvocatoriaCampaignSummary'
+
 type MediaRef = number | string | { url?: string | null; filename?: string | null } | null | undefined
 
 interface CourseRun {
@@ -281,6 +284,9 @@ export default function ConvocatoriaFichaPage({ params }: Props) {
           </div>
 
           <aside className="space-y-6">
+            <OfferPaymentCard courseRunId={run.id} />
+            <ConvocatoriaCampaignSummary convocatoriaId={run.id} />
+
             <Section title="Ocupación">
               <div className="space-y-3">
                 <p><strong className="text-foreground">Plazas totales:</strong> {totalSeats}</p>

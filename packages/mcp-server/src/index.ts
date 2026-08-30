@@ -23,7 +23,7 @@ import {
 // Config
 // ---------------------------------------------------------------------------
 
-const API_URL = (process.env.AKADEMATE_API_URL ?? 'https://cepformacion.akademate.com').replace(/\/$/, '')
+const API_URL = (process.env.AKADEMATE_API_URL ?? 'https://app.akademate.com').replace(/\/$/, '')
 const API_KEY = process.env.AKADEMATE_API_KEY ?? ''
 
 if (!API_KEY) {

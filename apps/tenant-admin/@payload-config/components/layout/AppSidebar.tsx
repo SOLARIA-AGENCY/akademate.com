@@ -45,7 +45,7 @@ import {
   UserCog,
 } from 'lucide-react'
 import Link from 'next/link'
-import { collapsedNavTooltip, firstNavUrl } from './sidebar-collapsed-label'
+import { collapsedNavTooltip } from './sidebar-collapsed-label'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
@@ -371,7 +371,6 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   // (que requeriría <Suspense> en cada página del árbol)
   const [currentSearch, setCurrentSearch] = React.useState('')
   const [openSections, setOpenSections] = React.useState<string[]>([])
-  const [hoveredSection, setHoveredSection] = React.useState<string | null>(null)
   const { branding } = useTenantBranding()
   const academyName = branding.academyName
   // Menu items used directly (Sedes is a simple link to /sedes)
@@ -414,20 +413,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     }
   }, [pathname, currentSearch, isUrlActive, dynamicMenuItems])
 
-  React.useEffect(() => {
-    if (isCollapsed || !hoveredSection) return
-    const target = dynamicMenuItems.find((item) => item.title === hoveredSection)
-    if (target?.items?.length) {
-      setOpenSections([hoveredSection])
-    }
-  }, [hoveredSection, isCollapsed, dynamicMenuItems])
-
-  // Accordion behavior: only one section open at a time
+  // Accordion: click only, one section at a time. Hover never opens.
   const toggleSection = (title: string) => {
-    if (isCollapsed) return
-    setOpenSections(
-      (prev) => (prev.includes(title) ? prev.filter((item) => item !== title) : [title]) // Only keep the new section open, close all others
-    )
+    setOpenSections((prev) => (prev.includes(title) ? [] : [title]))
+    if (isCollapsed) onToggle?.()
   }
 
   const topLevelBaseClass = isCollapsed
@@ -542,40 +531,25 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
             if (isCollapsed) {
               const tooltip = collapsedNavTooltip(item)
-              const href = firstNavUrl(item)
               return (
                 <React.Fragment key={item.title}>
                   {SectionSeparator}
                   <li data-oid="mup0i0h">
-                    {href ? (
-                      <Link
-                        href={href}
-                        prefetch={false}
-                        className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
-                          hasActiveChild ? 'bg-sidebar-accent/60' : ''
-                        } ${topLevelBaseClass}`}
-                        title={tooltip}
-                        aria-label={tooltip}
-                        data-sidebar-item="collapsed"
-                      >
-                        <Icon
-                          className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
-                        />
-                      </Link>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelBaseClass}`}
-                        title={tooltip}
-                        aria-label={tooltip}
-                        data-sidebar-item="collapsed"
-                      >
-                        <Icon
-                          className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
-                        />
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => toggleSection(item.title)}
+                      className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
+                        hasActiveChild ? 'bg-sidebar-accent/60' : ''
+                      } ${topLevelBaseClass}`}
+                      title={tooltip}
+                      aria-label={item.title}
+                      data-sidebar-item="collapsed"
+                    >
+                      <Icon
+                        className={`h-5 w-5 shrink-0 text-white ${item.upcoming ? 'opacity-50' : ''}`}
+                      />
+                    </Button>
                   </li>
                 </React.Fragment>
               )
@@ -589,7 +563,6 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     type="button"
                     variant="ghost"
                     onClick={() => toggleSection(item.title)}
-                    onMouseEnter={() => setHoveredSection(item.title)}
                     className={`group relative flex items-center rounded-md py-2 text-sm text-white hover:text-white [&_svg]:text-white ${topLevelInteractionClass} ${
                       hasActiveChild && !isCollapsed ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground'
                     } ${topLevelBaseClass}`}

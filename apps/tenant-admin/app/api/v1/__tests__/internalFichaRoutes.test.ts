@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const root = process.cwd()
+const root = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 function read(relativePath: string): string {
   return readFileSync(join(root, relativePath), 'utf8')

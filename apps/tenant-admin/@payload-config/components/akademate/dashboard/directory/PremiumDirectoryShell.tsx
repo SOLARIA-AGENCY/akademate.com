@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
+import { LISTING_PILL_CLASS } from '@payload-config/components/ui/badge'
 import { Input } from '@payload-config/components/ui/input'
 import {
   Select,
@@ -89,7 +90,8 @@ export function DirectoryStatusPill({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium',
+        LISTING_PILL_CLASS,
+        'gap-1.5',
         pillClass,
       )}
     >
@@ -140,7 +142,7 @@ export function DirectoryAvatarCell({
 
 export function DirectoryNeutralBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-800">
+    <span className={cn(LISTING_PILL_CLASS, 'border-transparent bg-slate-100 text-slate-800')}>
       {children}
     </span>
   )
@@ -298,7 +300,7 @@ export function PremiumDirectoryShell<T extends { id: string }>({
                   value={searchValue}
                   onChange={(event) => onSearchChange(event.target.value)}
                   placeholder={searchPlaceholder}
-                  className="bg-slate-50/50 pr-12 pl-9"
+                  className="bg-background pr-12 pl-9"
                 />
                 <kbd className="absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border border-border bg-card px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground sm:inline-flex">
                   ⌘K

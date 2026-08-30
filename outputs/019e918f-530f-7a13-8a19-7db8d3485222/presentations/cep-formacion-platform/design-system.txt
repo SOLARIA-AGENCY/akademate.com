@@ -1,0 +1,9 @@
+Slide size: 1280x720.
+Palette: paper #F7F5F2, ink #171717, CEP red #B5121B, deep red #7C0D14, warm gray #E7E0DA, graphite #303030, white #FFFFFF.
+Typography: Arial for all editable text; heavy claims use bold Arial.
+Background: warm paper with red anchor bands, white panels only when they contain proof objects.
+Title grammar: small red kicker, large black claim title, concise support text.
+Diagram grammar: straight/elbow arrows in red, white nodes with thin warm-gray strokes.
+Image grammar: large proof captures, subtle borders, no fake device frames unless a screenshot needs containment.
+Footer grammar: small page marker and source note.
+Banned motifs: multitenant/SaaS wording, fake CEP logos, decorative blobs/orbs, generic card-heavy SaaS grids.

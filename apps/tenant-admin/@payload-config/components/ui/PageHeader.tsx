@@ -29,7 +29,7 @@ interface PageHeaderProps {
   filters?: React.ReactNode
   /** Badge or count to display next to title */
   badge?: React.ReactNode
-  /** Whether to use card wrapper (default: true) */
+  /** Whether to use card wrapper (default: false; listings stay on canvas) */
   withCard?: boolean
   /** Additional className for outer wrapper */
   className?: string
@@ -47,7 +47,7 @@ export function PageHeader({
   onAdd,
   actions,
   filters,
-  withCard = true,
+  withCard = false,
   className = '',
 }: PageHeaderProps) {
   const content = (
@@ -98,7 +98,11 @@ export function PageHeader({
 
   if (withCard) {
     return (
-      <Card className={cn('mb-2 border-border/80 shadow-sm', className)} data-oid="ecwgyxr">
+      <Card
+        data-slot="page-header-card"
+        className={cn('mb-2 border-border/80 shadow-sm', className)}
+        data-oid="ecwgyxr"
+      >
         <CardContent className="p-5 sm:p-6">{content}</CardContent>
       </Card>
     )

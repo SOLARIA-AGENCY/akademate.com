@@ -7,6 +7,7 @@ export const CEP_PUBLIC_HERO_ASSETS = {
   cursos: '/website/cep/hero/cepformacion-hero-01.png',
   orientacion: '/website/cep/hero/orientacion-hero-v2.png',
   sedes: '/website/cep/hero/sedes-tenerife-hero-v2.png',
+  agencia: '/website/cep/hero/agencia-colocacion-hero.jpg',
 } as const
 
 const AREA_HERO_ASSETS: Record<string, string> = {

@@ -83,10 +83,10 @@ describe('EditProfesorPage', () => {
     render(<EditProfesorPage />)
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Sede base asignada')).toBeInTheDocument()
+      expect(screen.getByLabelText('Sede base')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Sede Norte - La Orotava')).toBeInTheDocument()
+    expect(screen.getAllByText('Sede Norte - La Orotava').length).toBeGreaterThan(0)
     expect(screen.getByText('Autónomo')).toBeInTheDocument()
     expect(screen.getByText('Área Salud, Bienestar y Deporte')).toBeInTheDocument()
   })

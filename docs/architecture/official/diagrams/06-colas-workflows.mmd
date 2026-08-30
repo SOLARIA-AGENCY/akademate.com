@@ -1,0 +1,21 @@
+flowchart TB
+  APP[akademate-app] --> QD[domain-events]
+  INT[akademate-integrations] --> QI[integrations]
+  APP --> QM[notifications]
+  APP --> QU[usage-metering]
+  MEDIA[akademate-media] --> QV[media]
+  AG[akademate-agents] --> QA[agent-jobs]
+  QD --> EV[akademate-events]
+  QI --> EV
+  QM --> EV
+  QU --> EV
+  QV --> EV
+  QA --> EV
+  EV --> DLQ[Dead letter queues]
+  EV --> WF[Workflow classes]
+  WF --> W1[Tenant lifecycle]
+  WF --> W2[Import / Export]
+  WF --> W3[GDPR]
+  WF --> W4[Billing]
+  WF --> W5[Media ingest]
+  WF --> W6[Incident]

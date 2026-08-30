@@ -3,15 +3,27 @@
 import Link from 'next/link'
 import { Megaphone } from 'lucide-react'
 
-type CampaignState = 'active' | 'paused' | 'draft' | 'completed' | 'archived' | 'none'
+type CampaignState =
+  | 'active'
+  | 'paused'
+  | 'draft'
+  | 'completed'
+  | 'archived'
+  | 'none'
+  | 'not_linked'
+  | 'ambiguous'
+  | 'unavailable'
 
-const CONFIG: Record<CampaignState, {
-  label: string
-  dotClass: string
-  bgClass: string
-  textClass: string
-  borderClass: string
-}> = {
+const CONFIG: Record<
+  CampaignState,
+  {
+    label: string
+    dotClass: string
+    bgClass: string
+    textClass: string
+    borderClass: string
+  }
+> = {
   active: {
     label: 'Campaña activa',
     dotClass: 'bg-green-500 animate-pulse',
@@ -53,6 +65,27 @@ const CONFIG: Record<CampaignState, {
     bgClass: 'bg-muted/50',
     textClass: 'text-muted-foreground',
     borderClass: 'border-dashed border-border',
+  },
+  not_linked: {
+    label: 'Campaña sin vincular',
+    dotClass: 'bg-amber-500',
+    bgClass: 'bg-amber-50 dark:bg-amber-950',
+    textClass: 'text-amber-700 dark:text-amber-400',
+    borderClass: 'border-amber-200 dark:border-amber-800',
+  },
+  ambiguous: {
+    label: 'Asociación ambigua',
+    dotClass: 'bg-amber-600',
+    bgClass: 'bg-amber-50 dark:bg-amber-950',
+    textClass: 'text-amber-800 dark:text-amber-300',
+    borderClass: 'border-amber-300 dark:border-amber-700',
+  },
+  unavailable: {
+    label: 'Estado no disponible',
+    dotClass: 'bg-gray-400',
+    bgClass: 'bg-muted',
+    textClass: 'text-muted-foreground',
+    borderClass: 'border-border',
   },
 }
 

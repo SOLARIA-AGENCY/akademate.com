@@ -59,7 +59,8 @@ describe('StaffBadges', () => {
       </div>
     )
 
-    expect(screen.getByText('Odontología e Higiene Bucodental')).toHaveClass('truncate')
+    expect(screen.getByText('Odontología e Higiene Bucodental')).toHaveClass('whitespace-normal')
+    expect(screen.getByText('Odontología e Higiene Bucodental')).toHaveClass('text-center')
     expect(screen.getByText('Sanidad').closest('[data-testid="badge"]')).toHaveClass('rounded-full')
   })
 })

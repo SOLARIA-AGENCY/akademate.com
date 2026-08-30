@@ -36,7 +36,7 @@ export function NotificationBell() {
         variant="ghost"
         size="icon"
         onClick={() => setOpen(!open)}
-        className="relative"
+        className="relative text-muted-foreground hover:text-foreground dark:text-white/80 dark:hover:text-white"
         title="Notificaciones"
       >
         <Bell style={{ width: 20, height: 20, color: unreadCount > 0 ? '#cc0000' : '#6b7280' }} />

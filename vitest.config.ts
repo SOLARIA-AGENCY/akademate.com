@@ -6,14 +6,21 @@ export default defineConfig({
     // Use projects mode (Vitest 4.x)
     projects: [
       // Apps with jsdom environment (React components)
+      'apps/admin-client/vitest.config.ts',
       'apps/campus/vitest.config.ts',
+      'apps/ops/vitest.config.ts',
+      'apps/payload/vitest.config.ts',
       'apps/portal/vitest.config.ts',
       'apps/tenant-admin/vitest.config.ts',
+      'apps/web/vitest.config.ts',
 
       // Packages with node environment (backend/utilities)
+      'packages/academic/vitest.config.ts',
       'packages/api/vitest.config.ts',
+      'packages/auth/vitest.config.ts',
       'packages/catalog/vitest.config.ts',
       'packages/db/vitest.config.ts',
+      'packages/finance/vitest.config.ts',
       'packages/imports/vitest.config.ts',
       'packages/leads/vitest.config.ts',
       'packages/lms/vitest.config.ts',
@@ -21,6 +28,7 @@ export default defineConfig({
       'packages/operations/vitest.config.ts',
       'packages/realtime/vitest.config.ts',
       'packages/reports/vitest.config.ts',
+      'packages/tenant/vitest.config.ts',
     ],
     // Global excludes
     exclude: [

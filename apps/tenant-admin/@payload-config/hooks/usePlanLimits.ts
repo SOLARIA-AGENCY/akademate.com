@@ -19,20 +19,6 @@ interface LimitCheck {
   plan: string
 }
 
-/**
- * Infer plan from tenant DB limits.
- * Enterprise tenants have limits >= 999999 set by superadmin.
- * Pro tenants have limits above starter defaults.
- */
-function inferPlanFromLimits(limits?: { maxCourses?: number; maxUsers?: number }): string | null {
-  if (!limits) return null
-  const maxCourses = limits.maxCourses ?? 0
-  const maxUsers = limits.maxUsers ?? 0
-  if (maxCourses >= 999999 || maxUsers >= 999999) return 'enterprise'
-  if (maxCourses > 100 || maxUsers > 50) return 'pro'
-  return null
-}
-
 export function usePlanLimits() {
   const { branding } = useTenantBranding()
   const tenantId = branding.tenantId
@@ -44,17 +30,9 @@ export function usePlanLimits() {
     fetcher
   )
 
-  // Also fetch tenant limits from config API to infer plan when no subscription exists
-  const { data: limitsResponse } = useSWR(
-    tenantId ? `/api/config?section=limits&tenantId=${tenantId}` : null,
-    fetcher
-  )
-  const tenantData = limitsResponse?.data ? { limits: limitsResponse.data } : undefined
-
-  // Determine plan: subscription > tenant limits inference > default starter
+  const { data: operating } = useSWR('/api/operating-profile', fetcher)
   const subscriptionPlan = subscription?.plan
-  const inferredPlan = inferPlanFromLimits(tenantData?.limits)
-  const plan: string = subscriptionPlan ?? inferredPlan ?? 'starter'
+  const plan: string = operating?.data?.planTier ?? subscriptionPlan ?? 'starter'
 
   function checkLimit(resource: ResourceKey, current: number): LimitCheck {
     const limit = getLimit(plan, resource)

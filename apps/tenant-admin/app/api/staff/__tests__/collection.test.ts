@@ -11,20 +11,22 @@ describe('Staff collection teaching area validation', () => {
   })
 
   it('normalizes staff names before validation', () => {
-    expect(
-      normalizeHook({
-        data: {
-          first_name: 'NURIA ESTHER',
-          last_name: 'ÁNGEL RAMOS',
-          position: 'DOCENTE DE INGLÉS Y FRANCÉS',
-        },
-      })
-    ).toEqual({
+    const result = normalizeHook({
+      data: {
+        first_name: 'NURIA ESTHER',
+        last_name: 'ÁNGEL RAMOS',
+        position: 'DOCENTE DE INGLÉS Y FRANCÉS',
+      },
+    })
+
+    expect(result).toMatchObject({
       first_name: 'Nuria Esther',
       last_name: 'Ángel Ramos',
       position: 'Docente de Inglés y Francés',
       full_name: 'Nuria Esther Ángel Ramos',
     })
+    expect(result.first_surname).toBe('Ángel')
+    expect(result.second_surname).toBe('Ramos')
   })
 
   it('rejects creating a teacher without qualified areas', () => {

@@ -14,7 +14,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { AlertTriangle, XCircle, Info, Loader2, Trash2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@payload-config/lib/utils'
 
 interface DeleteCourseDialogProps {
   isOpen: boolean

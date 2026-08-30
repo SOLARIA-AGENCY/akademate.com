@@ -38,4 +38,10 @@ describe('PageHeader', () => {
     expect(actions?.className).not.toContain('flex-wrap')
     expect(actions?.className).not.toContain('max-w-md')
   })
+
+  it('renders listing titles without a card frame', () => {
+    const { container } = render(<PageHeader title="Convocatorias" />)
+    expect(container.querySelector('[data-slot="page-header-card"]')).toBeNull()
+    expect(screen.getByRole('heading', { name: 'Convocatorias' })).toBeInTheDocument()
+  })
 })

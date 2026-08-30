@@ -1,19 +1,19 @@
 'use client'
 
 import * as React from 'react'
-import { Badge } from '@payload-config/components/ui/badge'
+import { Badge, type BadgeTone } from '@payload-config/components/ui/badge'
 import { cn } from '@payload-config/lib/utils'
 
 type StatusTone = 'draft' | 'published' | 'active' | 'paused' | 'archived' | 'danger' | 'neutral'
 
-const toneClass: Record<StatusTone, string> = {
-  draft: 'bg-slate-100 text-slate-700 hover:bg-slate-100',
-  published: 'bg-emerald-600 text-white hover:bg-emerald-700',
-  active: 'bg-emerald-600 text-white hover:bg-emerald-700',
-  paused: 'bg-amber-500 text-white hover:bg-amber-600',
-  archived: 'bg-slate-700 text-white hover:bg-slate-800',
-  danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-  neutral: 'bg-muted text-muted-foreground hover:bg-muted',
+const toneMap: Record<StatusTone, BadgeTone> = {
+  draft: 'neutral',
+  published: 'success',
+  active: 'success',
+  paused: 'warning',
+  archived: 'neutral',
+  danger: 'danger',
+  neutral: 'neutral',
 }
 
 export function StatusBadge({
@@ -25,5 +25,9 @@ export function StatusBadge({
   tone?: StatusTone
   className?: string
 }) {
-  return <Badge className={cn('rounded-full shadow-sm', toneClass[tone], className)}>{children}</Badge>
+  return (
+    <Badge tone={toneMap[tone]} className={cn(className)}>
+      {children}
+    </Badge>
+  )
 }

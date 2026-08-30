@@ -74,7 +74,7 @@ describe('MediaGallery', () => {
     render(<MediaGallery items={mockItems} data-oid="cz8i-1w" />)
     expect(screen.getByText('test-image.jpg')).toBeInTheDocument()
     expect(screen.getByText('1.0 MB')).toBeInTheDocument()
-    expect(screen.getByText('1920×1080')).toBeInTheDocument()
+    expect(screen.getByText(/1920.*1080.*px/)).toBeInTheDocument()
   })
 
   it('displays file type badge', () => {

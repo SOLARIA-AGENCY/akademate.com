@@ -1,6 +1,6 @@
 import type React from 'react'
 import { BookOpen, MapPin } from 'lucide-react'
-import { Badge } from '@payload-config/components/ui/badge'
+import { Badge, LISTING_PILL_CLASS } from '@payload-config/components/ui/badge'
 import { cn } from '@payload-config/lib/utils'
 
 type StaffStatus = 'active' | 'inactive' | 'temporary_leave' | boolean | string
@@ -32,18 +32,25 @@ export function StaffStatusBadge({
 } & React.HTMLAttributes<HTMLDivElement>) {
   const normalized = normalizeStatus(status)
   const active = normalized === 'active'
+  const temporaryLeave = normalized === 'temporary_leave'
+
+  const styles = active
+    ? 'border-emerald-600/20 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-inset ring-emerald-600/20 dark:ring-emerald-500/30'
+    : temporaryLeave
+      ? 'border-amber-600/20 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 ring-1 ring-inset ring-amber-600/20 dark:ring-amber-500/30'
+      : 'border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-inset ring-slate-200 dark:ring-slate-700'
 
   return (
     <Badge
       className={cn(
-        'h-6 w-[6.75rem] max-w-full justify-center rounded-full px-3 text-[11px] font-bold uppercase leading-none tracking-[0.02em] shadow-sm',
-        active
-          ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
-          : 'border-transparent bg-neutral text-neutral-foreground hover:bg-neutral/90',
+        LISTING_PILL_CLASS,
+        'justify-center gap-1.5 border-transparent shadow-2xs',
+        styles,
         className
       )}
       {...props}
     >
+      {active && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />}
       {statusLabel[normalized] ?? normalized}
     </Badge>
   )
@@ -61,7 +68,8 @@ export function StaffContractBadge({
     <Badge
       variant="outline"
       className={cn(
-        'h-6 w-[8.75rem] max-w-full justify-center rounded-full px-3 text-[11px] font-semibold leading-none',
+        LISTING_PILL_CLASS,
+        'max-w-full justify-center bg-slate-100/90 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200/80 dark:border-slate-700',
         className
       )}
       {...props}
@@ -83,24 +91,25 @@ export function StaffCampusBadge({
     <Badge
       variant="secondary"
       className={cn(
-        'h-6 w-[9.25rem] max-w-full justify-center gap-1 rounded-full px-3 text-[11px] font-semibold leading-none',
+        LISTING_PILL_CLASS,
+        'max-w-full justify-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200/60 dark:border-slate-700',
         className
       )}
       {...props}
     >
-      <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+      <MapPin className="h-3 w-3 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
       <span className="truncate">{children}</span>
     </Badge>
   )
 }
 
 const areaBadgeStyles = [
-  'border-emerald-200 bg-emerald-50 text-emerald-800',
-  'border-violet-200 bg-violet-50 text-violet-800',
-  'border-amber-200 bg-amber-50 text-amber-800',
-  'border-rose-200 bg-rose-50 text-rose-800',
-  'border-red-200 bg-red-50 text-red-800',
-  'border-slate-200 bg-slate-50 text-slate-800',
+  'border-blue-200/80 dark:border-blue-800 bg-blue-50/80 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300',
+  'border-purple-200/80 dark:border-purple-800 bg-purple-50/80 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300',
+  'border-emerald-200/80 dark:border-emerald-800 bg-emerald-50/80 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300',
+  'border-indigo-200/80 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300',
+  'border-amber-200/80 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300',
+  'border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
 ]
 
 function getAreaStyle(seed: string | number) {
@@ -123,7 +132,8 @@ export function StaffAreaBadge({
     <Badge
       variant="outline"
       className={cn(
-        'min-h-6 max-w-full justify-center rounded-full px-2.5 py-1 text-[11px] font-semibold leading-tight',
+        LISTING_PILL_CLASS,
+        'max-w-full justify-center',
         getAreaStyle(seed),
         className
       )}
@@ -148,12 +158,13 @@ export function StaffCountBadge({
     <Badge
       variant="outline"
       className={cn(
-        'h-6 w-[8.75rem] max-w-full justify-center gap-1 rounded-full px-3 text-[11px] font-semibold leading-none',
+        LISTING_PILL_CLASS,
+        'max-w-full justify-center gap-1 bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800',
         className
       )}
       {...props}
     >
-      <BookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <BookOpen className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
       {count} {label}
     </Badge>
   )

@@ -549,6 +549,8 @@ describe('GamificationService', () => {
       expect(created.some((b) => b.code === 'first_lesson')).toBe(true)
       expect(created.some((b) => b.code === 'course_complete')).toBe(true)
       expect(created.some((b) => b.code === 'streak_7')).toBe(true)
+      expect(created).toHaveLength(11)
+      expect(created.every((b) => b.criteria && b.isActive === true)).toBe(true)
     })
 
     it('should skip existing badges when seeding', async () => {
