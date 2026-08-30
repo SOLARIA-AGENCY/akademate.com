@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@payload-config/components/ui/accordion'
 import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
@@ -690,7 +691,7 @@ export function NextDisabledTooltip({
 }: {
   disabled: boolean
   reason: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
   if (!disabled) return <>{children}</>
   return (
