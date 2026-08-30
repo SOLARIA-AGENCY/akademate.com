@@ -287,7 +287,7 @@ export default function CourseFichaPage({ params }: Props) {
         </div>
       </div>
 
-      <article className="course-ficha-page space-y-6 rounded-2xl bg-background">
+      <article className="course-ficha-page space-y-6">
         <section className="overflow-hidden rounded-2xl border bg-card">
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="p-7">
@@ -295,7 +295,7 @@ export default function CourseFichaPage({ params }: Props) {
               <h1 className="mt-3 text-3xl font-black tracking-tight text-foreground">{course.name || 'Curso sin nombre'}</h1>
               <p className="mt-2 text-sm text-muted-foreground">{course.codigo || `Curso ${course.id}`}</p>
               <div className="mt-5 flex flex-wrap gap-2">
-                <Badge className="bg-[#f2014b] text-white hover:bg-[#d80143]">{courseType}</Badge>
+                <Badge className="bg-primary text-primary-foreground">{courseType}</Badge>
                 <Badge variant="outline">{modality}</Badge>
                 <Badge variant="outline">{areaName(course)}</Badge>
               </div>

@@ -22,10 +22,12 @@ import {
   Globe,
   AlertTriangle,
   CheckCircle2,
+  AlertCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import {
@@ -1026,7 +1028,25 @@ export default function AnaliticasPage() {
       </div>
 
       {loading && <div className="text-sm text-muted-foreground">Cargando analíticas...</div>}
-      {error && <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>}
+      {error ? (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertTitle>No se pudieron cargar las analíticas</AlertTitle>
+          <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
+            <span>{error}</span>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => void loadData()}>
+                Reintentar
+              </Button>
+              {error.includes('Sesión expirada') ? (
+                <Button size="sm" onClick={() => router.push('/auth/login')}>
+                  Iniciar sesión
+                </Button>
+              ) : null}
+            </div>
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
       {!loading && !error && data && activeTab === 'overview' && (
         <div className="space-y-6">

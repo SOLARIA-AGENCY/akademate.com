@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
+import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
 import {
   ArrowLeft,
   ChevronRight,
@@ -22,6 +30,7 @@ import {
   BookOpen,
   Plus,
   ExternalLink,
+  AlertCircle,
 } from 'lucide-react'
 
 interface CourseRun {
@@ -278,7 +287,7 @@ export default function ProfesorDetailPage() {
   }
 
   return (
-    <div className="space-y-6" data-oid=".5h6m09">
+    <div className="min-w-0 space-y-6 overflow-x-auto" data-oid=".5h6m09">
       <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <button
@@ -520,20 +529,25 @@ export default function ProfesorDetailPage() {
                 ) : null}
               </CardTitle>
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-                <select
-                  aria-label="Seleccionar convocatoria existente"
-                  className="h-9 min-w-0 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-72"
-                  value={selectedCourseRunId}
-                  onChange={(event) => setSelectedCourseRunId(event.target.value)}
+                <Select
+                  value={selectedCourseRunId || undefined}
+                  onValueChange={setSelectedCourseRunId}
                 >
-                  <option value="">Seleccionar convocatoria</option>
-                  {availableCourseRuns.map((courseRun) => (
-                    <option key={courseRun.id} value={String(courseRun.id)}>
-                      {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
-                      {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    aria-label="Seleccionar convocatoria existente"
+                    className="h-9 min-w-0 sm:w-72"
+                  >
+                    <SelectValue placeholder="Seleccionar convocatoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableCourseRuns.map((courseRun) => (
+                      <SelectItem key={courseRun.id} value={String(courseRun.id)}>
+                        {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
+                        {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   size="sm"
                   variant="outline"
@@ -551,7 +565,11 @@ export default function ProfesorDetailPage() {
             </CardHeader>
             <CardContent data-oid="7m5v27-">
               {assignError ? (
-                <p className="mb-3 text-sm text-destructive">{assignError}</p>
+                <Alert variant="destructive" className="mb-3">
+                  <AlertCircle />
+                  <AlertTitle>No se pudo asignar la convocatoria</AlertTitle>
+                  <AlertDescription>{assignError}</AlertDescription>
+                </Alert>
               ) : null}
               {professor.courseRuns && professor.courseRuns.length > 0 ? (
                 <div className="space-y-4" data-oid="i-2.5.3">

@@ -117,6 +117,15 @@ describe('AppSidebar', () => {
     })
   })
 
+  describe('Matriculacion and Accesos submenus', () => {
+    it('renders Nueva matrícula and Recepción items', () => {
+      renderSidebar()
+      expect(screen.getByText('Nueva matrícula')).toBeInTheDocument()
+      expect(screen.getByText('Recepción')).toBeInTheDocument()
+      expect(screen.getByText('Planes y tarifas')).toBeInTheDocument()
+    })
+  })
+
   describe('removed items are not rendered', () => {
     it('does NOT render "Design System" item', () => {
       renderSidebar()
@@ -136,6 +145,15 @@ describe('AppSidebar', () => {
     it('does NOT render "Mockup Dashboard" item', () => {
       renderSidebar()
       expect(screen.queryByText('Mockup Dashboard')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Matriculacion and Accesos', () => {
+    it('renders Nueva matrícula and Recepción items', () => {
+      renderSidebar()
+      expect(screen.getByText('Nueva matrícula')).toBeInTheDocument()
+      expect(screen.getByText('Recepción')).toBeInTheDocument()
+      expect(screen.getByText('Planes y tarifas')).toBeInTheDocument()
     })
   })
 })

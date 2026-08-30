@@ -212,7 +212,7 @@ export default function ConvocatoriaFichaPage({ params }: Props) {
               <h1 className="mt-3 text-3xl font-black tracking-tight">{title}</h1>
               <p className="mt-2 text-sm text-muted-foreground">{run.codigo || `Convocatoria ${run.id}`}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Badge className="bg-[#f2014b] text-white hover:bg-[#d80143]">{STATUS_LABELS[run.status || ''] || run.status || 'Sin estado'}</Badge>
+                <Badge className="bg-primary text-primary-foreground">{STATUS_LABELS[run.status || ''] || run.status || 'Sin estado'}</Badge>
                 <Badge variant="outline">{cycle ? 'Ciclo formativo' : 'Curso'}</Badge>
                 <Badge variant="outline">{relationName(run.campus, 'Sin sede')}</Badge>
               </div>
@@ -277,7 +277,7 @@ export default function ConvocatoriaFichaPage({ params }: Props) {
                 <p><strong className="text-foreground">Matriculados:</strong> {occupiedSeats}</p>
                 <p><strong className="text-foreground">Disponibles:</strong> {availableSeats}</p>
                 <div className="h-2 rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-[#f2014b]" style={{ width: `${totalSeats > 0 ? Math.min((occupiedSeats / totalSeats) * 100, 100) : 0}%` }} />
+                  <div className="h-2 rounded-full bg-primary" style={{ width: `${totalSeats > 0 ? Math.min((occupiedSeats / totalSeats) * 100, 100) : 0}%` }} />
                 </div>
               </div>
             </Section>

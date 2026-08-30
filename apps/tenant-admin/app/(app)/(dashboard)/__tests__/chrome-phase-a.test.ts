@@ -158,3 +158,49 @@ describe('visual audit corrections', () => {
     expect(sidebar).not.toContain('max-h-96')
   })
 })
+
+describe('enrollment wizard and accesos contract', () => {
+  it('exposes wizard, nueva, planes and portal pages', () => {
+    expect(read('app/(app)/(dashboard)/matriculas/wizard/EnrollmentWizard.tsx')).toContain('EnrollmentWizard')
+    expect(read('app/(app)/(dashboard)/matriculas/nueva/page.tsx')).toContain("from '../wizard/EnrollmentWizard'")
+    expect(read('app/(app)/(dashboard)/matriculas/planes/page.tsx')).toContain('/api/convocatorias')
+    expect(read('app/(app)/(dashboard)/matriculas/portal/page.tsx')).toContain('/matriculas/nueva')
+    expect(read('app/(app)/(dashboard)/matriculas/portal/page.tsx')).toContain('redirect')
+  })
+
+  it('exposes accesos pages and API', () => {
+    expect(read('app/(app)/(dashboard)/accesos/page.tsx')).toContain('/accesos/recepcion')
+    expect(read('app/(app)/(dashboard)/accesos/recepcion/page.tsx')).toContain('POST')
+    expect(read('app/(app)/(dashboard)/accesos/pases/page.tsx')).toContain('magic_link')
+    expect(read('app/(app)/(dashboard)/accesos/historico/page.tsx')).toContain('overflow-x-auto')
+    expect(read('app/api/accesos/route.ts')).toContain('getAuthenticatedUserContext')
+    expect(read('app/api/accesos/_lib/store.ts')).toContain('resetStore')
+  })
+
+  it('sidebar and command palette include new routes', () => {
+    const sidebar = read('components/layout/AppSidebar.tsx')
+    expect(sidebar).toContain('/matriculas/nueva')
+    expect(sidebar).toContain('/matriculas/planes')
+    expect(sidebar).toContain('/accesos/recepcion')
+    const palette = read('components/layout/CommandPalette.tsx')
+    expect(palette).toContain('/matriculas/nueva')
+    expect(palette).toContain('/matriculas/planes')
+    expect(palette).toContain('/accesos/recepcion')
+    expect(palette).toContain('/accesos/pases')
+    expect(palette).toContain('/accesos/historico')
+  })
+
+  it('ficha curso and convocatoria drop CEP hex wrappers', () => {
+    const courseFicha = read('app/(app)/(dashboard)/cursos/[id]/ficha/page.tsx')
+    expect(courseFicha).not.toContain('rounded-2xl bg-background')
+    expect(courseFicha).not.toContain('#f2014b')
+    expect(read('app/(app)/(dashboard)/programacion/[id]/ficha/page.tsx')).not.toContain('#f2014b')
+  })
+
+  it('calendario drops bg-red-600 and matriculas hub uses Alert plus wizard route', () => {
+    expect(read('app/(app)/(dashboard)/calendario-citas/page.tsx')).not.toContain('bg-red-600')
+    const matriculas = read('app/(app)/(dashboard)/matriculas/page.tsx')
+    expect(matriculas).toContain('/matriculas/nueva')
+    expect(matriculas).toContain('<Alert')
+  })
+})

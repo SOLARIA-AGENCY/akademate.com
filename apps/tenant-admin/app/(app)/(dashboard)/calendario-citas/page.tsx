@@ -33,6 +33,7 @@ import {
   RefreshCw,
   UserRound,
   XCircle,
+  AlertCircle,
 } from 'lucide-react'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
@@ -41,6 +42,7 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Badge } from '@payload-config/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import {
   Dialog,
   DialogContent,
@@ -236,6 +238,7 @@ function AppointmentDialog({
       }
       const response = await fetch(appointment ? `/api/lead-appointments/${appointment.id}` : '/api/lead-appointments', {
         method: appointment ? 'PATCH' : 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
@@ -314,7 +317,7 @@ function AppointmentDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>Cancelar</Button>
-          <Button onClick={save} disabled={saving || !leadId || !startsAt} className="bg-red-600 text-white hover:bg-red-700">
+          <Button onClick={save} disabled={saving || !leadId || !startsAt}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Guardar cita
           </Button>
@@ -349,7 +352,10 @@ export default function LeadAppointmentsPage() {
         to: range.to.toISOString(),
         includeUsers: '1',
       })
-      const response = await fetch(`/api/lead-appointments?${params.toString()}`, { cache: 'no-store' })
+      const response = await fetch(`/api/lead-appointments?${params.toString()}`, {
+        cache: 'no-store',
+        credentials: 'include',
+      })
       if (!response.ok) throw new Error('No se pudo cargar el calendario')
       const data = await response.json()
       setAppointments(data.appointments ?? [])
@@ -368,7 +374,7 @@ export default function LeadAppointmentsPage() {
   React.useEffect(() => {
     const loadLeads = async () => {
       try {
-        const response = await fetch('/api/leads?limit=500', { cache: 'no-store' })
+        const response = await fetch('/api/leads?limit=500', { cache: 'no-store', credentials: 'include' })
         if (!response.ok) return
         const data = await response.json()
         setLeads(data.docs ?? data.leads ?? [])
@@ -409,6 +415,7 @@ export default function LeadAppointmentsPage() {
   async function updateStatus(appointment: Appointment, status: string) {
     await fetch(`/api/lead-appointments/${appointment.id}`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
@@ -421,7 +428,7 @@ export default function LeadAppointmentsPage() {
         title="Calendario citas"
         description="Agenda comercial de llamadas, reuniones y seguimientos asociados a leads."
         actions={(
-          <Button className="bg-red-600 text-white hover:bg-red-700" onClick={() => { setSelectedAppointment(null); setDialogOpen(true) }}>
+          <Button onClick={() => { setSelectedAppointment(null); setDialogOpen(true) }}>
             <Plus className="h-4 w-4" />
             Nueva cita
           </Button>
@@ -436,7 +443,7 @@ export default function LeadAppointmentsPage() {
                 <p className="text-sm text-muted-foreground">{String(label)}</p>
                 <p className="text-3xl font-bold">{String(value)}</p>
               </div>
-              {React.createElement(Icon as any, { className: 'h-6 w-6 text-red-600' })}
+              {React.createElement(Icon as any, { className: 'h-6 w-6 text-primary' })}
             </CardContent>
           </Card>
         ))}
@@ -462,7 +469,18 @@ export default function LeadAppointmentsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {error && <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+            {error ? (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle />
+                <AlertTitle>No se pudo cargar el calendario</AlertTitle>
+                <AlertDescription className="flex items-center justify-between gap-3">
+                  <span>{error}</span>
+                  <Button size="sm" variant="outline" onClick={() => void loadAppointments()}>
+                    Reintentar
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            ) : null}
             {loading ? (
               <div className="flex h-80 items-center justify-center text-muted-foreground"><Loader2 className="mr-2 h-5 w-5 animate-spin" />Cargando calendario</div>
             ) : viewMode === 'day' ? (
@@ -544,7 +562,7 @@ export default function LeadAppointmentsPage() {
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-bold">{format(day, 'd', { locale: es })}</span>
-                        {dayAppointments.length > 0 && <Badge className="bg-red-600 text-white">{dayAppointments.length}</Badge>}
+                        {dayAppointments.length > 0 && <Badge>{dayAppointments.length}</Badge>}
                       </div>
                       <div className="space-y-1">
                         {dayAppointments.slice(0, 3).map((appointment) => (

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
@@ -110,15 +111,28 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     shift: 'morning',
   })
 
-  React.useEffect(() => {
-    let mounted = true
-    fetch(`/api/course-runs/${id}?depth=2`, { cache: 'no-store' })
-      .then(r => { if (!r.ok) throw new Error('No se pudo cargar'); return r.json() })
-      .then(data => { if (mounted) setConv(data.doc ?? data) })
-      .catch(err => { if (mounted) setError(err.message) })
-      .finally(() => { if (mounted) setLoading(false) })
-    return () => { mounted = false }
+  const loadConv = React.useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch(`/api/course-runs/${id}?depth=2`, {
+        credentials: 'include',
+        cache: 'no-store',
+      })
+      if (!response.ok) throw new Error('No se pudo cargar')
+      const data = await response.json()
+      setConv(data.doc ?? data)
+    } catch (err) {
+      setConv(null)
+      setError(err instanceof Error ? err.message : 'No se pudo cargar')
+    } finally {
+      setLoading(false)
+    }
   }, [id])
+
+  React.useEffect(() => {
+    void loadConv()
+  }, [loadConv])
 
   React.useEffect(() => {
     if (!conv) return
@@ -142,7 +156,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
 
   React.useEffect(() => {
     let mounted = true
-    fetch('/api/campuses?limit=100&depth=0', { cache: 'no-store' })
+    fetch('/api/campuses?limit=100&depth=0', { credentials: 'include', cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar sedes'))))
       .then((data) => {
         if (!mounted) return
@@ -160,7 +174,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       return
     }
     let mounted = true
-    fetch(`/api/aulas?campus_id=${encodeURIComponent(locationForm.campus)}&active=true`, { cache: 'no-store' })
+    fetch(`/api/aulas?campus_id=${encodeURIComponent(locationForm.campus)}&active=true`, { credentials: 'include', cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar aulas'))))
       .then((data) => {
         if (!mounted) return
@@ -179,6 +193,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     try {
       const response = await fetch(`/api/course-runs/${id}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
@@ -251,7 +266,16 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     <div className="space-y-6">
       <PageHeader title="Convocatoria" icon={Calendar}
         actions={<Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
-      <Card><CardContent className="p-8 text-center text-muted-foreground">{error || 'No encontrada'}</CardContent></Card>
+      <Alert variant="destructive">
+        <AlertCircle />
+        <AlertTitle>No se pudo cargar la convocatoria</AlertTitle>
+        <AlertDescription className="flex items-center justify-between gap-3">
+          <span>{error || 'No encontrada'}</span>
+          <Button size="sm" variant="outline" onClick={() => void loadConv()}>
+            Reintentar
+          </Button>
+        </AlertDescription>
+      </Alert>
     </div>
   )
 
