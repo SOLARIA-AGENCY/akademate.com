@@ -19,8 +19,7 @@ interface SedeListItemProps {
     profesores: number
     imagen: string | null
     borderColor?: string
-    taxId?: string | null
-    locationChips?: string[]
+    active?: boolean
   }
   onClick?: () => void
   className?: string
@@ -46,26 +45,12 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
       <div className="flex min-w-0 flex-1 items-center gap-3" data-oid="gpb8lda">
         <div className="min-w-0 flex-1" data-oid="ca9xgr4">
           <h3
-            className="truncate text-sm font-semibold leading-tight"
+            className="whitespace-normal text-sm font-semibold leading-tight"
             title={sede.nombre}
             data-oid="_ja87gd"
           >
             {sede.nombre}
           </h3>
-          {(sede.taxId || (sede.locationChips && sede.locationChips.length > 0)) ? (
-            <div className="mt-1 flex min-w-0 flex-wrap gap-1">
-              {sede.taxId ? (
-                <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
-                  {sede.taxId}
-                </Badge>
-              ) : null}
-              {(sede.locationChips ?? []).map((chip) => (
-                <Badge key={chip} variant="static" className="border-teal-200 bg-teal-50 text-teal-800">
-                  {chip}
-                </Badge>
-              ))}
-            </div>
-          ) : null}
           <div
             className="mt-1 flex items-start gap-1 text-xs text-muted-foreground"
             data-oid="tb2avbg"
@@ -115,11 +100,11 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
 
         <div className="hidden w-[120px] justify-center sm:flex" data-oid="fsmc2hf">
           <Badge
-            variant="secondary"
-            className="px-2.5 py-1 text-[10px] font-semibold leading-tight"
+            variant="static"
+            className="border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold leading-tight text-emerald-800"
             data-oid="bf:l5nj"
           >
-            {sede.cursosActivos} cursos
+            Activo
           </Badge>
         </div>
 

@@ -3,6 +3,7 @@ import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
 import type { CourseRun, Course, Campus } from '../../../src/payload-types';
+import { resolvePayloadMediaSrc } from '../../lib/payload-media-url'
 
 // ============================================================================
 // Type Definitions
@@ -90,6 +91,7 @@ interface StaffLike {
   full_name?: string | null;
   first_name?: string | null;
   last_name?: string | null;
+  photo?: unknown
 }
 
 /** Data structure for course-run creation */
@@ -176,21 +178,24 @@ function normalizeInstructorName(instructor: unknown): string {
   return 'Sin asignar';
 }
 
-export type ProfesorRef = { id: string | null; name: string }
+export type ProfesorRef = { id: string | null; name: string; photo?: string | null }
 
 function toProfesorRef(value: unknown): ProfesorRef | null {
   if (value == null) return null
+  if (typeof value === 'number') {
+    return { id: String(value), name: 'Docente', photo: null }
+  }
   if (typeof value === 'string') {
     const name = value.trim()
     if (!name || name === 'Sin asignar') return null
-    return { id: null, name }
+    return { id: null, name, photo: null }
   }
   if (typeof value === 'object') {
     const staff = value as StaffLike
     const name = normalizeInstructorName(staff)
     if (!name || name === 'Sin asignar') return null
     const id = staff.id == null ? null : String(staff.id)
-    return { id, name }
+    return { id, name, photo: resolvePayloadMediaSrc(staff.photo) }
   }
   return null
 }
@@ -231,14 +236,7 @@ function normalizeCampaignStatus(status: unknown): CampaignState {
 }
 
 function resolveMediaUrl(media: unknown): string | null {
-  if (!media) return null;
-  if (typeof media === 'string') return media;
-  if (typeof media === 'object') {
-    const record = media as Record<string, unknown>;
-    if (typeof record.url === 'string') return record.url;
-    if (typeof record.filename === 'string') return `/media/${record.filename}`;
-  }
-  return null;
+  return resolvePayloadMediaSrc(media)
 }
 
 function getRelationId(value: unknown): string | null {

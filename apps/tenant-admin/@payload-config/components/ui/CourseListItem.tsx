@@ -29,34 +29,32 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
       <EntityThumb src={course.imagenPortada} alt={course.nombre} fallback="book" size="sm" />
 
       <div className="flex min-w-0 flex-1 items-center gap-4" data-oid="ku49jm4">
-        <div className="min-w-0 flex-1" data-oid="2.vkthd">
+        <div className="flex min-w-0 flex-1 items-start gap-2" data-oid="2.vkthd">
           <h3
-            className="mb-1 truncate text-sm font-semibold leading-tight"
+            className="min-w-0 flex-1 whitespace-normal text-sm font-semibold leading-tight"
             title={course.nombre}
             data-oid=".22tcmh"
           >
             {course.nombre}
           </h3>
-          <div className="flex min-w-0 flex-wrap items-center gap-2" data-oid="royfh3h">
+          <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap" data-oid="royfh3h">
             <CourseFundingBadge courseType={course.tipo} />
             <DirectoryAreaBadge label={course.area} color={areaColor} />
             <CourseModalityBadge courseType={course.tipo} modality={modality} />
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-5 text-sm" data-oid="g.oqgk7">
-          <div className="flex items-center gap-1.5" data-oid="3w1ar4y">
-            <Clock className="h-4 w-4 text-muted-foreground" data-oid=".z32xno" />
-            <span className="font-medium" data-oid="t7.uut_">
-              {course.duracionReferencia ? `${course.duracionReferencia} h` : 'Pendiente'}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5" data-oid="in3hcfx">
-            <CalendarDays className="h-4 w-4 text-muted-foreground" data-oid="in3hcfx" />
-            <span className="font-medium" data-oid="4w4-k36">
-              {course.totalConvocatorias} {course.totalConvocatorias === 1 ? 'convocatoria' : 'convocatorias'}
-            </span>
-          </div>
+        <div className="hidden w-16 shrink-0 items-center gap-1.5 text-sm md:flex" data-oid="3w1ar4y">
+          <Clock className="h-4 w-4 text-muted-foreground" data-oid=".z32xno" />
+          <span className="font-medium tabular-nums" data-oid="t7.uut_">
+            {course.duracionReferencia ? `${course.duracionReferencia} h` : '—'}
+          </span>
+        </div>
+        <div className="hidden w-16 shrink-0 items-center gap-1.5 text-sm md:flex" data-oid="in3hcfx">
+          <CalendarDays className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium tabular-nums" data-oid="4w4-k36">
+            {course.totalConvocatorias}
+          </span>
         </div>
 
         <Button

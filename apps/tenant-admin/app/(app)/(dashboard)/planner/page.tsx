@@ -169,7 +169,7 @@ function KanbanCardItem({ card, onDragStart, onClick }: {
                 <Calendar className="h-3 w-3 shrink-0" />
                 <span>
                   {new Date(card.fechaInicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
-                  {card.fechaFin && ` — ${new Date(card.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`}
+                  {card.fechaFin && ` - ${new Date(card.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`}
                 </span>
               </div>
             )}
@@ -322,7 +322,16 @@ function OccupancyMatrix({
                             className="w-full rounded-md border bg-card p-2 text-left"
                             onClick={() => window.location.assign(`/dashboard/programacion/${card.id}`)}
                           >
-                            {card.curso}
+                            <p className="text-xs font-semibold leading-tight">{card.curso}</p>
+                            {card.tipo ? (
+                              <p className="mt-1 text-[10px] text-muted-foreground">{card.tipo}</p>
+                            ) : null}
+                            <p className="mt-1 text-[10px] text-muted-foreground">
+                              {card.inscritos}/{card.plazas} plazas
+                            </p>
+                            {formatSchedule(card) ? (
+                              <p className="mt-1 text-[10px] text-muted-foreground">{formatSchedule(card)}</p>
+                            ) : null}
                           </button>
                         ))
                       )}

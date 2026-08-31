@@ -57,7 +57,7 @@ interface ConvocatoriaApiItem {
         first_name?: string | null
         last_name?: string | null
       }
-  profesorRefs?: Array<{ id?: string | number | null; name?: string | null }>
+  profesorRefs?: Array<{ id?: string | number | null; name?: string | null; photo?: string | null; src?: string | null }>
   fechaInicio?: string
   fechaFin?: string
   plazasTotales?: number
@@ -355,9 +355,13 @@ export default function WebConvocatoriasPage() {
               .map((ref) => {
                 const name = typeof ref?.name === 'string' ? ref.name.trim() : ''
                 if (!name) return null
-                return { id: ref.id == null ? null : String(ref.id), name }
+                return {
+                  id: ref.id == null ? null : String(ref.id),
+                  name,
+                  photo: ref.photo ?? ref.src ?? null,
+                }
               })
-              .filter((ref): ref is DirectoryStaffRef => Boolean(ref)),
+              .filter(Boolean) as DirectoryStaffRef[],
             fechaInicio: item.fechaInicio ?? '',
             fechaFin: item.fechaFin ?? '',
             plazasTotales: item.plazasTotales ?? 0,

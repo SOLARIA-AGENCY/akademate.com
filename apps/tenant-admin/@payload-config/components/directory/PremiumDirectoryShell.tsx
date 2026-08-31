@@ -226,6 +226,7 @@ export type DirectoryStaffRef = {
   id?: string | number | null
   name: string
   photo?: string | null
+  src?: string | null
 }
 
 function staffInitials(name: string): string {
@@ -241,15 +242,16 @@ function staffInitials(name: string): string {
 function DirectoryStaffIcon({ staff }: { staff: DirectoryStaffRef }) {
   const name = staff.name.trim() || 'Sin asignar'
   const id = staff.id == null || staff.id === '' ? null : String(staff.id)
+  const photo = staff.photo ?? staff.src ?? null
   const avatar = (
     <span
       data-slot="directory-staff-icon"
       className="inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-background bg-primary/10 text-[10px] font-semibold text-primary"
       aria-label={name}
     >
-      {staff.photo ? (
+      {photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={staff.photo} alt="" className="h-full w-full object-cover" />
+        <img src={photo} alt="" className="h-full w-full object-cover" />
       ) : (
         staffInitials(name)
       )}

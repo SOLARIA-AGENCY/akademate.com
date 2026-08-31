@@ -579,15 +579,22 @@ export default function ProgramacionPage() {
             const profesorRefs: DirectoryStaffRef[] = rawRefs
               .map((ref) => {
                 if (!ref || typeof ref !== 'object') return null
-                const record = ref as { id?: unknown; name?: unknown }
+                const record = ref as { id?: unknown; name?: unknown; photo?: unknown; src?: unknown }
                 const name = typeof record.name === 'string' ? record.name.trim() : ''
                 if (!name) return null
+                const photo =
+                  typeof record.photo === 'string'
+                    ? record.photo
+                    : typeof record.src === 'string'
+                      ? record.src
+                      : null
                 return {
                   id: record.id == null ? null : String(record.id),
                   name,
+                  photo,
                 }
               })
-              .filter((ref): ref is DirectoryStaffRef => Boolean(ref))
+              .filter(Boolean) as DirectoryStaffRef[]
             if (profesorRefs.length === 0 && profesorName && profesorName !== 'Sin asignar') {
               profesorRefs.push({ id: null, name: profesorName })
             }
@@ -795,13 +802,13 @@ export default function ProgramacionPage() {
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[28%]">Curso / ciclo</TableHead>
-                  <TableHead className="hidden w-[14%] sm:table-cell">Sede</TableHead>
-                  <TableHead className="hidden w-[14%] md:table-cell">Docente</TableHead>
-                  <TableHead className="hidden w-[12%] lg:table-cell">Aula</TableHead>
-                  <TableHead className="hidden w-[12%] lg:table-cell">Fechas</TableHead>
-                  <TableHead className="w-[10%] text-center">Plazas</TableHead>
-                  <TableHead className="w-[14%] text-center">Estado</TableHead>
+                  <TableHead className="w-[36%]">Curso / ciclo</TableHead>
+                  <TableHead className="hidden w-[16%] sm:table-cell">Sede</TableHead>
+                  <TableHead className="hidden w-[12%] md:table-cell">Docente</TableHead>
+                  <TableHead className="hidden w-[10%] lg:table-cell">Aula</TableHead>
+                  <TableHead className="hidden w-[8%] lg:table-cell">Fechas</TableHead>
+                  <TableHead className="w-[8%] text-center">Plazas</TableHead>
+                  <TableHead className="w-[10%] text-center">Estado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -821,16 +828,16 @@ export default function ProgramacionPage() {
                       conv.fechaFin
                         ? new Date(conv.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })
                         : null,
-                    ].filter(Boolean).join(' – ')
+                    ].filter(Boolean).join(' - ')
                     return (
                       <TableRow
                         key={conv.id}
                         className="cursor-pointer"
                         onClick={() => handleConvClick(conv.id)}
                       >
-                        <TableCell className="max-w-0">
+                        <TableCell className="min-w-0">
                           <div className="flex min-w-0 items-center gap-1.5">
-                            <p className="min-w-0 truncate font-medium" title={conv.curso}>{conv.curso}</p>
+                            <p className="min-w-0 whitespace-normal font-medium" title={conv.curso}>{conv.curso}</p>
                             <span className="flex shrink-0 items-center gap-1.5">
                               <CourseFundingBadge courseType={conv.tipo} />
                               <CourseModalityBadge courseType={conv.tipo} modality={conv.modalidad} />
@@ -842,6 +849,7 @@ export default function ProgramacionPage() {
                             <DirectoryCampusIdentity
                               name={conv.sede}
                               imageUrl={campusImages[conv.sede]}
+                              href={conv.sedeId ? `/dashboard/sedes/${conv.sedeId}` : undefined}
                             />
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />

@@ -200,6 +200,15 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
+function FieldCard({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border bg-muted/20 p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm font-semibold">{children}</p>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -314,7 +323,7 @@ export default function CursoDetailPage({ params }: Props) {
       <div className="course-screen-only">
         <PageHeader
         title={course.name ?? 'Sin nombre'}
-        description={course.codigo ?? ''}
+        description={undefined}
         icon={BookOpen}
         badge={statusInfo && <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>}
         actions={<>
@@ -375,42 +384,8 @@ export default function CursoDetailPage({ params }: Props) {
       </div>
 
       {/* Main grid */}
-      <div className="course-screen-only grid gap-6 lg:grid-cols-3">
-        {/* MAIN (2/3) */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
-                Ficha informativa
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              {course.short_description ? (
-                <p className="leading-relaxed text-muted-foreground">{course.short_description}</p>
-              ) : (
-                <EmptyState message="Este curso no tiene descripcion informativa cargada" />
-              )}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <InfoRow label="Tipo">{normalizeCourseType(course.course_type)}</InfoRow>
-                <InfoRow label="Modalidad">{course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'}</InfoRow>
-                <InfoRow label="Area">{areaName ?? course.area ?? 'Por definir'}</InfoRow>
-                <InfoRow label="Precio">{formatCurrency(course.base_price)}</InfoRow>
-              </div>
-              {isTeleformacion && (
-                <div className="flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950">
-                  <Monitor className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
-                  <div>
-                    <p className="font-semibold">Teleformación con inicio flexible</p>
-                    <p className="mt-1 text-orange-900/80">
-                      Comunicación pública: 100% online, desde casa, matrícula abierta permanente y avance a ritmo del alumno.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
+      <div className="course-screen-only grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
           {/* Convocatorias */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -455,11 +430,8 @@ export default function CursoDetailPage({ params }: Props) {
                         <div className="flex min-w-0 flex-1 flex-col p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="line-clamp-2 text-sm font-bold uppercase leading-tight">
+                              <p className="whitespace-normal text-sm font-bold leading-tight">
                                 {conv.cursoNombre || course.name || 'Curso'}
-                              </p>
-                              <p className="mt-1 font-mono text-xs text-muted-foreground">
-                                {conv.codigo ?? `Convocatoria ${conv.id}`}
                               </p>
                             </div>
                             <Badge variant={conv.estado === 'enrollment_open' ? 'default' : 'secondary'} className="shrink-0">
@@ -505,8 +477,41 @@ export default function CursoDetailPage({ params }: Props) {
           </Card>
         </div>
 
-        {/* SIDEBAR (1/3) */}
-        <div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-primary" />
+                Ficha informativa
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              {course.short_description ? (
+                <p className="leading-relaxed text-muted-foreground">{course.short_description}</p>
+              ) : (
+                <EmptyState message="Este curso no tiene descripcion informativa cargada" />
+              )}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <FieldCard label="Tipo">{normalizeCourseType(course.course_type)}</FieldCard>
+                <FieldCard label="Modalidad">
+                  {course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'}
+                </FieldCard>
+                <FieldCard label="Área">{areaName ?? course.area ?? 'Por definir'}</FieldCard>
+                <FieldCard label="Precio">{formatCurrency(course.base_price)}</FieldCard>
+              </div>
+              {isTeleformacion && (
+                <div className="flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950">
+                  <Monitor className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
+                  <div>
+                    <p className="font-semibold">Teleformación con inicio flexible</p>
+                    <p className="mt-1 text-orange-900/80">
+                      Comunicación pública: 100% online, desde casa, matrícula abierta permanente y avance a ritmo del alumno.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Informacion del Curso</CardTitle>

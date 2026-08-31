@@ -63,6 +63,21 @@ describe('chrome UI contract', () => {
     expect(planner).toContain('data-aula-count')
   })
 
+  it('recent activity is a full-width lead funnel table with navigation', () => {
+    const dashboard = read('app/(app)/(dashboard)/_components/DashboardHome.tsx')
+    const route = read('app/api/dashboard/route.ts')
+    expect(dashboard).toContain('Actividad Reciente')
+    expect(dashboard).toContain('<Table')
+    expect(dashboard).toContain('Fecha de inscripción')
+    expect(dashboard).toContain('hover:bg-muted/50')
+    expect(dashboard).toContain('router.push(activity.href!)')
+    expect(dashboard).toContain('Pendiente de contactar')
+    expect(route).toContain('lead_type')
+    expect(route).toContain('normalizeLeadIntakeType')
+    expect(route).toContain('normalizeLeadOrigin')
+    expect(route).toContain('href: row.id == null ? null : `/leads/${String(row.id)}`')
+  })
+
   it('course ficha exposes Descargar PDF', () => {
     const ficha = read('app/(app)/(dashboard)/cursos/[id]/page.tsx')
     expect(ficha).toContain('Descargar PDF')
@@ -77,5 +92,83 @@ describe('chrome UI contract', () => {
     for (const source of [home, identity, campusAssets]) {
       expect(source).not.toMatch(/El Trompo|ACATEN|APROEM|B76|E765/)
     }
+  })
+
+  it('home KPIs use short range comparison labels', () => {
+    const home = read('app/(app)/(dashboard)/_components/DashboardHome.tsx')
+    expect(home).toContain("return 'vs. -1d'")
+    expect(home).toContain("return 'vs. -7d'")
+    expect(home).toContain("return 'vs. -30d'")
+    expect(home).toContain("return 'vs. -6m'")
+    expect(home).toContain("title: 'Matrículas'")
+    expect(home).toContain('sin cambio')
+    expect(home).toContain('href={`/dashboard/sedes/${campus.id}`}')
+    expect(home).toContain('DirectoryStaffIcons')
+  })
+
+  it('kpi comparison is smaller than the card label', () => {
+    const card = read('@payload-config/components/akademate/dashboard/KpiStatCard.tsx')
+    expect(card).toContain('text-meta')
+    expect(card).toContain('text-micro')
+  })
+
+  it('profesorRefs include staff photo', () => {
+    const route = read('app/api/convocatorias/route.ts')
+    expect(route).toContain('photo: resolvePayloadMediaSrc(staff.photo)')
+    const programacion = read('app/(app)/(dashboard)/programacion/page.tsx')
+    expect(programacion).toContain('photo')
+    const icons = read('@payload-config/components/directory/PremiumDirectoryShell.tsx')
+    expect(icons).toContain('staff.photo ?? staff.src')
+  })
+
+  it('planner occupancy cards have no course image', () => {
+    const planner = read('app/(app)/(dashboard)/planner/page.tsx')
+    expect(planner).not.toMatch(/<img[^>]*cursoImagen/)
+    expect(planner).toContain('formatSchedule(card)')
+  })
+
+  it('course listing does not render an id subtitle', () => {
+    const cursos = read('app/(app)/(dashboard)/cursos/page.tsx')
+    expect(cursos).not.toContain('subtitle={String(course.id)}')
+    const item = read('@payload-config/components/ui/CourseListItem.tsx')
+    expect(item).not.toMatch(/course\.id/)
+  })
+
+  it('course ficha puts convocatorias before ficha informativa', () => {
+    const ficha = read('app/(app)/(dashboard)/cursos/[id]/page.tsx')
+    const convIndex = ficha.indexOf('Convocatorias')
+    const infoIndex = ficha.indexOf('Ficha informativa')
+    expect(convIndex).toBeGreaterThan(-1)
+    expect(infoIndex).toBeGreaterThan(convIndex)
+    expect(ficha).toContain('FieldCard')
+  })
+
+  it('sede listing has Activo and no taxId chips', () => {
+    const list = read('@payload-config/components/ui/SedeListItem.tsx')
+    expect(list).toContain('Activo')
+    expect(list).not.toContain('taxId')
+    expect(list).not.toContain('locationChips')
+    const page = read('app/(app)/(dashboard)/sedes/page.tsx')
+    expect(page).not.toContain('sede.taxId')
+  })
+
+  it('sede ficha lists personal before profesores', () => {
+    const ficha = read('app/(app)/(dashboard)/sedes/[id]/page.tsx')
+    const start = ficha.indexOf('Equipo: personal primero')
+    expect(start).toBeGreaterThan(-1)
+    const slice = ficha.slice(start)
+    expect(slice.indexOf('Personal Administrativo')).toBeLessThan(slice.indexOf('Profesores'))
+    expect(ficha).toContain('StaffAvatar')
+    expect(ficha).toContain('URL pública')
+  })
+
+  it('teacher ficha has three row actions and no codigo label', () => {
+    const ficha = read('app/(app)/(dashboard)/profesores/[id]/page.tsx')
+    expect(ficha).toContain('aria-label="Ver"')
+    expect(ficha).toContain('aria-label="Editar"')
+    expect(ficha).toContain('aria-label="Más acciones"')
+    expect(ficha).not.toContain('Código:')
+    expect(ficha).not.toContain('Alumnos')
+    expect(ficha).not.toContain('Módulo')
   })
 })

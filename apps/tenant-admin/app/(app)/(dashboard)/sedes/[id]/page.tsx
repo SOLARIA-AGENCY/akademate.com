@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -287,6 +288,27 @@ export default function SedeDetailPage({ params }: Props) {
     return p.isActive ?? p.is_active ?? p.employmentStatus !== 'inactive'
   }
 
+  function staffHref(p: StaffMember, kind: 'profesor' | 'administrativo'): string {
+    return kind === 'profesor' ? `/dashboard/profesores/${p.id}` : `/dashboard/administrativo/${p.id}`
+  }
+
+  function StaffAvatar({ person, href }: { person: StaffMember; href: string }) {
+    const photo = person.photo?.trim()
+    const avatar = photo ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={photo} alt="" className="h-9 w-9 rounded-full object-cover" />
+    ) : (
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+        {staffInitials(person)}
+      </div>
+    )
+    return (
+      <Link href={href} className="shrink-0" onClick={(event) => event.stopPropagation()}>
+        {avatar}
+      </Link>
+    )
+  }
+
   function classroomName(c: Classroom): string {
     return c.nombre || c.name || c.code || 'Aula'
   }
@@ -533,43 +555,7 @@ export default function SedeDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Profesores */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <GraduationCap className="h-4 w-4 text-primary" />
-                Profesores
-              </CardTitle>
-              <Button size="sm" variant="outline">
-                <Plus className="mr-1.5 h-3.5 w-3.5" />Asignar profesor
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {profesores.length === 0 ? (
-                <EmptyState message="No hay profesores asignados a esta sede" />
-              ) : (
-                <div className="space-y-2">
-                  {profesores.map((p) => (
-                    <div key={p.id} className="flex items-center gap-3 rounded-lg border p-3">
-                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-semibold text-primary">
-                        {staffInitials(p)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{staffName(p)}</p>
-                        {p.position && <p className="text-xs text-muted-foreground truncate">{p.position}</p>}
-                        {p.email && <p className="text-xs text-muted-foreground truncate">{p.email}</p>}
-                      </div>
-                      <Badge variant={isStaffActive(p) ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                        {isStaffActive(p) ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Personal Administrativo */}
+          {/* Equipo: personal primero, docentes debajo */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -587,9 +573,40 @@ export default function SedeDetailPage({ params }: Props) {
                 <div className="space-y-2">
                   {administrativos.map((p) => (
                     <div key={p.id} className="flex items-center gap-3 rounded-lg border p-3">
-                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0 text-xs font-semibold text-muted-foreground">
-                        {staffInitials(p)}
+                      <StaffAvatar person={p} href={staffHref(p, 'administrativo')} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate">{staffName(p)}</p>
+                        {p.position && <p className="text-xs text-muted-foreground truncate">{p.position}</p>}
+                        {p.email && <p className="text-xs text-muted-foreground truncate">{p.email}</p>}
                       </div>
+                      <Badge variant={isStaffActive(p) ? 'default' : 'secondary'} className="text-[10px] shrink-0">
+                        {isStaffActive(p) ? 'Activo' : 'Inactivo'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <GraduationCap className="h-4 w-4 text-primary" />
+                Profesores
+              </CardTitle>
+              <Button size="sm" variant="outline">
+                <Plus className="mr-1.5 h-3.5 w-3.5" />Asignar profesor
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {profesores.length === 0 ? (
+                <EmptyState message="No hay profesores asignados a esta sede" />
+              ) : (
+                <div className="space-y-2">
+                  {profesores.map((p) => (
+                    <div key={p.id} className="flex items-center gap-3 rounded-lg border p-3">
+                      <StaffAvatar person={p} href={staffHref(p, 'profesor')} />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{staffName(p)}</p>
                         {p.position && <p className="text-xs text-muted-foreground truncate">{p.position}</p>}
@@ -627,7 +644,20 @@ export default function SedeDetailPage({ params }: Props) {
               )}
 
               {/* Address */}
-              {fullAddress && <InfoRow label="Direccion">{fullAddress}</InfoRow>}
+              {publicSedeAvailable ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">URL pública</span>
+                  <a
+                    href={publicSedePath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="max-w-[60%] truncate font-medium text-primary hover:underline"
+                  >
+                    {publicSedePath}
+                  </a>
+                </div>
+              ) : null}
+              {fullAddress && <InfoRow label="Dirección física">{fullAddress}</InfoRow>}
 
               {/* City & Province */}
               {sede.province && <InfoRow label="Provincia">{sede.province}</InfoRow>}
@@ -691,7 +721,12 @@ export default function SedeDetailPage({ params }: Props) {
 
               {/* Counts */}
               <InfoRow label="Aulas">{activeClassrooms.length} aulas</InfoRow>
-              <InfoRow label="Servicios">{services.length} servicios</InfoRow>
+              {services.length > 0 ? (
+                <div>
+                  <p className="text-muted-foreground">Servicios</p>
+                  <p className="mt-1 font-medium">{services.join(', ')}</p>
+                </div>
+              ) : null}
 
               {/* Ver ficha completa button */}
               <div className="border-t border-border pt-3">

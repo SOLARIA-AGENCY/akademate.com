@@ -37,7 +37,7 @@ export function KpiStatCard({
     <Card className={cn('h-full min-w-0', className)} data-slot="kpi-stat-card">
       <CardContent className="flex h-full flex-col p-5">
         <div className="flex min-w-0 items-start justify-between gap-3">
-          <p className="min-w-0 truncate text-sm text-muted-foreground">{label}</p>
+          <p className="text-meta min-w-0 truncate text-[13px] leading-4 text-muted-foreground">{label}</p>
           {Icon ? <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" /> : null}
         </div>
         <div className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{value}</div>
@@ -50,7 +50,9 @@ export function KpiStatCard({
             ) : null}
             <span>{delta}</span>
             {comparisonLabel ? (
-              <span className="truncate font-normal text-muted-foreground">{comparisonLabel}</span>
+              <span className="text-micro truncate text-[10px] font-normal leading-none text-muted-foreground">
+                {comparisonLabel}
+              </span>
             ) : null}
           </div>
         ) : null}

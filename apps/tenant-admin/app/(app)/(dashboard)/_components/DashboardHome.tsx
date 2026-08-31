@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   Info,
   Clock,
+  UserRound,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -39,6 +40,24 @@ import {
 } from 'recharts'
 import { ToggleGroup, ToggleGroupItem } from '@payload-config/components/ui/toggle-group'
 import { KpiStatCard } from '@payload-config/components/akademate/dashboard/KpiStatCard'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
+import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
+import { DirectoryNeutralBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
+import {
+  DirectoryCampusIdentity,
+  DirectoryStaffIcons,
+  type DirectoryStaffRef,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
+import { getPublicCampusImage } from '@/app/lib/public-campus-assets'
+import { useDashboardMetrics } from '@payload-config/hooks/useDashboardMetrics'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 // Dashboard data types - defined locally to ensure TypeScript resolution
 interface DashboardMetrics {
@@ -78,10 +97,16 @@ interface Campaign {
 }
 
 interface RecentActivity {
-  id: number
+  id: string | number
   title: string
   entity_name: string
   timestamp: string
+  type?: string
+  lead_id?: string | number | null
+  lead_type?: string | null
+  lead_source?: string | null
+  lead_status?: string | null
+  href?: string | null
 }
 
 interface OperationalAlert {
@@ -91,6 +116,7 @@ interface OperationalAlert {
 }
 
 interface CampusDistribution {
+  campus_id?: string | number
   campus_name: string
   student_count: number
 }
@@ -153,16 +179,51 @@ interface WeeklyChartDataPoint {
 
 type HomeRangeKey = '1d' | '7d' | '30d' | '6m'
 
+const LEAD_STATUS_LABELS: Record<string, string> = {
+  new: 'Pendiente de contactar',
+  contacted: 'Contactado',
+  following_up: 'En seguimiento',
+  interested: 'Interesado',
+  enrolling: 'En matriculación',
+  enrolled: 'Matriculado',
+  on_hold: 'En espera',
+  not_interested: 'No interesado',
+  discarded: 'Descartado',
+  unreachable: 'No contactable',
+}
+
+const LEAD_STATUS_VARIANTS: Record<string, 'info' | 'success' | 'warning' | 'neutral' | 'destructive'> = {
+  new: 'info',
+  contacted: 'warning',
+  following_up: 'warning',
+  interested: 'success',
+  enrolling: 'success',
+  enrolled: 'success',
+  on_hold: 'neutral',
+  not_interested: 'destructive',
+  discarded: 'destructive',
+  unreachable: 'neutral',
+}
+
+function leadInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('') || 'L'
+}
+
 function rangeComparisonLabel(range: HomeRangeKey): string {
   switch (range) {
     case '1d':
-      return 'vs. ayer'
+      return 'vs. -1d'
     case '7d':
-      return 'vs. semana pasada'
+      return 'vs. -7d'
     case '30d':
-      return 'vs. mes pasado'
+      return 'vs. -30d'
     case '6m':
-      return 'vs. semestre pasado'
+      return 'vs. -6m'
     default: {
       const exhaustive: never = range
       return exhaustive
@@ -172,13 +233,16 @@ function rangeComparisonLabel(range: HomeRangeKey): string {
 
 function seriesDelta(
   series: number[],
-): { delta: string; deltaTone: 'success' | 'danger' | 'neutral' } | undefined {
-  if (series.length < 2) return undefined
+): { delta: string; deltaTone: 'success' | 'danger' | 'neutral' } {
+  if (series.length < 2) return { delta: 'sin cambio', deltaTone: 'neutral' }
   const current = series.at(-1) ?? 0
   const previous = series.at(-2) ?? 0
-  if (!Number.isFinite(current) || !Number.isFinite(previous) || previous === 0) return undefined
+  if (!Number.isFinite(current) || !Number.isFinite(previous) || previous === 0) {
+    return { delta: 'sin cambio', deltaTone: 'neutral' }
+  }
   const pct = ((current - previous) / Math.abs(previous)) * 100
   const rounded = Math.round(pct * 10) / 10
+  if (rounded === 0) return { delta: 'sin cambio', deltaTone: 'neutral' }
   const delta = `${rounded > 0 ? '+' : ''}${String(rounded).replace('.', ',')}%`
   const deltaTone: 'success' | 'danger' | 'neutral' =
     rounded > 0 ? 'success' : rounded < 0 ? 'danger' : 'neutral'
@@ -206,6 +270,10 @@ export default function DashboardPage() {
   const [range, setRange] = useState<HomeRangeKey>('7d')
   const [isClient, setIsClient] = useState(false)
 
+  const [homeTeachers, setHomeTeachers] = useState<DirectoryStaffRef[]>([])
+  const [homeCampuses, setHomeCampuses] = useState<
+    Array<{ id: string; name: string; imageUrl: string | null }>
+  >([])
   const [cycleStats, setCycleStats] = useState<{
     gradoMedio: number
     gradoSuperior: number
@@ -312,16 +380,60 @@ export default function DashboardPage() {
     setIsClient(true)
     void refreshCampusSummary()
     void refreshCycleStats()
+    void refreshHomeShortcuts()
   }, [])
 
-  // Primera línea de KPIs
+  const refreshHomeShortcuts = async () => {
+    try {
+      const [staffRes, campusRes] = await Promise.all([
+        fetch('/api/staff?type=profesor&limit=12', { credentials: 'include', cache: 'no-store' }),
+        fetch('/api/campuses?limit=12', { credentials: 'include', cache: 'no-store' }),
+      ])
+      if (staffRes.ok) {
+        const payload = (await staffRes.json()) as {
+          data?: Array<{
+            id?: number | string
+            fullName?: string
+            firstName?: string
+            lastName?: string
+            photo?: string | null
+          }>
+        }
+        setHomeTeachers(
+          (payload.data ?? []).map((staff) => ({
+            id: staff.id == null ? null : String(staff.id),
+            name:
+              staff.fullName?.trim() ||
+              `${staff.firstName ?? ''} ${staff.lastName ?? ''}`.trim() ||
+              'Docente',
+            photo: staff.photo ?? null,
+          })),
+        )
+      }
+      if (campusRes.ok) {
+        const payload = (await campusRes.json()) as {
+          docs?: Array<{ id?: number | string; name?: string; slug?: string; image?: unknown }>
+        }
+        setHomeCampuses(
+          (payload.docs ?? []).map((campus) => {
+            const image =
+              campus.image && typeof campus.image === 'object' && 'url' in campus.image
+                ? String((campus.image as { url?: string }).url ?? '')
+                : null
+            return {
+              id: String(campus.id ?? ''),
+              name: campus.name ?? 'Sede',
+              imageUrl: getPublicCampusImage(campus.slug ?? campus.id, image),
+            }
+          }),
+        )
+      }
+    } catch {
+      // Keep empty shortcuts on transient errors
+    }
+  }
+
   const primaryKpis: KpiItem[] = [
-    {
-      title: 'Cursos',
-      value: metrics.total_courses,
-      icon: BookOpen,
-      href: '/dashboard/cursos',
-    },
     {
       title: 'Alumnos',
       value: metrics.active_students,
@@ -329,26 +441,16 @@ export default function DashboardPage() {
       href: '/dashboard/alumnos',
     },
     {
-      title: 'Leads este Mes',
+      title: 'Leads',
       value: metrics.leads_this_month,
       icon: FileText,
       href: '/leads',
     },
-  ]
-
-  // Segunda línea de KPIs
-  const secondaryKpis: KpiItem[] = [
     {
-      title: 'Profesores',
-      value: metrics.total_teachers,
-      icon: Users,
-      href: '/dashboard/profesores',
-    },
-    {
-      title: 'Sedes',
-      value: metrics.total_campuses,
-      icon: Building2,
-      href: '/dashboard/sedes',
+      title: 'Matrículas',
+      value: lmsSummary.totalEnrollments,
+      icon: BookOpen,
+      href: '/dashboard/alumnos',
     },
     {
       title: 'Convocatorias',
@@ -441,18 +543,18 @@ export default function DashboardPage() {
         data-oid="qqq2bhb"
       />
 
-      {/* Primera línea de KPIs */}
+      {/* KPIs operativos */}
       <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
+        className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
         data-oid="gtfb5.8"
       >
         {primaryKpis.map((kpi) => {
           const deltaProps =
-            kpi.title === 'Leads este Mes'
+            kpi.title === 'Leads'
               ? seriesDelta(weeklyMetrics.leads)
-              : kpi.title === 'Alumnos'
+              : kpi.title === 'Alumnos' || kpi.title === 'Matrículas'
                 ? seriesDelta(weeklyMetrics.enrollments)
-                : undefined
+                : seriesDelta([])
           return (
             <KpiStatCard
               key={kpi.title}
@@ -460,32 +562,51 @@ export default function DashboardPage() {
               value={kpi.value}
               icon={kpi.icon}
               href={kpi.href}
-              comparisonLabel={deltaProps ? rangeComparisonLabel(range) : undefined}
+              comparisonLabel={rangeComparisonLabel(range)}
               {...deltaProps}
             />
           )
         })}
       </div>
 
-      {/* Segunda línea de KPIs */}
-      <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
-        data-oid="j786_4e"
-      >
-        {secondaryKpis.map((kpi) => {
-          const deltaProps = kpi.title === 'Profesores' ? seriesDelta(weeklyMetrics.courses_added) : undefined
-          return (
-            <KpiStatCard
-              key={kpi.title}
-              label={kpi.title}
-              value={kpi.value}
-              icon={kpi.icon}
-              href={kpi.href}
-              comparisonLabel={deltaProps ? rangeComparisonLabel(range) : undefined}
-              {...deltaProps}
-            />
-          )
-        })}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base">Docentes</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/profesores')}>
+              Ver todos
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {homeTeachers.length > 0 ? (
+              <DirectoryStaffIcons staff={homeTeachers} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Sin docentes cargados</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base">Sedes</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/sedes')}>
+              Ver todas
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {homeCampuses.length > 0 ? (
+              homeCampuses.map((campus) => (
+                <DirectoryCampusIdentity
+                  key={campus.id}
+                  name={campus.name}
+                  imageUrl={campus.imageUrl}
+                  href={`/dashboard/sedes/${campus.id}`}
+                />
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Sin sedes cargadas</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Ciclos Formativos KPIs */}
@@ -771,44 +892,88 @@ export default function DashboardPage() {
       {/* New Blocks Row 1: Activity Timeline + Activity Chart */}
       <div className="grid gap-4 md:grid-cols-2" data-oid="fy2n-p0">
         {/* Actividad Reciente */}
-        <Card data-oid="gyr4u6s">
+        <Card className="min-w-0" data-oid="gyr4u6s">
           <CardHeader data-oid="_1yx95t">
             <CardTitle data-oid="yy10ure">Actividad Reciente</CardTitle>
             <CardDescription data-oid="fb_-r1-">Últimos eventos del sistema</CardDescription>
           </CardHeader>
-          <CardContent data-oid="ds2gh4z">
+          <CardContent className="min-w-0 p-0" data-oid="ds2gh4z">
             {recentActivities.length > 0 ? (
-              <div className="space-y-3" data-oid="4dur1yy">
-                {recentActivities.map((activity, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 border-b pb-3 last:border-0 last:pb-0"
-                    data-oid="km06da7"
-                  >
-                    <div
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10"
-                      data-oid="bv5c4xc"
-                    >
-                      <Clock className="h-4 w-4 text-primary" data-oid="j9.3iof" />
-                    </div>
-                    <div className="flex-1 space-y-1" data-oid="852sqx:">
-                      <p className="text-sm font-medium leading-none" data-oid="36mp1xz">
-                        {activity.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground" data-oid="th0qltd">
-                        {activity.entity_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground" data-oid="d0i02-m">
-                        {new Date(activity.timestamp).toLocaleDateString('es-ES', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <div className="w-full min-w-0 overflow-x-auto" data-oid="4dur1yy">
+                <Table className="w-full table-fixed">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[24%]">Persona</TableHead>
+                      <TableHead className="w-[17%]">Acción</TableHead>
+                      <TableHead className="w-[14%]">Lead</TableHead>
+                      <TableHead className="w-[18%]">Fecha de inscripción</TableHead>
+                      <TableHead className="w-[12%]">Origen</TableHead>
+                      <TableHead className="w-[15%]">Estado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentActivities.map((activity) => {
+                      const name = activity.entity_name || 'Lead'
+                      const status = activity.lead_status ?? ''
+                      const isLead = activity.type === 'lead' || Boolean(activity.lead_id)
+                      const rowClass = activity.href
+                        ? 'cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+                        : ''
+                      return (
+                        <TableRow
+                          key={`${activity.type ?? 'activity'}-${activity.id}`}
+                          className={rowClass}
+                          tabIndex={activity.href ? 0 : undefined}
+                          onClick={activity.href ? () => router.push(activity.href!) : undefined}
+                          onKeyDown={activity.href ? (event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              router.push(activity.href!)
+                            }
+                          } : undefined}
+                        >
+                          <TableCell className="max-w-0">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <Avatar className="h-8 w-8 shrink-0">
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                  {isLead ? <UserRound className="h-4 w-4" aria-hidden="true" /> : leadInitials(name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="truncate text-xs font-medium" title={name}>{name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-0 truncate text-xs" title={activity.title}>
+                            {activity.title}
+                          </TableCell>
+                          <TableCell>
+                            {isLead ? (
+                              <DirectoryNeutralBadge className="max-w-full truncate text-[10px]">
+                                {activity.lead_type || 'Orgánico'}
+                              </DirectoryNeutralBadge>
+                            ) : '—'}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                            {new Date(activity.timestamp).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </TableCell>
+                          <TableCell className="truncate text-xs text-muted-foreground">
+                            {isLead ? activity.lead_source || 'Orgánico' : '—'}
+                          </TableCell>
+                          <TableCell>
+                            {isLead ? (
+                              <Badge variant={LEAD_STATUS_VARIANTS[status] ?? 'neutral'} className="max-w-full truncate text-[10px]">
+                                {LEAD_STATUS_LABELS[status] ?? status ?? 'Pendiente de contactar'}
+                              </Badge>
+                            ) : '—'}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-8" data-oid="v:7wdlj">

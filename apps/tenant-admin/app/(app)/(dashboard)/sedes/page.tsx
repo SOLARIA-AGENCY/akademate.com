@@ -16,6 +16,7 @@ import { UsageBar } from '@payload-config/components/ui/UsageBar'
 import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { getLimit } from '@payload-config/lib/planLimits'
+import { getPublicCampusImage } from '@/app/lib/public-campus-assets'
 import {
   ListingSearch,
   PremiumDirectoryShell,
@@ -161,10 +162,12 @@ export default function SedesPage() {
             profesores: Array.isArray(campus.staff_members) ? campus.staff_members.length : 0,
             color: 'bg-primary',
             borderColor: 'border-primary',
-            imagen:
+            imagen: getPublicCampusImage(
+              campus.id,
               campus.image && typeof campus.image === 'object' && campus.image.url
                 ? campus.image.url
                 : null,
+            ),
             taxId,
             locationChips,
             verificationStatus:
@@ -292,20 +295,12 @@ export default function SedesPage() {
                       {sede.nombre}
                     </h3>
                     <div className="mt-2 flex min-w-0 flex-wrap gap-1.5">
-                      {sede.taxId ? (
-                        <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
-                          {sede.taxId}
-                        </Badge>
-                      ) : null}
-                      {sede.locationChips.map((chip) => (
-                        <Badge
-                          key={chip}
-                          variant="static"
-                          className="border-teal-200 bg-teal-50 text-teal-800"
-                        >
-                          {chip}
-                        </Badge>
-                      ))}
+                      <Badge
+                        variant="static"
+                        className="border-emerald-200 bg-emerald-50 text-emerald-800"
+                      >
+                        Activo
+                      </Badge>
                     </div>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground" data-oid="1li66s3">
                       {sede.direccion}

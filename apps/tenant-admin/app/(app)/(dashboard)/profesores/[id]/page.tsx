@@ -25,6 +25,7 @@ import {
   ArrowLeft,
   ChevronRight,
   Edit,
+  Eye,
   Mail,
   Phone,
   MapPin,
@@ -34,7 +35,6 @@ import {
   Loader2,
   Building2,
   GraduationCap,
-  BookOpen,
   Plus,
   ExternalLink,
   AlertCircle,
@@ -52,6 +52,8 @@ interface CourseRun {
   courseImage?: string | null
   campusName: string
   campusCity: string
+  aulaNombre?: string
+  horario?: string
 }
 
 interface AssignableCourseRun {
@@ -62,6 +64,7 @@ interface AssignableCourseRun {
   aulaNombre?: string
   fechaInicio?: string
   fechaFin?: string
+  horario?: string
   turno?: string
   estado?: string
   planningStatus?: string
@@ -128,27 +131,6 @@ function TeacherPhotoFallback({ size = 'large' }: { size?: 'large' | 'small' }) 
   )
 }
 
-function CourseRunImage({ src, name }: { src?: string | null; name: string }) {
-  const [failed, setFailed] = useState(false)
-
-  if (!src || failed) {
-    return (
-      <div className="flex h-28 w-full items-center justify-center bg-muted text-muted-foreground sm:h-auto sm:w-40">
-        <BookOpen className="h-9 w-9" />
-      </div>
-    )
-  }
-
-  return (
-    <img
-      src={src}
-      alt={name}
-      className="h-28 w-full object-cover sm:h-auto sm:w-40"
-      onError={() => setFailed(true)}
-    />
-  )
-}
-
 export default function ProfesorDetailPage() {
   const router = useRouter()
   const params = useParams()
@@ -188,18 +170,30 @@ export default function ProfesorDetailPage() {
           throw new Error('Professor not found')
         }
 
-        setProfessor(foundProfessor)
         const assignedCourseRunIds = new Set(
           (foundProfessor.courseRuns ?? []).map((courseRun: CourseRun) => String(courseRun.id)),
         )
         if (courseRunsResponse.ok) {
           const courseRunsResult = (await courseRunsResponse.json()) as ConvocatoriasApiResponse
+          const extraById = new Map(
+            (courseRunsResult.data ?? []).map((courseRun) => [String(courseRun.id), courseRun]),
+          )
+          foundProfessor.courseRuns = (foundProfessor.courseRuns ?? []).map((courseRun: CourseRun) => {
+            const extra = extraById.get(String(courseRun.id))
+            return {
+              ...courseRun,
+              campusName: extra?.campusNombre ?? courseRun.campusName,
+              aulaNombre: extra?.aulaNombre ?? courseRun.aulaNombre,
+              horario: extra?.horario ?? extra?.turno ?? courseRun.horario,
+            }
+          })
           setAvailableCourseRuns(
             (courseRunsResult.data ?? []).filter(
               (courseRun) => !assignedCourseRunIds.has(String(courseRun.id)),
             ),
           )
         }
+        setProfessor(foundProfessor)
         setError(null)
       } catch (err) {
         console.error('Error loading professor:', err)
@@ -566,8 +560,7 @@ export default function ProfesorDetailPage() {
                   <SelectContent>
                     {availableCourseRuns.map((courseRun) => (
                       <SelectItem key={courseRun.id} value={String(courseRun.id)}>
-                        {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
-                        {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
+                        {courseRun.cursoNombre || 'Convocatoria'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -596,70 +589,76 @@ export default function ProfesorDetailPage() {
                 </Alert>
               ) : null}
               {professor.courseRuns && professor.courseRuns.length > 0 ? (
-                <div className="space-y-4" data-oid="i-2.5.3">
+                <div className="space-y-3" data-oid="i-2.5.3">
                   {professor.courseRuns.map((courseRun) => (
                     <div
                       key={courseRun.id}
-                      className="flex flex-col overflow-hidden rounded-lg border bg-card hover:shadow-md transition-shadow sm:flex-row"
+                      className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center"
                       data-oid="m6.q:dp"
                     >
-                      <CourseRunImage src={courseRun.courseImage} name={courseRun.courseName} />
-                      <div className="flex flex-1 flex-col gap-3 p-4">
-                      <div className="flex items-start justify-between" data-oid="81:0z2k">
-                        <div className="flex-1" data-oid="pck94z.">
-                          <div className="flex items-center gap-2 mb-1" data-oid="tbajzug">
-                            <h4 className="font-semibold text-base" data-oid="jx6vgmb">
-                              {courseRun.courseName}
-                            </h4>
-                            <Badge
-                              variant={
-                                courseRun.status === 'active'
-                                  ? 'default'
-                                  : courseRun.status === 'scheduled'
-                                    ? 'secondary'
-                                    : 'outline'
-                              }
-                              data-oid="y1vx6lt"
-                            >
-                              {courseRun.status}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground" data-oid="w0ryve-">
-                            Código: {courseRun.codigo}
-                          </p>
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="whitespace-normal font-semibold" data-oid="jx6vgmb">
+                            {courseRun.courseName}
+                          </h4>
+                          <Badge variant="secondary">{courseRun.status}</Badge>
                         </div>
-                      </div>
-
-                      <div className="grid gap-2 text-sm" data-oid=".bq79f1">
-                        <div
-                          className="flex items-center gap-2 text-muted-foreground"
-                          data-oid="cip7-0z"
-                        >
-                          <Calendar className="h-4 w-4" data-oid="w_rwktq" />
-                          <span data-oid="cayz76c">
+                        <div className="flex flex-wrap gap-1.5">
+                          <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
+                            {courseRun.campusName || 'Sin sede'}
+                          </Badge>
+                          <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
+                            {courseRun.aulaNombre || 'Sin aula'}
+                          </Badge>
+                          {courseRun.horario ? (
+                            <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
+                              {courseRun.horario}
+                            </Badge>
+                          ) : null}
+                          <Badge variant="outline">
                             {new Date(courseRun.startDate).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'short',
                               day: 'numeric',
+                              month: 'short',
                             })}{' '}
                             -{' '}
                             {new Date(courseRun.endDate).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'short',
                               day: 'numeric',
+                              month: 'short',
                             })}
-                          </span>
-                        </div>
-                        <div
-                          className="flex items-center gap-2 text-muted-foreground"
-                          data-oid="sfxuwe-"
-                        >
-                          <MapPin className="h-4 w-4" data-oid="500_xym" />
-                          <span data-oid="pd8w5:6">
-                            {courseRun.campusName} - {courseRun.campusCity}
-                          </span>
+                          </Badge>
                         </div>
                       </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Ver"
+                          onClick={() => router.push(`/dashboard/programacion/${courseRun.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Editar"
+                          onClick={() => router.push(`/dashboard/programacion/${courseRun.id}`)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" aria-label="Más acciones">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/dashboard/programacion/${courseRun.id}`)}
+                            >
+                              Abrir convocatoria
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   ))}

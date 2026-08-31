@@ -69,6 +69,8 @@ interface CycleApiResponse {
 interface CourseRunApiItem {
   cycle?: { id?: string | number } | string | number | null
   start_date?: string | null
+  status?: string | null
+  campus?: { id?: string | number; name?: string } | string | number | null
 }
 
 const mockCiclosData: Ciclo[] = []
@@ -97,6 +99,8 @@ export default function TodosLosCiclosPage() {
   const [modalidadFilter, setModalidadFilter] = React.useState<string>('todas')
   const [ciclosData, setCiclosData] = React.useState<Ciclo[]>(mockCiclosData)
   const [convocatoriasCountMap, setConvocatoriasCountMap] = React.useState<Record<string, number>>({})
+  const [activeConvocatoriasMap, setActiveConvocatoriasMap] = React.useState<Record<string, number>>({})
+  const [sedeNamesMap, setSedeNamesMap] = React.useState<Record<string, string[]>>({})
   const [startDateMap, setStartDateMap] = React.useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = React.useState(true)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
@@ -182,23 +186,40 @@ export default function TodosLosCiclosPage() {
 
         // Fetch convocatorias (course-runs) to count per cycle
         try {
-          const crRes = await fetch('/api/course-runs?depth=0&limit=500', { cache: 'no-cache' })
+          const crRes = await fetch('/api/course-runs?depth=1&limit=500', { cache: 'no-cache' })
           if (crRes.ok) {
             const crPayload = await crRes.json()
             const crDocs: CourseRunApiItem[] = Array.isArray(crPayload.docs) ? crPayload.docs : []
             const countMap: Record<string, number> = {}
+            const activeMap: Record<string, number> = {}
             const nextStartDateMap: Record<string, string> = {}
+            const nextSedeMap: Record<string, string[]> = {}
             for (const cr of crDocs) {
               const cycleId = typeof cr.cycle === 'object' && cr.cycle ? cr.cycle.id : cr.cycle
               if (cycleId) {
                 const key = String(cycleId)
                 countMap[key] = (countMap[key] || 0) + 1
+                const status = String(cr.status ?? '').toLowerCase()
+                if (status === 'enrollment_open' || status === 'in_progress' || status === 'published') {
+                  activeMap[key] = (activeMap[key] || 0) + 1
+                }
+                const campusName =
+                  typeof cr.campus === 'object' && cr.campus && 'name' in cr.campus
+                    ? cr.campus.name
+                    : null
+                if (campusName) {
+                  const names = nextSedeMap[key] ?? []
+                  if (!names.includes(campusName)) names.push(campusName)
+                  nextSedeMap[key] = names
+                }
                 if (cr.start_date && (!nextStartDateMap[key] || new Date(cr.start_date) < new Date(nextStartDateMap[key]))) {
                   nextStartDateMap[key] = cr.start_date
                 }
               }
             }
             setConvocatoriasCountMap(countMap)
+            setActiveConvocatoriasMap(activeMap)
+            setSedeNamesMap(nextSedeMap)
             setStartDateMap(nextStartDateMap)
           }
         } catch { /* convocatorias count is optional */ }
@@ -391,9 +412,14 @@ export default function TodosLosCiclosPage() {
                     <div className="flex items-center gap-2" data-oid="kca:zxv">
                       <BookOpen className="h-4 w-4 text-muted-foreground" data-oid="ppeqt-2" />
                       <span className="text-muted-foreground" data-oid="iufe18:">
-                        {convocatoriasCountMap[ciclo.id] || 0} convocatorias
+                        {ciclo.modalidad} · {activeConvocatoriasMap[ciclo.id] || 0} convocatorias activas
                       </span>
                     </div>
+                    {(sedeNamesMap[ciclo.id] ?? []).length > 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        {(sedeNamesMap[ciclo.id] ?? []).join(', ')}
+                      </p>
+                    ) : null}
                   </div>
 
                   <Button variant="outline" className="w-full" data-oid="-a8i1t0">
@@ -443,6 +469,10 @@ export default function TodosLosCiclosPage() {
               <CicloListItem
                 key={ciclo.id}
                 ciclo={adaptedCiclo}
+                modalidad={ciclo.modalidad}
+                duracionLabel={ciclo.duracion}
+                convocatoriasActivas={activeConvocatoriasMap[ciclo.id] || 0}
+                sedes={sedeNamesMap[ciclo.id] ?? []}
                 onClick={() => handleViewCiclo(ciclo)}
                 data-oid=".f03sp4"
               />
