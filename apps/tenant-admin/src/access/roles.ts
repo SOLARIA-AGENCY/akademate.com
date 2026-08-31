@@ -29,8 +29,12 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
   [ROLES.LECTURA]: 1,
 };
 
-export function hasMinimumRole(userRole: Role, minimumRole: Role): boolean {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[minimumRole];
+export function hasMinimumRole(
+  userRole: string | null | undefined,
+  minimumRole: Role,
+): boolean {
+  if (!userRole || !(userRole in ROLE_HIERARCHY)) return false
+  return ROLE_HIERARCHY[userRole as Role] >= ROLE_HIERARCHY[minimumRole]
 }
 
 /**

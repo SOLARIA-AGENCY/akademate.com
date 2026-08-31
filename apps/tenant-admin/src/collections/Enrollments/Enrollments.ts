@@ -242,6 +242,24 @@ export const Enrollments: CollectionConfig = {
         description: 'The specific course run the student is enrolling in',
       },
     },
+    {
+      name: 'campus',
+      type: 'relationship',
+      relationTo: 'campuses',
+      index: true,
+      admin: {
+        description: 'Campus de matrícula (quién factura / entidad jurídica)',
+      },
+    },
+    {
+      name: 'location',
+      type: 'relationship',
+      relationTo: 'locations',
+      index: true,
+      admin: {
+        description: 'Ubicación de asistencia, si aplica',
+      },
+    },
 
     // ============================================================================
     // ENROLLMENT STATUS WORKFLOW

@@ -17,6 +17,8 @@ function parseCsvEnv(value: string | undefined): string[] {
 // Import collections (will be implemented next with TDD methodology)
 import { Cycles } from './collections/Cycles/Cycles';
 import { Campuses } from './collections/Campuses/Campuses';
+import { Locations } from './collections/Locations/Locations';
+import { LegalEntities } from './collections/LegalEntities/LegalEntities';
 import { Users } from './collections/Users/Users';
 import { AreasFormativas } from './collections/AreasFormativas/AreasFormativas';
 import { EntidadesFinanciadoras } from './collections/EntidadesFinanciadoras/EntidadesFinanciadoras';
@@ -80,6 +82,8 @@ export const getPayloadConfig = () => buildConfig({
 
     // ===== Core entities =====
     Cycles,
+    Locations,
+    LegalEntities,
     Campuses,
     Classrooms, // ✅ Classrooms/aulas within campuses
     AreasFormativas, // ✅ Knowledge areas for course categorization

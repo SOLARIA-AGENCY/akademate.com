@@ -36,6 +36,9 @@ interface Sede {
   color: string
   borderColor: string
   imagen: string | null
+  taxId: string | null
+  locationChips: string[]
+  verificationStatus: 'VERIFIED' | 'INTERNAL_ASSUMPTION' | null
 }
 
 /** Campus data from API response */
@@ -49,6 +52,10 @@ interface ApiCampus {
   email?: string
   staff_members?: unknown[]
   image?: { url?: string } | number | null
+  verification_status?: 'VERIFIED' | 'INTERNAL_ASSUMPTION' | string | null
+  legal_entity?: { tax_id?: string; legal_form_short?: string } | number | null
+  service_locations?: Array<{ name?: string; code?: string } | number>
+  primary_location?: { name?: string; address_line_1?: string } | number | null
 }
 
 /** API response shape for campuses endpoint */
@@ -88,7 +95,7 @@ export default function SedesPage() {
 
         // Fetch campuses and aulas in parallel
         const [campusRes, aulasRes] = await Promise.all([
-          fetch('/api/campuses?limit=100&sort=createdAt', { cache: 'no-cache' }),
+          fetch('/api/campuses?limit=100&depth=2&sort=name', { cache: 'no-cache' }),
           fetch('/api/aulas', { cache: 'no-cache' }),
         ])
 
@@ -117,8 +124,30 @@ export default function SedesPage() {
         }
 
         const mapped: Sede[] = docs.map((campus: ApiCampus) => {
-          const addressParts = [campus.address, campus.postal_code, campus.city].filter(Boolean)
+          const locationChips = Array.isArray(campus.service_locations)
+            ? campus.service_locations
+                .map((location) =>
+                  typeof location === 'object' && location
+                    ? String(location.name ?? location.code ?? '').trim()
+                    : '',
+                )
+                .filter(Boolean)
+            : []
+          const primaryName =
+            campus.primary_location && typeof campus.primary_location === 'object'
+              ? campus.primary_location.address_line_1 ?? campus.primary_location.name
+              : null
+          const addressParts = [
+            primaryName,
+            campus.address,
+            campus.postal_code,
+            campus.city,
+          ].filter(Boolean)
           const campusStats = aulasByCampus.get(Number(campus.id))
+          const taxId =
+            campus.legal_entity && typeof campus.legal_entity === 'object'
+              ? campus.legal_entity.tax_id ?? null
+              : null
           return {
             id: campus.id,
             nombre: campus.name ?? 'Sede',
@@ -136,6 +165,10 @@ export default function SedesPage() {
               campus.image && typeof campus.image === 'object' && campus.image.url
                 ? campus.image.url
                 : null,
+            taxId,
+            locationChips,
+            verificationStatus:
+              campus.verification_status === 'INTERNAL_ASSUMPTION' ? 'INTERNAL_ASSUMPTION' : 'VERIFIED',
           }
         })
 
@@ -258,6 +291,22 @@ export default function SedesPage() {
                     <h3 className="text-base font-semibold leading-tight" data-oid="ccek8r3">
                       {sede.nombre}
                     </h3>
+                    <div className="mt-2 flex min-w-0 flex-wrap gap-1.5">
+                      {sede.taxId ? (
+                        <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
+                          {sede.taxId}
+                        </Badge>
+                      ) : null}
+                      {sede.locationChips.map((chip) => (
+                        <Badge
+                          key={chip}
+                          variant="static"
+                          className="border-teal-200 bg-teal-50 text-teal-800"
+                        >
+                          {chip}
+                        </Badge>
+                      ))}
+                    </div>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground" data-oid="1li66s3">
                       {sede.direccion}
                     </p>

@@ -22,7 +22,7 @@ export const canManageStaff: Access = ({ req: { user } }) => {
   }
 
   // Allow Gestor and Admin roles
-  if (user.role === 'admin' || user.role === 'gestor') {
+  if (user.role === 'superadmin' || user.role === 'admin' || user.role === 'gestor') {
     return true;
   }
 

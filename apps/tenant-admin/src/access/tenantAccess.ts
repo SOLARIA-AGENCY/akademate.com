@@ -175,9 +175,41 @@ export const tenantFilteredAccess = {
  * - SuperAdmin: Can set/change tenant on any document
  * - Others: Tenant is auto-assigned, cannot be changed
  */
-export const tenantFieldAccess: FieldAccess = ({ req }) => {
+function relationId(value: unknown): string | number | null {
+  if (typeof value === 'string' || typeof value === 'number') return value
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id?: unknown }).id
+    return typeof id === 'string' || typeof id === 'number' ? id : null
+  }
+  return null
+}
+
+/**
+ * Superadmin can change tenant. Everyone else may save a document that does
+ * not touch tenant. Rewriting tenant on every PATCH is what Payload reports
+ * as "You are not allowed to perform this action."
+ */
+export function allowTenantFieldUpdate(input: {
+  role?: string | null
+  incomingHasTenantKey: boolean
+  incomingTenant?: unknown
+  existingTenant?: unknown
+}): boolean {
+  if (input.role === 'superadmin') return true
+  if (!input.incomingHasTenantKey) return true
+  const incoming = relationId(input.incomingTenant)
+  const existing = relationId(input.existingTenant)
+  return incoming !== null && existing !== null && String(incoming) === String(existing)
+}
+
+export const tenantFieldAccess: FieldAccess = ({ req, data, originalDoc }) => {
   if (!req.user) return false
-  return isSuperAdmin(req.user)
+  return allowTenantFieldUpdate({
+    role: req.user.role,
+    incomingHasTenantKey: Boolean(data && typeof data === 'object' && 'tenant' in data),
+    incomingTenant: data && typeof data === 'object' ? (data as DataWithTenant).tenant : undefined,
+    existingTenant: originalDoc && typeof originalDoc === 'object' ? (originalDoc as DataWithTenant).tenant : undefined,
+  })
 }
 
 /** Request type with optional user */
@@ -211,15 +243,17 @@ export const autoAssignTenant = ({ req, data }: { req: RequestWithUser; data: Da
   return data
 }
 
-const assignTenant: FieldHook = ({ req, value }): number | null => {
-  // If value is set (by SuperAdmin), use it
+const assignTenant: FieldHook = ({ req, value, operation, originalDoc }): number | null => {
   if (value !== null && value !== undefined) {
-    return value as number
+    return relationId(value) as number | null
   }
 
-  // Otherwise, use user's tenant
-  const tenantId = getUserTenantId(req.user)
-  return tenantId ?? null
+  if (operation === 'update') {
+    const existing = relationId((originalDoc as DataWithTenant | undefined)?.tenant)
+    if (existing !== null) return existing as number
+  }
+
+  return getUserTenantId(req.user)
 }
 
 /** Admin condition context type */

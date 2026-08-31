@@ -11,6 +11,14 @@ import { Textarea } from '@payload-config/components/ui/textarea'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Switch } from '@payload-config/components/ui/switch'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
 import {
   MapPin,
   ArrowLeft,
@@ -25,6 +33,8 @@ import {
   Upload,
   X,
   UserPlus,
+  Landmark,
+  Phone,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -105,9 +115,12 @@ const SERVICES_OPTIONS = [
 
 const TABS = [
   { id: 'general', label: 'General', icon: MapPin },
+  { id: 'entidad', label: 'Entidad legal', icon: Landmark },
+  { id: 'ubicaciones', label: 'Ubicaciones', icon: Building2 },
+  { id: 'contacto', label: 'Contacto', icon: Phone },
+  { id: 'imagen', label: 'Imagen', icon: ImageIcon },
   { id: 'instalaciones', label: 'Instalaciones', icon: Building2 },
   { id: 'parking', label: 'Parking y Horarios', icon: Car },
-  { id: 'imagen', label: 'Imagen', icon: ImageIcon },
   { id: 'asignaciones', label: 'Asignaciones', icon: Users },
 ] as const
 
@@ -168,6 +181,16 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
 
   // --- Tab 1: General ---
   const [name, setName] = useState('')
+  const [code, setCode] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [brand, setBrand] = useState('')
+  const [campusType, setCampusType] = useState('TRAINING_CENTER')
+  const [legalEntityId, setLegalEntityId] = useState('')
+  const [primaryLocationId, setPrimaryLocationId] = useState('')
+  const [serviceLocationIds, setServiceLocationIds] = useState<string[]>([])
+  const [verificationStatus, setVerificationStatus] = useState<'VERIFIED' | 'INTERNAL_ASSUMPTION'>('VERIFIED')
+  const [legalEntities, setLegalEntities] = useState<Array<{ id: number; label: string; taxId?: string }>>([])
+  const [locations, setLocations] = useState<Array<{ id: number; label: string }>>([])
   const [description, setDescription] = useState('')
   const [city, setCity] = useState('')
   const [province, setProvince] = useState('')
@@ -226,18 +249,51 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
       .then((r) => r.json())
       .then((d) => setCoursesOptions(d.docs || []))
       .catch(() => {})
+    fetch('/api/legal-entities?limit=100&sort=legal_name')
+      .then((r) => r.json())
+      .then((d) =>
+        setLegalEntities(
+          (d.docs || []).map((doc: { id: number; legal_name?: string; tax_id?: string }) => ({
+            id: Number(doc.id),
+            label: `${doc.legal_name ?? doc.id}${doc.tax_id ? ` · ${doc.tax_id}` : ''}`,
+            taxId: doc.tax_id,
+          })),
+        ),
+      )
+      .catch(() => {})
+    fetch('/api/locations?limit=100&sort=name')
+      .then((r) => r.json())
+      .then((d) =>
+        setLocations(
+          (d.docs || []).map((doc: { id: number; name?: string; code?: string }) => ({
+            id: Number(doc.id),
+            label: String(doc.name ?? doc.code ?? doc.id),
+          })),
+        ),
+      )
+      .catch(() => {})
   }, [])
 
   // Fetch existing campus data
   useEffect(() => {
     async function fetchCampus() {
       try {
-        const res = await fetch(`/api/campuses/${id}?depth=1`)
+        const res = await fetch(`/api/campuses/${id}?depth=2`)
         if (!res.ok) throw new Error('No se pudo cargar la sede')
         const data = await res.json()
 
         // General
         setName(data.name || '')
+        setCode(data.code || '')
+        setDisplayName(data.display_name || '')
+        setBrand(data.brand || '')
+        setCampusType(data.campus_type || 'TRAINING_CENTER')
+        setLegalEntityId(resolveRelationId(data.legal_entity))
+        setPrimaryLocationId(resolveRelationId(data.primary_location))
+        setServiceLocationIds(resolveRelationIds(data.service_locations))
+        setVerificationStatus(
+          data.verification_status === 'INTERNAL_ASSUMPTION' ? 'INTERNAL_ASSUMPTION' : 'VERIFIED',
+        )
         setDescription(data.description || '')
         setCity(data.city || '')
         setProvince(data.province || '')
@@ -293,8 +349,8 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
         if (Array.isArray(data.photos)) {
           setPhotos(
             data.photos.map((p: Record<string, unknown>) => {
-              const pUrl = resolveMediaUrl(p.image)
-              const pId = resolveRelationId(p.image)
+              const pUrl = resolveMediaUrl(p.photo ?? p.image)
+              const pId = resolveRelationId(p.photo ?? p.image)
               return {
                 file: null,
                 preview: pUrl,
@@ -460,6 +516,14 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
     try {
       const payload: Record<string, unknown> = {
         name,
+        code: code || undefined,
+        display_name: displayName || undefined,
+        brand: brand || undefined,
+        campus_type: campusType || undefined,
+        legal_entity: legalEntityId || undefined,
+        primary_location: primaryLocationId || undefined,
+        service_locations: serviceLocationIds.length > 0 ? serviceLocationIds : undefined,
+        verification_status: verificationStatus,
         description: description || undefined,
         city,
         province: province || undefined,
@@ -496,12 +560,10 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
           photos.filter((p) => p.mediaId).length > 0
             ? photos
                 .filter((p) => p.mediaId)
-                .map((p) => ({ image: p.mediaId, caption: p.caption || undefined }))
+                .map((p) => ({ photo: p.mediaId, caption: p.caption || undefined }))
             : undefined,
         coordinator: coordinator || undefined,
         staff_members: staffMembers.length > 0 ? staffMembers : undefined,
-        cycles_offered: cyclesOffered.length > 0 ? cyclesOffered : undefined,
-        courses_offered: coursesOffered.length > 0 ? coursesOffered : undefined,
       }
 
       const res = await fetch(`/api/campuses/${id}`, {
@@ -595,6 +657,15 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
         </div>
       )}
 
+      {verificationStatus === 'INTERNAL_ASSUMPTION' ? (
+        <Alert>
+          <AlertTitle>Asunción interna</AlertTitle>
+          <AlertDescription>
+            Presencia en las tres sedes físicas: asunción interna, revisable.
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
       <form onSubmit={handleSubmit}>
         {/* ============================================================= */}
         {/* TAB 1: GENERAL */}
@@ -627,8 +698,40 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
                     value={city}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCity(e.target.value)}
                     required
-                    placeholder="Santa Cruz de Tenerife"
+                    placeholder="Ciudad operativa"
                   />
+                </div>
+              </div>
+
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="code">Código</Label>
+                  <Input id="code" value={code} onChange={(e) => setCode(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="display_name">Nombre público</Label>
+                  <Input
+                    id="display_name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brand">Marca</Label>
+                  <Input id="brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tipo de campus</Label>
+                  <Select value={campusType} onValueChange={setCampusType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TRAINING_CENTER">Centro de formación</SelectItem>
+                      <SelectItem value="TRAINING_PROVIDER">Proveedor formativo</SelectItem>
+                      <SelectItem value="ASSOCIATION_TRAINING_CENTER">Centro asociativo</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -742,6 +845,128 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
                 <Label htmlFor="active" className="cursor-pointer">
                   Sede activa
                 </Label>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'entidad' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Entidad jurídica</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                El diario y el CIF viven en LegalEntity. Cambiar de entidad no duplica asientos de
+                ubicación.
+              </p>
+              <div className="space-y-2">
+                <Label>Entidad</Label>
+                <Select value={legalEntityId} onValueChange={setLegalEntityId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Elegir entidad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {legalEntities.map((entity) => (
+                      <SelectItem key={entity.id} value={String(entity.id)}>
+                        {entity.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {legalEntityId ? (
+                <p className="text-sm">
+                  Ficha Payload:{' '}
+                  <a className="underline" href={`/admin/collections/legal-entities/${legalEntityId}`}>
+                    abrir entidad
+                  </a>
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'ubicaciones' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Ubicaciones de servicio</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Las calles viven en Location. Este campus elige principal y matriz de servicio.
+              </p>
+              <div className="space-y-2">
+                <Label>Location principal</Label>
+                <Select
+                  value={primaryLocationId}
+                  onValueChange={(value) => {
+                    setPrimaryLocationId(value)
+                    setServiceLocationIds((prev) =>
+                      prev.includes(value) ? prev : [value, ...prev],
+                    )
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Elegir location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((location) => (
+                      <SelectItem key={location.id} value={String(location.id)}>
+                        {location.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Locations de servicio</Label>
+                <div className="grid gap-2">
+                  {locations.map((location) => {
+                    const value = String(location.id)
+                    return (
+                      <label key={location.id} className="flex items-center gap-2 text-sm">
+                        <Checkbox
+                          checked={serviceLocationIds.includes(value)}
+                          onCheckedChange={(checked) => {
+                            setServiceLocationIds((prev) => {
+                              if (checked === true) return prev.includes(value) ? prev : [...prev, value]
+                              if (value === primaryLocationId) return prev
+                              return prev.filter((id) => id !== value)
+                            })
+                          }}
+                        />
+                        {location.label}
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'contacto' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Contacto del campus</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="contact-phone">Teléfono</Label>
+                <Input id="contact-phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-phone2">Móvil</Label>
+                <Input id="contact-phone2" value={phone2} onChange={(e) => setPhone2(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-email">Email</Label>
+                <Input id="contact-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-web">Web</Label>
+                <Input id="contact-web" value={web} onChange={(e) => setWeb(e.target.value)} />
               </div>
             </CardContent>
           </Card>

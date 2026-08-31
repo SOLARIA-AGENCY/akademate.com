@@ -1,0 +1,1 @@
+export { LegalEntities } from './LegalEntities'

@@ -690,6 +690,24 @@ export const Students: CollectionConfig = {
     // ============================================================================
 
     tenantField,
+    {
+      name: 'campus',
+      type: 'relationship',
+      relationTo: 'campuses',
+      index: true,
+      admin: {
+        description: 'Campus de matrícula (entidad jurídica / facturación)',
+      },
+    },
+    {
+      name: 'location',
+      type: 'relationship',
+      relationTo: 'locations',
+      index: true,
+      admin: {
+        description: 'Ubicación de asistencia, si aplica',
+      },
+    },
 
     {
       name: 'created_by',

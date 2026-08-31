@@ -19,6 +19,8 @@ interface SedeListItemProps {
     profesores: number
     imagen: string | null
     borderColor?: string
+    taxId?: string | null
+    locationChips?: string[]
   }
   onClick?: () => void
   className?: string
@@ -50,6 +52,20 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
           >
             {sede.nombre}
           </h3>
+          {(sede.taxId || (sede.locationChips && sede.locationChips.length > 0)) ? (
+            <div className="mt-1 flex min-w-0 flex-wrap gap-1">
+              {sede.taxId ? (
+                <Badge variant="static" className="border-slate-200 bg-slate-100 text-slate-700">
+                  {sede.taxId}
+                </Badge>
+              ) : null}
+              {(sede.locationChips ?? []).map((chip) => (
+                <Badge key={chip} variant="static" className="border-teal-200 bg-teal-50 text-teal-800">
+                  {chip}
+                </Badge>
+              ))}
+            </div>
+          ) : null}
           <div
             className="mt-1 flex items-start gap-1 text-xs text-muted-foreground"
             data-oid="tb2avbg"

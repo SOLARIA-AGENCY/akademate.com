@@ -70,13 +70,10 @@ export const campusSchema = z.object({
 
   phone: z
     .string()
-    .regex(
-      SPANISH_PHONE_REGEX,
-      'Phone must be in format: +34 XXX XXX XXX (e.g., "+34 912 345 678")'
-    )
+    .max(50, 'Phone must be less than 50 characters')
     .optional()
     .nullable()
-    .describe('Spanish phone number'),
+    .describe('Campus phone; legacy local numbers are accepted and normalized on save'),
 
   email: z
     .string()

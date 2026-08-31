@@ -26,7 +26,8 @@
     "mcp:playwright": "pnpm exec mcp-server-playwright",
     "mcp:dfo": "pnpm -C infra/solaria-digital-field--operations/mcp-server start",
     "mcp:context7": "pnpm exec context7-mcp --transport http --port 8793",
-    "office:bootstrap": "bash scripts/office-bootstrap.sh"
+    "office:bootstrap": "bash scripts/office-bootstrap.sh",
+    "verify:boundary": "node scripts/verify-repository-boundary.mjs"
   },
   "engines": {
     "node": ">=22.0.0",

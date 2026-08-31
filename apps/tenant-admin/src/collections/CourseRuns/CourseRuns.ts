@@ -191,7 +191,16 @@ export const CourseRuns: CollectionConfig = {
       relationTo: 'campuses',
       index: true,
       admin: {
-        description: 'Sede donde se realiza la convocatoria',
+        description: 'Campus lógico (quién factura / qué entidad)',
+      },
+    },
+    {
+      name: 'location',
+      type: 'relationship',
+      relationTo: 'locations',
+      index: true,
+      admin: {
+        description: 'Ubicación física donde se imparte. Debe pertenecer a campus.service_locations.',
       },
     },
     {

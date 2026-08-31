@@ -43,12 +43,35 @@ export const validateCourseRunRelationships: CollectionBeforeValidateHook = asyn
   // Validate campus relationship (OPTIONAL)
   if (data.campus) {
     try {
-      await req.payload.findByID({
+      const campus = await req.payload.findByID({
         collection: 'campuses',
         id: typeof data.campus === 'object' ? data.campus.id : data.campus,
-      });
-    } catch {
-      // SECURITY: Don't include user input in error messages (defense in depth)
+        depth: 0,
+      }) as { service_locations?: unknown; primary_location?: unknown }
+
+      const serviceIds = Array.isArray(campus.service_locations)
+        ? campus.service_locations
+            .map((value) => (typeof value === 'object' && value && 'id' in value ? (value as { id: unknown }).id : value))
+            .filter((id): id is string | number => id != null)
+        : []
+      const primaryId =
+        typeof campus.primary_location === 'object' && campus.primary_location && 'id' in campus.primary_location
+          ? (campus.primary_location as { id: unknown }).id
+          : campus.primary_location
+      const allowed = serviceIds.length > 0 ? serviceIds : primaryId != null ? [primaryId as string | number] : []
+
+      let locationId = data.location
+        ? (typeof data.location === 'object' ? data.location.id : data.location)
+        : null
+      if (locationId == null && allowed.length === 1) {
+        locationId = allowed[0]
+        data.location = locationId
+      }
+      if (locationId != null && allowed.length > 0 && !allowed.map(String).includes(String(locationId))) {
+        throw new Error('course_run.location_id must belong to campus.service_locations')
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('service_locations')) throw error
       throw new Error('The specified campus does not exist or is not accessible');
     }
   }

@@ -2,6 +2,7 @@ import type { CollectionConfig, FieldHook } from 'payload';
 import { canManageCampuses } from './access/canManageCampuses';
 import { campusSchema, formatValidationErrors } from './Campuses.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { ensurePrimaryInServiceLocations } from '../../domain/campus-operating-model';
 
 interface CampusData {
   id?: number;
@@ -14,7 +15,21 @@ interface CampusData {
   email?: string;
   maps_url?: string;
   staff_members?: (number | { id: number })[];
+  legal_entity?: number | { id: number };
+  primary_location?: number | { id: number };
+  service_locations?: (number | { id: number })[];
   tenant?: number;
+}
+
+function relationId(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) return Number(value)
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id?: unknown }).id
+    if (typeof id === 'number' && Number.isFinite(id)) return id
+    if (typeof id === 'string' && /^\d+$/.test(id)) return Number(id)
+  }
+  return null
 }
 
 const trimFieldHook: FieldHook = ({ value }) => {
@@ -85,6 +100,75 @@ export const Campuses: CollectionConfig = {
       defaultValue: true,
       admin: { description: 'Sede operativa', position: 'sidebar' },
     },
+    {
+      name: 'code',
+      type: 'text',
+      index: true,
+      admin: { description: 'Código lógico del campus', position: 'sidebar' },
+    },
+    {
+      name: 'display_name',
+      type: 'text',
+      admin: { description: 'Nombre público extendido' },
+    },
+    {
+      name: 'campus_type',
+      type: 'select',
+      defaultValue: 'TRAINING_CENTER',
+      options: [
+        { label: 'Centro de formación', value: 'TRAINING_CENTER' },
+        { label: 'Proveedor formativo', value: 'TRAINING_PROVIDER' },
+        { label: 'Centro asociativo', value: 'ASSOCIATION_TRAINING_CENTER' },
+      ],
+    },
+    { name: 'brand', type: 'text', admin: { description: 'Marca visible' } },
+    {
+      name: 'campus_kind',
+      type: 'select',
+      defaultValue: 'physical',
+      options: [
+        { label: 'Física', value: 'physical' },
+        { label: 'Virtual', value: 'virtual' },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'legal_entity',
+      type: 'relationship',
+      relationTo: 'legal-entities',
+      index: true,
+      admin: {
+        description: 'Persona jurídica. Los asientos se agrupan aquí, no por ubicación.',
+      },
+    },
+    {
+      name: 'primary_location',
+      type: 'relationship',
+      relationTo: 'locations',
+      index: true,
+      admin: { description: 'Ubicación física principal' },
+    },
+    {
+      name: 'service_locations',
+      type: 'relationship',
+      relationTo: 'locations',
+      hasMany: true,
+      admin: {
+        description: 'Ubicaciones donde opera. Debe incluir la principal.',
+      },
+    },
+    {
+      name: 'verification_status',
+      type: 'select',
+      defaultValue: 'VERIFIED',
+      options: [
+        { label: 'Verificado', value: 'VERIFIED' },
+        { label: 'Asunción interna', value: 'INTERNAL_ASSUMPTION' },
+      ],
+    },
+    { name: 'accounting_email', type: 'email' },
+    { name: 'training_email', type: 'email' },
+    { name: 'visible_publicly', type: 'checkbox', defaultValue: true },
 
     // ====================================================================
     // IMAGES
@@ -333,6 +417,17 @@ export const Campuses: CollectionConfig = {
     beforeChange: [
       ({ data }): CampusData | undefined => {
         const typedData = data as CampusData | undefined;
+        if (!typedData) return typedData;
+        const primaryId = relationId(typedData.primary_location);
+        const serviceIds = Array.isArray(typedData.service_locations)
+          ? typedData.service_locations.map(relationId).filter((id): id is number => id !== null)
+          : [];
+        if (primaryId !== null) {
+          typedData.service_locations = ensurePrimaryInServiceLocations(
+            String(primaryId),
+            serviceIds.map(String),
+          ).map(Number);
+        }
         const result = campusSchema.safeParse(typedData);
         if (!result.success) {
           const errors = formatValidationErrors(result.error);

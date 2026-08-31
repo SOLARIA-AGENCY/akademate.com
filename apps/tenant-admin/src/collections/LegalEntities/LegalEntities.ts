@@ -1,0 +1,86 @@
+import type { CollectionConfig } from 'payload'
+import { tenantField } from '../../access/tenantAccess'
+import { canReadOrganization, organizationAccess, organizationFieldAccess } from '../Organization/access'
+
+export const LegalEntities: CollectionConfig = {
+  slug: 'legal-entities',
+  labels: { singular: 'Entidad jurídica', plural: 'Entidades jurídicas' },
+  admin: {
+    useAsTitle: 'legal_name',
+    defaultColumns: ['code', 'legal_name', 'tax_id', 'status'],
+    group: 'Core',
+    description: 'Persona jurídica. Los asientos se agrupan por esta fila, nunca por ubicación.',
+  },
+  access: organizationAccess,
+  fields: [
+    {
+      name: 'code',
+      type: 'text',
+      required: true,
+      index: true,
+      admin: { description: 'Código estable único dentro del tenant' },
+    },
+    { name: 'legal_name', type: 'text', required: true, label: 'Razón social' },
+    { name: 'trade_name', type: 'text', label: 'Nombre comercial' },
+    {
+      name: 'tax_id_type',
+      type: 'select',
+      options: [
+        { label: 'CIF', value: 'cif' },
+        { label: 'NIF', value: 'nif' },
+        { label: 'NIE', value: 'nie' },
+        { label: 'Otro', value: 'other' },
+      ],
+    },
+    {
+      name: 'tax_id',
+      type: 'text',
+      required: true,
+      index: true,
+      label: 'CIF / NIF',
+      access: { read: canReadOrganization, update: organizationFieldAccess },
+    },
+    { name: 'legal_form', type: 'text' },
+    { name: 'legal_form_short', type: 'text' },
+    { name: 'entity_type', type: 'text' },
+    { name: 'country', type: 'text', defaultValue: 'ES' },
+    {
+      name: 'status',
+      type: 'select',
+      defaultValue: 'ACTIVE',
+      options: [
+        { label: 'Activa', value: 'ACTIVE' },
+        { label: 'Inactiva', value: 'INACTIVE' },
+      ],
+    },
+    { name: 'cnae', type: 'text' },
+    { name: 'cnae_description', type: 'text' },
+    {
+      name: 'registered_address',
+      type: 'textarea',
+      label: 'Domicilio social registral',
+      admin: { rows: 2 },
+    },
+    { name: 'registered_postal_code', type: 'text' },
+    { name: 'registered_city', type: 'text' },
+    { name: 'registered_municipality', type: 'text' },
+    { name: 'registered_province', type: 'text' },
+    { name: 'registered_country', type: 'text', defaultValue: 'España' },
+    {
+      name: 'administrative_address',
+      type: 'textarea',
+      label: 'Dirección administrativa',
+      admin: { rows: 2, description: 'Distinta del domicilio registral y de la sede efectiva' },
+    },
+    { name: 'administrative_postal_code', type: 'text' },
+    { name: 'administrative_city', type: 'text' },
+    { name: 'accounting_email', type: 'email' },
+    { name: 'general_email', type: 'email' },
+    { name: 'general_phone', type: 'text' },
+    { name: 'sepe_training_center_id', type: 'text' },
+    { name: 'employment_agency_id', type: 'text' },
+    { name: 'notes', type: 'textarea' },
+    tenantField,
+  ],
+  timestamps: true,
+}
