@@ -2,7 +2,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { getAuthenticatedUserContext } from '../../leads/_lib/auth'
+import { getAuthenticatedUserContext } from '../leads/_lib/auth'
 import {
   addEvent,
   listEvents,

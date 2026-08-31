@@ -13,7 +13,7 @@ import {
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Skeleton } from '@payload-config/components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs
+import { Tabs, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
 import { AlertCircle, Building2, CreditCard, GraduationCap, Users } from 'lucide-react'
 import { accessKindFromModality, accessKindLabel, type AccessKind } from '../wizard/types'
 

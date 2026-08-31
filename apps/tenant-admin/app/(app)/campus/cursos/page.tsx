@@ -6,7 +6,7 @@ import { RequireAuth, useSession } from '../providers/SessionProvider'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Progress } from '@payload-config/components/ui/progress'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
-import { continueEnrollments, type EnrollmentCard } from '../../lib/dashboard'
+import { continueEnrollments, type EnrollmentCard } from '../lib/dashboard'
 import { CampusEmptyState } from '../components/CampusEmptyState'
 
 export default function MisCursosPage() {
