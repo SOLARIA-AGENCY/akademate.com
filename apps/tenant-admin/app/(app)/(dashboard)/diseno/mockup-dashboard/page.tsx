@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Card,
   CardContent,
@@ -83,13 +82,7 @@ export default function ClientDashboardMockupPage() {
 
   return (
     <div className="space-y-6" data-oid="awr.:7b">
-      <PageHeader
-        title="Mockup Dashboard Cliente v2"
-        description="Propuesta visual basada en componentes shadcn para optimizar jerarquía, densidad y lectura"
-        icon={Layers3}
-        badge={<Badge data-oid="0lohh6v">PROTOTIPO</Badge>}
-        actions={
-          <>
+      <>
             <Button variant="outline" data-oid="vd3a:fx">
               Comparar con actual
             </Button>
@@ -98,9 +91,6 @@ export default function ClientDashboardMockupPage() {
               <ArrowUpRight className="ml-2 h-4 w-4" data-oid="gcid0ox" />
             </Button>
           </>
-        }
-        data-oid="zpadmx6"
-      />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-oid="azfzzlv">
         {kpiCards.map((kpi) => {

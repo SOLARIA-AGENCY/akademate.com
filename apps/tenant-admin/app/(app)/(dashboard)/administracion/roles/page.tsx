@@ -10,7 +10,6 @@ import {
 } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Switch } from '@payload-config/components/ui/switch'
 import {
   Table,
@@ -176,18 +175,10 @@ export default function RolesPage() {
 
   return (
     <div className="space-y-6" data-oid="n5jxqxx">
-      <PageHeader
-        title="Roles y Permisos"
-        description="Sistema de control de acceso basado en roles (RBAC)"
-        icon={Shield}
-        actions={
-          <Button style={{ backgroundColor: '#F2014B' }} data-oid="f2d2m73">
+      <Button style={{ backgroundColor: '#F2014B' }} data-oid="f2d2m73">
             <Plus className="mr-2 h-4 w-4" data-oid="by8iemk" />
             Crear Rol Personalizado
           </Button>
-        }
-        data-oid="m91h1vy"
-      />
 
       {/* Info Card */}
       <Card className="bg-blue-50 border-blue-200" data-oid="j9uuoml">

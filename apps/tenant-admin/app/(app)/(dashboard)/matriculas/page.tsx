@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -234,12 +233,7 @@ export default function MatriculasPage() {
 
   return (
     <div className="space-y-6" data-oid="k_ex1sq">
-      <PageHeader
-        title="Matrículas"
-        description="Gestión de solicitudes de matrícula y seguimiento de inscripciones"
-        icon={GraduationCap}
-        actions={
-          <>
+      <>
             <Button variant="outline" data-oid="lca.h7w">
               <Download className="mr-2 h-4 w-4" data-oid="9l3qgn3" />
               Exportar
@@ -253,9 +247,6 @@ export default function MatriculasPage() {
               Nueva Matrícula
             </Button>
           </>
-        }
-        data-oid="yh2eoy0"
-      />
 
       {loadError && (
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">

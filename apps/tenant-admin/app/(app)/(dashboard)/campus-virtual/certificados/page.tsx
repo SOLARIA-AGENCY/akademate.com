@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -24,17 +23,7 @@ const certificateRows: { id: string; student: string; course: string; issuedAt: 
 export default function CampusCertificadosPage() {
   return (
     <div className="space-y-6" data-oid="c2ok:6_">
-      <PageHeader
-        title="Certificados"
-        description="Seguimiento de certificados emitidos en el tenant."
-        icon={Award}
-        badge={
-          <Badge variant="outline" data-oid="_1v315f">
-            Certificación
-          </Badge>
-        }
-        data-oid="8__4t5n"
-      />
+
 
       <Card data-oid="-atmyp1">
         <CardHeader data-oid="tc3j39y">

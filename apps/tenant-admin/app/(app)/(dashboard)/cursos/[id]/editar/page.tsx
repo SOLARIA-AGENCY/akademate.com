@@ -13,7 +13,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -325,12 +324,7 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
 
   return (
     <div className="space-y-6" data-oid="wepmu7_">
-      <PageHeader
-        title="Editar Curso"
-        description={originalCourse.nombre}
-        icon={FileText}
-        actions={
-          <div className="flex items-center gap-2" data-oid="kanhbny">
+      <div className="flex items-center gap-2" data-oid="kanhbny">
             <Button
               variant="ghost"
               size="sm"
@@ -347,9 +341,6 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
               Guardar Cambios
             </Button>
           </div>
-        }
-        data-oid="0zbocwk"
-      />
 
       {/* Type Badge */}
       <Card data-oid=".ucy-f-">

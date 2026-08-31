@@ -50,7 +50,7 @@ export const TableRows: Story = {
   ),
 }
 
-export const PageHeader: Story = {
+export const TitleAndActions: Story = {
   render: () => (
     <div className="w-full max-w-md space-y-4">
       <div className="space-y-2">

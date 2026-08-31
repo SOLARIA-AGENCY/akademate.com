@@ -7,7 +7,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -305,16 +304,9 @@ export default function EditProfesorPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <PageHeader
-        title="Editar Profesor"
-        description="Actualizar información del profesorado"
-        icon={User}
-        actions={
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+      <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-        }
-      />
 
       <form onSubmit={handleSubmit}>
         <Card>

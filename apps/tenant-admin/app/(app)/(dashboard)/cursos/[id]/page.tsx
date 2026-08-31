@@ -5,12 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import {
-  ArrowLeft, BookOpen, Clock, Edit, Loader2,
-  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Monitor, Plus, Printer, MapPin, Users,
-  Download, FileText, Eye,
-} from 'lucide-react'
+import { ArrowLeft, BookOpen, Clock, Edit, Loader2, Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Monitor, Plus, Printer, MapPin, Users, Download, Eye } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
@@ -242,8 +237,7 @@ export default function CursoDetailPage({ params }: Props) {
   if (error || !course) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Curso" description="Detalle de curso" icon={BookOpen}
-          actions={<Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+        <Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
         <Card><CardContent className="p-8 text-center">
           <p className="font-medium">No se pudo cargar el curso</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
@@ -303,12 +297,7 @@ export default function CursoDetailPage({ params }: Props) {
 
       {/* Header */}
       <div className="course-screen-only">
-        <PageHeader
-        title={course.name ?? 'Sin nombre'}
-        description={course.codigo ?? ''}
-        icon={BookOpen}
-        badge={statusInfo && <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>}
-        actions={<>
+        <>
           <Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Cursos
           </Button>
@@ -326,8 +315,7 @@ export default function CursoDetailPage({ params }: Props) {
           <Button variant="outline" onClick={() => router.push(`/dashboard/cursos/${id}/ficha`)}>
             <Printer className="mr-2 h-4 w-4" />Imprimir curso
           </Button>
-        </>}
-        />
+        </>
       </div>
 
       {/* KPI Cards */}

@@ -5,12 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import {
-  ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
-  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText, ExternalLink,
-  Printer, Eye,
-} from 'lucide-react'
+import { ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2, Calendar, Users, ChevronRight, Plus, UserPlus, MapPin, FileText, ExternalLink, Printer, Eye } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
@@ -320,8 +315,7 @@ export default function CicloDetailPage({ params }: Props) {
   if (error || !cycle) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Ciclo" description="Detalle de ciclo" icon={GraduationCap}
-          actions={<Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+        <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
         <Card><CardContent className="p-8 text-center">
           <p className="font-medium">No se pudo cargar el ciclo</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>

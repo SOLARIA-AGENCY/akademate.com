@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Plus,
   BookOpen,
@@ -132,18 +131,10 @@ export default function AreasPage() {
 
   return (
     <div className="space-y-6 max-w-6xl" data-oid="88j51lc">
-      <PageHeader
-        title="Áreas de Estudio"
-        description="Gestiona las categorías de cursos y formación profesional"
-        icon={GraduationCap}
-        actions={
-          <Button onClick={() => setShowCreateModal(true)} data-oid="6d0gk9f">
+      <Button onClick={() => setShowCreateModal(true)} data-oid="6d0gk9f">
             <Plus className="mr-2 h-4 w-4" data-oid="-k5wes4" />
             Nueva Área
           </Button>
-        }
-        data-oid="8q:6dvi"
-      />
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4" data-oid="-js2b0v">

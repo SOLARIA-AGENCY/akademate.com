@@ -11,7 +11,6 @@ import {
 } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Progress } from '@payload-config/components/ui/progress'
 import {
   Table,
@@ -91,20 +90,12 @@ export default function SuscripcionPage() {
 
   return (
     <div className="space-y-6" data-oid=".pkzf_z">
-      <PageHeader
-        title="Suscripción"
-        description="Gestiona tu plan, facturación y recursos de la academia"
-        icon={Crown}
-        actions={
-          <div className="flex gap-2" data-oid="981s76z">
+      <div className="flex gap-2" data-oid="981s76z">
             <Button variant="outline" data-oid="gdt_dmo">
               <CreditCard className="mr-2 h-4 w-4" data-oid="zoz0-8e" />
               Métodos de Pago
             </Button>
           </div>
-        }
-        data-oid="kgs3_qv"
-      />
 
       {/* Plan actual y uso */}
       <div className="grid gap-6 md:grid-cols-3" data-oid="hj3t0m5">

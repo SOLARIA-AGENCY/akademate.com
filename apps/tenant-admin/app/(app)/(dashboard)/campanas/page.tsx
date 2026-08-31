@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import { Button } from '@payload-config/components/ui/button'
@@ -26,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { AlertTriangle, CalendarClock, Megaphone, RefreshCw, Search } from 'lucide-react'
+import { AlertTriangle, CalendarClock, RefreshCw, Search } from 'lucide-react'
 import type { CampaignListItem, CampaignStatus, CampaignsResponse } from './_components/types'
 
 type StatusFilter = 'all' | 'active' | 'paused' | 'draft' | 'completed'
@@ -330,21 +329,10 @@ export default function CampanasPage() {
         </div>
       )}
 
-      <PageHeader
-        title="Campañas de Marketing"
-        description={
-          selectedAccount === 'all'
-            ? `Campañas SOLARIA ${DEFAULT_CAMPAIGNS_YEAR} con filtro por estado`
-            : `Campañas SOLARIA ${DEFAULT_CAMPAIGNS_YEAR} de ${selectedAccountName}`
-        }
-        icon={Megaphone}
-        actions={
-          <Button variant="outline" onClick={() => void fetchCampaigns()}>
+      <Button variant="outline" onClick={() => void fetchCampaigns()}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Sincronizar
           </Button>
-        }
-      />
 
       <div className="grid gap-4 md:grid-cols-3">
           <Card>

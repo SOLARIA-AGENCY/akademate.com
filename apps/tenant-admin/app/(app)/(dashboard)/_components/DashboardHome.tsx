@@ -26,7 +26,6 @@ import type { LucideIcon } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { traducirEstado } from '@payload-config/lib/estados'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   LineChart,
   Line,
@@ -42,7 +41,6 @@ import { useTenantBranding } from '@/app/providers/tenant-branding'
 import {
   DASHBOARD_GRID_2_CLASS,
   DASHBOARD_GRID_CLASS,
-  DASHBOARD_STICKY_CHROME_CLASS,
 } from '../dashboard-shell'
 
 // Dashboard data types - defined locally to ensure TypeScript resolution
@@ -369,33 +367,28 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6" data-oid="re7drx3">
-      <div className={DASHBOARD_STICKY_CHROME_CLASS} data-testid="dashboard-sticky-chrome">
-      <PageHeader
-        title="Dashboard"
-        actions={
-          <Badge
-            variant={isConnected ? 'default' : 'outline'}
-            className="text-xs"
-            data-oid="tnbqb:6"
-          >
-            {isConnected ? 'En vivo' : 'Sin conexión'}
-          </Badge>
-        }
-        data-oid="qqq2bhb"
-      />
-      </div>
-
       <Card data-testid="hoy-en-la-academia">
         <CardHeader className="p-4 pb-2">
-          <CardTitle className="whitespace-normal break-words">Hoy en la academia</CardTitle>
-          <CardDescription className="whitespace-normal break-words">
-            {new Date().toLocaleDateString('es-ES', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </CardDescription>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <CardTitle className="whitespace-normal break-words">Hoy en la academia</CardTitle>
+              <CardDescription className="whitespace-normal break-words">
+                {new Date().toLocaleDateString('es-ES', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </CardDescription>
+            </div>
+            <Badge
+              variant={isConnected ? 'default' : 'outline'}
+              className="text-xs"
+              data-oid="tnbqb:6"
+            >
+              {isConnected ? 'En vivo' : 'Sin conexión'}
+            </Badge>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-2">
           <p className="whitespace-normal break-words text-sm leading-snug text-foreground">

@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { LucideIcon, Construction } from 'lucide-react'
 import { Card, CardContent } from './card'
-import { PageHeader } from './PageHeader'
 
 interface ComingSoonPageProps {
   /** Page title */
@@ -24,7 +23,6 @@ interface ComingSoonPageProps {
  * Standardized "Coming Soon" page for modules not yet implemented.
  *
  * Shows a consistent layout with:
- * - Page header with icon
  * - Construction indicator
  * - Planned features list
  * - Expected timeline
@@ -45,24 +43,12 @@ interface ComingSoonPageProps {
  * ```
  */
 export function ComingSoonPage({
-  title,
-  description,
-  icon,
   expectedPhase,
   plannedFeatures = [],
   note,
 }: ComingSoonPageProps) {
   return (
     <div className="space-y-6" data-oid="2kr4gll">
-      <PageHeader
-        title={title}
-        description={description}
-        icon={icon}
-        iconBgColor="bg-muted"
-        iconColor="text-muted-foreground"
-        data-oid="sk1zryh"
-      />
-
       <Card className="border-dashed border-2" data-oid="18vv_y5">
         <CardContent className="py-12" data-oid="xlps-wq">
           <div

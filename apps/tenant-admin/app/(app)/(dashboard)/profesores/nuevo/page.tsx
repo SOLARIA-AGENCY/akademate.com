@@ -13,7 +13,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -238,17 +237,9 @@ export default function NewProfesorPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" data-oid="nqgh2_8">
-      <PageHeader
-        title="Nuevo Profesor"
-        description="Añade un nuevo profesor al sistema"
-        icon={User}
-        actions={
-          <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="k1x7g23">
+      <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="k1x7g23">
             <ArrowLeft className="h-5 w-5" data-oid="5wl5ypj" />
           </Button>
-        }
-        data-oid="yblu_3s"
-      />
 
       <form onSubmit={handleSubmit} data-oid="-u10:f_">
         <Card data-oid="ej96j8j">

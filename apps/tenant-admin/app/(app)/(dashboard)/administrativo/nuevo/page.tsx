@@ -13,7 +13,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
 import {
   Select,
@@ -22,8 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, Save, Loader2, Briefcase } from 'lucide-react'
-
+import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 interface Campus {
   id: number
   name: string
@@ -140,17 +138,9 @@ export default function NewAdministrativoPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" data-oid="bt1gpq8">
-      <PageHeader
-        title="Nuevo Personal Administrativo"
-        description="Añade un nuevo miembro del personal administrativo"
-        icon={Briefcase}
-        actions={
-          <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid=":vjcx4-">
+      <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid=":vjcx4-">
             <ArrowLeft className="h-5 w-5" data-oid="sj53gm1" />
           </Button>
-        }
-        data-oid="bwfw5w2"
-      />
 
       <form onSubmit={handleSubmit} data-oid="zmk_043">
         <Card data-oid="2bx2obi">

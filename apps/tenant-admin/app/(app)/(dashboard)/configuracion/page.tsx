@@ -8,32 +8,7 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Switch } from '@payload-config/components/ui/switch'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import {
-  Settings,
-  Building2,
-  Palette,
-  BookOpen,
-  Key,
-  ShieldCheck,
-  ToggleLeft,
-  Globe,
-  Save,
-  Check,
-  Plus,
-  Trash2,
-  Mail,
-  Phone,
-  MapPin,
-  Image as ImageIcon,
-  Loader2,
-  ChevronRight,
-  Copy,
-  Eye,
-  EyeOff,
-  AlertTriangle,
-  Plug,
-} from 'lucide-react'
+import { Building2, Palette, BookOpen, Key, ShieldCheck, ToggleLeft, Globe, Save, Check, Plus, Trash2, Mail, Phone, MapPin, Image as ImageIcon, Loader2, ChevronRight, Copy, Eye, EyeOff, AlertTriangle, Plug } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { TenantPlanBadges } from './TenantPlanBadges'
 import { DEFAULT_TENANT_PLAN } from '@/lib/tenantPlanChrome'
@@ -73,7 +48,6 @@ interface ColorScheme {
   warning: string
   danger: string
 }
-
 
 interface IntegrationsConfig {
   ga4MeasurementId: string
@@ -541,11 +515,7 @@ export default function ConfiguracionUnifiedPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title="Configuracion"
-          description="Cargando ajustes del sistema..."
-          icon={Settings}
-        />
+
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -555,14 +525,6 @@ export default function ConfiguracionUnifiedPage() {
 
   return (
     <div className="space-y-0">
-      <div className="px-0 pb-4">
-        <PageHeader
-          title="Configuracion"
-          description="Todos los ajustes de tu academia en un solo lugar"
-          icon={Settings}
-        />
-      </div>
-
       {/* ── Layout: sidebar nav + content ── */}
       <div className="flex gap-8 pt-4">
         {/* Vertical sidebar nav */}

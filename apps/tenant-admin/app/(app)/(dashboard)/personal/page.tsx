@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Tabs, TabsContent } from '@payload-config/components/ui/tabs'
 import {
   Table,
@@ -222,68 +221,56 @@ function PersonalPageContent() {
   return (
     <div className="space-y-6" data-oid="42ltni0">
       <Tabs value={activeTab} onValueChange={setActiveTab} data-oid="54ch-hn">
-        <PageHeader
-          title="Personal"
-          icon={Users}
-          badge={
-            <Badge variant="secondary" data-oid="qavqrr-">
-              {filteredStaff.length} en vista
-            </Badge>
-          }
-          actions={
-            <Button
-              onClick={() =>
-                router.push(activeTab === 'profesores' ? '/profesores/nuevo' : '/administrativo/nuevo')
-              }
-              data-oid="o1k9qim"
-            >
-              <Plus className="mr-2 h-4 w-4" data-oid="ve7zz:n" />
-              {activeTab === 'profesores' ? 'Añadir Profesor' : 'Añadir Administrativo'}
-            </Button>
-          }
-          filters={
-            <div
-              className="flex w-full flex-wrap items-center justify-between gap-3"
-              data-oid="qa7_l4e"
-            >
-              {staff.length > 0 && (
-                <div className="relative w-64" data-oid=".lj1q2:">
-                  <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                    data-oid="o019w3h"
-                  />
-                  <Input
-                    placeholder="Buscar por nombre..."
-                    className="pl-9"
-                    value={searchTerm}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSearchTerm(e.target.value)
-                    }
-                    data-oid="hlze4bs"
-                  />
-                </div>
-              )}
-              {staff.length > 0 && (
-                <ToggleGroup
-                  type="single"
-                  value={viewMode}
-                  onValueChange={(value: string) => {
-                    if (value === 'list' || value === 'grid') setViewMode(value)
-                  }}
-                  data-oid="t3liuqt"
-                >
-                  <ToggleGroupItem value="grid" aria-label="Vista de tarjetas" data-oid="p:6p7cb">
-                    <LayoutGrid className="h-4 w-4" data-oid="pekzrs0" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="list" aria-label="Vista de lista" data-oid="le9slld">
-                    <List className="h-4 w-4" data-oid="unanepf" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              )}
-            </div>
-          }
-          data-oid="lxq--yw"
-        />
+        <div className="flex flex-col gap-3">
+          <Button
+                        onClick={() =>
+                          router.push(activeTab === 'profesores' ? '/profesores/nuevo' : '/administrativo/nuevo')
+                        }
+                        data-oid="o1k9qim"
+                      >
+                        <Plus className="mr-2 h-4 w-4" data-oid="ve7zz:n" />
+                        {activeTab === 'profesores' ? 'Añadir Profesor' : 'Añadir Administrativo'}
+                      </Button>
+          <div
+                        className="flex w-full flex-wrap items-center justify-between gap-3"
+                        data-oid="qa7_l4e"
+                      >
+                        {staff.length > 0 && (
+                          <div className="relative w-64" data-oid=".lj1q2:">
+                            <Search
+                              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                              data-oid="o019w3h"
+                            />
+                            <Input
+                              placeholder="Buscar por nombre..."
+                              className="pl-9"
+                              value={searchTerm}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                setSearchTerm(e.target.value)
+                              }
+                              data-oid="hlze4bs"
+                            />
+                          </div>
+                        )}
+                        {staff.length > 0 && (
+                          <ToggleGroup
+                            type="single"
+                            value={viewMode}
+                            onValueChange={(value: string) => {
+                              if (value === 'list' || value === 'grid') setViewMode(value)
+                            }}
+                            data-oid="t3liuqt"
+                          >
+                            <ToggleGroupItem value="grid" aria-label="Vista de tarjetas" data-oid="p:6p7cb">
+                              <LayoutGrid className="h-4 w-4" data-oid="pekzrs0" />
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="list" aria-label="Vista de lista" data-oid="le9slld">
+                              <List className="h-4 w-4" data-oid="unanepf" />
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+                        )}
+                      </div>
+        </div>
 
         <TabsContent value="profesores" data-oid="oq-9g8t">
           <Card data-oid="auipqq.">

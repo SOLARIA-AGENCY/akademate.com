@@ -5,26 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import {
-  MapPin,
-  ArrowLeft,
-  Edit,
-  Loader2,
-  Building2,
-  Car,
-  Clock,
-  Users,
-  Phone,
-  Mail,
-  Globe,
-  ExternalLink,
-  DoorOpen,
-  Wrench,
-  StickyNote,
-  UserCheck,
-} from 'lucide-react'
-
+import { ArrowLeft, Edit, Loader2, Building2, Car, Clock, Users, Phone, Mail, Globe, ExternalLink, DoorOpen, Wrench, StickyNote, UserCheck } from 'lucide-react'
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -220,9 +201,7 @@ function DetalleSedePage({ id }: { id: string }) {
   if (error || !sede) {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <PageHeader title="Error" icon={MapPin}
-          actions={<Button variant="outline" onClick={() => router.push('/dashboard/sedes')}><ArrowLeft className="h-4 w-4 mr-2" />Volver</Button>}
-        />
+        <Button variant="outline" onClick={() => router.push('/dashboard/sedes')}><ArrowLeft className="h-4 w-4 mr-2" />Volver</Button>
         <Card>
           <CardContent className="py-10 text-center text-destructive">
             {error || 'Sede no encontrada'}
@@ -248,16 +227,10 @@ function DetalleSedePage({ id }: { id: string }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <PageHeader
-        title={sede.name ?? 'Sede'}
-        description={[sede.city, sede.province].filter(Boolean).join(', ') || undefined}
-        icon={MapPin}
-        badge={<Badge variant={sede.active !== false ? 'default' : 'secondary'}>{sede.active !== false ? 'Activa' : 'Inactiva'}</Badge>}
-        actions={<>
+      <>
           <Button variant="ghost" onClick={() => router.push('/dashboard/sedes')}><ArrowLeft className="mr-2 h-4 w-4" />Sedes</Button>
           <Button onClick={() => router.push(`/dashboard/sedes/${id}/editar`)}><Edit className="mr-2 h-4 w-4" />Editar Sede</Button>
-        </>}
-      />
+        </>
 
       {/* Hero image */}
       {imageUrl && (

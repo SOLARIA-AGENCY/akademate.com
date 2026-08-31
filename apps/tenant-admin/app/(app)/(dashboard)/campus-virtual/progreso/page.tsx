@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -17,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { BarChart3 } from 'lucide-react'
 import { traducirEstado } from '@payload-config/lib/estados'
 
 // TODO: Fetch from API
@@ -26,17 +24,7 @@ const progressRows: { student: string; course: string; progress: string; status:
 export default function CampusProgresoPage() {
   return (
     <div className="space-y-6" data-oid="fx9d5dk">
-      <PageHeader
-        title="Progreso Alumnos"
-        description="Seguimiento de avance por alumno y curso."
-        icon={BarChart3}
-        badge={
-          <Badge variant="outline" data-oid=".pul37q">
-            Vista inicial
-          </Badge>
-        }
-        data-oid="lyyqaoa"
-      />
+
 
       <Card data-oid="j6dxr5_">
         <CardHeader data-oid="3svukd_">

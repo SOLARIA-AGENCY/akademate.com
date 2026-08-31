@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Sparkles,
   Upload,
@@ -224,19 +223,7 @@ export default function CreatividadesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Creatividades"
-        description="Gestión de assets creativos para campañas publicitarias"
-        icon={Sparkles}
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{campaigns.length} convocatorias</Badge>
-            <Badge variant={filledSlots > 0 ? 'default' : 'outline'}>
-              {filledSlots}/{totalSlots} assets
-            </Badge>
-          </div>
-        }
-      />
+
 
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">

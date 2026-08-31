@@ -17,7 +17,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Dialog,
   DialogContent,
@@ -555,17 +554,10 @@ export default function APIsPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <PageHeader
-        title="APIs y Webhooks"
-        description="Gestiona claves de API para acceso programatico a tus datos"
-        icon={Key}
-        actions={
-          <Button onClick={() => setShowNewDialog(true)}>
+      <Button onClick={() => setShowNewDialog(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nueva API Key
           </Button>
-        }
-      />
 
       {/* API Keys table */}
       <Card>

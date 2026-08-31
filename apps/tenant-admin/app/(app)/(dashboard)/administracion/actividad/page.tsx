@@ -11,7 +11,6 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -147,12 +146,7 @@ export default function ActividadPage() {
 
   return (
     <div className="space-y-6" data-oid=".3kb-:g">
-      <PageHeader
-        title="Registro de Actividad"
-        description="Auditoría completa de acciones en el sistema"
-        icon={Activity}
-        actions={
-          <div className="flex gap-2" data-oid=".x8zc13">
+      <div className="flex gap-2" data-oid=".x8zc13">
             <Button variant="outline" data-oid="aodm41v">
               <Calendar className="mr-2 h-4 w-4" data-oid="z5_rrkk" />
               Rango de Fechas
@@ -162,9 +156,6 @@ export default function ActividadPage() {
               Exportar Log
             </Button>
           </div>
-        }
-        data-oid="sufh9ct"
-      />
 
       {/* Estadísticas */}
       <div className="grid gap-4 md:grid-cols-4" data-oid="1i_twyz">

@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   BookOpen,
   Video,
@@ -308,12 +307,7 @@ export default function AyudaPage() {
 
   return (
     <div className="space-y-6 max-w-7xl" data-oid="te:bxk1">
-      <PageHeader
-        title="Ayuda y Documentación"
-        description="Centro de recursos y soporte técnico"
-        icon={HelpCircle}
-        data-oid="no07hff"
-      />
+
 
       {/* Search */}
       <Card data-oid="665qisx">

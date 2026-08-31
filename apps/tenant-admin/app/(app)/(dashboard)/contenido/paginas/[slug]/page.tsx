@@ -4,7 +4,6 @@ import * as React from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ArrowDown, ArrowUp, Eye, RotateCcw, Save } from 'lucide-react'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -65,7 +64,7 @@ export default function EditWebsitePage() {
   if (!page) {
     return (
       <div className="space-y-4">
-        <PageHeader title="Página no encontrada" description="El slug solicitado no existe en el catálogo web." />
+
         <Button asChild variant="outline">
           <Link href="/contenido/paginas">Volver a páginas</Link>
         </Button>
@@ -75,12 +74,7 @@ export default function EditWebsitePage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title={`Editar: ${page.title}`}
-        description={`Ruta pública ${page.path}`}
-        icon={Save}
-        badge={<Badge variant="outline">{page.pageKind}</Badge>}
-      />
+
 
       <div className="flex flex-wrap gap-2">
         <Button onClick={handleSave}>

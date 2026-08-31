@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
@@ -249,8 +248,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (error || !conv) return (
     <div className="space-y-6">
-      <PageHeader title="Convocatoria" icon={Calendar}
-        actions={<Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+      <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
       <Card><CardContent className="p-8 text-center text-muted-foreground">{error || 'No encontrada'}</CardContent></Card>
     </div>
   )
@@ -280,12 +278,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader
-        title={title}
-        description={`Convocatoria ${conv.codigo}`}
-        icon={Calendar}
-        badge={<Badge variant={status.variant}>{status.label}</Badge>}
-        actions={<>
+      <>
           <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
           <Button variant="outline" onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}>
             <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
@@ -293,8 +286,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
           <Button variant="outline" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
             <Printer className="mr-2 h-4 w-4" />Imprimir convocatoria
           </Button>
-        </>}
-      />
+        </>
 
       {/* Hero image */}
       {heroImage && (

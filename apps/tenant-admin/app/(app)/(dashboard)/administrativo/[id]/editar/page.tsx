@@ -9,9 +9,7 @@ import {
   CardDescription,
 } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { ArrowLeft, ExternalLink, Briefcase } from 'lucide-react'
-
+import { ArrowLeft, ExternalLink } from 'lucide-react'
 export default function EditAdministrativoPage() {
   const router = useRouter()
   const params = useParams()
@@ -23,17 +21,9 @@ export default function EditAdministrativoPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" data-oid="sswj.he">
-      <PageHeader
-        title="Editar Personal Administrativo"
-        description="Modificar información del personal administrativo"
-        icon={Briefcase}
-        actions={
-          <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="g9q8evk">
+      <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="g9q8evk">
             <ArrowLeft className="h-5 w-5" data-oid="._jg6xu" />
           </Button>
-        }
-        data-oid="cck0-aa"
-      />
 
       <Card data-oid="rs0n06o">
         <CardHeader data-oid="hzz4ksk">

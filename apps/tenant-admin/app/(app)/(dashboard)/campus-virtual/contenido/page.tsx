@@ -11,7 +11,6 @@ import {
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -20,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { BookOpen, Search, Edit } from 'lucide-react'
+import { Search, Edit } from 'lucide-react'
 import { traducirEstado } from '@payload-config/lib/estados'
 
 const contentRows: { course: string; modules: number; lessons: number; status: string }[] = []
@@ -37,17 +36,7 @@ export default function CampusContenidoPage() {
 
   return (
     <div className="space-y-6" data-oid="lhjov59">
-      <PageHeader
-        title="Módulos y Lecciones"
-        description="Estado de contenido estructurado por curso."
-        icon={BookOpen}
-        badge={
-          <Badge variant="outline" data-oid="4u49b3c">
-            Contenido LMS
-          </Badge>
-        }
-        data-oid="6tgz:2s"
-      />
+
 
       <Card data-oid="2f92z5r">
         <CardContent className="pt-4" data-oid="gclp2q4">

@@ -5,14 +5,6 @@ import userEvent from '@testing-library/user-event'
 import CampusContenidoPage from '../../app/(app)/(dashboard)/campus-virtual/contenido/page'
 
 describe('CampusContenidoPage — filtros y búsqueda', () => {
-  it('renderiza el encabezado de la página', () => {
-    render(<CampusContenidoPage data-oid="l.m:ten" />)
-    expect(screen.getByTestId('page-header-title')).toHaveTextContent('Módulos y Lecciones')
-    expect(screen.getByTestId('page-header-description')).toHaveTextContent(
-      'Estado de contenido estructurado por curso.'
-    )
-  })
-
   it('renderiza controles de búsqueda y filtro', () => {
     render(<CampusContenidoPage data-oid="controls" />)
     expect(screen.getByPlaceholderText('Buscar por curso...')).toBeInTheDocument()

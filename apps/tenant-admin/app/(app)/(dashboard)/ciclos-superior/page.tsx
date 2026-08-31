@@ -7,7 +7,6 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -15,8 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, GraduationCap, Calendar, Clock } from 'lucide-react'
-
+import { Plus, Search, Calendar, Clock } from 'lucide-react'
 // TypeScript interfaces
 interface CicloSuperior {
   id: string
@@ -361,42 +359,29 @@ export default function CiclosSuperiorPage() {
           {errorMessage}
         </div>
       )}
-      <PageHeader
-        title="Ciclos Formativos de Grado Superior"
-        description="Gestión compacta de ciclos, plazas y modalidades."
-        icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="husbrik">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
-        actions={
-          <Button onClick={handleAdd} data-oid="xbur5oe">
-            <Plus className="mr-2 h-4 w-4" data-oid="s5:kgxm" />
-            Nuevo Ciclo
-          </Button>
-        }
-        filters={
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="mru6byb">
-            <Badge variant="outline" data-oid="k7lcc9h">
-              {stats.total} ciclos
-            </Badge>
-            <Badge variant="outline" data-oid="a3ih-1i">
-              {stats.totalPlazas} plazas
-            </Badge>
-            <Badge variant="outline" data-oid="as.3:7d">
-              {stats.plazasOcupadas} ocupadas
-            </Badge>
-            <Badge variant="outline" data-oid="d0f1bpg">
-              Ocupación {tasaOcupacion}%
-            </Badge>
-            <Badge variant="outline" data-oid="_j5-7_i">
-              {stats.cursosActivos} cursos activos
-            </Badge>
-          </div>
-        }
-        data-oid="5y0nqj7"
-      />
+      <div className="flex flex-col gap-3">
+        <Button onClick={handleAdd} data-oid="xbur5oe">
+                    <Plus className="mr-2 h-4 w-4" data-oid="s5:kgxm" />
+                    Nuevo Ciclo
+                  </Button>
+        <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="mru6byb">
+                    <Badge variant="outline" data-oid="k7lcc9h">
+                      {stats.total} ciclos
+                    </Badge>
+                    <Badge variant="outline" data-oid="a3ih-1i">
+                      {stats.totalPlazas} plazas
+                    </Badge>
+                    <Badge variant="outline" data-oid="as.3:7d">
+                      {stats.plazasOcupadas} ocupadas
+                    </Badge>
+                    <Badge variant="outline" data-oid="d0f1bpg">
+                      Ocupación {tasaOcupacion}%
+                    </Badge>
+                    <Badge variant="outline" data-oid="_j5-7_i">
+                      {stats.cursosActivos} cursos activos
+                    </Badge>
+                  </div>
+      </div>
 
       <Card data-oid="gnt46a4">
         <CardContent className="pt-6 text-left" data-oid="2x81uca">

@@ -8,7 +8,6 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -16,27 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import {
-  GraduationCap,
-  ArrowLeft,
-  Save,
-  Loader2,
-  Plus,
-  Trash2,
-  BookOpen,
-  Clock,
-  ClipboardCheck,
-  Layers,
-  Briefcase,
-  Award,
-  DollarSign,
-  Heart,
-  FileText,
-  Star,
-  Image as ImageIcon,
-  Check,
-} from 'lucide-react'
-
+import { ArrowLeft, Save, Loader2, Plus, Trash2, BookOpen, Clock, ClipboardCheck, Layers, Briefcase, Award, DollarSign, Heart, FileText, Star, Image as ImageIcon, Check } from 'lucide-react'
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -435,11 +414,7 @@ export default function EditarCicloPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Editar: ${name}`}
-        description="Modifica los datos del ciclo formativo"
-        icon={GraduationCap}
-      />
+
 
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/ciclos/${cycleId}`)}>

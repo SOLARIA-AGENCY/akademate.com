@@ -11,7 +11,6 @@ import {
   DASHBOARD_RAIL_FOOTER_CLASS,
   DASHBOARD_RAIL_NAV_CLASS,
   DASHBOARD_SHELL_CLASS,
-  DASHBOARD_STICKY_CHROME_CLASS,
   DASHBOARD_VIEWPORT_HEIGHTS,
   DASHBOARD_VIEWPORTS,
   canvasScrollsCards,
@@ -31,11 +30,15 @@ const homeSource = readFileSync(
   'utf8',
 )
 const cssSource = readFileSync(join(dir, '../../app/globals.css'), 'utf8')
+const headerSource = readFileSync(
+  join(dir, '../../@payload-config/components/site-header.tsx'),
+  'utf8',
+)
 
 describe('dashboard rail and canvas', () => {
   it('pins the rail to svh with scrolling nav and a shrink-0 footer', () => {
     expect(DASHBOARD_SHELL_CLASS.split(/\s+/)).toContain('h-svh')
-    expect(DASHBOARD_RAIL_CLASS.split(/\s+/)).toContain('h-svh')
+    expect(DASHBOARD_RAIL_CLASS.split(/\s+/)).toContain('h-full')
     expect(DASHBOARD_RAIL_NAV_CLASS.split(/\s+/)).toContain('min-h-0')
     expect(DASHBOARD_RAIL_NAV_CLASS.split(/\s+/)).toContain('overflow-y-auto')
     expect(DASHBOARD_RAIL_NAV_CLASS.split(/\s+/)).toContain('scrollbar-none')
@@ -49,9 +52,10 @@ describe('dashboard rail and canvas', () => {
 
   it('scrolls cards in the canvas column, not inside a card', () => {
     expect(canvasScrollsCards(DASHBOARD_MAIN_CLASS)).toBe(true)
-    expect(DASHBOARD_CANVAS_CLASS.split(/\s+/)).toContain('h-svh')
-    expect(DASHBOARD_STICKY_CHROME_CLASS).toContain('sticky')
-    expect(homeSource).toContain('DASHBOARD_STICKY_CHROME_CLASS')
+    expect(DASHBOARD_CANVAS_CLASS.split(/\s+/)).toContain('h-full')
+    expect(headerSource).toContain('sticky')
+    expect(layoutSource).toContain('SiteHeader')
+    expect(homeSource).not.toContain('DASHBOARD_STICKY_CHROME_CLASS')
     expect(clipsCards('overflow-y-auto max-h-64')).toBe(true)
     expect(homeSource).not.toMatch(/overflow-y-auto/)
     expect(layoutSource).toContain('DASHBOARD_MAIN_CLASS')

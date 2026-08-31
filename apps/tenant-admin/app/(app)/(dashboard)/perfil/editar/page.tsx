@@ -12,7 +12,6 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarImage, AvatarFallback } from '@payload-config/components/ui/avatar'
 import { Separator } from '@payload-config/components/ui/separator'
 import { ArrowLeft, Save, Upload, X, Loader2, User } from 'lucide-react'
@@ -125,17 +124,9 @@ export default function EditarPerfilPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" data-oid="eqe.xdc">
-      <PageHeader
-        title="Editar Perfil"
-        description="Actualiza tu información personal y configuración"
-        icon={User}
-        actions={
-          <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="2dk0vqq">
+      <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="2dk0vqq">
             <ArrowLeft className="h-5 w-5" data-oid="hu:7yhl" />
           </Button>
-        }
-        data-oid="j:1:cao"
-      />
 
       <form onSubmit={handleSubmit} data-oid="9gmjwly">
         {/* Profile Photo */}

@@ -3,12 +3,10 @@
 // Force dynamic rendering for all dashboard pages - bypass static generation for client-side hooks
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, Search } from 'lucide-react'
 import { NotificationBell } from '@payload-config/components/ui/NotificationBell'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +21,8 @@ import { DashboardFooter } from '@payload-config/components/layout/DashboardFoot
 import { ThemeToggle } from '@payload-config/components/ui/ThemeToggle'
 import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 import { RealtimeProvider } from '@payload-config/components/providers'
+import { SiteHeader } from '@payload-config/components/site-header'
+import { SidebarProvider } from '@payload-config/components/ui/sidebar'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { NotificationProvider } from '@/app/providers/notifications'
 import {
@@ -44,35 +44,12 @@ interface SessionResponse {
   user?: SessionUser
 }
 
-interface ShortcutItem {
-  label: string
-  href: string
-}
-
-const shortcuts: ShortcutItem[] = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Programación', href: '/programacion' },
-  { label: 'Planner Visual', href: '/planner' },
-  { label: 'Cursos', href: '/dashboard/cursos' },
-  { label: 'Ciclos', href: '/dashboard/ciclos' },
-  { label: 'Sedes', href: '/dashboard/sedes' },
-  { label: 'Personal', href: '/personal' },
-  { label: 'Campus Virtual', href: '/campus-virtual' },
-  { label: 'Leads', href: '/leads' },
-  { label: 'Calendario citas', href: '/calendario-citas' },
-  { label: 'Analíticas', href: '/analiticas' },
-  { label: 'Administración', href: '/administracion' },
-  { label: 'Configuración', href: '/configuracion' },
-]
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchOpen, setSearchOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState({
     name: 'Administrador',
     email: 'admin@tenant.local',
@@ -136,136 +113,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isMobile, pathname])
 
-  const filteredShortcuts = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
-    if (!query) return shortcuts.slice(0, 6)
-    return shortcuts.filter(
-      (item) => item.label.toLowerCase().includes(query) || item.href.includes(query)
-    )
-  }, [searchQuery])
-
-  const goToShortcut = (href: string) => {
-    setSearchOpen(false)
-    setSearchQuery('')
-    router.push(href)
-  }
-
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (filteredShortcuts.length === 0) return
-    goToShortcut(filteredShortcuts[0].href)
+  const handleLogout = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    try {
+      await fetch('/api/auth/session', {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+      router.push('/auth/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   return (
     <NotificationProvider>
       <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
       <div
-        className={DASHBOARD_SHELL_CLASS}
+        className={`${DASHBOARD_SHELL_CLASS} flex flex-col [--header-height:calc(theme(spacing.14))]`}
         data-oid="dq:3ws5"
       >
-        {isMobile && sidebarOpen && (
-          <button
-            type="button"
-            aria-label="Cerrar menú lateral"
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-30 bg-black/40 md:hidden"
-          />
-        )}
-
-        <aside
-          className={`${DASHBOARD_RAIL_CLASS} fixed left-0 top-0 z-40 border-r border-sidebar-border transition-all duration-300 ${
-            isMobile
-              ? `w-[280px] ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`
-              : sidebarOpen
-                ? 'w-[240px]'
-                : 'w-[80px]'
-          }`}
-          data-testid="dashboard-rail"
-          data-oid="044wu:-"
+        <SidebarProvider
+          open={sidebarOpen}
+          onOpenChange={setSidebarOpen}
+          className="flex flex-col flex-1 min-h-0"
         >
-          <AppSidebar
-            isCollapsed={!sidebarOpen}
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
-            data-oid="lb_jqia"
-          />
-        </aside>
-
-        <div
-          className={`${DASHBOARD_CANVAS_CLASS} transition-all duration-300 ${
-            isMobile ? 'ml-0' : sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
-          }`}
-          data-testid="dashboard-canvas"
-          data-oid="asfyqnr"
-        >
-          <header
-            className="z-30 flex h-14 shrink-0 items-center border-b border-black/5 bg-background px-4 md:px-6"
-            data-oid="oy8tn.c"
-          >
-            <div className="flex items-center gap-2 pr-2 md:pr-4" data-oid="w2r2vqk">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label="Abrir menú lateral"
-                onClick={() => setSidebarOpen((prev) => !prev)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </div>
-
-            <div className="flex-1 min-w-0 max-w-md" data-oid="38sqxrv">
-              <div className="relative hidden lg:block" data-oid="37i3m-d">
-                <form onSubmit={handleSearchSubmit} data-oid="g45:h35">
-                  <Search
-                    className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground"
-                    data-oid="5gapg5:"
-                  />
-                  <Input
-                    type="search"
-                    placeholder="Buscar sección..."
-                    value={searchQuery}
-                    onFocus={() => setSearchOpen(true)}
-                    onBlur={() => {
-                      setTimeout(() => setSearchOpen(false), 120)
-                    }}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    className="w-full pl-8 bg-background/60 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    data-oid="03n16gh"
-                  />
-                </form>
-
-                {searchOpen && (
-                  <div
-                    className="absolute left-0 right-0 top-11 z-50 rounded-md border bg-popover p-1 shadow-md"
-                    data-oid="8q4-tbc"
-                  >
-                    {filteredShortcuts.length > 0 ? (
-                      filteredShortcuts.slice(0, 6).map((item) => (
-                        <button
-                          key={item.href}
-                          type="button"
-                          onMouseDown={() => goToShortcut(item.href)}
-                          className="flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm hover:bg-accent"
-                          data-oid="lyvogvu"
-                        >
-                          <span data-oid="tks9og7">{item.label}</span>
-                          <span className="text-xs text-muted-foreground" data-oid="oowdwwx">
-                            {item.href}
-                          </span>
-                        </button>
-                      ))
-                    ) : (
-                      <p className="px-3 py-2 text-sm text-muted-foreground" data-oid="7e56m0c">
-                        Sin resultados
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 ml-auto" data-oid="4sbbb:o">
+          <SiteHeader>
+            <div className="flex items-center justify-end gap-2">
               <ThemeToggle data-oid="87ssh43" />
 
               <NotificationBell />
@@ -318,42 +194,61 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     Configuración
                   </DropdownMenuItem>
                   <DropdownMenuSeparator data-oid=":nc4rud" />
-                  <DropdownMenuItem
-                    onClick={async (e: React.MouseEvent<HTMLDivElement>) => {
-                      e.preventDefault()
-                      try {
-                        await fetch('/api/auth/session', {
-                          method: 'DELETE',
-                          credentials: 'include',
-                        })
-                        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
-                        router.push('/auth/login')
-                        router.refresh()
-                      } catch (error) {
-                        console.error('Logout error:', error)
-                      }
-                    }}
-                    data-oid="et-g84s"
-                  >
+                  <DropdownMenuItem onClick={handleLogout} data-oid="et-g84s">
                     Cerrar sesión
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </header>
+          </SiteHeader>
 
-          <main
-            className={DASHBOARD_MAIN_CLASS}
-            data-testid="dashboard-main"
-            data-oid="20tk9nh"
-          >
-            {children}
-          </main>
+          <div className="relative flex flex-1 min-h-0">
+            {isMobile && sidebarOpen && (
+              <button
+                type="button"
+                aria-label="Cerrar menú lateral"
+                onClick={() => setSidebarOpen(false)}
+                className="absolute inset-0 z-30 bg-black/40 md:hidden"
+              />
+            )}
 
-          <div className="shrink-0">
-            <DashboardFooter data-oid="jsy7wdn" />
+            <aside
+              className={`${DASHBOARD_RAIL_CLASS} z-40 shrink-0 border-r border-sidebar-border transition-all duration-300 ${
+                isMobile
+                  ? `absolute inset-y-0 left-0 w-[280px] ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`
+                  : sidebarOpen
+                    ? 'w-[240px]'
+                    : 'w-[80px]'
+              }`}
+              data-testid="dashboard-rail"
+              data-oid="044wu:-"
+            >
+              <AppSidebar
+                isCollapsed={!sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+                data-oid="lb_jqia"
+              />
+            </aside>
+
+            <div
+              className={DASHBOARD_CANVAS_CLASS}
+              data-testid="dashboard-canvas"
+              data-oid="asfyqnr"
+            >
+              <main
+                className={DASHBOARD_MAIN_CLASS}
+                data-testid="dashboard-main"
+                data-oid="20tk9nh"
+              >
+                {children}
+              </main>
+
+              <div className="shrink-0">
+                <DashboardFooter data-oid="jsy7wdn" />
+              </div>
+            </div>
           </div>
-        </div>
+        </SidebarProvider>
 
         <ChatbotWidget data-oid="2282j28" />
       </div>

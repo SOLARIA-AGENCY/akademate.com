@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, GraduationCap, Edit, Loader2, BookOpen, Layers,
   Briefcase, Award, DollarSign, Heart, FileText, Star, ClipboardCheck,
@@ -220,8 +219,7 @@ export default function CicloDetallePage({ params }: Props) {
   if (error || !cycle) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Ciclo" description="Detalle de ciclo" icon={GraduationCap}
-          actions={<Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+        <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
         <Card><CardContent className="p-8 text-center">
           <p className="font-medium">No se pudo cargar el ciclo</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
@@ -294,17 +292,7 @@ export default function CicloDetallePage({ params }: Props) {
           HEADER
       ================================================================ */}
       <div className="cycle-screen-only">
-        <PageHeader
-          title={cycle.name}
-          description={cycle.code ? `Codigo: ${cycle.code}` : ''}
-          icon={GraduationCap}
-          badge={
-            <div className="flex items-center gap-2">
-              <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
-              {cycle.active === false && <Badge variant="secondary">Inactivo</Badge>}
-            </div>
-          }
-          actions={<>
+        <>
             <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}>
               <ArrowLeft className="mr-2 h-4 w-4" />Volver
             </Button>
@@ -314,8 +302,7 @@ export default function CicloDetallePage({ params }: Props) {
             <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />Editar Ciclo
             </Button>
-          </>}
-        />
+          </>
       </div>
 
       {/* ================================================================

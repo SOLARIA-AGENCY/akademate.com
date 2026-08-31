@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -396,17 +395,10 @@ export default function WebConvocatoriasPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Gestion Web — Convocatorias"
-        description="Administra que convocatorias se publican como landing pages"
-        icon={Globe}
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{convocatorias.length} total</Badge>
-            <Badge variant="success">{publishedCount} publicadas</Badge>
-          </div>
-        }
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="secondary">{convocatorias.length} total</Badge>
+        <Badge variant="success">{publishedCount} publicadas</Badge>
+      </div>
 
       {/* Loading state */}
       {isLoading && (

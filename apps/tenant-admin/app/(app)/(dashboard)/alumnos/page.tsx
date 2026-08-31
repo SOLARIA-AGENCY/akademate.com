@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -180,12 +179,7 @@ export default function AlumnosPage() {
         </div>
       )}
 
-      <PageHeader
-        title="Alumnos"
-        description={`${filteredStudents.length} alumnos de ${students.length} totales`}
-        icon={User}
-        actions={
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg" data-oid="mddf.5b">
+      <div className="flex items-center gap-1 bg-muted p-1 rounded-lg" data-oid="mddf.5b">
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
@@ -215,9 +209,6 @@ export default function AlumnosPage() {
               Fichas
             </Button>
           </div>
-        }
-        data-oid="2bu4ozx"
-      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-5" data-oid="bmuqe2r">

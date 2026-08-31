@@ -7,11 +7,6 @@ describe('NuevoCicloPage', () => {
     vi.clearAllMocks()
   })
 
-  it('renders page title "Nuevo Ciclo Formativo"', () => {
-    render(<NuevoCicloPage />)
-    expect(screen.getByTestId('page-header-title')).toHaveTextContent('Nuevo Ciclo Formativo')
-  })
-
   it('renders all 10 tab buttons', () => {
     render(<NuevoCicloPage />)
     const expectedTabs = [
