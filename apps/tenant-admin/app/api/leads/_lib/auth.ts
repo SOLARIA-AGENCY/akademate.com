@@ -1,7 +1,20 @@
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
+import { isSuperadminRole } from '@/app/lib/server/tenant-scope'
 
 const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
+
+export type AuthenticatedUserContext = {
+  userId: string | number
+  tenantId: number | null
+  role: string | null
+}
+
+export function isSuperadmin(
+  ctx: { role?: string | null } | null | undefined,
+): boolean {
+  return isSuperadminRole(ctx?.role)
+}
 
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
@@ -12,6 +25,11 @@ function toPositiveInt(value: unknown): number | null {
 function toUserId(value: unknown): string | number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
   if (typeof value === 'string' && value.trim().length > 0) return value
+  return null
+}
+
+function toRole(value: unknown): string | null {
+  if (typeof value === 'string' && value.trim().length > 0) return value.trim()
   return null
 }
 
@@ -61,7 +79,10 @@ function resolveTenantId(user: {
   return toPositiveInt(tenantCandidate)
 }
 
-async function findTenantIdByUserId(payload: any, userId: string | number): Promise<number | null> {
+async function findUserAuthRow(
+  payload: any,
+  userId: string | number,
+): Promise<{ tenantId: number | null; role: string | null } | null> {
   const numericUserId = toPositiveInt(userId)
   if (!numericUserId) return null
 
@@ -70,19 +91,21 @@ async function findTenantIdByUserId(payload: any, userId: string | number): Prom
 
   try {
     const res = await drizzle.execute(
-      `SELECT tenant_id FROM users WHERE id = ${numericUserId} LIMIT 1`,
+      `SELECT tenant_id, role FROM users WHERE id = ${numericUserId} LIMIT 1`,
     )
     const rows = Array.isArray(res) ? res : (res?.rows ?? [])
-    return toPositiveInt(rows[0]?.tenant_id)
+    const row = rows[0] as { tenant_id?: unknown; role?: unknown } | undefined
+    if (!row) return null
+    return {
+      tenantId: toPositiveInt(row.tenant_id),
+      role: toRole(row.role),
+    }
   } catch {
     return null
   }
 }
 
-async function authViaPayload(payload: any, token: string): Promise<{
-  userId: string | number
-  tenantId: number | null
-} | null> {
+async function authViaPayload(payload: any, token: string): Promise<AuthenticatedUserContext | null> {
   const attempts = [
     new Headers({ cookie: `payload-token=${token}` }),
     new Headers({
@@ -103,6 +126,7 @@ async function authViaPayload(payload: any, token: string): Promise<{
       }) as {
         user?: {
           id?: string | number
+          role?: string
           tenantId?: string | number
           tenant?: string | number | { id?: string | number }
         }
@@ -111,15 +135,16 @@ async function authViaPayload(payload: any, token: string): Promise<{
       const userId = toUserId(authResult?.user?.id)
       if (!userId) continue
 
+      const fromDb = await findUserAuthRow(payload, userId)
       let tenantId = resolveTenantId(authResult?.user)
-      if (tenantId === null) {
-        const tenantFromDb = await findTenantIdByUserId(payload, userId)
-        if (tenantFromDb !== null) tenantId = tenantFromDb
+      if (tenantId === null && fromDb?.tenantId != null) {
+        tenantId = fromDb.tenantId
       }
 
       return {
         userId,
         tenantId,
+        role: toRole(authResult?.user?.role) ?? fromDb?.role ?? null,
       }
     } catch {
       // Continue with next strategy
@@ -129,10 +154,7 @@ async function authViaPayload(payload: any, token: string): Promise<{
   return null
 }
 
-async function authViaJWT(payload: any, token: string): Promise<{
-  userId: string | number
-  tenantId: number | null
-} | null> {
+async function authViaJWT(payload: any, token: string): Promise<AuthenticatedUserContext | null> {
   const secret = process.env.PAYLOAD_SECRET
   if (!secret) return null
 
@@ -141,24 +163,34 @@ async function authViaJWT(payload: any, token: string): Promise<{
     const userId = toUserId(verified.payload?.id ?? verified.payload?.sub)
     if (!userId) return null
 
-    const tenantFromDb = await findTenantIdByUserId(payload, userId)
-    if (tenantFromDb !== null) {
-      return { userId, tenantId: tenantFromDb }
+    const fromDb = await findUserAuthRow(payload, userId)
+    if (fromDb) {
+      return { userId, tenantId: fromDb.tenantId, role: fromDb.role }
     }
 
-    const user = await payload.findByID({
-      collection: 'users',
-      id: userId,
-      depth: 0,
-      overrideAccess: true,
-    }) as {
-      tenantId?: string | number
-      tenant?: string | number | { id?: string | number }
-    } | null
+    try {
+      const user = await payload.findByID({
+        collection: 'users',
+        id: userId,
+        depth: 0,
+        overrideAccess: true,
+      }) as {
+        role?: string
+        tenantId?: string | number
+        tenant?: string | number | { id?: string | number }
+      } | null
 
-    return {
-      userId,
-      tenantId: resolveTenantId(user),
+      return {
+        userId,
+        tenantId: resolveTenantId(user),
+        role: toRole(user?.role),
+      }
+    } catch {
+      return {
+        userId,
+        tenantId: null,
+        role: null,
+      }
     }
   } catch {
     return null
@@ -168,12 +200,14 @@ async function authViaJWT(payload: any, token: string): Promise<{
 export async function getAuthenticatedUserContext(
   request: NextRequest,
   payload: any,
-): Promise<{ userId: string | number; tenantId: number | null } | null> {
+): Promise<AuthenticatedUserContext | null> {
   const token = request.cookies.get('payload-token')?.value ?? parseSessionToken(request)
   if (!token) return null
 
   const payloadAuth = await authViaPayload(payload, token)
-  if (payloadAuth?.tenantId !== null) return payloadAuth
+  if (payloadAuth && (payloadAuth.tenantId !== null || isSuperadmin(payloadAuth))) {
+    return payloadAuth
+  }
 
   const jwtAuth = await authViaJWT(payload, token)
   if (jwtAuth) return jwtAuth

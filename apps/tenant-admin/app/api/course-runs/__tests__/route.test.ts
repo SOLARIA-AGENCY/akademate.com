@@ -110,6 +110,28 @@ describe('/api/course-runs/[id]', () => {
     }))
   })
 
+  it('rejects a non-superadmin without tenant_id', async () => {
+    authMock.mockResolvedValue({ userId: 4, tenantId: null, role: 'admin' })
+    const response = await GET(new NextRequest('http://localhost/api/course-runs/84'), params())
+
+    expect(response.status).toBe(401)
+    expect(payloadMock.find).not.toHaveBeenCalled()
+  })
+
+  it('lets superadmin read a run with null tenant_id', async () => {
+    authMock.mockResolvedValue({ userId: 3, tenantId: null, role: 'superadmin' })
+    payloadMock.find.mockResolvedValue({ docs: [currentRun] })
+    const response = await GET(new NextRequest('http://localhost/api/course-runs/84'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.doc.id).toBe(84)
+    expect(payloadMock.find).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'course-runs',
+      where: { id: { equals: '84' } },
+    }))
+  })
+
   it('updates dates when the range is valid', async () => {
     const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
       method: 'PATCH',

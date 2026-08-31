@@ -22,8 +22,15 @@ describe('tenant-scope helpers', () => {
     })
   })
 
-  it('returns base where when tenant id is missing', () => {
+  it('fail-closes missing tenant id to tenant equals -1', () => {
     const where = { slug: { equals: 'sede-norte' } }
-    expect(withTenantScope(where, null)).toBe(where)
+    expect(withTenantScope(where, null)).toEqual({
+      and: [where, { tenant: { equals: -1 } }],
+    })
+  })
+
+  it('returns base where when unscoped even if tenant id is missing', () => {
+    const where = { slug: { equals: 'sede-norte' } }
+    expect(withTenantScope(where, null, { unscoped: true })).toBe(where)
   })
 })

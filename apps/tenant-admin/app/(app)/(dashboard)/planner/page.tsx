@@ -367,12 +367,14 @@ export default function PlannerPage() {
   const [aulas, setAulas] = useState<Aula[]>([])
   const [allCards, setAllCards] = useState<KanbanCard[]>([])
   const [openConflictCount, setOpenConflictCount] = useState(0)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
 
   // Fetch data
   useEffect(() => {
     const load = async () => {
       try {
+        setLoadError(null)
         const [convsRes, campusRes, aulasRes, conflictsRes] = await Promise.all([
           fetch('/api/convocatorias', { cache: 'no-cache' }),
           fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
@@ -380,10 +382,14 @@ export default function PlannerPage() {
           fetch('/api/planning-conflicts?where[status][equals]=open&limit=100', { cache: 'no-cache' }),
         ])
 
+        if (!convsRes.ok) {
+          const payload = await convsRes.json().catch(() => null) as { error?: string } | null
+          throw new Error(payload?.error || `No se pudieron cargar las convocatorias (${convsRes.status})`)
+        }
+
         let cards: KanbanCard[] = []
-        if (convsRes.ok) {
-          const data = await convsRes.json()
-          const items = Array.isArray(data.data) ? data.data : []
+        const data = await convsRes.json()
+        const items = Array.isArray(data.data) ? data.data : []
           cards = items.map((c: Record<string, unknown>) => ({
             id: String(c.id),
             curso: (c.cursoNombre as string) || 'Curso',
@@ -408,7 +414,6 @@ export default function PlannerPage() {
             campaignId: (c.campaignId as string) || null,
             campaignStatus: normalizeCampaignStatus(c.campaignStatus),
           }))
-        }
 
         let nextCampuses: { id: string; name: string }[] = []
         if (campusRes.ok) {
@@ -445,7 +450,12 @@ export default function PlannerPage() {
           ...col,
           cards: cards.filter((c) => c.estado === col.key),
         })))
-      } catch { /* graceful */ }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'No se pudo cargar el planner'
+        setLoadError(message)
+        setAllCards([])
+        setColumns([])
+      }
       finally { setIsLoading(false) }
     }
     void load()
@@ -571,7 +581,9 @@ export default function PlannerPage() {
         </div>
       </Card>
 
-      <OccupancyMatrix aulas={aulas} cards={allCards} sedeFilter={sedeFilter} sedeName={selectedCampus?.name} />
+      {loadError && !isLoading ? null : (
+        <OccupancyMatrix aulas={aulas} cards={allCards} sedeFilter={sedeFilter} sedeName={selectedCampus?.name} />
+      )}
 
       {/* Loading */}
       {isLoading && (
@@ -580,8 +592,16 @@ export default function PlannerPage() {
         </div>
       )}
 
+      {loadError && !isLoading && (
+        <Card className="bg-card">
+          <CardContent className="py-12 text-center">
+            <p className="text-destructive">{loadError}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Kanban Board */}
-      {!isLoading && (
+      {!isLoading && !loadError && (
         <div className="flex gap-4 overflow-x-auto pb-4">
           {filteredColumns.map((column) => (
             <KanbanColumnView

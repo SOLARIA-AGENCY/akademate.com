@@ -3,7 +3,7 @@ import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
-import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { dashboardTenantScopeOptions, withTenantScope } from '@/app/lib/server/tenant-scope'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -74,12 +74,22 @@ function daysOverlap(a?: string[], b?: string[]) {
   return a.some((day) => set.has(day))
 }
 
-async function findTenantDoc(payload: any, collection: string, id: unknown, tenantId: number) {
+async function findTenantDoc(
+  payload: any,
+  collection: string,
+  id: unknown,
+  tenantId: number | null,
+  role: string | null,
+) {
   const resolvedId = relationId(id as RelationValue)
   if (resolvedId == null) return null
   const result = await payload.find({
     collection,
-    where: withTenantScope({ id: { equals: resolvedId } }, tenantId) as any,
+    where: withTenantScope(
+      { id: { equals: resolvedId } },
+      tenantId,
+      dashboardTenantScopeOptions(role),
+    ) as any,
     limit: 1,
     depth: 0,
     overrideAccess: true,
@@ -87,7 +97,12 @@ async function findTenantDoc(payload: any, collection: string, id: unknown, tena
   return result.docs[0] ?? null
 }
 
-async function validateClassroomAvailability(payload: any, candidate: CourseRunDoc, tenantId: number) {
+async function validateClassroomAvailability(
+  payload: any,
+  candidate: CourseRunDoc,
+  tenantId: number | null,
+  role: string | null,
+) {
   const classroomId = relationId(candidate.classroom)
   if (!classroomId || !candidate.start_date || !candidate.end_date || !candidate.schedule_days?.length || !candidate.schedule_time_start || !candidate.schedule_time_end) {
     return null
@@ -104,6 +119,7 @@ async function validateClassroomAvailability(payload: any, candidate: CourseRunD
         ],
       },
       tenantId,
+      dashboardTenantScopeOptions(role),
     ) as any,
     limit: 200,
     depth: 1,
@@ -126,15 +142,28 @@ async function validateClassroomAvailability(payload: any, candidate: CourseRunD
   }
 }
 
+function requireDashboardAuth(authContext: { tenantId: number | null; role: string | null } | null) {
+  if (!authContext) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  if (authContext.tenantId == null && authContext.role !== 'superadmin') {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  }
+  return null
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const payload = await getPayload({ config: configPromise })
   const authContext = await getAuthenticatedUserContext(request, payload as any)
-  if (!authContext?.tenantId) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  const denied = requireDashboardAuth(authContext)
+  if (denied) return denied
 
   const result = await payload.find({
     collection: 'course-runs',
-    where: withTenantScope({ id: { equals: id } }, authContext.tenantId) as any,
+    where: withTenantScope(
+      { id: { equals: id } },
+      authContext!.tenantId,
+      dashboardTenantScopeOptions(authContext!.role),
+    ) as any,
     limit: 1,
     depth: Number(new URL(request.url).searchParams.get('depth') ?? 2),
     overrideAccess: true,
@@ -150,11 +179,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = await params
     const payload = await getPayload({ config: configPromise })
     const authContext = await getAuthenticatedUserContext(request, payload as any)
-    if (!authContext?.tenantId) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    const denied = requireDashboardAuth(authContext)
+    if (denied) return denied
 
     const existing = await payload.find({
       collection: 'course-runs',
-      where: withTenantScope({ id: { equals: id } }, authContext.tenantId) as any,
+      where: withTenantScope(
+        { id: { equals: id } },
+        authContext!.tenantId,
+        dashboardTenantScopeOptions(authContext!.role),
+      ) as any,
       limit: 1,
       depth: 0,
       overrideAccess: true,
@@ -190,12 +224,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     if (data.campus) {
-      const campus = await findTenantDoc(payload, 'campuses', data.campus, authContext.tenantId)
+      const campus = await findTenantDoc(payload, 'campuses', data.campus, authContext!.tenantId, authContext!.role)
       if (!campus) return NextResponse.json({ error: 'La sede seleccionada no pertenece a este tenant.' }, { status: 403 })
     }
 
     if (data.classroom) {
-      const classroom = await findTenantDoc(payload, 'classrooms', data.classroom, authContext.tenantId)
+      const classroom = await findTenantDoc(payload, 'classrooms', data.classroom, authContext!.tenantId, authContext!.role)
       if (!classroom) return NextResponse.json({ error: 'El aula seleccionada no pertenece a este tenant.' }, { status: 403 })
       const selectedCampus = (data.campus ?? current.campus) as RelationValue
       if (selectedCampus && !sameId(classroom.campus as RelationValue, selectedCampus)) {
@@ -204,7 +238,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
-    const conflict = await validateClassroomAvailability(payload, candidate, authContext.tenantId)
+    const conflict = await validateClassroomAvailability(payload, candidate, authContext!.tenantId, authContext!.role)
     if (conflict) return NextResponse.json(conflict, { status: 409 })
 
     const updated = await payload.update({

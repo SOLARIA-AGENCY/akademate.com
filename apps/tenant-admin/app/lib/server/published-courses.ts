@@ -136,6 +136,8 @@ export const DEFAULT_STUDY_TYPE_VISUALS: Record<PublicStudyType, StudyTypeVisual
 type GetPublishedCoursesOptions = {
   payload?: Payload
   tenantId?: string | number | null
+  unscoped?: boolean
+  throwOnError?: boolean
   studyType?: string | null
   includeInactive?: boolean
   includeCycles?: boolean
@@ -338,11 +340,13 @@ function toPublicWhere({
   includeInactive,
   includeCycles,
   studyType,
+  unscoped,
 }: {
   tenantId?: string | number | null
   includeInactive: boolean
   includeCycles: boolean
   studyType?: string | null
+  unscoped?: boolean
 }) {
   const filters = buildPublicFilters({
     includeInactive,
@@ -350,7 +354,11 @@ function toPublicWhere({
     studyType,
   })
   const where = filters.length > 0 ? { and: filters } : {}
-  return withTenantScope(where as Record<string, unknown>, tenantId)
+  return withTenantScope(
+    where as Record<string, unknown>,
+    tenantId,
+    unscoped ? { unscoped: true } : undefined,
+  )
 }
 
 function mapCourseDocToPublishedCourse(
@@ -462,6 +470,7 @@ export async function getPublishedCourses(options: GetPublishedCoursesOptions = 
       includeInactive,
       includeCycles,
       studyType: options.studyType,
+      unscoped: options.unscoped,
     })
 
     const docs: CourseDoc[] = []
@@ -488,6 +497,7 @@ export async function getPublishedCourses(options: GetPublishedCoursesOptions = 
     return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap))
   } catch (e) {
     console.error('Error fetching published courses:', e)
+    if (options.throwOnError) throw e
     return []
   }
 }

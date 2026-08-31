@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses';
 import { normalizePublicStudyType } from '@/app/lib/website/study-types';
-import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth';
+import { getAuthenticatedUserContext, isSuperadmin } from '@/app/api/leads/_lib/auth';
 
 /**
  * TypeScript interfaces for type safety
@@ -328,6 +328,8 @@ export async function GET(request?: NextRequest) {
     const courses = await getPublishedCourses({
       payload,
       tenantId: authContext?.tenantId ?? null,
+      unscoped: isSuperadmin(authContext),
+      throwOnError: true,
       includeInactive,
       includeCycles: false,
       studyType: requestedStudyType,

@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
 import { getPublicStudyTypeFallbackImage, normalizeStudyType } from '@/app/lib/website/study-types';
-import { withTenantScope } from '@/app/lib/server/tenant-scope';
+import { dashboardTenantScopeOptions, withTenantScope } from '@/app/lib/server/tenant-scope';
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth';
 
 interface AreaFormativa {
@@ -89,7 +89,11 @@ export async function GET(
 
     const result = await payload.find({
       collection: 'courses',
-      where: withTenantScope({ id: { equals: numericId } }, authContext.tenantId) as any,
+      where: withTenantScope(
+        { id: { equals: numericId } },
+        authContext.tenantId,
+        dashboardTenantScopeOptions(authContext.role),
+      ) as any,
       limit: 1,
       depth: 2,
     });
@@ -190,7 +194,11 @@ export async function PATCH(
 
     const existing = await payload.find({
       collection: 'courses',
-      where: withTenantScope({ id: { equals: numericId } }, authContext.tenantId) as any,
+      where: withTenantScope(
+        { id: { equals: numericId } },
+        authContext.tenantId,
+        dashboardTenantScopeOptions(authContext.role),
+      ) as any,
       limit: 1,
       depth: 0,
     });
