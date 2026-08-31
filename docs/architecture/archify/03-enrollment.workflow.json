@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Enrollment wizard",
+    "locale": "en",
+    "output": "03-enrollment.workflow.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "happy-path",
+        "label": "Four stages",
+        "focus": ["staff", "course", "person", "pago", "review"],
+        "note": "WIZARD_STAGES: convocatoria, alumno, pago y RGPD, confirmar."
+      },
+      {
+        "id": "gates",
+        "label": "Stage gates",
+        "focus": ["course", "person", "pago"],
+        "note": "Next stays disabled until course, identity fields, consent, and payment method are set."
+      },
+      {
+        "id": "draft",
+        "label": "Draft persistence",
+        "focus": ["staff", "draft"],
+        "note": "EnrollmentDraft lives in localStorage key akademate.enrollment.draft.v1 until confirm."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "chrome", "label": "SURF-DASH" },
+    { "id": "wizard", "label": "EnrollmentWizard" },
+    { "id": "store", "label": "Draft + API" }
+  ],
+  "phases": [
+    { "id": "open", "label": "Open", "fromCol": 0, "toCol": 0 },
+    { "id": "fill", "label": "Fill", "fromCol": 1, "toCol": 3, "variant": "emphasis" },
+    { "id": "commit", "label": "Commit", "fromCol": 4, "toCol": 4 }
+  ],
+  "mainPath": ["staff", "course", "person", "pago", "review"],
+  "nodes": [
+    { "id": "staff", "lane": "chrome", "col": 0, "type": "frontend", "label": "Staff", "sublabel": "/matriculas/wizard", "width": 140 },
+    { "id": "course", "lane": "wizard", "col": 1, "type": "frontend", "label": "Convocatoria", "sublabel": "step course", "tag": "stage 1", "width": 140 },
+    { "id": "person", "lane": "wizard", "col": 2, "type": "frontend", "label": "Alumno", "sublabel": "identify + personal", "tag": "stage 2", "width": 140 },
+    { "id": "pago", "lane": "wizard", "col": 3, "type": "security", "label": "Pago y RGPD", "sublabel": "consent + payment + access", "tag": "stage 3", "width": 150 },
+    { "id": "review", "lane": "wizard", "col": 4, "type": "backend", "label": "Confirmar", "sublabel": "step review", "tag": "stage 4", "width": 140 },
+    { "id": "draft", "lane": "store", "col": 2, "type": "database", "label": "localStorage", "sublabel": "akademate.enrollment.draft.v1", "width": 160 }
+  ],
+  "edges": [
+    { "id": "open-wizard", "from": "staff", "to": "course", "label": "start", "variant": "emphasis" },
+    { "id": "pick-course", "from": "course", "to": "person", "label": "course selected" },
+    { "id": "identity-ok", "from": "person", "to": "pago", "label": "name email phone" },
+    { "id": "consent-pay", "from": "pago", "to": "review", "label": "consent + method", "variant": "security" },
+    { "id": "save-draft", "from": "person", "to": "draft", "label": "saveEnrollmentDraft", "variant": "dashed" },
+    { "id": "load-draft", "from": "draft", "to": "course", "label": "loadEnrollmentDraft", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Codes in source",
+      "items": [
+        "WIZARD_STAGES in apps/tenant-admin/.../matriculas/wizard/types.ts",
+        "Gates in EnrollmentWizard nextDisabledReason",
+        "Payment methods: sepa, card_online, card_pos, transfer, cash"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "What this is not",
+      "items": [
+        "This map is the staff wizard on SURF-DASH",
+        "It is not a traffic or vertical simulator",
+        "Confirm still posts through the tenant-admin enrollment API"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AKADEMATE product surfaces",
+    "locale": "en",
+    "output": "01-surfaces.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "academy-path",
+        "label": "Academy path",
+        "focus": ["surf-portal", "surf-dash", "surf-public", "surf-campus"],
+        "note": "SURF-PORTAL hands academy staff and learners into dashboard, public site, and campus."
+      },
+      {
+        "id": "ops-path",
+        "label": "Ops path",
+        "focus": ["surf-portal", "surf-ops"],
+        "note": "Platform ops stays on SHELL-OPS. It does not reuse SHELL-DASH."
+      },
+      {
+        "id": "marketing-path",
+        "label": "Marketing path",
+        "focus": ["surf-web", "surf-dash"],
+        "note": "SURF-WEB /login routes into the academy app login, then SHELL-DASH."
+      }
+    ]
+  },
+  "components": [
+    { "id": "surf-portal", "type": "frontend", "label": "SURF-PORTAL", "sublabel": "apps/portal", "pos": [40, 80], "size": [150, 64], "tag": "access hub" },
+    { "id": "surf-web", "type": "frontend", "label": "SURF-WEB", "sublabel": "apps/web", "pos": [280, 80], "size": [150, 64], "tag": "SaaS marketing" },
+    { "id": "surf-ops", "type": "frontend", "label": "SURF-OPS", "sublabel": "apps/admin-client", "pos": [40, 260], "size": [150, 64], "tag": "SHELL-OPS" },
+    { "id": "surf-dash", "type": "frontend", "label": "SURF-DASH", "sublabel": "tenant-admin dashboard", "pos": [280, 260], "size": [170, 64], "tag": "SHELL-DASH" },
+    { "id": "surf-public", "type": "frontend", "label": "SURF-PUBLIC", "sublabel": "tenant-admin (public)", "pos": [40, 440], "size": [150, 64], "tag": "SHELL-PUBLIC" },
+    { "id": "surf-campus", "type": "frontend", "label": "SURF-CAMPUS", "sublabel": "tenant-admin /campus", "pos": [280, 440], "size": [170, 64], "tag": "SHELL-CAMPUS" },
+    { "id": "surf-cms", "type": "frontend", "label": "SURF-CMS", "sublabel": "Payload admin", "pos": [530, 440], "size": [150, 64], "tag": "CMS chrome" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Academy tenant window", "wraps": ["surf-dash", "surf-public", "surf-campus", "surf-cms"] },
+    { "kind": "region", "label": "Platform window", "wraps": ["surf-ops"] }
+  ],
+  "connections": [
+    { "id": "web-to-dash", "from": "surf-web", "to": "surf-dash", "label": "/login to app", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "portal-to-dash", "from": "surf-portal", "to": "surf-dash", "label": "staff entry" },
+    { "id": "portal-to-ops", "from": "surf-portal", "to": "surf-ops", "label": "ops entry", "labelDy": 24 },
+    { "id": "dash-to-public", "from": "surf-dash", "to": "surf-public", "label": "own html document" },
+    { "id": "dash-to-campus", "from": "surf-dash", "to": "surf-campus", "label": "campus routes", "labelDy": 24 },
+    { "id": "dash-to-cms", "from": "surf-dash", "to": "surf-cms", "label": "Payload chrome" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Source",
+      "items": [
+        "AKA-ARCH-UI-001.ingest.json SURF-* and FIG-01 diagrams/01-surfaces.mmd",
+        "ADR-U6: tenant public is its own html document",
+        "ADR-U7 / ADR-U8: ops is apps/admin-client; campus product routes live under tenant-admin"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Shells",
+      "items": [
+        "SHELL-DASH: AppSidebar + SidebarProvider",
+        "SHELL-CAMPUS: CampusShell (sidebar + topbar)",
+        "SHELL-PUBLIC / SHELL-OPS / SHELL-MKT stay separate catalogs of chrome, same primitive slugs"
+      ]
+    }
+  ]
+}

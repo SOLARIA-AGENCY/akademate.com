@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AKADEMATE Cloudflare runtime",
+    "locale": "en",
+    "output": "04-cloudflare-runtime.architecture.html",
+    "quality_profile": "showcase",
+    "viewBox": [1040, 640],
+    "views": [
+      {
+        "id": "request-path",
+        "label": "Primary request",
+        "focus": ["edge", "unit-app", "d1"],
+        "note": "Edge then UNIT-APP then TenantDataContext into D1 Control and shards."
+      },
+      {
+        "id": "seven-workers",
+        "label": "Seven units",
+        "focus": ["unit-app", "unit-ctrl", "unit-int", "unit-media", "unit-evt", "unit-auto", "unit-agents"],
+        "note": "ADR-C2: seven deployment units. Domain modules compose inside those units."
+      },
+      {
+        "id": "ops-and-agents",
+        "label": "Ops and agents",
+        "focus": ["edge", "unit-ctrl", "unit-agents"],
+        "note": "Access fronts UNIT-CTRL. Agents call Control API after Policy Engine R0-R4."
+      }
+    ]
+  },
+  "components": [
+    { "id": "unit-ctrl", "type": "backend", "label": "UNIT-CTRL", "sublabel": "akademate-control", "pos": [80, 80], "size": [168, 64], "tag": "Platform Ops" },
+    { "id": "unit-agents", "type": "backend", "label": "UNIT-AGENTS", "sublabel": "akademate-agents", "pos": [300, 80], "size": [168, 64], "tag": "Policy R0-R4" },
+    { "id": "r2", "type": "cloud", "label": "R2", "sublabel": "tenant prefixes", "pos": [540, 80], "size": [160, 64], "tag": "ADR-C5" },
+    { "id": "queues", "type": "messagebus", "label": "Queues", "sublabel": "Q-DOMAIN to Q-AGENT", "pos": [780, 80], "size": [160, 64], "tag": "DLQ" },
+    { "id": "edge", "type": "security", "label": "Edge", "sublabel": "DNS SaaS WAF Access", "pos": [80, 280], "size": [168, 64], "tag": "PLANE-1", "brand": "cloudflare" },
+    { "id": "unit-app", "type": "backend", "label": "UNIT-APP", "sublabel": "akademate-app", "pos": [300, 280], "size": [168, 64], "tag": "BFF + tenant API" },
+    { "id": "d1", "type": "database", "label": "D1", "sublabel": "Control + shards", "pos": [540, 280], "size": [160, 64], "tag": "TenantDataContext" },
+    { "id": "unit-evt", "type": "backend", "label": "UNIT-EVT", "sublabel": "akademate-events", "pos": [780, 280], "size": [160, 64], "tag": "consumers" },
+    { "id": "unit-int", "type": "backend", "label": "UNIT-INT", "sublabel": "akademate-integrations", "pos": [300, 480], "size": [168, 64], "tag": "OAuth webhooks" },
+    { "id": "unit-media", "type": "backend", "label": "UNIT-MEDIA", "sublabel": "akademate-media", "pos": [540, 480], "size": [160, 64], "tag": "uploads + Stream" },
+    { "id": "unit-auto", "type": "backend", "label": "UNIT-AUTO", "sublabel": "akademate-automation", "pos": [780, 480], "size": [160, 64], "tag": "Workflows + Cron" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Plane 1 Cloudflare interior", "wraps": ["edge", "unit-app", "unit-ctrl", "unit-int", "unit-media", "unit-evt", "unit-auto", "unit-agents", "d1", "r2", "queues"] },
+    { "kind": "security-group", "label": "Access: Ops", "wraps": ["edge", "unit-ctrl"] }
+  ],
+  "connections": [
+    { "id": "edge-to-app", "from": "edge", "to": "unit-app", "label": "Turnstile", "variant": "emphasis" },
+    { "id": "edge-to-ctrl", "from": "edge", "to": "unit-ctrl", "label": "Access", "variant": "security", "fromSide": "top", "toSide": "bottom" },
+    { "id": "app-to-d1", "from": "unit-app", "to": "d1", "label": "tenant data", "variant": "emphasis" },
+    { "id": "app-to-int", "from": "unit-app", "to": "unit-int", "fromSide": "bottom", "toSide": "top" },
+    { "id": "app-to-r2", "from": "unit-app", "to": "r2", "label": "objects", "fromSide": "top", "toSide": "bottom" },
+    { "id": "queues-to-evt", "from": "queues", "to": "unit-evt", "label": "consume", "fromSide": "bottom", "toSide": "top", "labelDy": 24 },
+    { "id": "auto-to-evt", "from": "unit-auto", "to": "unit-evt", "fromSide": "top", "toSide": "bottom" },
+    { "id": "agents-to-ctrl", "from": "unit-agents", "to": "unit-ctrl" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Implement these units",
+      "items": [
+        "Seven Workers plus Edge, D1, R2, Queues (FIG-02, ADR-C1, ADR-C2).",
+        "UNIT-APP also fans out to MEDIA and enqueue on Q-* (FIG-06)."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Async and agents",
+      "items": [
+        "Queues with DLQ. Workflows per run (ADR-C6).",
+        "Agents: Policy Engine then Control API then AI Gateway (ADR-C8)."
+      ]
+    }
+  ]
+}

@@ -1,15 +1,17 @@
 ---
-description: Official AKADEMATE printable architecture descriptions (ISO 7200 / 42010 / arc42, agent ingest, A4 print).
-globs: docs/architecture/**,docs/architecture/official/**
+description: Official AKADEMATE printable architecture descriptions and Archify maps (ISO 7200 / 42010 / arc42, agent ingest, A4 print).
+globs: docs/architecture/**,docs/architecture/official/**,docs/architecture/ui/**,docs/architecture/archify/**
 alwaysApply: false
 ---
 
 # Architecture description print pack
 
-Before writing or revising an architecture PDF, HTML print source, Mermaid atlas, or agent-ingest sidecar, read and follow:
+Canonical architecture reference: `docs/architecture/official/` (runtime), `docs/architecture/ui/` (frontend), `docs/architecture/archify/` (interactive maps). Prefer these over older specs when they conflict.
+
+Before writing or revising an architecture PDF, HTML print source, Mermaid atlas, Archify map, or agent-ingest sidecar, read and follow:
 
 `~/.cursor/skills/akademate-architecture-description/SKILL.md`
 
 Repo copy: `.cursor/skills/akademate-architecture-description/SKILL.md`
 
-Hard gates: affirmative English, no host-vendor names in the AD, split sheets instead of footer overflow, Mermaid as selectable text plus `.mmd`, `verify_print_pdf.py` before done.
+Hard gates: affirmative English, no host-vendor names in the AD, split sheets instead of footer overflow, Mermaid as selectable text plus `.mmd`, `verify_print_pdf.py` before done. Archify maps: typed JSON IR, `deliver --quality showcase` 9/9 before calling HTML done.

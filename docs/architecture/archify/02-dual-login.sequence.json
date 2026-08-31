@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Dual login: staff and campus",
+    "locale": "en",
+    "output": "02-dual-login.sequence.html",
+    "viewBox": [960, 780],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "staff-login",
+        "label": "Staff login",
+        "focus": ["host", "mw", "staff-ui", "users-api", "dash"],
+        "note": "GET /auth/login then POST /api/users/login sets payload-token and opens SHELL-DASH."
+      },
+      {
+        "id": "campus-login",
+        "label": "Campus login",
+        "focus": ["host", "mw", "campus-ui", "campus-api", "campus"],
+        "note": "GET /campus/login is public. POST /api/campus/login issues the campus JWT and opens SHELL-CAMPUS."
+      },
+      {
+        "id": "middleware-gate",
+        "label": "Middleware gate",
+        "focus": ["host", "mw", "staff-ui", "campus-ui"],
+        "note": "Dashboard routes without a staff cookie redirect to /login. /campus and /campus/login pass without that cookie."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "host", "type": "external", "label": "Tenant host", "sublabel": "browser" },
+    { "id": "mw", "type": "security", "label": "middleware.ts", "sublabel": "host + cookie" },
+    { "id": "staff-ui", "type": "frontend", "label": "SURF-DASH", "sublabel": "/auth/login" },
+    { "id": "users-api", "type": "backend", "label": "Users API", "sublabel": "/api/users/login" },
+    { "id": "dash", "type": "frontend", "label": "SHELL-DASH", "sublabel": "AppSidebar" },
+    { "id": "campus-ui", "type": "frontend", "label": "SURF-CAMPUS", "sublabel": "/campus/login" },
+    { "id": "campus-api", "type": "backend", "label": "Campus API", "sublabel": "/api/campus/login" },
+    { "id": "campus", "type": "frontend", "label": "SHELL-CAMPUS", "sublabel": "CampusShell" }
+  ],
+  "segments": [
+    { "from": 150, "to": 390, "label": "Staff" },
+    { "from": 410, "to": 690, "label": "Campus" }
+  ],
+  "messages": [
+    { "id": "staff-get", "from": "host", "to": "mw", "y": 175, "label": "GET /auth/login", "variant": "emphasis" },
+    { "id": "staff-pass", "from": "mw", "to": "staff-ui", "y": 215, "label": "allow login page", "variant": "default" },
+    { "id": "staff-post", "from": "staff-ui", "to": "users-api", "y": 255, "label": "POST /api/users/login", "variant": "security" },
+    { "id": "staff-cookie", "from": "users-api", "to": "staff-ui", "y": 295, "label": "payload-token cookie", "variant": "return" },
+    { "id": "staff-shell", "from": "staff-ui", "to": "dash", "y": 335, "label": "open SHELL-DASH", "variant": "emphasis" },
+    { "id": "dash-ok", "from": "dash", "to": "host", "y": 375, "label": "dashboard", "variant": "return" },
+    { "id": "campus-get", "from": "host", "to": "mw", "y": 445, "label": "GET /campus/login", "variant": "emphasis" },
+    { "id": "campus-pass", "from": "mw", "to": "campus-ui", "y": 485, "label": "no staff cookie required", "variant": "default" },
+    { "id": "campus-post", "from": "campus-ui", "to": "campus-api", "y": 525, "label": "POST /api/campus/login", "variant": "security" },
+    { "id": "campus-jwt", "from": "campus-api", "to": "campus-ui", "y": 565, "label": "campus JWT", "variant": "return" },
+    { "id": "campus-shell", "from": "campus-ui", "to": "campus", "y": 605, "label": "open SHELL-CAMPUS", "variant": "emphasis" },
+    { "id": "campus-ok", "from": "campus", "to": "host", "y": 645, "label": "campus home", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "mw", "from": 170, "to": 220, "type": "security" },
+    { "participant": "staff-ui", "from": 210, "to": 380, "type": "frontend" },
+    { "participant": "users-api", "from": 250, "to": 300, "type": "backend" },
+    { "participant": "dash", "from": 330, "to": 380, "type": "frontend" },
+    { "participant": "mw", "from": 440, "to": 490, "type": "security" },
+    { "participant": "campus-ui", "from": 480, "to": 650, "type": "frontend" },
+    { "participant": "campus-api", "from": 520, "to": 570, "type": "backend" },
+    { "participant": "campus", "from": 600, "to": 650, "type": "frontend" }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Two cookies",
+      "items": [
+        "Staff: payload-token from POST /api/users/login",
+        "Learner: campus JWT from POST /api/campus/login",
+        "SURF-WEB /login routes to the academy app login (FIG-08)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Evidence",
+      "items": [
+        "apps/tenant-admin/middleware.ts via public-routing-middleware.test.ts",
+        "apps/tenant-admin/app/(app)/login/page.tsx re-exports /auth/login",
+        "apps/tenant-admin/app/(app)/campus/providers/SessionProvider.tsx"
+      ]
+    }
+  ]
+}
