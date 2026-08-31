@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 
 export const dynamic = 'force-dynamic'
@@ -43,10 +42,7 @@ export default async function FaqsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title="FAQs"
-        description="Gestión de preguntas frecuentes publicadas en la web."
-      />
+
 
       <div className="flex flex-wrap gap-2">
         <Link

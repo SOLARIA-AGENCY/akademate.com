@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
 import {
@@ -15,8 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, GraduationCap, Calendar, Clock } from 'lucide-react'
-
+import { Plus, Search, Calendar, Clock } from 'lucide-react'
 /** Represents a Ciclo Formativo de Grado Medio */
 interface CicloMedio {
   id: string
@@ -296,42 +294,29 @@ export default function CiclosMedioPage() {
           {errorMessage}
         </div>
       )}
-      <PageHeader
-        title="Ciclos Formativos de Grado Medio"
-        description="Gestión compacta de ciclos, plazas y modalidades."
-        icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="v3pqq8e">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
-        actions={
-          <Button onClick={handleAdd} data-oid="9tt8pjd">
-            <Plus className="mr-2 h-4 w-4" data-oid="it4ei3l" />
-            Nuevo Ciclo
-          </Button>
-        }
-        filters={
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="q:8hoxo">
-            <Badge variant="outline" data-oid="amtzd6p">
-              {stats.total} ciclos
-            </Badge>
-            <Badge variant="outline" data-oid="1z:s02i">
-              {stats.totalPlazas} plazas
-            </Badge>
-            <Badge variant="outline" data-oid="gbr6p0o">
-              {stats.plazasOcupadas} ocupadas
-            </Badge>
-            <Badge variant="outline" data-oid="5usnhog">
-              Ocupación {tasaOcupacion}%
-            </Badge>
-            <Badge variant="outline" data-oid="94bnau7">
-              {stats.cursosActivos} cursos activos
-            </Badge>
-          </div>
-        }
-        data-oid="8w3yhk:"
-      />
+      <div className="flex flex-col gap-3">
+        <Button onClick={handleAdd} data-oid="9tt8pjd">
+                    <Plus className="mr-2 h-4 w-4" data-oid="it4ei3l" />
+                    Nuevo Ciclo
+                  </Button>
+        <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="q:8hoxo">
+                    <Badge variant="outline" data-oid="amtzd6p">
+                      {stats.total} ciclos
+                    </Badge>
+                    <Badge variant="outline" data-oid="1z:s02i">
+                      {stats.totalPlazas} plazas
+                    </Badge>
+                    <Badge variant="outline" data-oid="gbr6p0o">
+                      {stats.plazasOcupadas} ocupadas
+                    </Badge>
+                    <Badge variant="outline" data-oid="5usnhog">
+                      Ocupación {tasaOcupacion}%
+                    </Badge>
+                    <Badge variant="outline" data-oid="94bnau7">
+                      {stats.cursosActivos} cursos activos
+                    </Badge>
+                  </div>
+      </div>
 
       <Card data-oid="y:jjkmt">
         <CardContent className="pt-6 text-left" data-oid="ermbj.a">

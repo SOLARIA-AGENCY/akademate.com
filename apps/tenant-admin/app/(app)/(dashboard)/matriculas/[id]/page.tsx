@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Loader2, ArrowLeft, Edit, UserPlus, GraduationCap, CreditCard, User } from 'lucide-react'
 
 interface Props {
@@ -107,12 +106,7 @@ export default function MatriculaDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Matrícula #${id}`}
-        description={leadName}
-        icon={GraduationCap}
-        actions={
-          <div className="flex gap-2">
+      <div className="flex gap-2">
             {doc?.lead?.id ? (
               <Button
                 variant="outline"
@@ -131,8 +125,6 @@ export default function MatriculaDetailPage({ params }: Props) {
               Volver
             </Button>
           </div>
-        }
-      />
 
       {error ? (
         <Card>

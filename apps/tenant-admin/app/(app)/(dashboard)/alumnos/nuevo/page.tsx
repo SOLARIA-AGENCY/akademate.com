@@ -12,7 +12,6 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -81,16 +80,9 @@ export default function NewAlumnoPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <PageHeader
-        title="Nuevo Alumno"
-        description="Registra un nuevo alumno en el sistema"
-        icon={User}
-        actions={
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+      <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-        }
-      />
 
       <form onSubmit={handleSubmit}>
         <Card>

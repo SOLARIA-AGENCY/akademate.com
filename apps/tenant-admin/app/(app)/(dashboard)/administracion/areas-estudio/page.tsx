@@ -5,7 +5,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Plus, Trash2, Save, Loader2, BookOpen, Check, Palette, X, Pencil } from 'lucide-react'
 
 interface Area {
@@ -119,16 +118,9 @@ export default function AreasEstudioPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Areas de Estudio"
-        description="Gestiona las areas de conocimiento para ciclos y cursos"
-        icon={BookOpen}
-        actions={
-          <Button size="sm" onClick={startNew} disabled={showNew}>
+      <Button size="sm" onClick={startNew} disabled={showNew}>
             <Plus className="mr-1 h-4 w-4" /> Nueva Area
           </Button>
-        }
-      />
 
       {/* New area form */}
       {showNew && (

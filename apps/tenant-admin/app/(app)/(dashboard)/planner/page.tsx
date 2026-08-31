@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   LayoutGrid,
   Plus,
@@ -528,29 +527,10 @@ export default function PlannerPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title="Planner Visual"
-        description="Arrastra convocatorias entre columnas para cambiar su estado"
-        icon={LayoutGrid}
-        badge={
-          <div className="flex items-center gap-2">
-	            <Badge variant="secondary">{totalCards} convocatorias</Badge>
-	            {openConflictCount > 0 && (
-	              <Badge variant="destructive" className="gap-1">
-	                <AlertTriangle className="h-3 w-3" />
-	                {openConflictCount} conflictos
-	              </Badge>
-	            )}
-	            {updating && <Badge variant="outline" className="animate-pulse">Guardando...</Badge>}
-          </div>
-        }
-        actions={
-          <Button onClick={() => router.push('/dashboard/programacion/nueva')}>
+      <Button onClick={() => router.push('/dashboard/programacion/nueva')}>
             <Plus className="mr-2 h-4 w-4" />
             Nueva Convocatoria
           </Button>
-        }
-      />
 
       {/* Sede filter */}
       <Card className="p-3">

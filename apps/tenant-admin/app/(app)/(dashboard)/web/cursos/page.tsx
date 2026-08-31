@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -95,17 +94,7 @@ export default function WebCursosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Cursos Publicados"
-        description="Catálogo publicable unificado desde Cursos. El estado de publicación usa el campo activo."
-        icon={Globe}
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{courses.length} total</Badge>
-            <Badge variant="success">{publishedCount} publicados</Badge>
-          </div>
-        }
-      />
+
 
       {isLoading && (
         <Card>

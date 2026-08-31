@@ -6,7 +6,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Save,
   Building2,
@@ -243,18 +242,10 @@ export default function ConfigGeneralPage() {
 
   return (
     <div className="space-y-6 max-w-5xl" data-oid="b61obzp">
-      <PageHeader
-        title="Configuración General"
-        description="Datos de la academia, fiscales, contacto y redes sociales"
-        icon={Building2}
-        actions={
-          <Button onClick={handleSave} data-oid="4ipn3fx">
+      <Button onClick={handleSave} data-oid="4ipn3fx">
             <Save className="mr-2 h-4 w-4" data-oid="k3z33a." />
             Guardar Cambios
           </Button>
-        }
-        data-oid="a6vifmz"
-      />
 
       {showSuccess && (
         <div

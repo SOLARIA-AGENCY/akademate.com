@@ -9,7 +9,6 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -17,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, Lock, Briefcase, Building2, Monitor, List } from 'lucide-react'
+import { Plus, Search, Lock, Briefcase, Building2, Monitor } from 'lucide-react'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
@@ -238,28 +237,9 @@ function CursosPageContent() {
     },
   }
 
-  const config = filterType !== 'all' ? tiposConfig[filterType] : undefined
-  const Icon = config?.icon ?? List
-
   return (
     <div className="space-y-6" data-oid="bkc0c9v">
-      <PageHeader
-        title={isTypeLandingPage ? 'Tipos de Cursos' : (config?.title ?? 'Catálogo de Cursos')}
-        description={
-          isTypeLandingPage
-            ? 'Selecciona un tipo para ver su catálogo de cursos.'
-            : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
-        }
-        icon={Icon}
-        iconBgColor={config?.bgColor ?? 'bg-primary/10'}
-        iconColor={config?.color ?? 'text-primary'}
-        badge={
-          <Badge variant="secondary" data-oid="m2mems3">
-            {isTypeLandingPage ? `${PRIMARY_COURSE_TYPES.length} categorías` : `${filteredCourses.length} cursos`}
-          </Badge>
-        }
-        actions={
-          <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
             {!isTypeLandingPage && (
               <Button variant="outline" onClick={goToTypeLanding}>
                 Ver tipos
@@ -270,9 +250,6 @@ function CursosPageContent() {
               Nuevo Curso
             </Button>
           </div>
-        }
-        data-oid="-ia7n0u"
-      />
 
       <UsageBar resource="cursos" current={cursos.length} limit={getLimit(plan, 'cursos')} />
 

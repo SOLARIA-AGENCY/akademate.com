@@ -63,15 +63,6 @@ describe('WebConvocatoriasPage', () => {
     vi.clearAllMocks()
   })
 
-  it('renders page title with "Convocatorias"', async () => {
-    mockFetchResponse({ data: [] })
-    render(<WebConvocatoriasPage />)
-
-    await waitFor(() => {
-      expect(screen.getByTestId('page-header-title')).toHaveTextContent('Convocatorias')
-    })
-  })
-
   it('shows loading state initially', () => {
     // Make fetch hang to keep loading state
     ;(global.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(new Promise(() => {}))

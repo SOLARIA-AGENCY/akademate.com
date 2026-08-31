@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Activity,
   CheckCircle2,
@@ -282,12 +281,7 @@ export default function EstadoSistemaPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto" data-oid="ebm9k.2">
-      <PageHeader
-        title="Estado del Sistema"
-        description="Monitorización en tiempo real de todos los servicios"
-        icon={Activity}
-        actions={
-          <Button
+      <Button
             onClick={handleRefresh}
             disabled={isRefreshing}
             variant="outline"
@@ -300,9 +294,6 @@ export default function EstadoSistemaPage() {
             />
             Actualizar
           </Button>
-        }
-        data-oid="9-w3mdd"
-      />
 
       {/* Overall Status Banner */}
       <Card className={`border-2 ${getStatusBgColor(overallStatus)}`} data-oid="3kb5:vy">

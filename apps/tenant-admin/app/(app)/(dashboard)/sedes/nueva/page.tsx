@@ -9,7 +9,6 @@ import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Switch } from '@payload-config/components/ui/switch'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   MapPin,
   ArrowLeft,
@@ -397,11 +396,7 @@ export default function NuevaSedeRage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Nueva Sede"
-        description="Registra un nuevo centro o campus"
-        icon={MapPin}
-      />
+
 
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/sedes')}>

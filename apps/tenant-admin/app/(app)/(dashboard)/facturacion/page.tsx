@@ -5,15 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/compon
 import { useToast } from '@payload-config/hooks/use-toast'
 import { useBillingData } from '@payload-config/hooks/useBillingData'
 import { useSubscription } from '@payload-config/hooks/useSubscription'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { SubscriptionCard } from './components/SubscriptionCard'
 import { PlanComparison } from './components/PlanComparison'
 import { InvoicesTable } from './components/InvoicesTable'
 import { PaymentMethodsList } from './components/PaymentMethodsList'
 import { TransactionHistory } from './components/TransactionHistory'
 import { CancelSubscriptionDialog } from './components/CancelSubscriptionDialog'
-import { CreditCard } from 'lucide-react'
-
 // ============================================================================
 // Local Type Definitions
 // These mirror the types from @payload-config/types/billing to avoid
@@ -395,12 +392,7 @@ export default function FacturacionPage() {
 
   return (
     <div className="space-y-6" data-oid="x:h7rgk">
-      <PageHeader
-        title="Facturacion y Suscripciones"
-        description="Gestiona tu suscripcion, facturas y metodos de pago"
-        icon={CreditCard}
-        data-oid="z.1zc_2"
-      />
+
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6" data-oid="6zze86c">

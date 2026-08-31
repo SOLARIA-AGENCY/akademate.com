@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Input } from '@payload-config/components/ui/input'
 import {
   UserPlus,
@@ -125,12 +124,7 @@ export default function InscripcionesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Inscripciones"
-        description="Preinscripciones y registros orgánicos sin campaña activa resuelta"
-        icon={UserPlus}
-        badge={stats.new > 0 ? <Badge variant="destructive">{stats.new} nuevas</Badge> : undefined}
-      />
+
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         {[

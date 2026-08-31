@@ -12,7 +12,6 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -300,12 +299,7 @@ export default function ListaEsperaPage() {
 
   return (
     <div className="space-y-6" data-oid=":z2a6yu">
-      <PageHeader
-        title="Lista de Espera"
-        description="Gestión de alumnos en espera para cursos con plazas completas"
-        icon={ListTodo}
-        actions={
-          <>
+      <>
             <Button variant="outline" data-oid="53sf6zb">
               <Download className="mr-2 h-4 w-4" data-oid="4i5_man" />
               Exportar
@@ -315,9 +309,6 @@ export default function ListaEsperaPage() {
               Añadir a Lista
             </Button>
           </>
-        }
-        data-oid="o_b65jb"
-      />
 
       {loadError && (
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">

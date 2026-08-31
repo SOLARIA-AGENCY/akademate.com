@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -252,12 +251,7 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-6" data-oid="8-wjh0.">
-      <PageHeader
-        title="Usuarios"
-        description="Gestión de usuarios y control de acceso"
-        icon={Users}
-        actions={
-          <div className="flex gap-2" data-oid="xxov.8b">
+      <div className="flex gap-2" data-oid="xxov.8b">
             <Button variant="outline" data-oid=".tl_hbl">
               <Upload className="mr-2 h-4 w-4" data-oid="tfz0_hx" />
               Importar
@@ -337,9 +331,6 @@ export default function UsuariosPage() {
               </DialogContent>
             </Dialog>
           </div>
-        }
-        data-oid="pb8_3jy"
-      />
 
       {/* Estadísticas */}
       <div className="grid gap-4 md:grid-cols-4" data-oid="h2ynq.2">

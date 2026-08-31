@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { AlertTriangle, ArrowLeft, Copy, Megaphone, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Copy, RefreshCw } from 'lucide-react'
 import {
   CartesianGrid,
   Legend,
@@ -292,13 +291,7 @@ export default function CampaignDetailPage({ params }: Props) {
         </div>
       )}
 
-      <PageHeader
-        title={detail?.campaign?.name || `Campaña ${id}`}
-        description="Detalle completo de campaña"
-        icon={Megaphone}
-        badge={<Badge variant="outline" className={statusConfig.className}>{statusConfig.label}</Badge>}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
             <Select value={range} onValueChange={(value) => setRange(value as RangeOption)}>
               <SelectTrigger className="w-[170px]">
                 <SelectValue />
@@ -339,8 +332,6 @@ export default function CampaignDetailPage({ params }: Props) {
               Volver
             </Button>
           </div>
-        }
-      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <Card>

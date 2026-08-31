@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Card,
   CardContent,
@@ -313,17 +312,7 @@ export default function DesignSystemPage() {
 
   return (
     <div className={densityClass} data-oid="0uxreal">
-      <PageHeader
-        title="Design System Completo"
-        description="Fundaciones visuales, tipografías, colores, cursos, listados y patrones reutilizables para todo el tenant dashboard"
-        icon={Palette}
-        badge={
-          <Badge variant="secondary" data-oid="ew5citt">
-            UI FOUNDATION
-          </Badge>
-        }
-        actions={
-          <div className="flex items-center gap-2" data-oid="z6hjh3u">
+      <div className="flex items-center gap-2" data-oid="z6hjh3u">
             <Select
               value={density}
               onValueChange={(value: 'compacta' | 'regular' | 'amplia') => setDensity(value)}
@@ -352,9 +341,6 @@ export default function DesignSystemPage() {
               Simular progreso
             </Button>
           </div>
-        }
-        data-oid="_3q1a4r"
-      />
 
       <Tabs defaultValue="foundations" className="space-y-4" data-oid="22zo9p3">
         <TabsList className="flex flex-wrap h-auto" data-oid="lyb.c4e">
@@ -1399,7 +1385,7 @@ export default function DesignSystemPage() {
                   </AccordionTrigger>
                   <AccordionContent data-oid="f8mls71">
                     <p className="text-sm text-muted-foreground" data-oid="pcwb8.6">
-                      `PageHeader` + KPI row (4 cards) + grid 2/1 (chart + objetivos) + tabla
+                      SiteHeader sticky + KPI row (4 cards) + grid 2/1 (chart + objetivos) + tabla
                       operativa + acciones rápidas.
                     </p>
                   </AccordionContent>
@@ -1410,8 +1396,8 @@ export default function DesignSystemPage() {
                   </AccordionTrigger>
                   <AccordionContent data-oid="nsle9vy">
                     <p className="text-sm text-muted-foreground" data-oid="elqidf3">
-                      `PageHeader` con acciones, card de filtros, tabla principal, paginación y
-                      panel lateral (`Sheet`) para edición.
+                      SiteHeader sticky, acciones en página, card de filtros, tabla principal,
+                      paginación y panel lateral (`Sheet`) para edición.
                     </p>
                   </AccordionContent>
                 </AccordionItem>
@@ -1421,8 +1407,8 @@ export default function DesignSystemPage() {
                   </AccordionTrigger>
                   <AccordionContent data-oid="nev7dl:">
                     <p className="text-sm text-muted-foreground" data-oid="ajxpt_5">
-                      `PageHeader` + tabs de configuración + formularios por secciones + alertas de
-                      estado y bloque de acciones persistente.
+                      SiteHeader sticky + tabs de configuración + formularios por secciones +
+                      alertas de estado y bloque de acciones persistente.
                     </p>
                   </AccordionContent>
                 </AccordionItem>
@@ -1440,15 +1426,15 @@ export default function DesignSystemPage() {
             <CardContent className="space-y-3 text-sm" data-oid="4370s_:">
               <div className="flex items-start gap-2" data-oid="k-vlo3a">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="33kn5.y" />
-                Usar `PageHeader` en todas las páginas de primer nivel.
+                El título sale de SiteHeader sticky y breadcrumb de sidebar-16. No hay header local.
               </div>
               <div className="flex items-start gap-2" data-oid="vsskr7r">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="xh:d3wk" />
-                Mantener `withCard=true` por defecto para bloques de título encuadrados.
+                Cards de contenido y KPI siguen en `Card`. El título no va en una card.
               </div>
               <div className="flex items-start gap-2" data-oid="assft1q">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="n.tljnk" />
-                En detalle/edición usar `withCard=false` solo si hay hero contextual justificado.
+                En detalle/edición no se inventa un header local. Acciones quedan en la página.
               </div>
               <div className="flex items-start gap-2" data-oid="q-d:otd">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="olg6ano" />
@@ -1471,7 +1457,7 @@ export default function DesignSystemPage() {
               </div>
               <div className="flex items-start gap-2" data-oid="hj2gjfu">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="mfw23jz" />
-                Mantener jerarquía: `PageHeader` → KPIs → bloque principal → secundarios.
+                Mantener jerarquía: SiteHeader → KPIs en Card → bloque principal → secundarios.
               </div>
               <div className="flex items-start gap-2" data-oid="5x23prl">
                 <CircleCheck className="h-4 w-4 mt-0.5 text-primary" data-oid="-p2mz-6" />

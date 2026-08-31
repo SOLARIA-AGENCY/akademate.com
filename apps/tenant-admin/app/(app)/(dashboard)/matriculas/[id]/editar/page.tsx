@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Loader2, ArrowLeft, Save, Eye, UserPlus, Upload, Edit } from 'lucide-react'
 
 interface Props {
@@ -251,12 +250,7 @@ export default function MatriculaEditPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Editar Matrícula #${id}`}
-        description="Actualiza convocatoria, pago y ficha completa del alumno"
-        icon={Edit}
-        actions={
-          <div className="flex gap-2">
+      <div className="flex gap-2">
             {doc?.lead?.id ? (
               <Button
                 variant="outline"
@@ -275,8 +269,6 @@ export default function MatriculaEditPage({ params }: Props) {
               Volver
             </Button>
           </div>
-        }
-      />
 
       {error ? (
         <Card>

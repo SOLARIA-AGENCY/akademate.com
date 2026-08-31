@@ -11,7 +11,6 @@ import {
 import { Switch } from '@payload-config/components/ui/switch'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { useToast, type UseToastReturn } from '@payload-config/hooks/use-toast'
 import { ToggleLeft } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
@@ -113,12 +112,7 @@ export default function FeatureFlagsPage() {
 
   return (
     <div className="space-y-6" data-oid="5b0e9z2">
-      <PageHeader
-        title="Feature Flags"
-        description="Rollouts por tenant y plan"
-        icon={ToggleLeft}
-        data-oid="9.too6j"
-      />
+
 
       <Card data-oid="lghf3cd">
         <CardHeader data-oid="dcv:5_c">

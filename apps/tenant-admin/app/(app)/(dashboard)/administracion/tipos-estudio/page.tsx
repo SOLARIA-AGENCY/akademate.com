@@ -5,7 +5,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Plus, Trash2, Save, Loader2, Tag, Check, X, Pencil } from 'lucide-react'
 
 interface CourseType {
@@ -136,16 +135,9 @@ export default function TiposEstudioPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Tipos de Estudio"
-        description="Define los tipos de curso por audiencia o modalidad"
-        icon={Tag}
-        actions={
-          <Button size="sm" onClick={startNew} disabled={showNew}>
+      <Button size="sm" onClick={startNew} disabled={showNew}>
             <Plus className="mr-1 h-4 w-4" /> Nuevo Tipo
           </Button>
-        }
-      />
 
       {/* New type form */}
       {showNew && (

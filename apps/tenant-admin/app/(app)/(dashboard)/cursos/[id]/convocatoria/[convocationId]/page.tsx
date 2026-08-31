@@ -11,7 +11,6 @@ import {
 } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Progress } from '@payload-config/components/ui/progress'
 import {
   ArrowLeft,
@@ -140,12 +139,7 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
 
   return (
     <div className="space-y-6" data-oid="8yn2_04">
-      <PageHeader
-        title={convocation.nombreCurso}
-        description={`${convocation.codigoCompleto} • Convocatoria`}
-        icon={Calendar}
-        actions={
-          <div className="flex items-center gap-2" data-oid="wvaxqjr">
+      <div className="flex items-center gap-2" data-oid="wvaxqjr">
             <Button
               variant="ghost"
               size="sm"
@@ -163,9 +157,6 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
               Editar Convocatoria
             </Button>
           </div>
-        }
-        data-oid="ej-f54:"
-      />
 
       {/* Status Badges */}
       <Card data-oid="l7cepus">

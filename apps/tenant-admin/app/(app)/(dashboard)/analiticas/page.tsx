@@ -26,7 +26,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import {
   Bar,
@@ -878,12 +877,7 @@ export default function AnaliticasPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Analíticas y Métricas"
-        description="Rendimiento de campañas SOLARIA y tráfico público"
-        icon={BarChart3}
-        actions={
-          <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
             {labels && (
               <>
                 <Badge variant={data?.source_health.traffic === 'ga4' ? 'success' : 'warning'}>
@@ -948,8 +942,6 @@ export default function AnaliticasPage() {
               Actualizar
             </Button>
           </div>
-        }
-      />
 
       <div className="space-y-1">
         <p className="text-xs text-muted-foreground">{DATE_LABELS[dateRange]}</p>

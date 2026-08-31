@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Save,
   Palette,
@@ -266,12 +265,7 @@ export default function PersonalizacionPage() {
 
   return (
     <div className="space-y-6 max-w-6xl" data-oid="g:p9v.a">
-      <PageHeader
-        title="Personalización"
-        description="Configura colores corporativos, logos y estilo visual del dashboard"
-        icon={Palette}
-        actions={
-          previewMode ? (
+      previewMode ? (
             <>
               <Button variant="outline" onClick={handleReset} data-oid="i4.ysgb">
                 <RotateCcw className="mr-2 h-4 w-4" data-oid="4ot-.em" />
@@ -283,9 +277,6 @@ export default function PersonalizacionPage() {
               </Button>
             </>
           ) : undefined
-        }
-        data-oid="mu.rib7"
-      />
 
       {errorMessage && (
         <div

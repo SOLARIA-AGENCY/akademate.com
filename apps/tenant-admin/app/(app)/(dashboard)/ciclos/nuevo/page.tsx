@@ -8,7 +8,6 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -16,26 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import {
-  GraduationCap,
-  ArrowLeft,
-  Save,
-  Loader2,
-  Plus,
-  Trash2,
-  BookOpen,
-  Clock,
-  ClipboardCheck,
-  Layers,
-  Briefcase,
-  Award,
-  DollarSign,
-  Heart,
-  FileText,
-  Star,
-  Image as ImageIcon,
-} from 'lucide-react'
-
+import { ArrowLeft, Save, Loader2, Plus, Trash2, BookOpen, Clock, ClipboardCheck, Layers, Briefcase, Award, DollarSign, Heart, FileText, Star, Image as ImageIcon } from 'lucide-react'
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -289,11 +269,7 @@ export default function NuevoCicloPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Nuevo Ciclo Formativo"
-        description="Crea un nuevo ciclo de formacion profesional"
-        icon={GraduationCap}
-      />
+
 
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/ciclos')}>

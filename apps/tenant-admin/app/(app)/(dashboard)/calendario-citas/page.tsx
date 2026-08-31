@@ -34,7 +34,6 @@ import {
   UserRound,
   XCircle,
 } from 'lucide-react'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -417,16 +416,12 @@ export default function LeadAppointmentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Calendario citas"
-        description="Agenda comercial de llamadas, reuniones y seguimientos asociados a leads."
-        actions={(
+      (
           <Button className="bg-red-600 text-white hover:bg-red-700" onClick={() => { setSelectedAppointment(null); setDialogOpen(true) }}>
             <Plus className="h-4 w-4" />
             Nueva cita
           </Button>
-        )}
-      />
+        )
 
       <div className="grid gap-4 md:grid-cols-4">
         {[['Citas hoy', todayCount, CalendarDays], ['Pendientes', pendingCount, Clock], ['Confirmadas', confirmedCount, CheckCircle2], ['Vencidas', overdueCount, XCircle]].map(([label, value, Icon]) => (

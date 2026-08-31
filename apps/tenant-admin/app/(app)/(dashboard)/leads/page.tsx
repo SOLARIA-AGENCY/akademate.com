@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
@@ -622,11 +621,7 @@ export default function LeadsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="CRM de Leads"
-        description="Seguimiento operativo diario de captacion"
-        icon={Users}
-      />
+
 
       {/* KPI strip (max 4 visibles) */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

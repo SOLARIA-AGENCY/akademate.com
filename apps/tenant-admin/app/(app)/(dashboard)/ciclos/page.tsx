@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import {
@@ -267,23 +266,10 @@ export default function TodosLosCiclosPage() {
         </div>
       )}
 
-      <PageHeader
-        title="Ciclos Formativos"
-        description="Gestión unificada de ciclos de grado medio y superior."
-        icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="0h5qd3g">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
-        actions={
-          <Button onClick={handleNuevoCiclo} data-oid="b-t2nxs">
+      <Button onClick={handleNuevoCiclo} data-oid="b-t2nxs">
             <Plus className="h-4 w-4" />
             Nuevo Ciclo
           </Button>
-        }
-        data-oid="3mf2uf_"
-      />
 
       <UsageBar resource="ciclos" current={ciclosData.length} limit={getLimit(plan, 'ciclos')} />
 

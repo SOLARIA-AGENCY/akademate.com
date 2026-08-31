@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
 import {
   ArrowLeft,
@@ -130,12 +129,7 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
 
   return (
     <div className="space-y-6" data-oid="seiyw9a">
-      <PageHeader
-        title={`${student.first_name} ${student.last_name}`}
-        description="Ficha de alumno"
-        icon={User}
-        actions={
-          <div className="flex items-center gap-2" data-oid="nt3.py.">
+      <div className="flex items-center gap-2" data-oid="nt3.py.">
             <Button
               variant="ghost"
               size="sm"
@@ -153,9 +147,6 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
               Editar
             </Button>
           </div>
-        }
-        data-oid="f4-g9m8"
-      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" data-oid=".xgwbx1">
         {/* Panel izquierdo — Información principal */}

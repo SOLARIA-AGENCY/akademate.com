@@ -8,7 +8,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -16,19 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import {
-  Calendar,
-  MapPin,
-  User,
-  Plus,
-  ArrowLeft,
-  Loader2,
-  AlertTriangle,
-  Save,
-  ChevronUp,
-  Check,
-} from 'lucide-react'
-
+import { MapPin, User, Plus, ArrowLeft, Loader2, AlertTriangle, Save, ChevronUp, Check } from 'lucide-react'
 // ---------------------------------------------------------------------------
 // Types for API responses
 // ---------------------------------------------------------------------------
@@ -520,17 +507,10 @@ export default function NuevaConvocatoriaPage() {
   if (campuses.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title="Nueva Convocatoria"
-          description="Crear una nueva convocatoria de curso"
-          icon={Calendar}
-          actions={
-            <Button variant="outline" onClick={() => router.push('/programacion')}>
+        <Button variant="outline" onClick={() => router.push('/programacion')}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver
             </Button>
-          }
-        />
         <Card className="p-8">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
@@ -555,17 +535,10 @@ export default function NuevaConvocatoriaPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Nueva Convocatoria"
-        description="Crear una nueva convocatoria de curso"
-        icon={Calendar}
-        actions={
-          <Button variant="outline" onClick={() => router.push('/programacion')}>
+      <Button variant="outline" onClick={() => router.push('/programacion')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver
           </Button>
-        }
-      />
 
       {/* Error banner */}
       {error && (

@@ -11,7 +11,6 @@ import {
 } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
@@ -174,12 +173,7 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
 
   return (
     <div className="space-y-6" data-oid="h1rsqcs">
-      <PageHeader
-        title={staff.fullName}
-        description={staff.staffType === 'profesor' ? 'Profesor' : 'Personal Administrativo'}
-        icon={User}
-        actions={
-          <>
+      <>
             <Button
               variant="ghost"
               size="sm"
@@ -193,9 +187,6 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
               Editar
             </Button>
           </>
-        }
-        data-oid=".skwt2b"
-      />
 
       {/* Main Content: 2/3 + 1/3 Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" data-oid="c6_8.-t">

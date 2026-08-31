@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Check, Globe, Plus, Save, Trash2 } from 'lucide-react'
 
 export default function DominiosPage() {
@@ -79,18 +78,10 @@ export default function DominiosPage() {
 
   return (
     <div className="space-y-6 max-w-4xl" data-oid="zar-aco">
-      <PageHeader
-        title="Dominios"
-        description="Gestiona los dominios principales y alternativos del tenant"
-        icon={Globe}
-        actions={
-          <Button onClick={handleSave} disabled={isSaving || isLoading} data-oid="l9.-b.l">
+      <Button onClick={handleSave} disabled={isSaving || isLoading} data-oid="l9.-b.l">
             <Save className="mr-2 h-4 w-4" data-oid="4vhp7nm" />
             Guardar cambios
           </Button>
-        }
-        data-oid="vhmn9ii"
-      />
 
       {showSaveSuccess && (
         <div

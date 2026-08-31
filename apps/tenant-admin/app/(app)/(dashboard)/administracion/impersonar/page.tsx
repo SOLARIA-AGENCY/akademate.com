@@ -11,7 +11,6 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -126,12 +125,7 @@ export default function ImpersonarPage() {
 
   return (
     <div className="space-y-6" data-oid="rbw:ci_">
-      <PageHeader
-        title="Impersonar Usuario"
-        description="Accede al sistema como otro usuario para soporte y verificación"
-        icon={Users}
-        data-oid="vstos:r"
-      />
+
 
       {/* Warning Card */}
       <Card className="border-amber-200 bg-amber-50" data-oid="0eiuv_:">

@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -78,11 +77,7 @@ export default function PaginasPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title="Páginas"
-        description="Gestiona páginas públicas por secciones"
-        icon={FileEdit}
-      />
+
 
       <Card>
         <CardHeader className="pb-2">

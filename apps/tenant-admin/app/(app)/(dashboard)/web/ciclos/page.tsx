@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Switch } from '@payload-config/components/ui/switch'
@@ -133,16 +132,7 @@ export default function WebCiclosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Gestion de Paginas Web — Ciclos"
-        description="Administra la visibilidad de cada ciclo formativo en la web publica. Activa o desactiva las paginas de cada ciclo."
-        icon={Globe}
-        badge={
-          <Badge variant="secondary">
-            {publishedCount} / {cycles.length} publicados
-          </Badge>
-        }
-      />
+
 
       {isLoading && (
         <Card>

@@ -6,7 +6,6 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -167,17 +166,10 @@ export default function AdministrativosPage() {
 
   return (
     <div className="space-y-6" data-oid="p5r5ky.">
-      <PageHeader
-        title="Personal Administrativo"
-        icon={Briefcase}
-        actions={
-          <Button onClick={handleAdd} data-oid="7xp380:">
+      <Button onClick={handleAdd} data-oid="7xp380:">
             <Plus className="h-4 w-4" data-oid="koic1br" />
             Nuevo Administrativo
           </Button>
-        }
-        data-oid="a_ioxi."
-      />
 
       <Card data-oid="pz5ian6">
         <CardContent className="pt-6" data-oid="ei37n:m">

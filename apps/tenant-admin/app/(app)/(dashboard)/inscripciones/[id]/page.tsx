@@ -16,14 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@payload-config/components/ui/alert-dialog'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import {
-  ArrowLeft, UserPlus, Phone, Mail, MessageSquare,
-  Loader2, CheckCircle2, XCircle, Clock, Copy, Check, AlertCircle, PhoneOff,
-  GraduationCap, Trash2, CalendarPlus,
-} from 'lucide-react'
-
+import { ArrowLeft, Phone, Mail, MessageSquare, Loader2, CheckCircle2, XCircle, Clock, Copy, Check, AlertCircle, PhoneOff, GraduationCap, Trash2, CalendarPlus } from 'lucide-react'
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -958,7 +952,7 @@ export default function LeadDetailPage({ params }: Props) {
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (!lead) return (
     <div className="space-y-6">
-      <PageHeader title="Lead" icon={UserPlus} actions={<Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+      <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
       <Card><CardContent className="p-8 text-center text-muted-foreground">Lead no encontrado</CardContent></Card>
     </div>
   )
@@ -1116,13 +1110,7 @@ Equipo CEP Formación`
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={name}
-        description={`${isInscripcion ? 'Preinscripción' : 'Lead'} · ${lead.email || ''}`}
-        icon={UserPlus}
-        badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
-        actions={
-          <div className="flex gap-2">
+      <div className="flex gap-2">
             <Button asChild className="bg-red-600 text-white hover:bg-red-700">
               <Link href={`/calendario-citas?leadId=${id}`}>
                 <CalendarPlus className="mr-2 h-4 w-4" />Programar cita
@@ -1140,8 +1128,6 @@ Equipo CEP Formación`
             )}
             <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
           </div>
-        }
-      />
 
       {/* Urgency alert */}
       {isInscripcion && timeSince < 48 && currentStatus === 'new' && (

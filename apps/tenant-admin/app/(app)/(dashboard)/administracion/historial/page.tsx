@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Calendar, MapPin, Users, BookOpen, GraduationCap,
   Loader2, Search, Filter, Archive, ChevronRight,
@@ -91,11 +90,7 @@ export default function HistorialPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Historial"
-        description="Registro historico de todas las convocatorias, cursos y ciclos"
-        icon={Archive}
-      />
+
 
       {/* Stats */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">

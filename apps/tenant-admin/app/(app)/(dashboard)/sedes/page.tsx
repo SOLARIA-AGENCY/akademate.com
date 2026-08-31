@@ -3,7 +3,6 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail, Plus } from 'lucide-react'
@@ -176,28 +175,15 @@ export default function SedesPage() {
         </div>
       )}
 
-      <PageHeader
-        title="Sedes"
-        description="Vista simplificada para operación diaria."
-        icon={MapPin}
-        badge={
-          <Badge variant="secondary" data-oid="0fk8_-.">
-            {sedes.length} centros
-          </Badge>
-        }
-        actions={
-          <Button onClick={handleAdd} data-oid="hrtnwkn">
-            <Plus className="h-4 w-4" />
-            Nueva Sede
-          </Button>
-        }
-        filters={
-          <div className="flex w-full items-center justify-end gap-3" data-oid="-_wk.s:">
-            <ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />
-          </div>
-        }
-        data-oid="e1:wo92"
-      />
+      <div className="flex flex-col gap-3">
+        <Button onClick={handleAdd} data-oid="hrtnwkn">
+                    <Plus className="h-4 w-4" />
+                    Nueva Sede
+                  </Button>
+        <div className="flex w-full items-center justify-end gap-3" data-oid="-_wk.s:">
+                    <ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />
+                  </div>
+      </div>
 
       <UsageBar resource="sedes" current={sedes.length} limit={getLimit(plan, 'sedes')} />
 

@@ -6,7 +6,6 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -216,22 +215,10 @@ export default function ProfesoresPage() {
 
   return (
     <div className="space-y-6" data-oid="e2l0769">
-      <PageHeader
-        title="Profesores"
-        icon={User}
-        badge={
-          <Badge variant="secondary" data-oid="rkjy8pp">
-            {filteredTeachers.length} visibles
-          </Badge>
-        }
-        actions={
-          <Button onClick={handleAdd} data-oid="p6j7z6w">
+      <Button onClick={handleAdd} data-oid="p6j7z6w">
             <Plus className="h-4 w-4" data-oid="f-mq7s4" />
             Nuevo Profesor
           </Button>
-        }
-        data-oid="i_jz_am"
-      />
 
       <Card data-oid="u0-zxep">
         <CardContent className="pt-6" data-oid="ie6f8wq">
