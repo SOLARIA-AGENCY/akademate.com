@@ -31,6 +31,7 @@ No HolidayCalendar. No OVH/Hetzner. No merge.
 ## SHA y rama
 
 - Rama. `feat/sidebar-16-header`
+- PR. https://github.com/SOLARIA-AGENCY/akademate.com/pull/8
 - Base. `origin/main` `40d8272e8f32d644c8e8e73842f1ed23ad5e0600`
 - HEAD feat. `ec339d21a70867b9891ff38172a431c597de19e0`
 
