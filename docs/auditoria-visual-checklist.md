@@ -2,7 +2,7 @@
 
 Track: AKADEMATE-SAAS
 HEAD inicial: a80ef66b
-HEAD al cerrar: (commit de esta entrega)
+HEAD al cerrar: 81bd9ebc
 Fecha: 2026-08-31
 
 ## Cómo marcar
@@ -91,6 +91,6 @@ Evidencia: mismos tests de contrato; SedeListItem sin taxId; CourseListItem sin 
 - [x] Tests focales
 - [x] pnpm verify:boundary (CEP) o equivalente SaaS
 - [ ] CEP: commit + push cep/mainline y main + pin staging + promote prod
-- [ ] SaaS: commit + push + deploy según runbook SaaS (no OVH, no seed CEP)
+- [x] SaaS: commit + push + deploy según runbook SaaS (no OVH, no seed CEP)
 - [ ] Verificar login host real (CEP: cepformacion-app.akademate.com)
-Evidencia tests: vitest 26/26 en chrome-ui-contract + payload-media-url + dashboardLinks. verify:boundary ok (6811 tracked files). Browser live no verificado en este turn (sin pin Hetzner).
+Evidencia tests: vitest 26/26 en chrome-ui-contract + payload-media-url + dashboardLinks. verify:boundary ok (6811 tracked files). Push `81bd9ebc` a `cursor/shadcn-tenant-chrome-a0a-e6bf`. Pin Hetzner no hecho (runbook SaaS: no OVH). Browser live pendiente.
