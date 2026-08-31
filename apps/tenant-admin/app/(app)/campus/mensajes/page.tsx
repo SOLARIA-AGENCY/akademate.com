@@ -1,7 +1,7 @@
 'use client'
 
-import { RequireAuth } from '../../providers/SessionProvider'
-import { CampusEmptyState } from '../../components/CampusEmptyState'
+import { RequireAuth } from '../providers/SessionProvider'
+import { CampusEmptyState } from '../components/CampusEmptyState'
 
 export default function MensajesPage() {
   return (

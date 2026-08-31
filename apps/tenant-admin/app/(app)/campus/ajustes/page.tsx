@@ -1,6 +1,6 @@
 'use client'
 
-import { RequireAuth, useSession } from '../../providers/SessionProvider'
+import { RequireAuth, useSession } from '../providers/SessionProvider'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 
 export default function AjustesPage() {

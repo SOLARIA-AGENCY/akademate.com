@@ -17,8 +17,8 @@ import {
 } from '@payload-config/components/ui/select'
 import { useToast } from '@payload-config/hooks/use-toast'
 import { AlertCircle, Camera, LogIn, LogOut, ScanLine } from 'lucide-react'
-import { mapLeadToPerson } from '../matriculas/wizard/steps'
-import type { EnrollmentPerson } from '../matriculas/wizard/types'
+import { mapLeadToPerson } from '../../matriculas/wizard/steps'
+import type { EnrollmentPerson } from '../../matriculas/wizard/types'
 
 type AccessKind = 'fisico' | 'virtual' | 'hibrido'
 type AccessPass = 'credential' | 'temporary' | 'visitor' | 'magic_link'
