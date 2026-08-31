@@ -6,6 +6,7 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { ExternalLink, FileEdit } from 'lucide-react'
 import { WEBSITE_PAGE_CATALOG, type WebsitePageCatalogItem } from './page-catalog'
 
@@ -29,9 +30,9 @@ function getFallbackLogoFromHost(): string {
 
 function PageCardSkeleton() {
   return (
-    <div className="rounded-xl border p-4">
+    <div className="rounded-2xl border p-4">
       <div className="flex items-center gap-4">
-        <div className="h-[72px] w-[128px] rounded-md bg-muted animate-pulse" />
+        <div className="h-16 w-16 rounded-lg bg-muted animate-pulse" />
         <div className="flex-1 space-y-2">
           <div className="h-4 w-48 rounded bg-muted animate-pulse" />
           <div className="h-3 w-28 rounded bg-muted animate-pulse" />
@@ -80,7 +81,6 @@ export default function PaginasPage() {
     <div className="space-y-4">
       <PageHeader
         title="Páginas"
-        description="Gestiona páginas públicas por secciones"
         icon={FileEdit}
       />
 
@@ -111,21 +111,19 @@ export default function PaginasPage() {
             WEBSITE_PAGE_CATALOG.map((page) => (
               <div
                 key={page.slug}
-                className="flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center"
+                className="flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center"
               >
-                <div className="h-[72px] w-[128px] overflow-hidden rounded-md border bg-muted/30 sm:h-[90px] sm:w-[160px]">
-                  <img
-                    src={resolveThumbnail(page, logoUrl)}
-                    alt={`Miniatura de ${page.title}`}
-                    className="h-full w-full object-contain p-2"
-                    loading="lazy"
-                  />
-                </div>
+                <EntityThumb
+                  src={resolveThumbnail(page, logoUrl)}
+                  alt={`Miniatura de ${page.title}`}
+                  fallback="page"
+                  size="md"
+                />
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold">{page.title}</p>
-                    <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                    <Badge variant="outline" className="text-[10px]">
                       {page.pageKind}
                     </Badge>
                   </div>

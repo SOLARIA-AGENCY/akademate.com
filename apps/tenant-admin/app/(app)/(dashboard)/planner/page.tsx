@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
 import {
   LayoutGrid,
   Plus,
@@ -517,7 +518,7 @@ export default function PlannerPage() {
   }, [router])
 
   const handleAdd = useCallback((columnKey: string) => {
-    router.push(`/dashboard/programacion/nueva`)
+    router.push(convocatoriaNuevaHref('/planner'))
   }, [router])
 
   // Filtered columns
@@ -545,7 +546,7 @@ export default function PlannerPage() {
           </div>
         }
         actions={
-          <Button onClick={() => router.push('/dashboard/programacion/nueva')}>
+          <Button onClick={() => router.push(convocatoriaNuevaHref('/planner'))}>
             <Plus className="mr-2 h-4 w-4" />
             Nueva Convocatoria
           </Button>

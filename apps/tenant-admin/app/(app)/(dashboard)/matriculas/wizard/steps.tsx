@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@payload-config/components/ui/accordion'
 import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
@@ -17,6 +17,12 @@ import {
   CommandList,
 } from '@payload-config/components/ui/command'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@payload-config/components/ui/field'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@payload-config/components/ui/radio-group'
@@ -43,8 +49,8 @@ import {
   type EnrollmentDraft,
   type EnrollmentPerson,
   type PaymentMethod,
-  wizardStepTitle,
-  type WizardStepId,
+  wizardStageTitle,
+  type WizardStageId,
 } from './types'
 
 const PAYMENT_OPTIONS: Array<{ value: PaymentMethod; label: string; hint: string; icon: typeof CreditCard }> = [
@@ -55,9 +61,9 @@ const PAYMENT_OPTIONS: Array<{ value: PaymentMethod; label: string; hint: string
   { value: 'cash', label: 'Efectivo', hint: 'Cobro en sede', icon: Banknote },
 ]
 
-export function FieldError({ message }: { message?: string }) {
+function InlineFieldError({ message }: { message?: string }) {
   if (!message) return null
-  return <p className="text-xs text-destructive">{message}</p>
+  return <FieldError>{message}</FieldError>
 }
 
 export function IdentifyStep({
@@ -83,9 +89,6 @@ export function IdentifyStep({
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Identificar persona</h2>
-        <p className="text-sm text-muted-foreground">
-          Busca por nombre, email, teléfono o documento. Si no existe, créala sin salir del flujo.
-        </p>
       </div>
       <Command className="rounded-lg border">
         <CommandInput
@@ -166,7 +169,6 @@ export function PersonalStep({
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Registrar alumno</h2>
-        <p className="text-sm text-muted-foreground">Completa identidad, contacto y documentación.</p>
       </div>
       <Card>
         <CardHeader>
@@ -180,7 +182,7 @@ export function PersonalStep({
               value={draft.person.firstName}
               onChange={(event) => onChange({ firstName: event.target.value })}
             />
-            <FieldError message={errors.firstName} />
+            <InlineFieldError message={errors.firstName} />
           </div>
           <div className="space-y-1">
             <Label htmlFor="lastName">Apellidos</Label>
@@ -189,7 +191,7 @@ export function PersonalStep({
               value={draft.person.lastName}
               onChange={(event) => onChange({ lastName: event.target.value })}
             />
-            <FieldError message={errors.lastName} />
+            <InlineFieldError message={errors.lastName} />
           </div>
           <div className="space-y-1 sm:col-span-2">
             <Label htmlFor="dni">DNI / NIE</Label>
@@ -210,7 +212,7 @@ export function PersonalStep({
               value={draft.person.email}
               onChange={(event) => onChange({ email: event.target.value })}
             />
-            <FieldError message={errors.email} />
+            <InlineFieldError message={errors.email} />
           </div>
           <div className="space-y-1">
             <Label htmlFor="phone">Teléfono</Label>
@@ -219,7 +221,7 @@ export function PersonalStep({
               value={draft.person.phone}
               onChange={(event) => onChange({ phone: event.target.value })}
             />
-            <FieldError message={errors.phone} />
+            <InlineFieldError message={errors.phone} />
           </div>
         </CardContent>
       </Card>
@@ -253,6 +255,196 @@ export function PersonalStep({
   )
 }
 
+export function AlumnoStep({
+  query,
+  onQuery,
+  loading,
+  error,
+  people,
+  onRetry,
+  onSelect,
+  onCreate,
+  draft,
+  onChange,
+  showErrors,
+}: {
+  query: string
+  onQuery: (value: string) => void
+  loading: boolean
+  error: string | null
+  people: EnrollmentPerson[]
+  onRetry: () => void
+  onSelect: (person: EnrollmentPerson) => void
+  onCreate: () => void
+  draft: EnrollmentDraft
+  onChange: (patch: Partial<EnrollmentPerson>) => void
+  showErrors: boolean
+}) {
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [attachDocument, setAttachDocument] = useState(Boolean(draft.person.photoDataUrl))
+  const errors: Record<string, string> = {
+    firstName: !draft.person.firstName.trim() ? 'Obligatorio' : '',
+    lastName: !draft.person.lastName.trim() ? 'Obligatorio' : '',
+    email: !draft.person.email.trim() ? 'Obligatorio' : '',
+    phone: !draft.person.phone.trim() ? 'Obligatorio' : '',
+  }
+  const reveal = (key: string) => Boolean((touched[key] || showErrors) && errors[key])
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold">Alumno</h2>
+      </div>
+      <Command className="rounded-lg border">
+        <CommandInput
+          value={query}
+          onValueChange={onQuery}
+          placeholder="Buscar alumno por nombre, email, teléfono o DNI"
+        />
+        <CommandList>
+          {loading ? (
+            <div className="space-y-2 p-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : error ? (
+            <div className="p-3">
+              <Alert variant="destructive">
+                <AlertCircle />
+                <AlertTitle>No se pudo cargar</AlertTitle>
+                <AlertDescription className="flex items-center justify-between gap-3">
+                  <span>{error}</span>
+                  <Button size="sm" variant="outline" onClick={onRetry}>
+                    Reintentar
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            </div>
+          ) : (
+            <>
+              <CommandEmpty>No hay coincidencias. Completa los datos para crear la ficha.</CommandEmpty>
+              <CommandGroup heading="Personas">
+                {people.map((person) => {
+                  const name = `${person.firstName} ${person.lastName}`.trim() || person.email || 'Sin nombre'
+                  return (
+                    <CommandItem key={person.id ?? name} value={name} onSelect={() => onSelect(person)}>
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium">{name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {person.email || person.phone || person.dni || 'Sin contacto'}
+                        </p>
+                      </div>
+                      <Badge variant={person.alreadyEnrolled ? 'secondary' : 'outline'}>
+                        {person.alreadyEnrolled
+                          ? 'Ya matriculado'
+                          : person.hasActiveCourses
+                            ? 'Con cursos activos'
+                            : 'Sin cursos activos'}
+                      </Badge>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </>
+          )}
+        </CommandList>
+      </Command>
+      <Button variant="outline" onClick={onCreate}>
+        <UserPlus className="h-4 w-4" />
+        Crear nueva persona
+      </Button>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Datos del alumno</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup className="grid gap-4 sm:grid-cols-2">
+            <Field data-invalid={reveal('firstName') || undefined}>
+              <FieldLabel htmlFor="firstName">Nombre</FieldLabel>
+              <Input
+                id="firstName"
+                value={draft.person.firstName}
+                onChange={(event) => onChange({ firstName: event.target.value })}
+                onBlur={() => setTouched((current) => ({ ...current, firstName: true }))}
+              />
+              {reveal('firstName') ? <FieldError>{errors.firstName}</FieldError> : null}
+            </Field>
+            <Field data-invalid={reveal('lastName') || undefined}>
+              <FieldLabel htmlFor="lastName">Apellidos</FieldLabel>
+              <Input
+                id="lastName"
+                value={draft.person.lastName}
+                onChange={(event) => onChange({ lastName: event.target.value })}
+                onBlur={() => setTouched((current) => ({ ...current, lastName: true }))}
+              />
+              {reveal('lastName') ? <FieldError>{errors.lastName}</FieldError> : null}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="dni">DNI / NIE</FieldLabel>
+              <Input id="dni" value={draft.person.dni} onChange={(event) => onChange({ dni: event.target.value })} />
+            </Field>
+            <Field data-invalid={reveal('email') || undefined}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                value={draft.person.email}
+                onChange={(event) => onChange({ email: event.target.value })}
+                onBlur={() => setTouched((current) => ({ ...current, email: true }))}
+              />
+              {reveal('email') ? <FieldError>{errors.email}</FieldError> : null}
+            </Field>
+            <Field className="sm:col-span-2" data-invalid={reveal('phone') || undefined}>
+              <FieldLabel htmlFor="phone">Teléfono</FieldLabel>
+              <Input
+                id="phone"
+                value={draft.person.phone}
+                onChange={(event) => onChange({ phone: event.target.value })}
+                onBlur={() => setTouched((current) => ({ ...current, phone: true }))}
+              />
+              {reveal('phone') ? <FieldError>{errors.phone}</FieldError> : null}
+            </Field>
+            <Field orientation="horizontal" className="sm:col-span-2">
+              <Checkbox
+                id="attach-document"
+                checked={attachDocument}
+                onCheckedChange={(value) => setAttachDocument(value === true)}
+              />
+              <FieldLabel htmlFor="attach-document">Adjuntar documento (opcional)</FieldLabel>
+            </Field>
+            {attachDocument ? (
+              <Field className="sm:col-span-2">
+                <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+                  <Camera className="mb-2 h-6 w-6" />
+                  Arrastra una foto o DNI, o pulsa para seleccionar
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0]
+                      if (!file) return
+                      const reader = new FileReader()
+                      reader.onload = () => onChange({ photoDataUrl: String(reader.result ?? '') })
+                      reader.readAsDataURL(file)
+                    }}
+                  />
+                </label>
+                {draft.person.photoDataUrl ? (
+                  <img src={draft.person.photoDataUrl} alt="Documento adjunto" className="h-32 rounded-md object-cover" />
+                ) : null}
+              </Field>
+            ) : null}
+          </FieldGroup>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export function CourseStep({
   draft,
   courses,
@@ -279,7 +471,6 @@ export function CourseStep({
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Curso y convocatoria</h2>
-        <p className="text-sm text-muted-foreground">Elige la convocatoria. El tipo de sede define el acceso posterior.</p>
       </div>
       <div className="flex min-w-0 flex-wrap gap-2">
         <Button
@@ -374,9 +565,6 @@ export function ConsentStep({
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Consentimiento</h2>
-        <p className="text-sm text-muted-foreground">
-          El texto legal queda en este paso. No forma parte del nombre de la pantalla.
-        </p>
       </div>
       <Accordion type="single" collapsible className="rounded-lg border bg-card px-4">
         <AccordionItem value="rgpd">
@@ -422,7 +610,6 @@ export function PaymentStep({
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Matrícula y cobro</h2>
-        <p className="text-sm text-muted-foreground">Desglose, descuento y método de pago.</p>
       </div>
       <Card>
         <CardContent className="space-y-3 p-4 text-sm">
@@ -519,13 +706,6 @@ export function AccessStep({
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Acceso y credencial</h2>
-        <p className="text-sm text-muted-foreground">
-          {kind === 'virtual'
-            ? 'Sede virtual: se generan credenciales de Campus Virtual, sin foto ni puerta física.'
-            : kind === 'hibrido'
-              ? 'Sede híbrida: credencial física y acceso virtual para la misma persona.'
-              : 'Sede física: captura de foto y generación de QR o pase temporal.'}
-        </p>
       </div>
       {showPhysical ? (
         <Card>
@@ -593,52 +773,91 @@ export function AccessStep({
   )
 }
 
+export function PagoRgpdStep({
+  draft,
+  cameraError,
+  onAccept,
+  onDiscount,
+  onMethod,
+  onPlan,
+  onCapture,
+  onPass,
+  onChannel,
+  onRetryCamera,
+}: {
+  draft: EnrollmentDraft
+  cameraError: string | null
+  onAccept: (accepted: boolean) => void
+  onDiscount: (value: number) => void
+  onMethod: (value: PaymentMethod) => void
+  onPlan: (value: 'unico' | 'fraccionado') => void
+  onCapture: () => void
+  onPass: (value: EnrollmentDraft['accessPass']) => void
+  onChannel: (value: 'email' | 'sms') => void
+  onRetryCamera: () => void
+}) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold">Pago y RGPD</h2>
+      </div>
+      <ConsentStep draft={draft} onAccept={onAccept} />
+      <PaymentStep draft={draft} onDiscount={onDiscount} onMethod={onMethod} onPlan={onPlan} />
+      <Accordion type="single" collapsible className="rounded-lg border bg-card px-4">
+        <AccordionItem value="acceso">
+          <AccordionTrigger>Acceso y credencial</AccordionTrigger>
+          <AccordionContent>
+            <AccessStep
+              draft={draft}
+              cameraError={cameraError}
+              onCapture={onCapture}
+              onPass={onPass}
+              onChannel={onChannel}
+              onRetryCamera={onRetryCamera}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  )
+}
+
 export function ReviewStep({
   draft,
   onEdit,
 }: {
   draft: EnrollmentDraft
-  onEdit: (step: WizardStepId) => void
+  onEdit: (stage: WizardStageId) => void
 }) {
-  const sections: Array<{ step: WizardStepId; value: string }> = [
+  const sections: Array<{ stage: WizardStageId; value: string }> = [
     {
-      step: 'personal',
+      stage: 2,
       value: `${draft.person.firstName} ${draft.person.lastName} · ${draft.person.email} · ${draft.person.phone}`,
     },
     {
-      step: 'course',
+      stage: 1,
       value: draft.course
         ? `${draft.course.name} · ${draft.course.campusName} · ${accessKindLabel(draft.course.accessKind)}`
         : 'Sin convocatoria',
     },
     {
-      step: 'consent',
-      value: draft.consentAccepted ? `Aceptado ${draft.consentAt ? new Date(draft.consentAt).toLocaleString('es-ES') : ''}` : 'Pendiente',
-    },
-    {
-      step: 'payment',
-      value: `${payableAmount(draft).toLocaleString('es-ES')} € · ${draft.paymentMethod ?? 'sin método'}`,
-    },
-    {
-      step: 'access',
-      value:
-        draft.course?.accessKind === 'virtual'
-          ? `Credencial virtual por ${draft.virtualSendChannel ?? 'email'}`
-          : draft.accessPass ?? 'Sin pase',
+      stage: 3,
+      value: draft.consentAccepted
+        ? `${payableAmount(draft).toLocaleString('es-ES')} € · ${draft.paymentMethod ?? 'sin método'}`
+        : 'Pendiente de consentimiento',
     },
   ]
 
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Resumen y confirmación</h2>
-        <p className="text-sm text-muted-foreground">Revisa los datos. Puedes volver a cualquier paso sin perder información.</p>
+        <h2 className="text-lg font-semibold">Confirmar</h2>
       </div>
       {sections.map((section) => (
-        <Card key={section.step}>
+        <Card key={section.stage}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base">{wizardStepTitle(section.step)}</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => onEdit(section.step)}>
+            <CardTitle className="text-base">{wizardStageTitle(section.stage)}</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => onEdit(section.stage)}>
               Editar
             </Button>
           </CardHeader>

@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { CalendarDays, Clock, Monitor, Users } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
-import { getPublicStudyTypeFallbackImage, toDashboardStudyType } from '@/app/lib/website/study-types'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import type { PlantillaCurso } from '@/types'
 
 interface CourseTemplateCardProps {
@@ -18,8 +17,6 @@ interface CourseTemplateCardProps {
 
 export function CourseTemplateCard({ template, onClick, className }: CourseTemplateCardProps) {
   const typeConfig = COURSE_TYPE_CONFIG[template.tipo] || COURSE_TYPE_CONFIG.privados
-  const fallbackImage = getPublicStudyTypeFallbackImage(toDashboardStudyType(template.tipo))
-  const [imgError, setImgError] = useState(false)
   const description =
     template.descripcion?.trim() ||
     'Curso pendiente de completar con informacion editorial.'
@@ -28,39 +25,17 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
 
   return (
     <Card
-      className={`course-template-card h-full cursor-pointer overflow-hidden border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className || ''}`}
+      className={`course-template-card h-full cursor-pointer overflow-hidden ${className || ''}`}
       onClick={onClick}
       data-oid="w4mfu4l"
     >
-      <div className="grid h-full min-h-[230px] grid-cols-[150px_1fr] gap-0 sm:grid-cols-[190px_1fr]" data-oid="card-grid">
-        <div className="relative h-full min-h-[230px] overflow-hidden bg-muted" data-oid="0:ln.eo">
-          {!imgError ? (
-            <img
-              src={template.imagenPortada || fallbackImage}
-              alt={template.nombre}
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-              onError={() => setImgError(true)}
-              data-oid="82e8gy5"
-            />
-          ) : (
-            <div
-              className="flex h-full w-full items-center justify-center bg-primary/5"
-              data-oid="bxz1gyg"
-            >
-              <img
-                src="/icon-libro.svg"
-                alt=""
-                aria-hidden="true"
-                className="h-12 w-12 opacity-30"
-              />
-            </div>
-          )}
-        </div>
+      <CardContent className="flex min-w-0 items-start gap-4 p-4" data-oid="msupxrb">
+        <EntityThumb src={template.imagenPortada} alt={template.nombre} fallback="book" size="lg" />
 
-        <CardContent className="flex min-w-0 flex-col gap-3 p-4" data-oid="msupxrb">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2" data-oid="le_pykk">
             <Badge
-              className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-[11px] font-semibold`}
+              className={`${typeConfig.bgColor} ${typeConfig.textColor} text-[11px] font-semibold`}
               data-oid="8730cp-"
             >
               {typeConfig.label}
@@ -71,7 +46,7 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
           </div>
 
           <h3
-            className="line-clamp-2 text-base font-extrabold uppercase leading-snug tracking-wide text-foreground"
+            className="line-clamp-2 text-base font-semibold leading-snug text-foreground"
             title={template.nombre}
             data-oid="i9v7h1b"
           >
@@ -110,7 +85,7 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
           </div>
 
           <Button
-            className="mt-auto w-full bg-[#f2014b] text-white hover:bg-[#d80143] hover:text-white"
+            className="mt-auto w-full"
             onClick={(e) => {
               e.stopPropagation()
               onClick?.()
@@ -119,8 +94,8 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
           >
             Abrir curso
           </Button>
-        </CardContent>
-      </div>
+        </div>
+      </CardContent>
     </Card>
   )
 }

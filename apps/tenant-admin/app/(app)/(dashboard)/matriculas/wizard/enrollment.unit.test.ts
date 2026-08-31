@@ -6,6 +6,8 @@ import {
   createEmptyDraft,
   DRAFT_STORAGE_KEY,
   payableAmount,
+  parseWizardStage,
+  WIZARD_STAGES,
 } from './types'
 
 describe('accessKindFromModality', () => {
@@ -42,6 +44,22 @@ describe('payableAmount', () => {
       status: 'enrollment_open',
     }
     expect(payableAmount(draft)).toBe(95)
+  })
+})
+
+describe('wizard stages', () => {
+  it('maps four UX stages and remaps legacy paso 5-7', () => {
+    expect(WIZARD_STAGES).toHaveLength(4)
+    expect(parseWizardStage('1')).toBe(1)
+    expect(parseWizardStage('5')).toBe(3)
+    expect(parseWizardStage('7')).toBe(4)
+    expect(createEmptyDraft().step).toBe('course')
+  })
+
+  it('detects enrollment focus path', async () => {
+    const { isEnrollmentFocusPath } = await import('@/app/lib/dashboard-listing-scroll')
+    expect(isEnrollmentFocusPath('/matriculas/nueva')).toBe(true)
+    expect(isEnrollmentFocusPath('/matriculas/portal')).toBe(false)
   })
 })
 

@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { hexToHsl } from '@/app/lib/tenant-theme-tokens'
 
 /** Platform defaults. Dashboard chrome reads these tokens, never a host hex. */
 export const AKADEMATE_PRIMARY = '#0066CC'
@@ -59,55 +60,22 @@ const DEFAULT_BRANDING: TenantBranding = {
 
 const TenantBrandingContext = React.createContext<TenantBrandingContextValue | undefined>(undefined)
 
-function hexToHSL(hex: string): string {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  if (!result) return '0 0% 50%'
-
-  const r = parseInt(result[1] ?? '00', 16) / 255
-  const g = parseInt(result[2] ?? '00', 16) / 255
-  const b = parseInt(result[3] ?? '00', 16) / 255
-
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  let h = 0
-  let s = 0
-  const l = (max + min) / 2
-
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6
-        break
-      case g:
-        h = ((b - r) / d + 2) / 6
-        break
-      case b:
-        h = ((r - g) / d + 4) / 6
-        break
-    }
-  }
-
-  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`
-}
-
-function hexLightness(hex: string): number {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  if (!result) return 50
-  const r = parseInt(result[1] ?? '00', 16) / 255
-  const g = parseInt(result[2] ?? '00', 16) / 255
-  const b = parseInt(result[3] ?? '00', 16) / 255
+function channelLightness(hex: string): number {
+  const normalized = hex.replace('#', '')
+  if (normalized.length !== 6) return 50
+  const r = Number.parseInt(normalized.slice(0, 2), 16) / 255
+  const g = Number.parseInt(normalized.slice(2, 4), 16) / 255
+  const b = Number.parseInt(normalized.slice(4, 6), 16) / 255
+  if ([r, g, b].some((channel) => Number.isNaN(channel))) return 50
   return ((Math.max(r, g, b) + Math.min(r, g, b)) / 2) * 100
 }
 
 function applyThemeVariables(theme: TenantTheme): void {
   if (typeof document === 'undefined') return
   const root = document.documentElement
-  const primaryHsl = hexToHSL(theme.primary)
-  const sidebarHsl = hexToHSL(theme.sidebar)
-  const sidebarIsDark = hexLightness(theme.sidebar) < 45
+  const primaryHsl = hexToHsl(theme.primary)
+  const sidebarHsl = hexToHsl(theme.sidebar)
+  const sidebarIsDark = channelLightness(theme.sidebar) < 45
 
   root.style.setProperty('--primary', primaryHsl)
   root.style.setProperty('--ring', primaryHsl)
@@ -117,11 +85,11 @@ function applyThemeVariables(theme: TenantTheme): void {
   // The tenant brand secondary (#1a1a2e navy) is stored in --brand-secondary for
   // brand-specific elements only. Overriding --secondary breaks badges, bars, and
   // any neutral UI element that relies on the light/dark mode cascade.
-  root.style.setProperty('--brand-secondary', hexToHSL(theme.secondary))
-  root.style.setProperty('--accent', hexToHSL(theme.accent))
-  root.style.setProperty('--success', hexToHSL(theme.success))
-  root.style.setProperty('--warning', hexToHSL(theme.warning))
-  root.style.setProperty('--destructive', hexToHSL(theme.danger))
+  root.style.setProperty('--brand-secondary', hexToHsl(theme.secondary))
+  root.style.setProperty('--accent', hexToHsl(theme.accent))
+  root.style.setProperty('--success', hexToHsl(theme.success))
+  root.style.setProperty('--warning', hexToHsl(theme.warning))
+  root.style.setProperty('--destructive', hexToHsl(theme.danger))
   root.style.setProperty('--sidebar', sidebarHsl)
   root.style.setProperty('--sidebar-foreground', sidebarIsDark ? '210 40% 98%' : '222 47% 15%')
   root.style.setProperty('--sidebar-accent', sidebarIsDark ? '214 45% 22%' : '220 14% 93%')
@@ -209,7 +177,7 @@ export function TenantBrandingProvider({
     return () => window.removeEventListener('config-updated', handler)
   }, [refresh])
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     applyThemeVariables(branding.theme)
   }, [branding.theme])
 

@@ -19,6 +19,7 @@ import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
+import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
 import {
   ListingSearch,
   PremiumDirectoryShell,
@@ -238,6 +239,18 @@ export default function ProfesoresPage() {
         data-oid="i_jz_am"
       />
 
+      <ListingKpiStrip
+        items={[
+          { label: 'Profesores', value: teachersExpanded.length },
+          { label: 'Activos', value: teachersExpanded.filter((teacher) => teacher.active).length },
+          { label: 'Inactivos', value: teachersExpanded.filter((teacher) => !teacher.active).length },
+          {
+            label: 'Convocatorias',
+            value: teachersExpanded.reduce((sum, teacher) => sum + (teacher.courseRunsCount || 0), 0),
+          },
+        ]}
+      />
+
       <PremiumDirectoryShell
         search={
           <ListingSearch
@@ -252,9 +265,17 @@ export default function ProfesoresPage() {
             value={filterStatus}
             onValueChange={setFilterStatus}
             options={[
-              { value: 'all', label: 'Todas' },
-              { value: 'active', label: 'Activos' },
-              { value: 'inactive', label: 'Inactivos' },
+              { value: 'all', label: 'Todas', count: teachersExpanded.length },
+              {
+                value: 'active',
+                label: 'Activos',
+                count: teachersExpanded.filter((teacher) => teacher.active).length,
+              },
+              {
+                value: 'inactive',
+                label: 'Inactivos',
+                count: teachersExpanded.filter((teacher) => !teacher.active).length,
+              },
             ]}
           />
         }

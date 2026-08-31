@@ -24,12 +24,22 @@ const AKADEMATE_DEFAULTS: BrandingDefaults = {
   isCepTenant: false,
 }
 
-const CEP_DEFAULTS: BrandingDefaults = {
+/**
+ * Reference tenant (CEP). Inventory of values a tenant may set in personalización.
+ * Dashboard chrome must not apply these by host sniff. Only tenant DB fields win.
+ */
+export const CEP_TENANT_REFERENCE = {
   academyName: 'CEP Formación',
   logoUrl: CEP_LOGO,
   faviconUrl: CEP_FAVICON,
   primaryColor: '#f2014b',
-  isCepTenant: true,
+} as const
+
+function resolveDefaults(host: string): BrandingDefaults {
+  return {
+    ...AKADEMATE_DEFAULTS,
+    isCepTenant: !isLocalHost(host) && hostLooksLikeCep(host),
+  }
 }
 
 export type TenantHostBranding = {
@@ -87,11 +97,6 @@ function buildOrigin(host: string): string {
   return `${protocol}://${runtimeHost}`
 }
 
-function resolveDefaults(host: string): BrandingDefaults {
-  if (isLocalHost(host)) return AKADEMATE_DEFAULTS
-  return hostLooksLikeCep(host) ? CEP_DEFAULTS : AKADEMATE_DEFAULTS
-}
-
 function normalizeAssetUrl(assetUrl: string | null | undefined): string {
   if (!assetUrl || assetUrl.trim() === '') return ''
   return assetUrl.trim()
@@ -109,11 +114,7 @@ function toTenantResponse(
       ? normalizeAssetUrl(tenant.branding_favicon.url)
       : ''
   const resolvedLogo = logoFromTenant || defaults.logoUrl
-  const resolvedFavicon =
-    faviconFromTenant ||
-    (hostLooksLikeCep(host) ? CEP_FAVICON : '') ||
-    logoFromTenant ||
-    defaults.faviconUrl
+  const resolvedFavicon = faviconFromTenant || logoFromTenant || defaults.faviconUrl
   const resolvedName = tenant?.name?.trim() || defaults.academyName
   const resolvedPrimary = tenant?.branding_primary_color?.trim() || defaults.primaryColor
   const resolvedTenantId = tenant?.id != null ? String(tenant.id) : 'default'
@@ -203,17 +204,7 @@ export async function getTenantHostBranding(): Promise<TenantHostBranding> {
 
 export function toAbsoluteAssetUrl(origin: string, assetUrl: string): string {
   if (!assetUrl) {
-    let fallbackLogo = AKADEMATE_DEFAULTS.logoUrl
-    try {
-      const hostname = new URL(origin).hostname
-      if (hostLooksLikeCep(hostname)) {
-        fallbackLogo = CEP_LOGO
-      }
-    } catch {
-      if (hostLooksLikeCep(origin)) {
-        fallbackLogo = CEP_LOGO
-      }
-    }
+    const fallbackLogo = AKADEMATE_DEFAULTS.logoUrl
     return fallbackLogo.startsWith('/') ? `${origin}${fallbackLogo}` : fallbackLogo
   }
   if (/^https?:\/\//i.test(assetUrl)) return assetUrl

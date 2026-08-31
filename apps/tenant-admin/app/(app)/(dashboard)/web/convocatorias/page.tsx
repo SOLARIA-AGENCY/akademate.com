@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -31,6 +32,7 @@ import {
   MapPin,
   Users,
 } from 'lucide-react'
+import { AssignEmptyButton } from '@payload-config/components/ui/assign-empty'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
 // ---------------------------------------------------------------------------
@@ -133,7 +135,7 @@ function formatProfesorName(
     const combined = `${profesor.first_name?.trim() ?? ''} ${profesor.last_name?.trim() ?? ''}`.trim()
     if (combined) return combined
   }
-  return 'Sin asignar'
+  return ''
 }
 
 function formatDate(dateStr: string | undefined): string {
@@ -339,7 +341,7 @@ export default function WebConvocatoriasPage() {
             id: String(item.id),
             codigo,
             cursoNombre: item.cursoNombre ?? 'Curso',
-            sedeName: item.campusNombre ?? 'Sin sede',
+            sedeName: item.campusNombre ?? '',
             profesorName: formatProfesorName(item.profesor),
             fechaInicio: item.fechaInicio ?? '',
             fechaFin: item.fechaFin ?? '',
@@ -476,7 +478,7 @@ export default function WebConvocatoriasPage() {
               </p>
             </div>
             <Button variant="outline" asChild>
-              <Link href="/programacion/nueva">
+              <Link href={convocatoriaNuevaHref('/web/convocatorias')}>
                 <Plus className="mr-2 h-4 w-4" />
                 Nueva Convocatoria
               </Link>
@@ -518,7 +520,11 @@ export default function WebConvocatoriasPage() {
                   <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3 w-3 shrink-0" />
-                      <span className="truncate">{conv.sedeName}</span>
+                      {conv.sedeName ? (
+                        <span className="truncate">{conv.sedeName}</span>
+                      ) : (
+                        <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
+                      )}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Calendar className="h-3 w-3 shrink-0" />
@@ -590,8 +596,9 @@ export default function WebConvocatoriasPage() {
           <Table className="min-w-[800px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Ciclo / Curso</TableHead>
+                <TableHead>Ciclo / curso</TableHead>
                 <TableHead>Sede</TableHead>
+                <TableHead>Docente</TableHead>
                 <TableHead>Fechas</TableHead>
                 <TableHead className="text-center">Plazas</TableHead>
                 <TableHead className="text-center">Estado</TableHead>
@@ -614,7 +621,16 @@ export default function WebConvocatoriasPage() {
                       {conv.cursoNombre}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {conv.sedeName}
+                      {conv.sedeName ? conv.sedeName : (
+                        <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {conv.profesorName ? (
+                        <span className="text-muted-foreground">{conv.profesorName}</span>
+                      ) : (
+                        <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar docente" />
+                      )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-sm">
                       {formatDate(conv.fechaInicio)} - {formatDate(conv.fechaFin)}

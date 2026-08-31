@@ -25,7 +25,6 @@ export default function EditAdministrativoPage() {
     <div className="space-y-6 max-w-4xl" data-oid="sswj.he">
       <PageHeader
         title="Editar Personal Administrativo"
-        description="Modificar información del personal administrativo"
         icon={Briefcase}
         actions={
           <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="g9q8evk">

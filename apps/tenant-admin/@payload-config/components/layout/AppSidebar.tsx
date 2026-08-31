@@ -54,6 +54,41 @@ import {
 } from '../ui/sidebar'
 
 export const SIDEBAR_SUBNAV_ICON_CLASS = 'h-4 w-4'
+/** 1px primary tree. The active pill sits on this same axis, not inset. */
+export const SIDEBAR_SUBNAV_TREE_CLASS = 'border-l border-l-[1px] border-primary'
+export const SIDEBAR_SUBNAV_EXPANDED_LIST_CLASS =
+  'relative ml-4 mt-0.5 space-y-0.5 pl-0 border-l border-l-[1px] border-primary'
+export const SIDEBAR_SUBNAV_INDICATOR_CLASS =
+  'pointer-events-none absolute top-1/2 left-0 z-[1] h-5 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary'
+export const SIDEBAR_NAV_INDICATOR_CLASS =
+  'absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary'
+
+function SidebarActiveBar({
+  active,
+  collapsedHidden = false,
+  onRail = false,
+}: {
+  active: boolean
+  collapsedHidden?: boolean
+  onRail?: boolean
+}) {
+  return (
+    <span
+      data-slot={onRail ? 'sidebar-subnav-indicator' : 'sidebar-active-bar'}
+      className={`transition-opacity duration-200 ${
+        onRail ? SIDEBAR_SUBNAV_INDICATOR_CLASS : SIDEBAR_NAV_INDICATOR_CLASS
+      } ${
+        collapsedHidden
+          ? 'opacity-0'
+          : active
+            ? 'opacity-100'
+            : onRail
+              ? 'opacity-0'
+              : 'opacity-0 group-hover:opacity-100'
+      }`}
+    />
+  )
+}
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -71,7 +106,7 @@ const menuItems: MenuItemWithSection[] = [
     title: 'Programación',
     icon: Calendar,
     url: '/programacion',
-    sectionBefore: 'GESTIÓN ACADÉMICA',
+    sectionBefore: 'ACADÉMICO',
   },
   {
     title: 'Planner Visual',
@@ -99,20 +134,13 @@ const menuItems: MenuItemWithSection[] = [
     url: '/dashboard/alumnos',
   },
   {
-    title: 'Personal',
-    icon: Users,
-    items: [
-      { title: 'Profesores', icon: GraduationCap, url: '/dashboard/profesores' },
-      { title: 'Administrativos', icon: Briefcase, url: '/dashboard/personal/administrativos' },
-    ],
-  },
-  {
     title: 'Matriculacion',
     icon: UserPlus,
     items: [
       { title: 'Solicitudes', icon: ClipboardList, url: '/matriculas' },
       { title: 'Nueva matrícula', icon: UserPlus, url: '/matriculas/nueva' },
       { title: 'Planes y tarifas', icon: CreditCard, url: '/matriculas/planes' },
+      { title: 'Tarifas de acceso', icon: Wallet, url: '/matriculas/tarifas-acceso' },
     ],
   },
   {
@@ -125,28 +153,46 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
-    title: 'Marketing',
-    icon: Megaphone,
-    sectionBefore: 'GESTIÓN COMERCIAL',
+    title: 'Personal',
+    icon: Users,
+    sectionBefore: 'PERSONAL',
     items: [
-      { title: 'Campañas', icon: Megaphone, url: '/campanas' },
-      { title: 'Creatividades', icon: Sparkles, url: '/marketing/creatividades' },
+      { title: 'Profesores', icon: GraduationCap, url: '/dashboard/profesores' },
+      { title: 'Administrativos', icon: Briefcase, url: '/dashboard/personal/administrativos' },
     ],
   },
   {
-    title: 'Captacion',
-    icon: FileText,
+    title: 'Campus Virtual',
+    icon: GraduationCap,
+    sectionBefore: 'CAMPUS VIRTUAL',
     items: [
+      { title: 'Vista General Campus', icon: LayoutDashboard, url: '/campus-virtual' },
+      { title: 'Inscripciones LMS', icon: UserPlus, url: '/campus-virtual/inscripciones' },
+      { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
+      { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
+      { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
+    ],
+  },
+  {
+    title: 'Marketing',
+    icon: Megaphone,
+    sectionBefore: 'MARKETING',
+    items: [
+      { title: 'Campañas', icon: Megaphone, url: '/campanas' },
+      { title: 'Creatividades', icon: Sparkles, url: '/marketing/creatividades' },
       { title: 'Leads', icon: FileText, url: '/leads' },
       { title: 'Inscripciones', icon: UserPlus, url: '/inscripciones' },
       { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
       { title: 'Calendario citas', icon: CalendarDays, url: '/calendario-citas' },
+      { title: 'Analíticas', icon: BarChart3, url: '/marketing/analiticas' },
     ],
   },
   {
-    title: 'Contenido Web',
+    title: 'Web',
     icon: Globe,
+    sectionBefore: 'WEB',
     items: [
+      { title: 'Analíticas', icon: BarChart3, url: '/web/analiticas' },
       { title: 'Cursos', icon: BookOpen, url: '/web/cursos' },
       { title: 'Ciclos', icon: GraduationCap, url: '/web/ciclos' },
       { title: 'Convocatorias', icon: Calendar, url: '/web/convocatorias' },
@@ -164,14 +210,9 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
-    title: 'Analíticas',
-    icon: BarChart3,
-    url: '/analiticas',
-  },
-  {
     title: 'Finanzas',
     icon: Landmark,
-    sectionBefore: 'GESTIÓN FINANCIERA',
+    sectionBefore: 'FINANZAS',
     upcoming: true,
     items: [
       { title: 'Resumen Financiero', icon: Wallet, url: '/finanzas', upcoming: true },
@@ -179,18 +220,6 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Facturacion', icon: Receipt, url: '/finanzas/facturacion', upcoming: true },
       { title: 'Nominas y Costes', icon: PiggyBank, url: '/finanzas/nominas', upcoming: true },
       { title: 'Informes', icon: ClipboardList, url: '/finanzas/informes', upcoming: true },
-    ],
-  },
-  {
-    title: 'Campus Virtual',
-    icon: GraduationCap,
-    sectionBefore: 'CAMPUS VIRTUAL',
-    items: [
-      { title: 'Vista General Campus', icon: LayoutDashboard, url: '/campus-virtual' },
-      { title: 'Inscripciones LMS', icon: UserPlus, url: '/campus-virtual/inscripciones' },
-      { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
-      { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
-      { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
     ],
   },
   {
@@ -211,6 +240,7 @@ const menuItems: MenuItemWithSection[] = [
     title: 'Configuración',
     icon: Settings,
     url: '/configuracion',
+    sectionBefore: 'CONFIGURACIÓN',
   },
 ]
 
@@ -251,17 +281,13 @@ function SubMenuItem({ subItem, pathname, currentSearch, isCollapsed = false }: 
       <>
         <button
           onClick={() => setNestedOpen(!nestedOpen)}
-          className={`group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-            hasActiveNestedChild ? 'bg-sidebar-accent/50' : ''
-          }`}
+          className={`group relative flex items-center gap-2 rounded-md text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+            isCollapsed ? 'h-10 w-10 justify-center px-0' : 'w-full px-3 py-2'
+          } ${hasActiveNestedChild ? 'bg-sidebar-accent/50' : ''}`}
+          title={isCollapsed ? subItem.title : undefined}
           data-oid="7nvqr6:"
         >
-          <span
-            className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-              hasActiveNestedChild ? 'opacity-60' : 'opacity-0 group-hover:opacity-100'
-            }`}
-            data-oid="bspggu-"
-          />
+          <SidebarActiveBar active={hasActiveNestedChild} collapsedHidden={isCollapsed} onRail={!isCollapsed} />
 
           <SubIcon className={`${SIDEBAR_SUBNAV_ICON_CLASS} shrink-0 text-foreground/70`} data-oid="z:_3-_d" />
           {!isCollapsed && (
@@ -280,7 +306,7 @@ function SubMenuItem({ subItem, pathname, currentSearch, isCollapsed = false }: 
         </button>
         {(nestedOpen || hasActiveNestedChild) && (
           <ul
-            className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4"
+            className={SIDEBAR_SUBNAV_EXPANDED_LIST_CLASS}
             data-oid="s6p7k8q"
           >
             {subItem.items?.map((nestedItem) => {
@@ -290,19 +316,17 @@ function SubMenuItem({ subItem, pathname, currentSearch, isCollapsed = false }: 
                 <li key={nestedItem.title} data-oid="h6eshm5">
                   <Link
                     href={nestedItem.url!}
-                    className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                    className={`group relative flex items-center gap-2 rounded-md text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                      isCollapsed ? 'h-10 w-10 justify-center px-0' : 'px-3 py-2'
+                    } ${
                       isNestedActive
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         : ''
                     }`}
+                    title={isCollapsed ? nestedItem.title : undefined}
                     data-oid="edf83fk"
                   >
-                    <span
-                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-                        isNestedActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                      }`}
-                      data-oid="62xhu-b"
-                    />
+                    <SidebarActiveBar active={isNestedActive} collapsedHidden={isCollapsed} onRail />
 
                     <NestedIcon
                       className={`${SIDEBAR_SUBNAV_ICON_CLASS} shrink-0 text-foreground/60`}
@@ -323,17 +347,13 @@ function SubMenuItem({ subItem, pathname, currentSearch, isCollapsed = false }: 
   return (
     <Link
       href={subItem.url!}
-      className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-        isSubActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : ''
-      }`}
+      className={`group relative flex items-center gap-2 rounded-md text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+        isCollapsed ? 'h-10 w-10 justify-center px-0' : 'px-3 py-2'
+      } ${isSubActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : ''}`}
+      title={isCollapsed ? subItem.title : undefined}
       data-oid="b-5u9jo"
     >
-      <span
-        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-          isSubActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        }`}
-        data-oid="c:6sgov"
-      />
+      <SidebarActiveBar active={isSubActive} collapsedHidden={false} onRail />
 
       <SubIcon className={`${SIDEBAR_SUBNAV_ICON_CLASS} shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
       {!isCollapsed && (
@@ -392,12 +412,15 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
           return isUrlActive(subItem.url)
         }) ?? false
     )
-    if (activeParent) {
-      setOpenSections([activeParent.title])
-    }
+    const next = activeParent ? [activeParent.title] : []
+    setOpenSections((prev) =>
+      prev.length === next.length && prev.every((title, index) => title === next[index])
+        ? prev
+        : next,
+    )
   }, [pathname, currentSearch, isUrlActive])
 
-  // Accordion behavior: only one section open at a time
+  // Accordion: click only. Hover must not open sections.
   const toggleSection = (title: string) => {
     setOpenSections(
       (prev) => (prev.includes(title) ? prev.filter((item) => item !== title) : [title])
@@ -491,15 +514,9 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
                       title={isCollapsed ? item.title : undefined}
                       data-oid="5zqti0j"
                     >
-                      <span
-                        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-                          isActive
-                            ? 'opacity-100'
-                            : isCollapsed
-                              ? 'opacity-0'
-                              : 'opacity-0 group-hover:opacity-100'
-                        }`}
-                        data-oid="odmyz7h"
+                      <SidebarActiveBar
+                        active={isActive}
+                        collapsedHidden={isCollapsed && !isActive}
                       />
 
                       <Icon
@@ -542,15 +559,9 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
                     title={isCollapsed ? item.title : undefined}
                     data-oid="47oydbm"
                   >
-                    <span
-                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-                        isCollapsed
-                          ? 'opacity-0'
-                          : hasActiveChild
-                            ? 'opacity-70'
-                            : 'opacity-0 group-hover:opacity-100'
-                      }`}
-                      data-oid="lc-q44:"
+                    <SidebarActiveBar
+                      active={hasActiveChild}
+                      collapsedHidden={isCollapsed}
                     />
 
                     <Icon
@@ -583,12 +594,30 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
                     }`}
                     data-oid="33l6zag"
                   >
+                    {isCollapsed ? (
+                      isOpen ? (
+                      <div className="mx-auto mt-0.5 w-11 min-w-0 overflow-hidden">
+                        <ul
+                          data-slot="sidebar-collapsed-subnav"
+                          className={`space-y-0.5 ${SIDEBAR_SUBNAV_TREE_CLASS}`}
+                        >
+                          {item.items?.map((subItem) => (
+                            <li key={subItem.title}>
+                              <SubMenuItem
+                                subItem={subItem}
+                                pathname={pathname}
+                                currentSearch={currentSearch}
+                                isCollapsed={isCollapsed}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      ) : null
+                    ) : (
                     <ul
-                      className={
-                        isCollapsed
-                          ? 'mt-1 flex flex-col items-center space-y-1'
-                          : 'ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4'
-                      }
+                      data-slot="sidebar-subnav"
+                      className={SIDEBAR_SUBNAV_EXPANDED_LIST_CLASS}
                       data-oid="fu19cwt"
                     >
                       {item.items?.map((subItem) => (
@@ -603,6 +632,7 @@ export function AppSidebar({ isCollapsed: collapsedProp }: AppSidebarProps = {})
                         </li>
                       ))}
                     </ul>
+                    )}
                   </div>
                 </li>
               </React.Fragment>

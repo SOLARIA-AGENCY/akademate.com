@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { SidebarProvider } from '../../@payload-config/components/ui/sidebar'
 
 vi.mock('@/app/providers/tenant-branding', () => ({
@@ -81,6 +82,25 @@ describe('AppSidebar', () => {
     expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
   })
 
+  it('clicking a collapsed parent with children shows the nested rail line', async () => {
+    const user = userEvent.setup()
+    renderSidebar(true)
+    expect(document.querySelector('[data-slot="sidebar-collapsed-subnav"]')).not.toBeInTheDocument()
+    await user.click(screen.getByTitle('Matriculacion'))
+    const nest = document.querySelector('[data-slot="sidebar-collapsed-subnav"]')
+    expect(nest).toBeInTheDocument()
+    expect(nest).toHaveClass('border-l')
+    expect(nest).toHaveClass('border-primary')
+    expect(nest?.className).not.toContain('border-l-2')
+  })
+
+  it('Dashboard and Ayuda stay leaf items with no nested rail line', () => {
+    renderSidebar(true)
+    expect(screen.getByTitle('Dashboard')).toBeInTheDocument()
+    expect(screen.getByTitle('Ayuda y Documentación')).toBeInTheDocument()
+    expect(document.querySelector('[data-slot="sidebar-collapsed-subnav"]')).not.toBeInTheDocument()
+  })
+
   it('has theme-aware background (bg-transparent over tenant --sidebar)', () => {
     renderSidebar()
     const container = document.querySelector('[class*="bg-transparent"]')
@@ -148,12 +168,20 @@ describe('AppSidebar', () => {
     })
   })
 
-  describe('Matriculacion and Accesos', () => {
-    it('renders Nueva matrícula and Recepción items', () => {
+  describe('Matriculacion, analytics split and config last', () => {
+    it('renders Nueva matrícula, Recepción and Tarifas de acceso', () => {
       renderSidebar()
       expect(screen.getByText('Nueva matrícula')).toBeInTheDocument()
       expect(screen.getByText('Recepción')).toBeInTheDocument()
       expect(screen.getByText('Planes y tarifas')).toBeInTheDocument()
+      expect(screen.getByText('Tarifas de acceso')).toBeInTheDocument()
+    })
+
+    it('renders Analíticas twice under marketing and web, never landings de pago', () => {
+      renderSidebar()
+      expect(screen.getAllByText('Analíticas')).toHaveLength(2)
+      expect(screen.queryByText('Landings de pago')).not.toBeInTheDocument()
+      expect(screen.getByText('Configuración').closest('a')).toHaveAttribute('href', '/configuracion')
     })
   })
 })

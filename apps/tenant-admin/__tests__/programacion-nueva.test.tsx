@@ -105,7 +105,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText(/Ciclo \/ Curso/)).toBeInTheDocument()
     })
     expect(screen.getByTitle('Crear nuevo profesor')).toBeInTheDocument()
   })
@@ -120,10 +120,10 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText(/Ciclo \/ Curso/)).toBeInTheDocument()
     })
     expect(screen.getByText('Sede *')).toBeInTheDocument()
-    expect(screen.getByText('Profesor *')).toBeInTheDocument()
+    expect(screen.getByText('Profesor')).toBeInTheDocument()
   })
 
   it('renders ciclo/curso selector with items', async () => {
@@ -173,7 +173,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText(/Ciclo \/ Curso/)).toBeInTheDocument()
     })
 
     const submitButton = screen.getByRole('button', { name: /Crear Convocatoria/ })

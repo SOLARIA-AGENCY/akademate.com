@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
   Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Monitor, Plus, Printer, MapPin, Users,
@@ -13,6 +14,14 @@ import {
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -394,7 +403,7 @@ export default function CursoDetailPage({ params }: Props) {
                 Convocatorias
                 <Badge variant="outline">{convocatorias.length}</Badge>
               </CardTitle>
-              <Button size="sm" onClick={() => router.push(`/dashboard/programacion/nueva?curso=${id}`)}>
+              <Button size="sm" onClick={() => router.push(convocatoriaNuevaHref(`/cursos/${id}`, { curso: String(id) }))}>
                 <Plus className="mr-1.5 h-3.5 w-3.5" />Crear convocatoria
               </Button>
             </CardHeader>
@@ -654,31 +663,31 @@ export default function CursoDetailPage({ params }: Props) {
               No hay convocatorias activas en este momento. Consulte disponibilidad en recepcion o en la web.
             </div>
           ) : (
-            <div className="mt-2 overflow-hidden rounded-lg border">
-              <table className="w-full border-collapse text-left">
-                <thead className="bg-gray-100 text-[10px] uppercase text-gray-600">
-                  <tr>
-                    <th className="p-2">Codigo</th>
-                    <th className="p-2">Sede / aula</th>
-                    <th className="p-2">Fechas</th>
-                    <th className="p-2">Horario</th>
-                    <th className="p-2">Plazas</th>
-                    <th className="p-2">Precio</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="mt-2">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Codigo</TableHead>
+                    <TableHead>Sede / aula</TableHead>
+                    <TableHead>Fechas</TableHead>
+                    <TableHead>Horario</TableHead>
+                    <TableHead>Plazas</TableHead>
+                    <TableHead>Precio</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {activeRuns.slice(0, 4).map((conv) => (
-                    <tr key={conv.id} className="border-t">
-                      <td className="p-2 font-semibold">{conv.codigo ?? conv.id}</td>
-                      <td className="p-2">{conv.campusNombre ?? 'Sede por definir'} / {conv.aulaNombre ?? 'Aula por definir'}</td>
-                      <td className="p-2">{formatDateRange(conv.fechaInicio, conv.fechaFin)}</td>
-                      <td className="p-2">{conv.horario?.trim() || conv.turno || 'Por definir'}</td>
-                      <td className="p-2">{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0}</td>
-                      <td className="p-2">{formatCurrency(conv.precio)}</td>
-                    </tr>
+                    <TableRow key={conv.id}>
+                      <TableCell className="font-semibold">{conv.codigo ?? conv.id}</TableCell>
+                      <TableCell>{conv.campusNombre ?? 'Sede por definir'} / {conv.aulaNombre ?? 'Aula por definir'}</TableCell>
+                      <TableCell>{formatDateRange(conv.fechaInicio, conv.fechaFin)}</TableCell>
+                      <TableCell>{conv.horario?.trim() || conv.turno || 'Por definir'}</TableCell>
+                      <TableCell>{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0}</TableCell>
+                      <TableCell>{formatCurrency(conv.precio)}</TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>

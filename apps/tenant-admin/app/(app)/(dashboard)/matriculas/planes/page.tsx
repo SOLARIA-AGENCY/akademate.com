@@ -13,6 +13,7 @@ import {
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Skeleton } from '@payload-config/components/ui/skeleton'
+import { Tabs, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs
 import { AlertCircle, Building2, CreditCard, GraduationCap, Users } from 'lucide-react'
 import { accessKindFromModality, accessKindLabel, type AccessKind } from '../wizard/types'
 
@@ -57,6 +58,7 @@ function mapPlan(row: Record<string, unknown>): PlanRow {
 export default function PlanesMatriculaPage() {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const [kind, setKind] = useState<'all' | AccessKind>('all')
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -88,25 +90,30 @@ export default function PlanesMatriculaPage() {
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    if (!needle) return plans
-    return plans.filter((plan) =>
-      [plan.name, plan.campusName, plan.modality, accessKindLabel(plan.accessKind)]
+    return plans.filter((plan) => {
+      if (kind !== 'all' && plan.accessKind !== kind) return false
+      if (!needle) return true
+      return [plan.name, plan.campusName, plan.modality, accessKindLabel(plan.accessKind)]
         .join(' ')
         .toLowerCase()
-        .includes(needle),
-    )
-  }, [plans, query])
+        .includes(needle)
+    })
+  }, [kind, plans, query])
 
   return (
     <div className="min-w-0 space-y-6">
       <PageHeader
         title="Planes y tarifas"
-        description="Convocatorias con precio, matrícula, plazas y tipo de acceso."
         icon={CreditCard}
         actions={
-          <Button onClick={() => router.push('/matriculas/nueva')}>
-            Nueva matrícula
-          </Button>
+          <>
+            <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
+              Volver
+            </Button>
+            <Button onClick={() => router.push('/matriculas/nueva')}>
+              Nueva matrícula
+            </Button>
+          </>
         }
       />
 
@@ -122,6 +129,15 @@ export default function PlanesMatriculaPage() {
           </AlertDescription>
         </Alert>
       ) : null}
+
+      <Tabs value={kind} onValueChange={(value) => setKind(value as 'all' | AccessKind)}>
+        <TabsList>
+          <TabsTrigger value="all">Todos</TabsTrigger>
+          <TabsTrigger value="fisico">Físico</TabsTrigger>
+          <TabsTrigger value="virtual">Virtual</TabsTrigger>
+          <TabsTrigger value="hibrido">Híbrido</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <PremiumDirectoryShell
         search={

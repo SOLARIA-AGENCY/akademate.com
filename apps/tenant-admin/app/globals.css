@@ -127,14 +127,14 @@ body:not([data-payload-admin]) {
     /* Base palette */
     --background: 0 0% 97%;
     --foreground: 222 47% 11%;
-    --dashboard-canvas: 0 0% 100%;
+    --dashboard-canvas: 220 9% 96%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary — blue-700 #1D4ED8 */
-    --primary: 224 71% 48%;
+    /* Primary — Akademate #0066CC */
+    --primary: 210 100% 40%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary / Muted / Accent (shadcn hover state) */
@@ -160,27 +160,27 @@ body:not([data-payload-admin]) {
     /* Borders & input */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 224 71% 48%;
+    --ring: 210 100% 40%;
 
     /* Sidebar */
     --sidebar: 0 0% 98%;
     --sidebar-foreground: 222 47% 20%;
-    --sidebar-primary: 224 71% 48%;
+    --sidebar-primary: 210 100% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 93%;
     --sidebar-accent-foreground: 222 47% 15%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 224 71% 48%;
+    --sidebar-ring: 210 100% 40%;
 
     /* Charts */
-    --chart-1: 224 71% 48%;
+    --chart-1: 210 100% 40%;
     --chart-2: 142 72% 36%;
     --chart-3: 38 92% 50%;
     --chart-4: 280 60% 55%;
     --chart-5: 340 70% 55%;
 
     /* Tenant brand accent */
-    --brand-accent: 224 71% 48%;
+    --brand-accent: 210 100% 40%;
     --brand-accent-foreground: 0 0% 100%;
   }
 

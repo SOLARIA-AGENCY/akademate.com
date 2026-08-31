@@ -554,7 +554,6 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
     <div className="space-y-6">
       <PageHeader
         title="Editar Sede"
-        description="Actualiza la informacion del centro o campus"
         icon={MapPin}
       />
 

@@ -6,13 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
 import {
   ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
   Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText, ExternalLink,
-  Printer, Eye,
+  Printer, Eye, MoreHorizontal,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@payload-config/components/ui/dropdown-menu'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -363,21 +372,30 @@ export default function CicloDetailPage({ params }: Props) {
           <h1 className="text-3xl font-bold tracking-tight">{cycle.name}</h1>
           <p className="text-muted-foreground">{levelLabel(cycle.level)}</p>
           <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!publicCycleAvailable}
-              onClick={() => window.open(publicCyclePath, '_blank', 'noopener,noreferrer')}
-              title={publicCycleAvailable ? 'Abrir página pública del ciclo' : 'Página pública no disponible'}
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
-            </Button>
             <Button size="sm" onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />Editar
             </Button>
-            <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/ciclos/${id}/ficha`)}>
-              <Printer className="mr-2 h-4 w-4" />Imprimir ciclo
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Más acciones</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  disabled={!publicCycleAvailable}
+                  onClick={() => window.open(publicCyclePath, '_blank', 'noopener,noreferrer')}
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Ver página pública
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push(`/dashboard/ciclos/${id}/ficha`)}>
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimir ciclo
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -404,9 +422,17 @@ export default function CicloDetailPage({ params }: Props) {
       </div>
 
       {/* Main grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* MAIN (2/3) */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* MAIN */}
+        <div className="lg:order-2 lg:col-span-8 space-y-6">
+          <Tabs defaultValue="convocatorias">
+            <TabsList>
+              <TabsTrigger value="convocatorias">Convocatorias</TabsTrigger>
+              <TabsTrigger value="profesores">Profesores</TabsTrigger>
+              <TabsTrigger value="alumnos">Alumnos</TabsTrigger>
+              <TabsTrigger value="docs">Documentos</TabsTrigger>
+            </TabsList>
+            <TabsContent value="convocatorias">
           {/* Convocatorias */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -415,7 +441,7 @@ export default function CicloDetailPage({ params }: Props) {
                 Convocatorias
                 <Badge variant="outline">{convocatorias.length}</Badge>
               </CardTitle>
-              <Button size="sm" onClick={() => router.push(`/programacion/nueva?ciclo=${id}`)}>
+              <Button size="sm" onClick={() => router.push(convocatoriaNuevaHref(`/ciclos/${id}`, { ciclo: String(id) }))}>
                 <Plus className="mr-1.5 h-3.5 w-3.5" />Crear convocatoria
               </Button>
             </CardHeader>
@@ -450,14 +476,12 @@ export default function CicloDetailPage({ params }: Props) {
                         <div className="flex items-stretch">
                           {/* Foto heredada del ciclo */}
                           {imageUrl && (
-                            <div className="hidden w-44 shrink-0 bg-muted sm:block">
-                              <img src={imageUrl} alt="" className="h-full min-h-36 w-full object-cover" />
-                            </div>
+                            <EntityThumb src={imageUrl} alt="" fallback="cycle" size="lg" className="hidden sm:block" />
                           )}
                           <div className="flex-1 p-3">
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="line-clamp-2 text-sm font-bold uppercase leading-tight">{cycle.name}</p>
+                                <p className="line-clamp-2 text-sm font-semibold leading-tight">{cycle.name}</p>
                                 <p className="mt-1 font-mono text-xs text-muted-foreground">{conv.codigo}</p>
                               </div>
                               <Badge variant={conv.status === 'enrollment_open' ? 'default' : 'secondary'} className="shrink-0 text-[10px]">
@@ -496,7 +520,9 @@ export default function CicloDetailPage({ params }: Props) {
               )}
             </CardContent>
           </Card>
+            </TabsContent>
 
+            <TabsContent value="profesores">
           {/* Profesores */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -512,7 +538,9 @@ export default function CicloDetailPage({ params }: Props) {
               <EmptyState message="No hay profesores asignados a este ciclo" />
             </CardContent>
           </Card>
+            </TabsContent>
 
+            <TabsContent value="alumnos">
           {/* Alumnos */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -528,28 +556,58 @@ export default function CicloDetailPage({ params }: Props) {
               <EmptyState message="No hay alumnos matriculados en este ciclo" />
             </CardContent>
           </Card>
+            </TabsContent>
+
+            <TabsContent value="docs">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Documentos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {Array.isArray(cycle.documents) && cycle.documents.length > 0 ? (
+                    <div className="space-y-2">
+                      {cycle.documents.map((doc: { file?: { url?: string }; title?: string }, i: number) => {
+                        const fileUrl = typeof doc.file === 'object' ? doc.file?.url : null
+                        if (!fileUrl) return null
+                        return (
+                          <a
+                            key={i}
+                            href={fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-primary hover:underline"
+                          >
+                            <FileText className="h-4 w-4" />
+                            {doc.title || 'Documento'}
+                          </a>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <EmptyState message="No hay documentos asociados a este ciclo" />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
 
-        {/* SIDEBAR (1/3) */}
-        <div>
+        {/* SIDEBAR */}
+        <div className="lg:order-1 lg:col-span-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Informacion del Ciclo</CardTitle>
+              <CardTitle className="text-base">Informacion del ciclo</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              {/* Image */}
-              {imageUrl && (
-                <img
-                  src={imageUrl}
-                  alt={cycle.name}
-                  className="w-full h-40 object-cover rounded-lg"
-                />
-              )}
+              <EntityThumb src={imageUrl} alt={cycle.name} fallback="cycle" size="lg" />
 
               {/* Level */}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Nivel</span>
-                <Badge className="bg-[#f2014b] text-white hover:bg-[#d80143]">{levelLabel(cycle.level)}</Badge>
+                <Badge variant="secondary">{levelLabel(cycle.level)}</Badge>
               </div>
 
               {/* Family */}
@@ -641,15 +699,6 @@ export default function CicloDetailPage({ params }: Props) {
             </CardContent>
           </Card>
         </div>
-      </div>
-      <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => router.push('/dashboard/ciclos')}>
-          Volver
-        </Button>
-        <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Editar ciclo
-        </Button>
       </div>
     </div>
   )

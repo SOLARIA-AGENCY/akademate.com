@@ -240,7 +240,6 @@ export default function NewProfesorPage() {
     <div className="space-y-6 max-w-4xl" data-oid="nqgh2_8">
       <PageHeader
         title="Nuevo Profesor"
-        description="Añade un nuevo profesor al sistema"
         icon={User}
         actions={
           <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="k1x7g23">

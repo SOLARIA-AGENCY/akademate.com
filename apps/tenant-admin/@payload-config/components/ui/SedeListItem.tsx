@@ -3,6 +3,7 @@
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { MapPin, Phone, Mail, DoorOpen, Users } from 'lucide-react'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 
 interface SedeListItemProps {
   sede: {
@@ -16,7 +17,7 @@ interface SedeListItemProps {
     capacidad: number
     cursosActivos: number
     profesores: number
-    imagen: string
+    imagen: string | null
     borderColor?: string
   }
   onClick?: () => void
@@ -26,7 +27,7 @@ interface SedeListItemProps {
 export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
   return (
     <div
-      className={`flex min-h-20 items-center overflow-hidden rounded-lg border bg-card pr-3 transition-shadow duration-150 hover:shadow-sm ${className ?? ''}`}
+      className={`flex min-h-20 items-center gap-4 overflow-hidden rounded-lg border bg-card px-4 py-3 transition-shadow duration-150 hover:shadow-sm ${className ?? ''}`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -38,18 +39,9 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
       }}
       data-oid="em0zouv"
     >
-      <div className="h-full w-1 shrink-0 bg-primary" data-oid="ahierfq" />
+      <EntityThumb src={sede.imagen} alt={sede.nombre} fallback="campus" size="md" />
 
-      <div className="shrink-0" data-oid="tc8o9s_">
-        <img
-          src={sede.imagen}
-          alt={sede.nombre}
-          className="h-20 w-20 object-cover"
-          data-oid="ldy01dj"
-        />
-      </div>
-
-      <div className="flex flex-1 items-center gap-3 pl-4" data-oid="gpb8lda">
+      <div className="flex min-w-0 flex-1 items-center gap-3" data-oid="gpb8lda">
         <div className="min-w-0 flex-1" data-oid="ca9xgr4">
           <h3
             className="truncate text-sm font-semibold leading-tight"
@@ -78,7 +70,7 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
           </div>
           <div className="flex items-center gap-1" data-oid="c6vs70u">
             <Mail className="h-3 w-3 text-muted-foreground" data-oid="qsmn111" />
-            <span className="truncate text-muted-foreground" data-oid="quyp9o9">
+            <span className="truncate text-muted-foreground" data-oid="qnp5vh6">
               {sede.email}
             </span>
           </div>
@@ -117,7 +109,7 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
 
         <Button
           size="sm"
-          className="h-7 shrink-0 px-3 text-xs font-semibold uppercase tracking-wide"
+          className="h-7 shrink-0 px-3 text-xs"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

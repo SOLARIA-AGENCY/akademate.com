@@ -10,8 +10,18 @@ export const WIZARD_STEPS = [
 
 export type WizardStepId = (typeof WIZARD_STEPS)[number]
 
+export const WIZARD_STAGES = [
+  { id: 1, slug: 'convocatoria', title: 'Convocatoria', stepIds: ['course'] },
+  { id: 2, slug: 'alumno', title: 'Alumno', stepIds: ['identify', 'personal'] },
+  { id: 3, slug: 'pago', title: 'Pago y RGPD', stepIds: ['consent', 'payment', 'access'] },
+  { id: 4, slug: 'confirmar', title: 'Confirmar', stepIds: ['review'] },
+] as const
+
+export type WizardStageId = (typeof WIZARD_STAGES)[number]['id']
+
 export type AccessKind = 'fisico' | 'virtual' | 'hibrido'
 export type PaymentMethod = 'sepa' | 'card_online' | 'card_pos' | 'transfer' | 'cash'
+export const PAYMENT_METHODS: PaymentMethod[] = ['sepa', 'card_online', 'card_pos', 'transfer', 'cash']
 export type PaymentPlan = 'unico' | 'fraccionado'
 export type PersonMode = 'existing' | 'new'
 
@@ -66,7 +76,7 @@ export const DRAFT_STORAGE_KEY = 'akademate.enrollment.draft.v1'
 
 export function createEmptyDraft(): EnrollmentDraft {
   return {
-    step: 'identify',
+    step: 'course',
     personMode: 'existing',
     person: {
       id: null,
@@ -93,6 +103,59 @@ export function createEmptyDraft(): EnrollmentDraft {
     accessPass: null,
     virtualSendChannel: 'email',
   }
+}
+
+export function parseWizardStage(raw: string | null | undefined): WizardStageId {
+  const n = Number(raw)
+  if (n === 5 || n === 6) return 3
+  if (n === 7) return 4
+  if (n >= 1 && n <= 4) return n as WizardStageId
+  if (raw === 'course') return 1
+  if (raw === 'identify' || raw === 'personal') return 2
+  if (raw === 'consent' || raw === 'payment' || raw === 'access') return 3
+  if (raw === 'review') return 4
+  return 1
+}
+
+export function wizardStageFromStep(step: WizardStepId): WizardStageId {
+  switch (step) {
+    case 'course':
+      return 1
+    case 'identify':
+    case 'personal':
+      return 2
+    case 'consent':
+    case 'payment':
+    case 'access':
+      return 3
+    case 'review':
+      return 4
+    default: {
+      const _exhaustive: never = step
+      return _exhaustive
+    }
+  }
+}
+
+export function wizardStepFromStage(stage: WizardStageId): WizardStepId {
+  switch (stage) {
+    case 1:
+      return 'course'
+    case 2:
+      return 'personal'
+    case 3:
+      return 'consent'
+    case 4:
+      return 'review'
+    default: {
+      const _exhaustive: never = stage
+      return _exhaustive
+    }
+  }
+}
+
+export function wizardStageTitle(id: WizardStageId): string {
+  return WIZARD_STAGES.find((stage) => stage.id === id)?.title ?? String(id)
 }
 
 export function wizardStepTitle(step: WizardStepId): string {

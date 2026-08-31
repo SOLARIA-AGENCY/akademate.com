@@ -253,7 +253,6 @@ export default function MatriculaEditPage({ params }: Props) {
     <div className="space-y-6">
       <PageHeader
         title={`Editar Matrícula #${id}`}
-        description="Actualiza convocatoria, pago y ficha completa del alumno"
         icon={Edit}
         actions={
           <div className="flex gap-2">

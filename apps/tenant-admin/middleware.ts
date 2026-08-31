@@ -110,6 +110,16 @@ const publicRoutes = [
   ...(process.env.NODE_ENV !== 'production' ? ['/design-system'] : []),
 ]
 
+/** Student LMS paths. Must not match staff `/campus-virtual`. */
+export function isCampusStudentPath(pathname: string): boolean {
+  return (
+    pathname === '/campus' ||
+    pathname.startsWith('/campus/') ||
+    pathname === '/api/campus' ||
+    pathname.startsWith('/api/campus/')
+  )
+}
+
 // Static asset paths to ignore
 const staticPaths = [
   '/_next',
@@ -383,6 +393,21 @@ export function middleware(request: NextRequest) {
 
   // Skip middleware for public routes (non-API)
   if (publicRoutes.some(route => pathname.startsWith(route))) {
+    return NextResponse.next()
+  }
+
+  // Student campus uses campus_token (JWT in Authorization / localStorage), not staff cookies.
+  // Do not use startsWith('/campus') — that would also match staff /campus-virtual.
+  if (isCampusStudentPath(pathname)) {
+    if (pathname.startsWith('/api/')) {
+      const response = NextResponse.next()
+      const corsHeaders = getCorsHeaders(origin)
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value)
+      })
+      Object.entries(rateLimitHeaders).forEach(([k, v]) => response.headers.set(k, v))
+      return response
+    }
     return NextResponse.next()
   }
 

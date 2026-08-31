@@ -4,6 +4,7 @@ import '../globals.css'
 import { ClientLayout } from '../ClientLayout'
 import type { TenantBranding } from '@/app/providers/tenant-branding'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
+import { hexToHsl } from '@/app/lib/tenant-theme-tokens'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +17,7 @@ function getIconMimeType(url: string): string {
 
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await getTenantHostBranding()
-  const title = `${tenant.academyName} — Plataforma Educativa`
+  const title = `${tenant.academyName}: Plataforma Educativa`
   const description = 'Gestion academica, operaciones y campus virtual para centros de formacion.'
   const ogImage = toAbsoluteAssetUrl(tenant.origin, tenant.logoUrl)
 
@@ -78,9 +79,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     },
     tenantId: tenant.tenantId,
   }
+  const primaryHsl = hexToHsl(tenant.primaryColor)
 
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html
+      lang="es"
+      suppressHydrationWarning
+      style={{
+        ['--primary' as string]: primaryHsl,
+        ['--ring' as string]: primaryHsl,
+        ['--brand' as string]: primaryHsl,
+        ['--sidebar-primary' as string]: primaryHsl,
+        ['--sidebar-ring' as string]: primaryHsl,
+      }}
+    >
       <body>
         <ClientLayout initialBranding={initialBranding}>{children}</ClientLayout>
       </body>

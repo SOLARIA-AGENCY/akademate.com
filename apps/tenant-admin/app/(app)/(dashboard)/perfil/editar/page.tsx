@@ -127,7 +127,6 @@ export default function EditarPerfilPage() {
     <div className="space-y-6 max-w-4xl" data-oid="eqe.xdc">
       <PageHeader
         title="Editar Perfil"
-        description="Actualiza tu información personal y configuración"
         icon={User}
         actions={
           <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="2dk0vqq">

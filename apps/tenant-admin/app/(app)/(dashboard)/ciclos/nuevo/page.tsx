@@ -291,7 +291,6 @@ export default function NuevoCicloPage() {
     <div className="space-y-6">
       <PageHeader
         title="Nuevo Ciclo Formativo"
-        description="Crea un nuevo ciclo de formacion profesional"
         icon={GraduationCap}
       />
 

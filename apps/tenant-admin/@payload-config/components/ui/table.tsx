@@ -6,7 +6,7 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full min-w-0 max-w-full overflow-x-auto"
+      className="relative w-full min-w-0 max-w-full overflow-x-auto overflow-y-auto overscroll-none"
       data-oid=".wvrv8:"
     >
       <table
@@ -23,7 +23,10 @@ function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
   return (
     <thead
       data-slot="table-header"
-      className={cn('sticky top-0 z-10 bg-card [&_tr]:border-b [&_th]:bg-card', className)}
+      className={cn(
+        'sticky top-0 z-10 border-t border-border bg-card [&_tr]:border-b [&_tr]:border-border [&_th]:bg-card',
+        className,
+      )}
       {...props}
       data-oid="jecbfgm"
     />
@@ -71,7 +74,7 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'text-foreground/80 sticky top-0 z-10 h-12 bg-card px-4 text-left align-middle font-semibold whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'text-muted-foreground sticky top-0 z-10 h-11 border-b border-border bg-card px-4 py-3 text-left align-middle text-xs font-normal whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}

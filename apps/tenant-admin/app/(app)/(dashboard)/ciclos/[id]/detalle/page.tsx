@@ -11,6 +11,15 @@ import {
   Briefcase, Award, DollarSign, Heart, FileText, Star, ClipboardCheck,
   ExternalLink, Download, Printer, Phone, Mail, Globe2,
 } from 'lucide-react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableFooter,
+} from '@payload-config/components/ui/table'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -382,43 +391,41 @@ export default function CicloDetallePage({ params }: Props) {
           MODULOS
       ================================================================ */}
       <Section title={`Modulos (${modules.length})`} icon={Layers} empty={modules.length === 0}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="pb-2 pr-4 font-medium">Modulo</th>
-                <th className="pb-2 pr-4 font-medium w-24">Curso</th>
-                <th className="pb-2 pr-4 font-medium w-20 text-right">Horas</th>
-                <th className="pb-2 font-medium w-28">Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {modules.map((m, i) => (
-                <tr key={i} className="border-b last:border-0">
-                  <td className="py-2.5 pr-4 font-medium">{m.name}</td>
-                  <td className="py-2.5 pr-4 text-muted-foreground">{m.courseYear || '-'}</td>
-                  <td className="py-2.5 pr-4 text-right tabular-nums">{m.hours || '-'}</td>
-                  <td className="py-2.5">
-                    {m.type && (
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${MODULE_TYPE_COLORS[m.type] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'}`}>
-                        {m.type}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            {totalModuleHours > 0 && (
-              <tfoot>
-                <tr className="border-t font-semibold">
-                  <td className="pt-2" colSpan={2}>Total</td>
-                  <td className="pt-2 text-right tabular-nums">{totalModuleHours}h</td>
-                  <td />
-                </tr>
-              </tfoot>
-            )}
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Modulo</TableHead>
+              <TableHead className="w-24">Curso</TableHead>
+              <TableHead className="w-20 text-right">Horas</TableHead>
+              <TableHead className="w-28">Tipo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {modules.map((m, i) => (
+              <TableRow key={i}>
+                <TableCell className="font-medium">{m.name}</TableCell>
+                <TableCell className="text-muted-foreground">{m.courseYear || '-'}</TableCell>
+                <TableCell className="text-right tabular-nums">{m.hours || '-'}</TableCell>
+                <TableCell>
+                  {m.type && (
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${MODULE_TYPE_COLORS[m.type] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'}`}>
+                      {m.type}
+                    </span>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          {totalModuleHours > 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={2}>Total</TableCell>
+                <TableCell className="text-right tabular-nums">{totalModuleHours}h</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableFooter>
+          )}
+        </Table>
       </Section>
 
       {/* ================================================================
@@ -674,25 +681,25 @@ export default function CicloDetallePage({ params }: Props) {
               {modules.length === 0 ? (
                 <div className="mt-2 rounded-lg border p-4 text-gray-600">Modulos pendientes de validacion.</div>
               ) : (
-                <div className="mt-2 overflow-hidden rounded-lg border">
-                  <table className="w-full border-collapse text-left">
-                    <thead className="bg-gray-100 text-[10px] uppercase text-gray-600">
-                      <tr>
-                        <th className="p-2">Modulo</th>
-                        <th className="p-2">Curso</th>
-                        <th className="p-2 text-right">Horas</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                <div className="mt-2">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Modulo</TableHead>
+                        <TableHead>Curso</TableHead>
+                        <TableHead className="text-right">Horas</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {modules.slice(0, 9).map((module, index) => (
-                        <tr key={`${module.name}-${index}`} className="border-t">
-                          <td className="p-2 font-semibold">{module.name}</td>
-                          <td className="p-2">{module.courseYear || '-'}</td>
-                          <td className="p-2 text-right">{module.hours || '-'}</td>
-                        </tr>
+                        <TableRow key={`${module.name}-${index}`}>
+                          <TableCell className="font-semibold">{module.name}</TableCell>
+                          <TableCell>{module.courseYear || '-'}</TableCell>
+                          <TableCell className="text-right">{module.hours || '-'}</TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </div>

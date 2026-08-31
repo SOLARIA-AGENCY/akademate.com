@@ -9,6 +9,8 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { FieldLabel, FormPage } from '@/app/components/form-page'
+import { useFormReturnNavigation } from '@/app/lib/use-form-return-navigation'
 import {
   Select,
   SelectContent,
@@ -329,7 +331,10 @@ function InlineProfesorForm({
 export default function NuevaConvocatoriaPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { goBack, returnTo } = useFormReturnNavigation('/programacion')
   const preselectedProfessorId = searchParams.get('profesor')
+  const preselectedCourseId = searchParams.get('curso')
+  const preselectedCycleId = searchParams.get('ciclo')
 
   // Data from API
   const [cycles, setCycles] = useState<Cycle[]>([])
@@ -403,6 +408,20 @@ export default function NuevaConvocatoriaPage() {
     if (!preselectedProfessorId) return
     setForm((prev) => (prev.instructor ? prev : { ...prev, instructor: preselectedProfessorId }))
   }, [preselectedProfessorId])
+
+  useEffect(() => {
+    if (preselectedCourseId) {
+      setForm((prev) =>
+        prev.course ? prev : { ...prev, course: `course:${preselectedCourseId}` }
+      )
+      return
+    }
+    if (preselectedCycleId) {
+      setForm((prev) =>
+        prev.course ? prev : { ...prev, course: `cycle:${preselectedCycleId}` }
+      )
+    }
+  }, [preselectedCourseId, preselectedCycleId])
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -484,7 +503,7 @@ export default function NuevaConvocatoriaPage() {
         throw new Error(msg)
       }
 
-      router.push('/programacion')
+      router.push(returnTo)
     } catch (err: any) {
       setError(err.message ?? 'Error al crear la convocatoria')
     } finally {
@@ -502,14 +521,27 @@ export default function NuevaConvocatoriaPage() {
   // Loading state
   // -------------------------------------------------------------------------
 
+  const pageHeader = (
+    <PageHeader
+      title="Nueva Convocatoria"
+      icon={Calendar}
+      actions={
+        <Button variant="outline" onClick={goBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
+      }
+    />
+  )
+
   if (loading) {
     return (
-      <div className="space-y-6">
+      <FormPage header={pageHeader}>
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <span className="ml-3 text-muted-foreground">Cargando datos...</span>
         </div>
-      </div>
+      </FormPage>
     )
   }
 
@@ -519,33 +551,19 @@ export default function NuevaConvocatoriaPage() {
 
   if (campuses.length === 0) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title="Nueva Convocatoria"
-          description="Crear una nueva convocatoria de curso"
-          icon={Calendar}
-          actions={
-            <Button variant="outline" onClick={() => router.push('/programacion')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Button>
-          }
-        />
+      <FormPage header={pageHeader}>
         <Card className="p-8">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
               <MapPin className="h-8 w-8 text-amber-600" />
             </div>
             <h2 className="text-xl font-semibold">Se necesita al menos una sede</h2>
-            <p className="text-muted-foreground max-w-md">
-              Necesitas al menos una sede para crear una convocatoria. Puedes crear una aqui mismo:
-            </p>
           </div>
           <div className="mt-6 max-w-xl mx-auto">
             <InlineSedeForm onCreated={handleSedeCreated} />
           </div>
         </Card>
-      </div>
+      </FormPage>
     )
   }
 
@@ -554,20 +572,7 @@ export default function NuevaConvocatoriaPage() {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Nueva Convocatoria"
-        description="Crear una nueva convocatoria de curso"
-        icon={Calendar}
-        actions={
-          <Button variant="outline" onClick={() => router.push('/programacion')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Button>
-        }
-      />
-
-      {/* Error banner */}
+    <FormPage header={pageHeader}>
       {error && (
         <Card className="p-4 border-red-200 bg-red-50">
           <div className="flex items-start gap-3">
@@ -585,7 +590,9 @@ export default function NuevaConvocatoriaPage() {
         {/* Ciclo / Curso */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="program">Ciclo / Curso *</Label>
+          <FieldLabel htmlFor="program" required>
+            Ciclo / Curso
+          </FieldLabel>
           <Select value={form.course} onValueChange={(v) => updateField('course', v)}>
             <SelectTrigger id="program">
               <SelectValue placeholder="Seleccionar ciclo o curso" />
@@ -638,7 +645,9 @@ export default function NuevaConvocatoriaPage() {
         {/* Sede + inline creation */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="campus">Sede *</Label>
+          <FieldLabel htmlFor="campus" required>
+            Sede
+          </FieldLabel>
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <Select value={form.campus} onValueChange={(v) => updateField('campus', v)}>
@@ -684,7 +693,7 @@ export default function NuevaConvocatoriaPage() {
         {/* Profesor + inline creation */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="instructor">Profesor *</Label>
+          <FieldLabel htmlFor="instructor">Profesor</FieldLabel>
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <Select
@@ -729,7 +738,9 @@ export default function NuevaConvocatoriaPage() {
         {/* ----------------------------------------------------------------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="start_date">Fecha inicio *</Label>
+            <FieldLabel htmlFor="start_date" required>
+              Fecha inicio
+            </FieldLabel>
             <Input
               id="start_date"
               type="date"
@@ -738,7 +749,9 @@ export default function NuevaConvocatoriaPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="end_date">Fecha fin *</Label>
+            <FieldLabel htmlFor="end_date" required>
+              Fecha fin
+            </FieldLabel>
             <Input
               id="end_date"
               type="date"
@@ -753,7 +766,9 @@ export default function NuevaConvocatoriaPage() {
         {/* ----------------------------------------------------------------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="max_students">Plazas maximas *</Label>
+            <FieldLabel htmlFor="max_students" required>
+              Plazas maximas
+            </FieldLabel>
             <Input
               id="max_students"
               type="number"
@@ -763,7 +778,9 @@ export default function NuevaConvocatoriaPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="min_students">Plazas minimas *</Label>
+            <FieldLabel htmlFor="min_students" required>
+              Plazas minimas
+            </FieldLabel>
             <Input
               id="min_students"
               type="number"
@@ -778,26 +795,24 @@ export default function NuevaConvocatoriaPage() {
         {/* Precio override */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="price_override">Precio (override)</Label>
+          <FieldLabel htmlFor="price_override" hint="Vacio: se usa el precio del curso.">
+            Precio (override)
+          </FieldLabel>
           <Input
             id="price_override"
             type="number"
             min={0}
             step="0.01"
-            placeholder="Dejar vacio para usar el precio del curso"
             value={form.price_override}
             onChange={(e) => updateField('price_override', e.target.value)}
           />
-          <p className="text-xs text-muted-foreground">
-            Si se deja vacio, se usara el precio por defecto del curso.
-          </p>
         </div>
 
         {/* ----------------------------------------------------------------- */}
         {/* Estado */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="status">Estado</Label>
+          <FieldLabel htmlFor="status">Estado</FieldLabel>
           <Select value={form.status} onValueChange={(v) => updateField('status', v)}>
             <SelectTrigger id="status">
               <SelectValue />
@@ -816,26 +831,23 @@ export default function NuevaConvocatoriaPage() {
         {/* Codigo convocatoria */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="codigo">Codigo convocatoria</Label>
+          <FieldLabel htmlFor="codigo" hint="Formato CAMPUS-YEAR-001. Vacio: se genera al guardar.">
+            Codigo convocatoria
+          </FieldLabel>
           <Input
             id="codigo"
-            placeholder="Se genera automaticamente si se deja vacio"
             value={form.codigo}
             onChange={(e) => updateField('codigo', e.target.value)}
           />
-          <p className="text-xs text-muted-foreground">
-            Formato: CAMPUS-YEAR-001. Si se deja vacio, se auto-genera al guardar.
-          </p>
         </div>
 
         {/* ----------------------------------------------------------------- */}
         {/* Notas */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="notes">Notas</Label>
+          <FieldLabel htmlFor="notes">Notas</FieldLabel>
           <Textarea
             id="notes"
-            placeholder="Notas internas sobre esta convocatoria..."
             rows={3}
             value={form.notes}
             onChange={(e) => updateField('notes', e.target.value)}
@@ -846,7 +858,7 @@ export default function NuevaConvocatoriaPage() {
         {/* Actions */}
         {/* ----------------------------------------------------------------- */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => router.push('/programacion')}>
+          <Button variant="outline" onClick={goBack}>
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
@@ -864,6 +876,6 @@ export default function NuevaConvocatoriaPage() {
           </Button>
         </div>
       </Card>
-    </div>
+    </FormPage>
   )
 }

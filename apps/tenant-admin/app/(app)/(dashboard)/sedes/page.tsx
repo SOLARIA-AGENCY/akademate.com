@@ -13,6 +13,8 @@ import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
+import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { getLimit } from '@payload-config/lib/planLimits'
 import {
   ListingSearch,
@@ -169,6 +171,10 @@ export default function SedesPage() {
     )
   })
 
+  const totalAulas = sedes.reduce((sum, sede) => sum + (sede.aulas || 0), 0)
+  const totalPlazas = sedes.reduce((sum, sede) => sum + (sede.capacidad || 0), 0)
+  const totalProfesores = sedes.reduce((sum, sede) => sum + (sede.profesores || 0), 0)
+
   return (
     <div className="space-y-6" data-oid="5.ig9gq">
       {isLoading && (
@@ -191,13 +197,7 @@ export default function SedesPage() {
 
       <PageHeader
         title="Sedes"
-        description="Vista simplificada para operación diaria."
         icon={MapPin}
-        badge={
-          <Badge variant="secondary" data-oid="0fk8_-.">
-            {filteredSedes.length} centros
-          </Badge>
-        }
         actions={
           <Button onClick={handleAdd} data-oid="hrtnwkn">
             <Plus className="h-4 w-4" />
@@ -205,6 +205,15 @@ export default function SedesPage() {
           </Button>
         }
         data-oid="e1:wo92"
+      />
+
+      <ListingKpiStrip
+        items={[
+          { label: 'Sedes', value: sedes.length },
+          { label: 'Aulas', value: totalAulas },
+          { label: 'Plazas', value: totalPlazas },
+          { label: 'Docentes', value: totalProfesores },
+        ]}
       />
 
       <PremiumDirectoryShell
@@ -238,33 +247,22 @@ export default function SedesPage() {
           {filteredSedes.map((sede) => (
             <Card
               key={sede.id}
-              className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+              className="cursor-pointer overflow-hidden"
               onClick={() => handleViewSede(sede.id)}
               data-oid="x43z8n_"
             >
-              <div className="relative h-56 w-full bg-primary/10 sm:h-64" data-oid="sede-image">
-                {sede.imagen ? (
-                  <img
-                    src={sede.imagen}
-                    alt={sede.nombre}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <MapPin className="h-12 w-12 text-primary" />
-                  </div>
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent p-5">
-                  <h3 className="text-xl font-semibold leading-tight text-white" data-oid="ccek8r3">
-                    {sede.nombre}
-                  </h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-white/85" data-oid="1li66s3">
-                    {sede.direccion}
-                  </p>
-                </div>
-              </div>
-
               <CardContent className="space-y-5 p-6" data-oid="rke.tyb">
+                <div className="flex items-start gap-4">
+                  <EntityThumb src={sede.imagen} alt={sede.nombre} fallback="campus" size="lg" />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-semibold leading-tight" data-oid="ccek8r3">
+                      {sede.nombre}
+                    </h3>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground" data-oid="1li66s3">
+                      {sede.direccion}
+                    </p>
+                  </div>
+                </div>
                 <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2" data-oid="jks8htn">
                   <div className="flex min-w-0 items-center gap-2" data-oid="qpi.:t:">
                     <Phone className="h-4 w-4 flex-shrink-0" data-oid="4stws:y" />
@@ -306,7 +304,7 @@ export default function SedesPage() {
 
                 <div className="flex items-center justify-between gap-3 border-t pt-4" data-oid="sede-footer">
                   <div className="min-w-0" data-oid="x6kzf:k">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-medium text-muted-foreground">
                       Centro
                     </p>
                     <p className="truncate text-sm font-medium">{sede.nombre}</p>

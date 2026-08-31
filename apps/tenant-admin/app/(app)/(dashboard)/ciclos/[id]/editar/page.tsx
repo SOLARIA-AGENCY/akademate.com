@@ -437,7 +437,6 @@ export default function EditarCicloPage() {
     <div className="space-y-6">
       <PageHeader
         title={`Editar: ${name}`}
-        description="Modifica los datos del ciclo formativo"
         icon={GraduationCap}
       />
 

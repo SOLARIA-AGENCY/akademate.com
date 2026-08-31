@@ -22,6 +22,8 @@ import { getLimit } from '@/lib/planLimits'
 import { CicloListItem } from '@payload-config/components/ui/CicloListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
+import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { useViewPreference } from '@/hooks/useViewPreference'
 import {
   ListingSearch,
@@ -30,26 +32,7 @@ import {
 import type { CicloPlantilla } from '@/types'
 
 function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
-  const [hasError, setHasError] = React.useState(false)
-  if (!src || hasError) {
-    return (
-      <img
-        src="/placeholder-course.svg?v=2"
-        alt={alt}
-        className="w-full h-full object-cover"
-        data-oid="u6p303e"
-      />
-    )
-  }
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-      onError={() => setHasError(true)}
-      data-oid="1r.am3p"
-    />
-  )
+  return <EntityThumb src={src} alt={alt} fallback="cycle" size="lg" />
 }
 
 interface Ciclo {
@@ -100,7 +83,9 @@ function formatCycleStartDate(value?: string): string {
 }
 
 function formatCycleLevelLabel(value: string): string {
-  return value.toUpperCase()
+  if (value === 'Grado Superior') return 'Ciclo superior'
+  if (value === 'Grado Medio') return 'Ciclo medio'
+  return value
 }
 
 export default function TodosLosCiclosPage() {
@@ -251,6 +236,11 @@ export default function TodosLosCiclosPage() {
     router.push(`/dashboard/ciclos/${ciclo.id}`)
   }
 
+  const totalPlazas = ciclosData.reduce((sum, ciclo) => sum + (ciclo.plazas || 0), 0)
+  const totalOcupadas = ciclosData.reduce((sum, ciclo) => sum + (ciclo.plazas_ocupadas || 0), 0)
+  const totalConvocatorias = Object.values(convocatoriasCountMap).reduce((sum, count) => sum + count, 0)
+  const ocupacionLabel = totalPlazas > 0 ? `${Math.round((totalOcupadas / totalPlazas) * 100)}%` : '0%'
+
   return (
     <div className="space-y-6" data-oid="6:b:ajh">
       {isLoading && (
@@ -272,14 +262,8 @@ export default function TodosLosCiclosPage() {
       )}
 
       <PageHeader
-        title="Ciclos Formativos"
-        description="Gestión unificada de ciclos de grado medio y superior."
+        title="Ciclos formativos"
         icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="0h5qd3g">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
         actions={
           <Button onClick={handleNuevoCiclo} data-oid="b-t2nxs">
             <Plus className="h-4 w-4" />
@@ -287,6 +271,15 @@ export default function TodosLosCiclosPage() {
           </Button>
         }
         data-oid="3mf2uf_"
+      />
+
+      <ListingKpiStrip
+        items={[
+          { label: 'Ciclos', value: ciclosData.length },
+          { label: 'Convocatorias', value: totalConvocatorias },
+          { label: 'Plazas', value: totalPlazas },
+          { label: 'Ocupación', value: ocupacionLabel },
+        ]}
       />
 
       <UsageBar resource="ciclos" current={ciclosData.length} limit={getLimit(plan, 'ciclos')} />
@@ -305,9 +298,17 @@ export default function TodosLosCiclosPage() {
             value={nivelFilter}
             onValueChange={setNivelFilter}
             options={[
-              { value: 'todos', label: 'Todas' },
-              { value: 'Grado Medio', label: 'Medio' },
-              { value: 'Grado Superior', label: 'Superior' },
+              { value: 'todos', label: 'Todas', count: ciclosData.length },
+              {
+                value: 'Grado Medio',
+                label: 'Medio',
+                count: ciclosData.filter((ciclo) => ciclo.nivel === 'Grado Medio').length,
+              },
+              {
+                value: 'Grado Superior',
+                label: 'Superior',
+                count: ciclosData.filter((ciclo) => ciclo.nivel === 'Grado Superior').length,
+              },
             ]}
           />
         }
@@ -349,32 +350,21 @@ export default function TodosLosCiclosPage() {
             return (
               <Card
                 key={ciclo.id}
-                className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                className="cursor-pointer overflow-hidden"
                 onClick={() => handleViewCiclo(ciclo)}
                 data-oid=":0o:6ca"
               >
-                <div className="relative h-56 overflow-hidden bg-muted" data-oid="w45omv8">
-                  <CicloImageWithFallback
-                    src={ciclo.imagen}
-                    alt={ciclo.nombre}
-                    data-oid="aj9q1sq"
-                  />
-                  <div className="absolute left-4 top-4" data-oid="k5si0ro">
-                    <Badge
-                      className="border-primary/50 bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
-                      data-oid="t:ogjxr"
-                    >
-                      {formatCycleLevelLabel(ciclo.nivel)}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-4 p-5" data-oid="h8hjlvu">
-                  <div data-oid="_y4z4k5">
-                    <h3 className="line-clamp-2 text-base font-semibold" data-oid="5d1ydem">
-                      {ciclo.nombre}
-                    </h3>
-                  </div>
+                <CardContent className="flex items-start gap-4 p-5">
+                  <CicloImageWithFallback src={ciclo.imagen} alt={ciclo.nombre} />
+                  <div className="min-w-0 flex-1 space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="line-clamp-2 text-base font-semibold" data-oid="5d1ydem">
+                        {ciclo.nombre}
+                      </h3>
+                      <Badge variant="secondary" className="shrink-0 text-xs font-semibold">
+                        {formatCycleLevelLabel(ciclo.nivel)}
+                      </Badge>
+                    </div>
 
                   <div className="grid grid-cols-2 gap-3 text-sm" data-oid="3f71-jd">
                     <div className="flex items-center gap-2" data-oid="ow16bo-">
@@ -410,6 +400,7 @@ export default function TodosLosCiclosPage() {
                     Ver ciclo
                   </Button>
                 </div>
+                </CardContent>
               </Card>
             )
           })}

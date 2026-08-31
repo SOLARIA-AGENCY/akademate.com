@@ -307,7 +307,6 @@ export default function EditProfesorPage() {
     <div className="space-y-6 max-w-4xl">
       <PageHeader
         title="Editar Profesor"
-        description="Actualizar información del profesorado"
         icon={User}
         actions={
           <Button variant="ghost" size="icon" onClick={() => router.back()}>

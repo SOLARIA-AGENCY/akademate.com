@@ -347,7 +347,6 @@ export default function NuevoCursoPage() {
     <div className="space-y-6" data-oid="ku4ywc_">
       <PageHeader
         title="Nuevo Curso"
-        description="Crea un nuevo curso"
         icon={FileText}
         badge={
           <Badge

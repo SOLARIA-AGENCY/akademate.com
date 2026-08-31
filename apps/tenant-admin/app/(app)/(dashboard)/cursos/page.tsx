@@ -30,9 +30,11 @@ import {
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import { fetchCoursesCatalog } from '@/app/lib/client/courses-catalog'
 import {
-  getPublicStudyTypeFallbackImage,
   normalizePublicStudyType,
   toDashboardStudyType,
 } from '@/app/lib/website/study-types'
@@ -212,28 +214,28 @@ function CursosPageContent() {
     bgColor: string
   }> = {
     privados: {
-      title: 'Cursos Privados',
+      title: 'Cursos privados',
       description: 'Cursos de formación privada para empresas y particulares',
       icon: Lock,
       color: 'text-red-500',
       bgColor: 'bg-red-50 dark:bg-red-950',
     },
     ocupados: {
-      title: 'Cursos Ocupados',
+      title: 'Cursos ocupados',
       description: 'Formación para trabajadores ocupados con financiación FUNDAE',
       icon: Briefcase,
       color: 'text-green-500',
       bgColor: 'bg-green-50 dark:bg-green-950',
     },
     desempleados: {
-      title: 'Cursos Desempleados',
+      title: 'Cursos desempleados',
       description: 'Formación gratuita para personas en situación de desempleo',
       icon: Building2,
       color: 'text-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-950',
     },
     teleformacion: {
-      title: 'Cursos Teleformación',
+      title: 'Cursos teleformación',
       description: 'Cursos 100% online con matrícula permanente e inicio flexible',
       icon: Monitor,
       color: 'text-orange-500',
@@ -243,24 +245,17 @@ function CursosPageContent() {
 
   const config = filterType !== 'all' ? tiposConfig[filterType] : undefined
   const Icon = config?.icon ?? List
+  const publishedCount = cursos.filter((course) => course.active !== false).length
+  const missingImageCount = cursos.filter((course) => !course.imagenPortada).length
+  const typeCount = TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0).length
 
   return (
     <div className="space-y-6" data-oid="bkc0c9v">
       <PageHeader
-        title={isTypeLandingPage ? 'Tipos de Cursos' : (config?.title ?? 'Catálogo de Cursos')}
-        description={
-          isTypeLandingPage
-            ? 'Selecciona un tipo para ver su catálogo de cursos.'
-            : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
-        }
+        title={isTypeLandingPage ? 'Tipos de cursos' : (config?.title ?? 'Catálogo de cursos')}
         icon={Icon}
         iconBgColor={config?.bgColor ?? 'bg-primary/10'}
         iconColor={config?.color ?? 'text-primary'}
-        badge={
-          <Badge variant="secondary" data-oid="m2mems3">
-            {isTypeLandingPage ? `${PRIMARY_COURSE_TYPES.length} categorías` : `${filteredCourses.length} cursos`}
-          </Badge>
-        }
         actions={
           <div className="flex items-center gap-2">
             {!isTypeLandingPage && (
@@ -277,6 +272,15 @@ function CursosPageContent() {
         data-oid="-ia7n0u"
       />
 
+      <ListingKpiStrip
+        items={[
+          { label: 'Plantillas', value: cursos.length },
+          { label: 'Publicados', value: publishedCount },
+          { label: 'Sin imagen', value: missingImageCount },
+          { label: 'Tipos', value: typeCount || PRIMARY_COURSE_TYPES.length },
+        ]}
+      />
+
       <UsageBar resource="cursos" current={cursos.length} limit={getLimit(plan, 'cursos')} />
 
       {/* Landing de tipos de curso */}
@@ -285,7 +289,6 @@ function CursosPageContent() {
           {PRIMARY_COURSE_TYPES.map((type) => {
             const style = COURSE_TYPE_CONFIG[type]
             const IconByType = TYPE_ICONS[type]
-            const typeImage = getPublicStudyTypeFallbackImage(type)
             return (
               <button
                 key={type}
@@ -293,22 +296,19 @@ function CursosPageContent() {
                 onClick={() => goToTypePage(type)}
                 className="text-left h-full"
               >
-                <Card className="h-full overflow-hidden border transition-all hover:shadow-md hover:border-primary">
-                  <div className="relative h-44">
-                    <img src={typeImage} alt={style.label} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute left-4 top-4 flex items-center gap-2">
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
-                        {style.label}
-                      </span>
+                <Card className="h-full overflow-hidden">
+                  <CardContent className="flex items-start gap-4 p-5">
+                    <EntityThumb alt={style.label} fallback="book" size="lg" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex rounded-md px-2.5 py-1 text-xs font-semibold ${style.bgColor} ${style.textColor}`}>
+                          {style.label}
+                        </span>
+                        <IconByType className={`h-4 w-4 ${style.textColor}`} />
+                      </div>
+                      <p className="mt-3 text-3xl font-semibold tabular-nums">{typeCounts[type]}</p>
+                      <p className="text-sm text-muted-foreground">cursos disponibles</p>
                     </div>
-                    <div className="absolute right-4 top-4 rounded-full bg-white/90 p-2">
-                      <IconByType className={`h-4 w-4 ${style.textColor}`} />
-                    </div>
-                  </div>
-                  <CardContent className="p-5">
-                    <p className="text-3xl font-bold">{typeCounts[type]}</p>
-                    <p className="text-sm text-muted-foreground">cursos disponibles</p>
                   </CardContent>
                 </Card>
               </button>
@@ -325,6 +325,27 @@ function CursosPageContent() {
               value={searchTerm}
               onChange={setSearchTerm}
               placeholder="Buscar por nombre o area..."
+            />
+          }
+          segments={
+            <SegmentedToggle
+              ariaLabel="Tipo de curso"
+              value={filterType}
+              onValueChange={(next) => {
+                if (next === 'all') {
+                  goToTypeLanding()
+                  return
+                }
+                goToTypePage(next as DashboardCourseType)
+              }}
+              options={[
+                { value: 'all', label: 'Todos', count: baseFilteredCourses.length },
+                ...TYPE_DISPLAY_ORDER.map((type) => ({
+                  value: type,
+                  label: COURSE_TYPE_CONFIG[type].label,
+                  count: typeCounts[type],
+                })),
+              ]}
             />
           }
           filters={

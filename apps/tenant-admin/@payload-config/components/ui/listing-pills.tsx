@@ -10,8 +10,8 @@ export const LISTING_PILL_TONES = {
   danger: 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200',
   info: 'border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-200',
   neutral: 'border-border bg-muted text-muted-foreground',
-  physical: 'border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-200',
-  virtual: 'border-violet-200 bg-violet-50 text-violet-800 dark:border-violet-800 dark:bg-violet-950 dark:text-violet-200',
+  physical: 'border-primary/30 bg-primary/10 text-primary',
+  virtual: 'border-primary/30 bg-primary/10 text-primary',
 } as const
 
 export type ListingPillTone = keyof typeof LISTING_PILL_TONES

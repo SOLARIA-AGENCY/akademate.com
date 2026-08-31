@@ -399,7 +399,6 @@ export default function NuevaSedeRage() {
     <div className="space-y-6">
       <PageHeader
         title="Nueva Sede"
-        description="Registra un nuevo centro o campus"
         icon={MapPin}
       />
 

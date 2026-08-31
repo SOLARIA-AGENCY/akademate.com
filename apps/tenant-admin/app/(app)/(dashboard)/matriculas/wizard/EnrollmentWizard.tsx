@@ -4,33 +4,33 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { useToast } from '@payload-config/hooks/use-toast'
-import { AlertCircle, ChevronLeft, ChevronRight, GraduationCap, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { EnrollmentCart } from './EnrollmentCart'
 import { EnrollmentStepper } from './EnrollmentStepper'
 import { clearEnrollmentDraft, loadEnrollmentDraft, saveEnrollmentDraft } from './draft'
 import {
-  AccessStep,
+  AlumnoStep,
   CourseStep,
-  ConsentStep,
-  IdentifyStep,
   NextDisabledTooltip,
-  PaymentStep,
-  PersonalStep,
+  PagoRgpdStep,
   ReviewStep,
   mapCourseRun,
   mapLeadToPerson,
 } from './steps'
 import {
-  WIZARD_STEPS,
+  WIZARD_STAGES,
   createEmptyDraft,
-  visibleWizardSteps,
+  parseWizardStage,
+  wizardStageFromStep,
+  wizardStageTitle,
+  wizardStepFromStage,
   type EnrollmentCourseOption,
   type EnrollmentDraft,
   type EnrollmentPerson,
   type PaymentMethod,
-  type WizardStepId,
+  type WizardStageId,
 } from './types'
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -58,34 +58,24 @@ function extractCourseRuns(payload: unknown): Record<string, unknown>[] {
 }
 
 function nextDisabledReason(draft: EnrollmentDraft): string | null {
-  switch (draft.step) {
-    case 'identify':
-      if (draft.personMode === 'new') return null
-      if (draft.person.id || draft.person.firstName.trim()) return null
-      return 'Selecciona una persona o crea una nueva'
-    case 'personal':
+  const stage = wizardStageFromStep(draft.step)
+  switch (stage) {
+    case 1:
+      return draft.course ? null : 'Selecciona una convocatoria'
+    case 2:
       if (!draft.person.firstName.trim()) return 'El nombre es obligatorio'
       if (!draft.person.lastName.trim()) return 'Los apellidos son obligatorios'
       if (!draft.person.email.trim()) return 'El email es obligatorio'
       if (!draft.person.phone.trim()) return 'El teléfono es obligatorio'
       return null
-    case 'course':
-      return draft.course ? null : 'Selecciona una convocatoria'
-    case 'consent':
-      return draft.consentAccepted ? null : 'Debes aceptar el consentimiento'
-    case 'payment':
-      return draft.paymentMethod ? null : 'Selecciona un método de pago'
-    case 'access': {
-      const kind = draft.course?.accessKind ?? 'fisico'
-      if (kind === 'virtual') {
-        return draft.virtualSendChannel ? null : 'Selecciona un canal de envío'
-      }
-      return draft.accessPass ? null : 'Selecciona un tipo de pase'
-    }
-    case 'review':
+    case 3:
+      if (!draft.consentAccepted) return 'Debes aceptar el consentimiento'
+      if (!draft.paymentMethod) return 'Selecciona un método de pago'
+      return null
+    case 4:
       return null
     default: {
-      const _exhaustive: never = draft.step
+      const _exhaustive: never = stage
       return _exhaustive
     }
   }
@@ -99,10 +89,33 @@ function accessChannel(draft: EnrollmentDraft): 'email' | 'sms' | 'qr' | 'webcam
   return 'manual'
 }
 
+function continueLabel(stage: WizardStageId): string {
+  switch (stage) {
+    case 1:
+      return 'Continuar a Alumno'
+    case 2:
+      return 'Continuar a Pago y RGPD'
+    case 3:
+      return 'Continuar a Confirmar'
+    case 4:
+      return 'Confirmar matrícula'
+    default: {
+      const _exhaustive: never = stage
+      return _exhaustive
+    }
+  }
+}
+
+function backLabel(stage: WizardStageId): string | null {
+  if (stage <= 1) return null
+  return `Volver a ${wizardStageTitle((stage - 1) as WizardStageId)}`
+}
+
 export function EnrollmentWizard() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
+  const { branding } = useTenantBranding()
   const [draft, setDraft] = useState<EnrollmentDraft>(createEmptyDraft)
   const [hydrated, setHydrated] = useState(false)
   const [people, setPeople] = useState<EnrollmentPerson[]>([])
@@ -114,14 +127,14 @@ export function EnrollmentWizard() {
   const [cameraError, setCameraError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [alumnoAttempted, setAlumnoAttempted] = useState(false)
   const cameraStreamRef = useRef<MediaStream | null>(null)
 
   const leadId = searchParams.get('leadId')
-  const steps = useMemo(() => visibleWizardSteps(draft.course?.accessKind ?? null), [draft.course?.accessKind])
-  const currentIndex = steps.indexOf(draft.step)
+  const stage = wizardStageFromStep(draft.step)
   const completed = useMemo(() => {
-    return new Set(steps.filter((_, index) => index < currentIndex))
-  }, [currentIndex, steps])
+    return new Set(WIZARD_STAGES.filter((item) => item.id < stage).map((item) => item.id))
+  }, [stage])
   const disabledReason = nextDisabledReason(draft)
   const nextDisabled = Boolean(disabledReason) || submitting
 
@@ -129,10 +142,27 @@ export function EnrollmentWizard() {
     setDraft((current) => (typeof patch === 'function' ? patch(current) : { ...current, ...patch }))
   }, [])
 
+  const goStage = useCallback(
+    (next: WizardStageId) => {
+      updateDraft({ step: wizardStepFromStage(next) })
+      router.replace(`/matriculas/nueva?paso=${next}`, { scroll: false })
+    },
+    [router, updateDraft],
+  )
+
   useEffect(() => {
     const loaded = loadEnrollmentDraft()
-    setDraft(loaded)
+    const urlStage = parseWizardStage(searchParams.get('paso'))
+    const hasPaso = searchParams.get('paso') != null
+    setDraft({
+      ...loaded,
+      step: wizardStepFromStage(hasPaso ? urlStage : wizardStageFromStep(loaded.step)),
+    })
     setHydrated(true)
+    if (!hasPaso) {
+      router.replace(`/matriculas/nueva?paso=${wizardStageFromStep(loaded.step)}`, { scroll: false })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -208,6 +238,7 @@ export function EnrollmentWizard() {
           if (record && !cancelled) {
             const person = mapLeadToPerson(record)
             updateDraft({ personMode: 'existing', person, step: 'personal' })
+            goStage(2)
             return
           }
         }
@@ -220,6 +251,7 @@ export function EnrollmentWizard() {
         const match = extractLeadList(payload).find((item) => String(item.id ?? '') === leadId)
         if (match && !cancelled) {
           updateDraft({ personMode: 'existing', person: mapLeadToPerson(match), step: 'personal' })
+          goStage(2)
         }
       } catch {
         // Keep the draft as-is if the lead cannot be preloaded.
@@ -229,26 +261,13 @@ export function EnrollmentWizard() {
     return () => {
       cancelled = true
     }
-  }, [hydrated, leadId, updateDraft])
+  }, [goStage, hydrated, leadId, updateDraft])
 
   useEffect(() => {
     return () => {
       cameraStreamRef.current?.getTracks().forEach((track) => track.stop())
     }
   }, [])
-
-  const goTo = useCallback(
-    (step: WizardStepId) => {
-      updateDraft({ step })
-    },
-    [updateDraft],
-  )
-
-  const goBack = useCallback(() => {
-    const index = steps.indexOf(draft.step)
-    if (index <= 0) return
-    updateDraft({ step: steps[index - 1] })
-  }, [draft.step, steps, updateDraft])
 
   const capturePhoto = useCallback(async () => {
     setCameraError(null)
@@ -320,8 +339,7 @@ export function EnrollmentWizard() {
       }
 
       const kind = draft.course.accessKind
-      const pass =
-        kind === 'virtual' ? 'magic_link' : draft.accessPass ?? 'credential'
+      const pass = kind === 'virtual' ? 'magic_link' : draft.accessPass ?? 'credential'
       await fetch('/api/accesos', {
         method: 'POST',
         credentials: 'include',
@@ -354,56 +372,18 @@ export function EnrollmentWizard() {
   }, [draft, router, toast])
 
   const handleNext = useCallback(() => {
+    if (stage === 2) setAlumnoAttempted(true)
     if (disabledReason) return
-    if (draft.step === 'review') {
+    if (stage === 4) {
       void submitEnrollment()
       return
     }
-    const index = steps.indexOf(draft.step)
-    if (index >= 0 && index < steps.length - 1) {
-      updateDraft({ step: steps[index + 1] })
-    }
-  }, [disabledReason, draft.step, steps, submitEnrollment, updateDraft])
-
-  const personalErrors = useMemo(() => {
-    const errors: Record<string, string> = {}
-    if (!draft.person.firstName.trim()) errors.firstName = 'Obligatorio'
-    if (!draft.person.lastName.trim()) errors.lastName = 'Obligatorio'
-    if (!draft.person.email.trim()) errors.email = 'Obligatorio'
-    if (!draft.person.phone.trim()) errors.phone = 'Obligatorio'
-    return draft.step === 'personal' ? errors : {}
-  }, [draft.person.email, draft.person.firstName, draft.person.lastName, draft.person.phone, draft.step])
+    goStage((stage + 1) as WizardStageId)
+  }, [disabledReason, goStage, stage, submitEnrollment])
 
   const stepContent = (() => {
-    switch (draft.step) {
-      case 'identify':
-        return (
-          <IdentifyStep
-            query={draft.searchQuery}
-            onQuery={(value) => updateDraft({ searchQuery: value })}
-            loading={peopleLoading}
-            error={peopleError}
-            people={people}
-            onRetry={() => void loadPeople(draft.searchQuery)}
-            onSelect={(person) => updateDraft({ personMode: 'existing', person, step: 'personal' })}
-            onCreate={() =>
-              updateDraft({
-                personMode: 'new',
-                person: createEmptyDraft().person,
-                step: 'personal',
-              })
-            }
-          />
-        )
-      case 'personal':
-        return (
-          <PersonalStep
-            draft={draft}
-            onChange={(patch) => updateDraft({ person: { ...draft.person, ...patch } })}
-            errors={personalErrors}
-          />
-        )
-      case 'course':
+    switch (stage) {
+      case 1:
         return (
           <CourseStep
             draft={draft}
@@ -415,10 +395,32 @@ export function EnrollmentWizard() {
             onSelect={(course) => updateDraft({ course })}
           />
         )
-      case 'consent':
+      case 2:
         return (
-          <ConsentStep
+          <AlumnoStep
+            query={draft.searchQuery}
+            onQuery={(value) => updateDraft({ searchQuery: value })}
+            loading={peopleLoading}
+            error={peopleError}
+            people={people}
+            onRetry={() => void loadPeople(draft.searchQuery)}
+            onSelect={(person) => updateDraft({ personMode: 'existing', person })}
+            onCreate={() =>
+              updateDraft({
+                personMode: 'new',
+                person: createEmptyDraft().person,
+              })
+            }
             draft={draft}
+            onChange={(patch) => updateDraft({ person: { ...draft.person, ...patch } })}
+            showErrors={alumnoAttempted}
+          />
+        )
+      case 3:
+        return (
+          <PagoRgpdStep
+            draft={draft}
+            cameraError={cameraError}
             onAccept={(accepted) =>
               updateDraft({
                 consentAccepted: accepted,
@@ -426,54 +428,47 @@ export function EnrollmentWizard() {
                 consentBy: accepted ? 'usuario actual' : '',
               })
             }
-          />
-        )
-      case 'payment':
-        return (
-          <PaymentStep
-            draft={draft}
             onDiscount={(value) => updateDraft({ discount: value })}
             onMethod={(value: PaymentMethod) => updateDraft({ paymentMethod: value })}
             onPlan={(value) => updateDraft({ paymentPlan: value })}
-          />
-        )
-      case 'access':
-        return (
-          <AccessStep
-            draft={draft}
-            cameraError={cameraError}
             onCapture={() => void capturePhoto()}
             onPass={(value) => updateDraft({ accessPass: value })}
             onChannel={(value) => updateDraft({ virtualSendChannel: value })}
             onRetryCamera={() => void capturePhoto()}
           />
         )
-      case 'review':
-        return <ReviewStep draft={draft} onEdit={goTo} />
+      case 4:
+        return <ReviewStep draft={draft} onEdit={goStage} />
       default: {
-        const _exhaustive: never = draft.step
+        const _exhaustive: never = stage
         return _exhaustive
       }
     }
   })()
 
-  return (
-    <div className="min-w-0 space-y-6">
-      <PageHeader
-        title="Nueva matrícula"
-        description="Identifica a la persona, elige convocatoria, registra consentimiento, cobro y acceso."
-        icon={GraduationCap}
-        actions={
-          <Button variant="outline" onClick={() => router.push('/matriculas')}>
-            Volver al listado
-          </Button>
-        }
-      />
+  const previousLabel = backLabel(stage)
 
-      <EnrollmentStepper steps={steps} current={draft.step} completed={completed} onSelect={goTo} />
+  return (
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background" data-slot="enrollment-wizard">
+      <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background px-4 py-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={branding.logos.principal} alt={branding.academyName} className="h-8 w-auto" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">Nueva matrícula</p>
+            <p className="truncate text-xs text-muted-foreground">{branding.academyName}</p>
+          </div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <EnrollmentStepper current={stage} completed={completed} onSelect={goStage} />
+        </div>
+        <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
+          Guardar y salir
+        </Button>
+      </header>
 
       {submitError ? (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="mx-4 mt-4">
           <AlertCircle />
           <AlertTitle>No se pudo confirmar la matrícula</AlertTitle>
           <AlertDescription className="flex items-center justify-between gap-3">
@@ -485,26 +480,28 @@ export function EnrollmentWizard() {
         </Alert>
       ) : null}
 
-      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 space-y-6">
-          {stepContent}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <Button variant="outline" onClick={goBack} disabled={currentIndex <= 0 || submitting}>
-              <ChevronLeft className="h-4 w-4" />
-              Atrás
-            </Button>
-            <NextDisabledTooltip disabled={Boolean(disabledReason)} reason={disabledReason ?? ''}>
-              <Button onClick={handleNext} disabled={nextDisabled}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                {draft.step === 'review' ? 'Confirmar matrícula' : 'Siguiente'}
-              </Button>
-            </NextDisabledTooltip>
-          </div>
-        </div>
+      <div className="grid min-h-0 min-w-0 flex-1 gap-6 overflow-y-auto px-4 py-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-6 pb-24">{stepContent}</div>
         <EnrollmentCart draft={draft} />
       </div>
+
+      <footer className="sticky bottom-0 z-20 flex shrink-0 items-center justify-between gap-3 border-t border-border bg-background px-4 py-3">
+        {previousLabel ? (
+          <Button variant="outline" onClick={() => goStage((stage - 1) as WizardStageId)} disabled={submitting}>
+            {previousLabel}
+          </Button>
+        ) : (
+          <span />
+        )}
+        <NextDisabledTooltip disabled={Boolean(disabledReason)} reason={disabledReason ?? ''}>
+          <Button onClick={handleNext} disabled={nextDisabled}>
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {continueLabel(stage)}
+          </Button>
+        </NextDisabledTooltip>
+      </footer>
     </div>
   )
 }
 
-export { WIZARD_STEPS }
+export { WIZARD_STAGES, WIZARD_STEPS } from './types'

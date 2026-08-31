@@ -83,7 +83,6 @@ export default function NewAlumnoPage() {
     <div className="space-y-6 max-w-4xl">
       <PageHeader
         title="Nuevo Alumno"
-        description="Registra un nuevo alumno en el sistema"
         icon={User}
         actions={
           <Button variant="ghost" size="icon" onClick={() => router.back()}>

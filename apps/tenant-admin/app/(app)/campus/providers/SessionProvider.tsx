@@ -236,14 +236,19 @@ interface RequireAuthProps {
 
 export function RequireAuth({ children, fallback }: RequireAuthProps) {
   const { isAuthenticated, isLoading } = useSession()
+  const [shouldRedirect, setShouldRedirect] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setShouldRedirect(true)
+      window.location.assign('/campus/login')
+    }
+  }, [isAuthenticated, isLoading])
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" data-oid="5zxro_m">
-        <div
-          className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
-          data-oid="wg4dige"
-        />
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     )
   }
@@ -251,15 +256,11 @@ export function RequireAuth({ children, fallback }: RequireAuthProps) {
   if (!isAuthenticated) {
     return (
       fallback ?? (
-        <div className="flex flex-col items-center justify-center min-h-screen" data-oid="h.8s:i2">
-          <h2 className="text-2xl font-bold mb-4" data-oid="w.e5wo4">
-            Acceso Requerido
-          </h2>
-          <p className="text-muted-foreground mb-4" data-oid="qvzc1_g">
-            Debes iniciar sesion para acceder al Campus Virtual.
-          </p>
-          <a href="/campus/login" className="text-primary hover:underline" data-oid="0hbyamp">
-            Iniciar Sesion
+        <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3">
+          <h2 className="text-2xl font-bold">Acceso requerido</h2>
+          <p className="text-muted-foreground">Debes iniciar sesión para acceder al campus virtual.</p>
+          <a href="/campus/login" className="text-primary hover:underline">
+            {shouldRedirect ? 'Redirigiendo...' : 'Iniciar sesión'}
           </a>
         </div>
       )

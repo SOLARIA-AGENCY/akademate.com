@@ -118,4 +118,36 @@ describe('Public website routing middleware', () => {
     expect(response.status).toBe(307)
     expect(getHeader(response, 'location')).toContain('/login?redirect=%2Fdashboard%2Fcursos')
   })
+
+  it('lets students open /campus/login without a staff cookie', () => {
+    const request = new NextRequest('https://app.akademate.com/campus/login')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('lets students open /campus without a staff cookie', () => {
+    const request = new NextRequest('https://app.akademate.com/campus')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('lets /api/campus/* through so JWT handlers can authenticate', () => {
+    const request = new NextRequest('https://app.akademate.com/api/campus/dashboard')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('keeps staff /campus-virtual protected without a staff cookie', () => {
+    const request = new NextRequest('https://app.akademate.com/campus-virtual')
+    const response = middleware(request)
+
+    expect(response.status).toBe(307)
+    expect(getHeader(response, 'location')).toContain('/auth/login')
+  })
 })

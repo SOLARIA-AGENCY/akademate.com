@@ -54,7 +54,7 @@ export function PageHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between" data-oid="nq9arpo">
         <div className="flex items-center gap-3" data-oid="_zscgyl">
           <div data-oid="msm_hkf">
-            <h1 className="text-xl sm:text-2xl font-bold" data-oid=".ik_qyi">
+            <h1 className="text-lg font-semibold text-foreground" data-oid=".ik_qyi">
               {title}
             </h1>
             {description && (
@@ -81,10 +81,7 @@ export function PageHeader({
 
       {/* Row 2: Filters (optional) */}
       {filters && (
-        <div
-          className="flex items-center gap-3 flex-wrap mt-3 pt-3 border-t border-border"
-          data-oid="on_hyte"
-        >
+        <div className="mt-3 flex flex-wrap items-center gap-2" data-oid="on_hyte">
           {filters}
         </div>
       )}

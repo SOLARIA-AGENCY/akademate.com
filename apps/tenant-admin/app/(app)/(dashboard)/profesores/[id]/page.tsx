@@ -7,6 +7,13 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@payload-config/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -31,6 +38,7 @@ import {
   Plus,
   ExternalLink,
   AlertCircle,
+  MoreHorizontal,
 } from 'lucide-react'
 
 interface CourseRun {
@@ -287,7 +295,7 @@ export default function ProfesorDetailPage() {
   }
 
   return (
-    <div className="min-w-0 space-y-6 overflow-x-auto" data-oid=".5h6m09">
+    <div className="min-w-0 space-y-6" data-oid=".5h6m09">
       <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <button
@@ -305,25 +313,33 @@ export default function ProfesorDetailPage() {
           <h1 className="text-3xl font-bold tracking-tight">{professor.fullName}</h1>
           <p className="text-muted-foreground">{professor.position}</p>
           <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!publicProfessorAvailable}
-              onClick={() => window.open(publicProfessorPath, '_blank', 'noopener,noreferrer')}
-              title={publicProfessorAvailable ? 'Abrir página pública del docente' : 'Página pública no disponible'}
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
-            </Button>
             <Button size="sm" onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />Editar
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Más acciones</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  disabled={!publicProfessorAvailable}
+                  onClick={() => window.open(publicProfessorPath, '_blank', 'noopener,noreferrer')}
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Ver página pública
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3" data-oid="gcoo2ph">
+      <div className="grid gap-6 lg:grid-cols-12" data-oid="gcoo2ph">
         {/* Left Column - Photo and Basic Info */}
-        <Card className="md:col-span-1" data-oid="d2j-.g8">
+        <Card className="lg:col-span-4" data-oid="d2j-.g8">
           <CardContent className="pt-6 space-y-6" data-oid="bzau5u3">
             {/* Photo */}
             <div className="flex flex-col items-center" data-oid="8ush656">
@@ -437,7 +453,7 @@ export default function ProfesorDetailPage() {
             <Separator />
 
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase text-muted-foreground">
+              <h3 className="text-sm font-semibold text-muted-foreground">
                 Titulaciones y certificaciones
               </h3>
               {professor.certifications && professor.certifications.length > 0 ? (
@@ -461,7 +477,7 @@ export default function ProfesorDetailPage() {
         </Card>
 
         {/* Right Column - Detailed Info */}
-        <div className="md:col-span-2 space-y-6" data-oid="7zawug:">
+        <div className="lg:col-span-8 space-y-6" data-oid="7zawug:">
           {/* Bio */}
           {professor.bio && (
             <Card data-oid="4nkdtyq">
@@ -479,7 +495,13 @@ export default function ProfesorDetailPage() {
             </Card>
           )}
 
-          {/* Assigned Campuses */}
+          <Tabs defaultValue="convocatorias">
+            <TabsList>
+              <TabsTrigger value="convocatorias">Convocatorias</TabsTrigger>
+              <TabsTrigger value="sedes">Sedes</TabsTrigger>
+              <TabsTrigger value="empleo">Empleo</TabsTrigger>
+            </TabsList>
+            <TabsContent value="sedes">
           <Card data-oid="w5zl1sf">
             <CardHeader data-oid="oft.cuq">
               <CardTitle className="flex items-center gap-2" data-oid=":2uugga">
@@ -515,7 +537,9 @@ export default function ProfesorDetailPage() {
               )}
             </CardContent>
           </Card>
+            </TabsContent>
 
+            <TabsContent value="convocatorias">
           {/* Course Runs (Convocatorias) */}
           <Card data-oid="ftaknd_">
             <CardHeader className="flex flex-row items-center justify-between gap-4" data-oid="o2xkexi">
@@ -647,7 +671,9 @@ export default function ProfesorDetailPage() {
               )}
             </CardContent>
           </Card>
+            </TabsContent>
 
+            <TabsContent value="empleo">
           {/* Employment Details */}
           <Card data-oid="a1:r32j">
             <CardHeader data-oid="vj:812h">
@@ -722,21 +748,9 @@ export default function ProfesorDetailPage() {
               </div>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-4 justify-end" data-oid="h.me6sd">
-        <Button variant="outline" onClick={() => router.back()} data-oid="0e8m5ik">
-          Volver
-        </Button>
-        <Button
-          onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
-          data-oid="awna7rh"
-        >
-          <Edit className="mr-2 h-4 w-4" data-oid="ljm_bgg" />
-          Editar Profesor
-        </Button>
       </div>
     </div>
   )

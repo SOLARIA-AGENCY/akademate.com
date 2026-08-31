@@ -22,51 +22,29 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { title: 'Dashboard', url: '/dashboard' },
-  { title: 'Programacion', url: '/programacion', sectionBefore: 'GESTION ACADEMICA' },
+  { title: 'Programación', url: '/programacion', sectionBefore: 'ACADÉMICO' },
   { title: 'Planner Visual', url: '/planner' },
-  { title: 'Cursos', url: '/cursos' },
-  { title: 'Ciclos', url: '/ciclos' },
-  { title: 'Sedes', url: '/sedes' },
+  { title: 'Cursos', url: '/dashboard/cursos' },
+  { title: 'Ciclos', url: '/dashboard/ciclos' },
+  { title: 'Sedes', url: '/dashboard/sedes' },
   { title: 'Alumnos', url: '/dashboard/alumnos' },
   {
+    title: 'Matriculacion',
+    items: [
+      { title: 'Solicitudes', url: '/matriculas' },
+      { title: 'Nueva matrícula', url: '/matriculas/nueva' },
+      { title: 'Planes y tarifas', url: '/matriculas/planes' },
+      { title: 'Tarifas de acceso', url: '/matriculas/tarifas-acceso' },
+    ],
+  },
+  {
     title: 'Personal',
+    sectionBefore: 'PERSONAL',
     items: [
       { title: 'Profesores', url: '/dashboard/profesores' },
       { title: 'Administrativos', url: '/dashboard/personal/administrativos' },
     ],
   },
-  {
-    title: 'Marketing',
-    sectionBefore: 'GESTION COMERCIAL',
-    items: [
-      { title: 'Campañas', url: '/campanas' },
-      { title: 'Creatividades', url: '/marketing/creatividades' },
-    ],
-  },
-  {
-    title: 'Leads e Inscripciones',
-    items: [
-      { title: 'Leads', url: '/leads' },
-      { title: 'Matriculas', url: '/matriculas' },
-      { title: 'Lista de Espera', url: '/lista-espera' },
-    ],
-  },
-  {
-    title: 'Contenido Web',
-    items: [
-      { title: 'Cursos Publicados', url: '/web/cursos' },
-      { title: 'Ciclos Publicados', url: '/web/ciclos' },
-      { title: 'Convocatorias', url: '/web/convocatorias' },
-      { title: 'Noticias/Blog', url: '/contenido/blog' },
-      { title: 'Paginas', url: '/contenido/paginas' },
-      { title: 'FAQs', url: '/contenido/faqs' },
-      { title: 'Testimonios', url: '/contenido/testimonios' },
-      { title: 'Formularios', url: '/contenido/formularios' },
-      { title: 'Medios', url: '/contenido/medios' },
-      { title: 'Visitantes', url: '/contenido/visitantes' },
-    ],
-  },
-  { title: 'Analiticas', url: '/analiticas' },
   {
     title: 'Campus Virtual',
     sectionBefore: 'CAMPUS VIRTUAL',
@@ -79,8 +57,28 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: 'Administracion',
-    sectionBefore: 'ADMINISTRACION',
+    title: 'Marketing',
+    sectionBefore: 'MARKETING',
+    items: [
+      { title: 'Campañas', url: '/campanas' },
+      { title: 'Creatividades', url: '/marketing/creatividades' },
+      { title: 'Leads', url: '/leads' },
+      { title: 'Analíticas', url: '/marketing/analiticas' },
+    ],
+  },
+  {
+    title: 'Web',
+    sectionBefore: 'WEB',
+    items: [
+      { title: 'Analíticas', url: '/web/analiticas' },
+      { title: 'Cursos Publicados', url: '/web/cursos' },
+      { title: 'Ciclos Publicados', url: '/web/ciclos' },
+      { title: 'Convocatorias', url: '/web/convocatorias' },
+    ],
+  },
+  {
+    title: 'Administración',
+    sectionBefore: 'ADMINISTRACIÓN',
     items: [
       { title: 'Usuarios', url: '/administracion/usuarios' },
       { title: 'Roles y Permisos', url: '/administracion/roles' },
@@ -88,7 +86,7 @@ const menuItems: MenuItem[] = [
       { title: 'Registro de Actividad', url: '/administracion/actividad' },
     ],
   },
-  { title: 'Configuracion', url: '/configuracion' },
+  { title: 'Configuración', url: '/configuracion', sectionBefore: 'CONFIGURACIÓN' },
 ]
 
 // ============================================================================
@@ -187,9 +185,9 @@ describe('Sidebar: Sedes', () => {
     expect(item).toBeDefined()
   })
 
-  it('Sedes has url /sedes (direct link by default)', () => {
+  it('Sedes has url /dashboard/sedes (direct link by default)', () => {
     const item = findMenuItem('Sedes')
-    expect(item!.url).toBe('/sedes')
+    expect(item!.url).toBe('/dashboard/sedes')
   })
 })
 
@@ -206,10 +204,10 @@ describe('Sidebar: Key sections', () => {
     'Alumnos',
     'Personal',
     'Marketing',
-    'Analiticas',
+    'Web',
     'Campus Virtual',
-    'Administracion',
-    'Configuracion',
+    'Administración',
+    'Configuración',
   ])('section "%s" exists', (title) => {
     expect(findMenuItem(title)).toBeDefined()
   })
@@ -269,12 +267,12 @@ describe('Sidebar: General structure', () => {
 // ============================================================================
 
 describe('Sidebar: Section separators', () => {
-  it('Programacion has sectionBefore (GESTION ACADEMICA)', () => {
-    const item = findMenuItem('Programacion')
+  it('Programación has sectionBefore (ACADÉMICO)', () => {
+    const item = findMenuItem('Programación')
     expect(item!.sectionBefore).toBeDefined()
   })
 
-  it('Marketing has sectionBefore (GESTION COMERCIAL)', () => {
+  it('Marketing has sectionBefore (MARKETING)', () => {
     const item = findMenuItem('Marketing')
     expect(item!.sectionBefore).toBeDefined()
   })
@@ -284,8 +282,8 @@ describe('Sidebar: Section separators', () => {
     expect(item!.sectionBefore).toBeDefined()
   })
 
-  it('Administracion has sectionBefore', () => {
-    const item = findMenuItem('Administracion')
+  it('Administración has sectionBefore', () => {
+    const item = findMenuItem('Administración')
     expect(item!.sectionBefore).toBeDefined()
   })
 

@@ -501,7 +501,7 @@ export default function LeadAppointmentsPage() {
               <div className="overflow-x-auto">
                 <div className="min-w-[920px]">
                   <div className="grid grid-cols-[74px_repeat(7,minmax(112px,1fr))] border-b">
-                    <div className="p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Hora</div>
+                    <div className="p-2 text-xs font-semibold text-muted-foreground">Hora</div>
                     {days.map((day) => (
                       <button
                         key={day.toISOString()}
@@ -596,7 +596,7 @@ export default function LeadAppointmentsPage() {
               ))}
               {selectedAppointment && (
                 <div className="rounded-xl border bg-slate-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-red-600">Detalle</p>
+                  <p className="text-xs font-semibold text-muted-foreground">Detalle</p>
                   <h3 className="mt-1 font-bold">{selectedAppointment.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{TYPE_LABELS[selectedAppointment.appointment_type]} · {REASON_LABELS[selectedAppointment.reason]}</p>
                   <p className="mt-1 text-sm"><UserRound className="mr-1 inline h-4 w-4" />{leadName(selectedAppointment.lead)}</p>

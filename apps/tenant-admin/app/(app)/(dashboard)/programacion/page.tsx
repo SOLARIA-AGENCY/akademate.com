@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
 import {
   Plus,
   Calendar,
@@ -39,6 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
+import { AssignEmptyButton } from '@payload-config/components/ui/assign-empty'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 
 // ---------------------------------------------------------------------------
@@ -51,6 +53,8 @@ interface Convocatoria {
   tipo: string
   sede: string
   sedeId: string
+  profesor: string
+  aula: string
   fechaInicio: string
   fechaFin: string
   horaInicio: string
@@ -548,12 +552,23 @@ export default function ProgramacionPage() {
         if (convsRes.ok) {
           const convsData = await convsRes.json()
           const items = Array.isArray(convsData.data) ? convsData.data : []
-          setConvocatorias(items.map((c: Record<string, unknown>) => ({
+          setConvocatorias(items.map((c: Record<string, unknown>) => {
+            const profesor = c.profesor
+            let profesorName = ''
+            if (typeof profesor === 'string') profesorName = profesor
+            else if (profesor && typeof profesor === 'object') {
+              const record = profesor as { full_name?: string; first_name?: string; last_name?: string }
+              profesorName = record.full_name?.trim()
+                || `${record.first_name?.trim() ?? ''} ${record.last_name?.trim() ?? ''}`.trim()
+            }
+            return {
             id: String(c.id),
             curso: (c.cursoNombre as string) || 'Curso',
             tipo: (c.cursoTipo as string) || '',
-            sede: (c.campusNombre as string) || 'Sin sede',
+            sede: (c.campusNombre as string) || '',
             sedeId: String(c.campusId || ''),
+            profesor: profesorName,
+            aula: (c.aulaNombre as string) || '',
             fechaInicio: (c.fechaInicio as string) || '',
             fechaFin: (c.fechaFin as string) || '',
             horaInicio: ((c.horario as string) || '').split(' ').pop()?.split('-')[0] || '09:00',
@@ -563,7 +578,7 @@ export default function ProgramacionPage() {
             inscritos: (c.plazasOcupadas as number) || 0,
             estado: (c.estado as string) || 'draft',
             color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
-          })))
+          }}))
         }
 
         if (campusRes.ok) {
@@ -660,7 +675,7 @@ export default function ProgramacionPage() {
           </div>
         }
         actions={
-          <Button onClick={() => router.push('/programacion/nueva')}>
+          <Button onClick={() => router.push(convocatoriaNuevaHref('/programacion'))}>
             <Plus className="mr-2 h-4 w-4" />
             Nueva Convocatoria
           </Button>
@@ -748,18 +763,19 @@ export default function ProgramacionPage() {
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[32%]">Curso / Ciclo</TableHead>
-                  <TableHead className="hidden w-[18%] sm:table-cell">Sede</TableHead>
-                  <TableHead className="hidden w-[18%] md:table-cell">Fechas</TableHead>
-                  <TableHead className="hidden w-[14%] lg:table-cell">Horario</TableHead>
-                  <TableHead className="w-[12%] text-center">Plazas</TableHead>
-                  <TableHead className="w-[16%] text-center">Estado</TableHead>
+                  <TableHead className="w-[28%]">Curso / ciclo</TableHead>
+                  <TableHead className="hidden w-[14%] sm:table-cell">Sede</TableHead>
+                  <TableHead className="hidden w-[14%] md:table-cell">Docente</TableHead>
+                  <TableHead className="hidden w-[12%] lg:table-cell">Aula</TableHead>
+                  <TableHead className="hidden w-[12%] lg:table-cell">Fechas</TableHead>
+                  <TableHead className="w-[10%] text-center">Plazas</TableHead>
+                  <TableHead className="w-[14%] text-center">Estado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                       No hay convocatorias
                     </TableCell>
                   </TableRow>
@@ -774,7 +790,6 @@ export default function ProgramacionPage() {
                         ? new Date(conv.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })
                         : null,
                     ].filter(Boolean).join(' – ')
-                    const horarioLabel = [conv.horaInicio, conv.horaFin].filter(Boolean).join('–')
                     return (
                       <TableRow
                         key={conv.id}
@@ -786,20 +801,36 @@ export default function ProgramacionPage() {
                           <p className="truncate text-xs text-muted-foreground sm:hidden" title={conv.sede}>{conv.sede}</p>
                         </TableCell>
                         <TableCell className="hidden max-w-0 sm:table-cell">
-                          <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
-                            <MapPin className="h-3 w-3 shrink-0" />
-                            <span className="truncate" title={conv.sede}>{conv.sede}</span>
-                          </span>
+                          {conv.sede ? (
+                            <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="truncate" title={conv.sede}>{conv.sede}</span>
+                            </span>
+                          ) : (
+                            <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
+                          )}
                         </TableCell>
                         <TableCell className="hidden max-w-0 md:table-cell">
-                          <span className="block truncate text-muted-foreground" title={fechasLabel}>
-                            {fechasLabel || '—'}
-                          </span>
+                          {conv.profesor ? (
+                            <span className="block truncate text-muted-foreground" title={conv.profesor}>
+                              {conv.profesor}
+                            </span>
+                          ) : (
+                            <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar docente" />
+                          )}
                         </TableCell>
                         <TableCell className="hidden max-w-0 lg:table-cell">
-                          <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
-                            <Clock className="h-3 w-3 shrink-0" />
-                            <span className="truncate" title={horarioLabel}>{horarioLabel || '—'}</span>
+                          {conv.aula ? (
+                            <span className="block truncate text-muted-foreground" title={conv.aula}>
+                              {conv.aula}
+                            </span>
+                          ) : (
+                            <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar aula" />
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden max-w-0 lg:table-cell">
+                          <span className="block truncate text-muted-foreground" title={fechasLabel}>
+                            {fechasLabel || 'Pendiente'}
                           </span>
                         </TableCell>
                         <TableCell className="text-center whitespace-normal">

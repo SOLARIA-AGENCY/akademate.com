@@ -46,16 +46,15 @@ describe('Dashboard fichas internas', () => {
     expect(runFicha).toContain('window.print()')
   })
 
-  it('course cards keep stable covered images and visible red buttons', () => {
+  it('course cards use EntityThumb and tenant primary, never CEP hex', () => {
     const cardSource = read('@payload-config/components/ui/CourseTemplateCard.tsx')
     const listSource = read('@payload-config/components/ui/CourseListItem.tsx')
 
-    expect(cardSource).toContain('object-cover')
-    expect(cardSource).toContain('min-h-[230px]')
-    expect(cardSource).toContain('bg-[#f2014b]')
-    expect(cardSource).toContain('hover:text-white')
-    expect(listSource).toContain('bg-[#f2014b]')
-    expect(listSource).toContain('hover:text-white')
+    expect(cardSource).toContain('EntityThumb')
+    expect(cardSource).not.toContain('bg-[#f2014b]')
+    expect(cardSource).not.toContain('hover:-translate-y')
+    expect(listSource).toContain('EntityThumb')
+    expect(listSource).not.toContain('bg-[#f2014b]')
   })
 
   it('cycle detail resolves active Meta campaigns before rendering campaign badges', () => {

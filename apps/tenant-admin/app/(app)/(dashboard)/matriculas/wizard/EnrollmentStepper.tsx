@@ -1,52 +1,53 @@
 'use client'
 
 import { Check } from 'lucide-react'
+import { Button } from '@payload-config/components/ui/button'
+import { Progress } from '@payload-config/components/ui/progress'
+import { Separator } from '@payload-config/components/ui/separator'
 import { cn } from '@payload-config/lib/utils'
-import { wizardStepTitle, type WizardStepId } from './types'
+import { WIZARD_STAGES, wizardStageTitle, type WizardStageId } from './types'
 
 export function EnrollmentStepper({
-  steps,
   current,
   completed,
   onSelect,
 }: {
-  steps: WizardStepId[]
-  current: WizardStepId
-  completed: Set<WizardStepId>
-  onSelect: (step: WizardStepId) => void
+  current: WizardStageId
+  completed: Set<WizardStageId>
+  onSelect: (stage: WizardStageId) => void
 }) {
-  const currentIndex = steps.indexOf(current)
-  const progress = steps.length > 1 ? Math.round((currentIndex / (steps.length - 1)) * 100) : 0
+  const currentIndex = WIZARD_STAGES.findIndex((stage) => stage.id === current)
+  const progress = currentIndex <= 0 ? 0 : Math.round((currentIndex / (WIZARD_STAGES.length - 1)) * 100)
 
   return (
     <div className="min-w-0 space-y-3" data-slot="enrollment-stepper">
-      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-      </div>
-      <ol className="flex min-w-0 flex-wrap gap-2">
-        {steps.map((step, index) => {
-          const isCurrent = step === current
-          const isDone = completed.has(step)
+      <Progress value={progress} className="h-1.5" />
+      <ol className="flex min-w-0 items-center gap-1 sm:gap-2">
+        {WIZARD_STAGES.map((stage, index) => {
+          const isCurrent = stage.id === current
+          const isDone = completed.has(stage.id)
           const clickable = isDone || index <= currentIndex
           return (
-            <li key={step}>
-              <button
+            <li key={stage.id} className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
+              <Button
                 type="button"
+                size="sm"
+                variant={isCurrent ? 'default' : isDone ? 'secondary' : 'outline'}
                 disabled={!clickable}
-                onClick={() => clickable && onSelect(step)}
-                className={cn(
-                  'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
-                  isCurrent && 'border-primary bg-primary text-primary-foreground',
-                  isDone && !isCurrent && 'border-primary/30 bg-primary/10 text-primary',
-                  !isCurrent && !isDone && 'border-border bg-card text-muted-foreground',
-                  !clickable && 'cursor-not-allowed opacity-60'
-                )}
+                onClick={() => clickable && onSelect(stage.id)}
+                aria-current={isCurrent ? 'step' : undefined}
+                className={cn('min-w-0 flex-1 justify-start', !clickable && 'opacity-60')}
               >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-background/20 text-[11px]">
-                  {isDone && !isCurrent ? <Check className="h-3 w-3" /> : index + 1}
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-background/20 text-[11px]">
+                  {isDone && !isCurrent ? <Check className="h-3 w-3" /> : stage.id}
                 </span>
-                <span className="hidden sm:inline">{wizardStepTitle(step)}</span>
-              </button>
+                <span className="truncate">{wizardStageTitle(stage.id)}</span>
+              </Button>
+              {index < WIZARD_STAGES.length - 1 ? (
+                <Separator
+                  className={cn('hidden h-px flex-1 sm:block', isDone || isCurrent ? 'bg-primary' : 'bg-border')}
+                />
+              ) : null}
             </li>
           )
         })}

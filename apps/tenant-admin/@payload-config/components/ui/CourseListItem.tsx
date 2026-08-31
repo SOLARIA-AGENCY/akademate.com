@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { CalendarDays, Clock } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
-import { getPublicStudyTypeFallbackImage, toDashboardStudyType } from '@/app/lib/website/study-types'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import type { PlantillaCurso } from '@/types'
 
 interface CourseListItemProps {
@@ -16,8 +15,6 @@ interface CourseListItemProps {
 
 export function CourseListItem({ course, onClick, className }: CourseListItemProps) {
   const typeConfig = COURSE_TYPE_CONFIG[course.tipo] || COURSE_TYPE_CONFIG.privados
-  const fallbackImage = getPublicStudyTypeFallbackImage(toDashboardStudyType(course.tipo))
-  const [imgError, setImgError] = useState(false)
 
   return (
     <div
@@ -25,31 +22,12 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
       onClick={onClick}
       data-oid="bfba_ve"
     >
-      <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded bg-muted" data-oid="__da7mf">
-        {!imgError ? (
-          <img
-            src={course.imagenPortada || fallbackImage}
-            alt={course.nombre}
-            className="h-full w-full object-cover"
-            onError={() => setImgError(true)}
-            data-oid="wwyrlfw"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center bg-primary/5">
-            <img
-              src="/icon-libro.svg"
-              alt=""
-              aria-hidden="true"
-              className="h-8 w-8 opacity-30"
-            />
-          </div>
-        )}
-      </div>
+      <EntityThumb src={course.imagenPortada} alt={course.nombre} fallback="book" size="sm" />
 
       <div className="flex min-w-0 flex-1 items-center gap-4" data-oid="ku49jm4">
         <div className="min-w-0 flex-1" data-oid="2.vkthd">
           <h3
-            className="mb-1 truncate text-sm font-extrabold uppercase tracking-wide leading-tight"
+            className="mb-1 truncate text-sm font-semibold leading-tight"
             title={course.nombre}
             data-oid=".22tcmh"
           >
@@ -60,7 +38,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
               {course.area}
             </Badge>
             <Badge
-              className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-[11px]`}
+              className={`${typeConfig.bgColor} ${typeConfig.textColor} text-[11px]`}
               data-oid=":y7r6uz"
             >
               {typeConfig.label}
@@ -76,7 +54,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
             </span>
           </div>
           <div className="flex items-center gap-1.5" data-oid="sa8jbtd">
-            <CalendarDays className="h-4 w-4 text-muted-foreground" data-oid="97xktqx" />
+            <CalendarDays className="h-4 w-4 text-muted-foreground" data-oid="in3hcfx" />
             <span className="font-medium" data-oid="4w4-k36">
               {course.totalConvocatorias} {course.totalConvocatorias === 1 ? 'convocatoria' : 'convocatorias'}
             </span>
@@ -85,7 +63,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
 
         <Button
           size="sm"
-          className="h-8 shrink-0 bg-[#f2014b] px-3 text-xs text-white hover:bg-[#d80143] hover:text-white"
+          className="h-8 shrink-0 px-3 text-xs"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

@@ -232,10 +232,12 @@ export default function MatriculasPage() {
     <div className="space-y-6" data-oid="k_ex1sq">
       <PageHeader
         title="Matrículas"
-        description="Gestión de solicitudes de matrícula y seguimiento de inscripciones"
         icon={GraduationCap}
         actions={
           <>
+            <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
+              Volver
+            </Button>
             <Button variant="outline" data-oid="lca.h7w">
               <Download className="mr-2 h-4 w-4" data-oid="9l3qgn3" />
               Exportar

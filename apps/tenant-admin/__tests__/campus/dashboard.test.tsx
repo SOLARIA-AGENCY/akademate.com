@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import React from 'react'
 import CampusPage from '@/app/campus/page'
 
-// Mock student data
 const mockStudent = {
   id: '1',
   email: 'student@test.com',
@@ -20,8 +20,6 @@ const mockEnrollments = [
     courseRunTitle: 'Edicion Enero 2025',
     status: 'in_progress',
     progressPercent: 45,
-    totalModules: 5,
-    completedModules: 2,
     estimatedMinutesRemaining: 180,
   },
   {
@@ -31,8 +29,6 @@ const mockEnrollments = [
     courseRunTitle: 'Edicion Febrero 2025',
     status: 'not_started',
     progressPercent: 0,
-    totalModules: 8,
-    completedModules: 0,
     estimatedMinutesRemaining: 480,
   },
 ]
@@ -45,7 +41,6 @@ const mockStats = {
   totalPoints: 450,
 }
 
-// Mock SessionProvider
 vi.mock('@/app/campus/providers/SessionProvider', () => ({
   useSession: () => ({
     student: mockStudent,
@@ -61,11 +56,18 @@ vi.mock('@/app/campus/providers/SessionProvider', () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
-// Mock router
+vi.mock('recharts', () => ({
+  RadialBarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+  RadialBar: () => null,
+  PolarGrid: () => null,
+  ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+}))
+
 vi.mock('next/navigation', async () => {
   return {
     useRouter: () => ({ push: vi.fn() }),
     useParams: () => ({}),
+    usePathname: () => '/campus',
   }
 })
 
@@ -74,12 +76,16 @@ describe('Campus Dashboard Page', () => {
     vi.clearAllMocks()
     localStorage.setItem('campus_token', 'test-token')
 
-    // Mock successful API response
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         enrollments: mockEnrollments,
         stats: mockStats,
+        liveClass: null,
+        upcoming: [],
+        attendanceRate: null,
+        badges: [],
+        weeklyActivity: [1, 1, 1, 1, 1, 0, 0],
       }),
     })
   })
@@ -89,25 +95,25 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('renders welcome message with student name', async () => {
-    render(<CampusPage data-oid="nn-4ah." />)
+    render(<CampusPage />)
 
     await waitFor(() => {
-      expect(screen.getByText(/hola, juan/i)).toBeInTheDocument()
+      expect(screen.getByText(/hola de nuevo, juan/i)).toBeInTheDocument()
     })
   })
 
-  it('displays stats cards', async () => {
-    render(<CampusPage data-oid="-q0jq59" />)
+  it('does not render lucide kpi tiles', async () => {
+    render(<CampusPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('2')).toBeInTheDocument() // totalCourses
-      expect(screen.getByText('5')).toBeInTheDocument() // currentStreak
-      expect(screen.getByText('3')).toBeInTheDocument() // totalBadges
+      expect(screen.getByText(/hola de nuevo/i)).toBeInTheDocument()
     })
+    expect(screen.queryByText('Cursos Activos')).not.toBeInTheDocument()
+    expect(screen.queryByText('Insignias')).not.toBeInTheDocument()
   })
 
   it('renders enrollment cards', async () => {
-    render(<CampusPage data-oid="hltwz4z" />)
+    render(<CampusPage />)
 
     await waitFor(() => {
       expect(screen.getByText('Curso de React')).toBeInTheDocument()
@@ -116,16 +122,15 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('shows progress for in-progress courses', async () => {
-    render(<CampusPage data-oid="-.8xoej" />)
+    render(<CampusPage />)
 
     await waitFor(() => {
       expect(screen.getByText('45%')).toBeInTheDocument()
-      expect(screen.getByText(/en progreso/i)).toBeInTheDocument()
     })
   })
 
   it('links to course detail page', async () => {
-    render(<CampusPage data-oid="dpfrun2" />)
+    render(<CampusPage />)
 
     await waitFor(() => {
       const courseLinks = screen.getAllByRole('link')
@@ -142,14 +147,26 @@ describe('Campus Dashboard Page', () => {
       json: async () => ({
         enrollments: [],
         stats: { totalCourses: 0, completedCourses: 0, currentStreak: 0, totalBadges: 0 },
+        liveClass: null,
+        upcoming: [],
+        attendanceRate: null,
+        badges: [],
       }),
     })
 
-    render(<CampusPage data-oid="._de:fd" />)
+    render(<CampusPage />)
 
     await waitFor(() => {
       expect(screen.getByText(/sin cursos activos/i)).toBeInTheDocument()
       expect(screen.getByText(/explorar cursos/i)).toBeInTheDocument()
+    })
+  })
+
+  it('keeps live class empty when the api sends null', async () => {
+    render(<CampusPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/no hay clase en directo hoy/i)).toBeInTheDocument()
     })
   })
 })

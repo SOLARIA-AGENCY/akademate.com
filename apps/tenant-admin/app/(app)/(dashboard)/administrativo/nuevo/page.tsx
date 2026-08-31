@@ -142,7 +142,6 @@ export default function NewAdministrativoPage() {
     <div className="space-y-6 max-w-4xl" data-oid="bt1gpq8">
       <PageHeader
         title="Nuevo Personal Administrativo"
-        description="Añade un nuevo miembro del personal administrativo"
         icon={Briefcase}
         actions={
           <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid=":vjcx4-">

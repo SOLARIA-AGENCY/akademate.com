@@ -327,7 +327,6 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
     <div className="space-y-6" data-oid="wepmu7_">
       <PageHeader
         title="Editar Curso"
-        description={originalCourse.nombre}
         icon={FileText}
         actions={
           <div className="flex items-center gap-2" data-oid="kanhbny">
