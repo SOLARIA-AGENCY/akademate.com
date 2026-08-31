@@ -37,8 +37,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import { useDashboardMetrics } from '@payload-config/hooks'
-import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { ToggleGroup, ToggleGroupItem } from '@payload-config/components/ui/toggle-group'
+import { KpiStatCard } from '@payload-config/components/akademate/dashboard/KpiStatCard'
 
 // Dashboard data types - defined locally to ensure TypeScript resolution
 interface DashboardMetrics {
@@ -151,6 +151,40 @@ interface WeeklyChartDataPoint {
   Cursos: number
 }
 
+type HomeRangeKey = '1d' | '7d' | '30d' | '6m'
+
+function rangeComparisonLabel(range: HomeRangeKey): string {
+  switch (range) {
+    case '1d':
+      return 'vs. ayer'
+    case '7d':
+      return 'vs. semana pasada'
+    case '30d':
+      return 'vs. mes pasado'
+    case '6m':
+      return 'vs. semestre pasado'
+    default: {
+      const exhaustive: never = range
+      return exhaustive
+    }
+  }
+}
+
+function seriesDelta(
+  series: number[],
+): { delta: string; deltaTone: 'success' | 'danger' | 'neutral' } | undefined {
+  if (series.length < 2) return undefined
+  const current = series.at(-1) ?? 0
+  const previous = series.at(-2) ?? 0
+  if (!Number.isFinite(current) || !Number.isFinite(previous) || previous === 0) return undefined
+  const pct = ((current - previous) / Math.abs(previous)) * 100
+  const rounded = Math.round(pct * 10) / 10
+  const delta = `${rounded > 0 ? '+' : ''}${String(rounded).replace('.', ',')}%`
+  const deltaTone: 'success' | 'danger' | 'neutral' =
+    rounded > 0 ? 'success' : rounded < 0 ? 'danger' : 'neutral'
+  return { delta, deltaTone }
+}
+
 export default function DashboardPage() {
   // Use the combined hook for initial fetch + real-time updates
   // Type assertion required as TypeScript cannot resolve types through path alias
@@ -169,6 +203,7 @@ export default function DashboardPage() {
     completionRate: 0,
     certificatesIssued: 0,
   })
+  const [range, setRange] = useState<HomeRangeKey>('7d')
   const [isClient, setIsClient] = useState(false)
 
   const [cycleStats, setCycleStats] = useState<{
@@ -376,6 +411,33 @@ export default function DashboardPage() {
             {isConnected ? 'En vivo' : 'Sin conexión'}
           </Badge>
         }
+        filters={
+          <ToggleGroup
+            type="single"
+            value={range}
+            onValueChange={(value) => {
+              if (value) setRange(value as HomeRangeKey)
+            }}
+            variant="outline"
+            size="sm"
+            aria-label="Rango"
+            data-testid="dashboard-home-filters"
+            className="flex flex-wrap justify-start gap-1"
+          >
+            <ToggleGroupItem value="1d" className="px-3">
+              1D
+            </ToggleGroupItem>
+            <ToggleGroupItem value="7d" className="px-3">
+              7D
+            </ToggleGroupItem>
+            <ToggleGroupItem value="30d" className="px-3">
+              30D
+            </ToggleGroupItem>
+            <ToggleGroupItem value="6m" className="px-3">
+              6M
+            </ToggleGroupItem>
+          </ToggleGroup>
+        }
         data-oid="qqq2bhb"
       />
 
@@ -385,21 +447,22 @@ export default function DashboardPage() {
         data-oid="gtfb5.8"
       >
         {primaryKpis.map((kpi) => {
-          const Icon = kpi.icon
+          const deltaProps =
+            kpi.title === 'Leads este Mes'
+              ? seriesDelta(weeklyMetrics.leads)
+              : kpi.title === 'Alumnos'
+                ? seriesDelta(weeklyMetrics.enrollments)
+                : undefined
           return (
-            <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {kpi.title}
-                </CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5">
-                  <Icon className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-1">
-                <div className="text-2xl font-bold">{kpi.value}</div>
-              </CardContent>
-            </Card>
+            <KpiStatCard
+              key={kpi.title}
+              label={kpi.title}
+              value={kpi.value}
+              icon={kpi.icon}
+              href={kpi.href}
+              comparisonLabel={deltaProps ? rangeComparisonLabel(range) : undefined}
+              {...deltaProps}
+            />
           )
         })}
       </div>
@@ -410,21 +473,17 @@ export default function DashboardPage() {
         data-oid="j786_4e"
       >
         {secondaryKpis.map((kpi) => {
-          const Icon = kpi.icon
+          const deltaProps = kpi.title === 'Profesores' ? seriesDelta(weeklyMetrics.courses_added) : undefined
           return (
-            <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {kpi.title}
-                </CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5">
-                  <Icon className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-1">
-                <div className="text-2xl font-bold">{kpi.value}</div>
-              </CardContent>
-            </Card>
+            <KpiStatCard
+              key={kpi.title}
+              label={kpi.title}
+              value={kpi.value}
+              icon={kpi.icon}
+              href={kpi.href}
+              comparisonLabel={deltaProps ? rangeComparisonLabel(range) : undefined}
+              {...deltaProps}
+            />
           )
         })}
       </div>

@@ -20,8 +20,9 @@ import {
 import {
   ListingSearch,
   PremiumDirectoryShell,
-  DirectoryCampusBadge,
+  DirectoryCampusIdentity,
   DirectoryStaffIcons,
+  useCampusIdentityMap,
   type DirectoryStaffRef,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
@@ -293,6 +294,7 @@ function buildCampaignSummary(
 // ---------------------------------------------------------------------------
 
 export default function WebConvocatoriasPage() {
+  const campusImages = useCampusIdentityMap()
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -534,7 +536,10 @@ export default function WebConvocatoriasPage() {
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3 w-3 shrink-0" />
                       {conv.sedeName ? (
-                        <DirectoryCampusBadge name={conv.sedeName} />
+                        <DirectoryCampusIdentity
+                          name={conv.sedeName}
+                          imageUrl={campusImages[conv.sedeName]}
+                        />
                       ) : (
                         <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
                       )}
@@ -635,7 +640,10 @@ export default function WebConvocatoriasPage() {
                     </TableCell>
                     <TableCell>
                       {conv.sedeName ? (
-                        <DirectoryCampusBadge name={conv.sedeName} />
+                        <DirectoryCampusIdentity
+                          name={conv.sedeName}
+                          imageUrl={campusImages[conv.sedeName]}
+                        />
                       ) : (
                         <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
                       )}

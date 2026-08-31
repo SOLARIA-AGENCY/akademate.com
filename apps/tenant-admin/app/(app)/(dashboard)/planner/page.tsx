@@ -272,6 +272,9 @@ function OccupancyMatrix({
   const visibleAulas = aulas.filter((aula) => aula.campusId === sedeFilter)
   const visibleCards = cards.filter((card) => card.sedeId === sedeFilter)
 
+  const aulaCount = visibleAulas.length
+  const aulaCol = aulaCount <= 1 ? 'minmax(12rem, 22rem)' : 'minmax(10rem, 1fr)'
+
   if (visibleAulas.length === 0) return null
 
   return (
@@ -284,68 +287,50 @@ function OccupancyMatrix({
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <div className="min-w-[760px] rounded-md border">
-            <div className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b bg-muted/40 text-xs font-medium">
-              <div className="p-2">Aula</div>
-              {Object.entries(SHIFT_LABELS).map(([key, label]) => (
-                <div key={key} className="border-l p-2">{label}</div>
+          <div
+            data-aula-count={aulaCount}
+            className={aulaCount <= 2 ? 'min-w-0 w-full rounded-md border' : 'min-w-[760px] rounded-md border'}
+          >
+            <div
+              className="grid border-b bg-muted/40 text-xs font-medium"
+              style={{ gridTemplateColumns: `minmax(7.5rem, 9rem) repeat(${Math.max(aulaCount, 1)}, ${aulaCol})` }}
+            >
+              <div className="p-2">Turno</div>
+              {visibleAulas.map((aula) => (
+                <div key={aula.id} className="border-l p-2" data-testid={`planner-room-col-${aula.id}`}>
+                  {aula.name}
+                </div>
               ))}
             </div>
-            {visibleAulas.map((aula) => {
-              const aulaCards = visibleCards.filter((card) => card.aulaId === aula.id)
-              return (
-                <div key={aula.id} className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b last:border-b-0 text-xs">
-                  <div className="p-2">
-                    <div className="font-medium">{aula.name}</div>
-                    <div className="mt-1 text-muted-foreground">{aula.capacity} plazas</div>
-                  </div>
-                  {Object.keys(SHIFT_LABELS).map((shift) => {
-                    const shiftCards = aulaCards.filter((card) => card.turno === shift)
-                    const occupied = shiftCards.reduce((sum, card) => sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0), 0)
-                    const ratio = aula.capacity > 0 ? Math.min(100, Math.round((occupied / aula.capacity) * 100)) : 0
-                    return (
-                      <div key={shift} className="min-h-[84px] border-l p-2">
-                        {shiftCards.length === 0 ? (
-                          <span className="text-muted-foreground">Libre</span>
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="h-1.5 rounded-full bg-muted">
-                              <div className={ratio >= 100 ? 'h-1.5 rounded-full bg-red-500' : 'h-1.5 rounded-full bg-green-500'} style={{ width: `${ratio}%` }} />
-                            </div>
-                            {shiftCards.map((card) => {
-                              const style = courseTypeStyle(card.tipo)
-                              return (
-                              <button
-                                key={card.id}
-                                className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border}`}
-                                onClick={() => window.location.assign(`/dashboard/programacion/${card.id}`)}
-                              >
-                                <div className={`w-1.5 shrink-0 ${style.bar}`} />
-                                {card.cursoImagen ? (
-                                  <img src={card.cursoImagen} alt="" className="h-auto w-16 shrink-0 object-cover" />
-                                ) : (
-                                  <div className="flex w-16 shrink-0 items-center justify-center bg-white/65">
-                                    <BookOpen className="h-5 w-5 text-muted-foreground" />
-                                  </div>
-                                )}
-                                <div className="min-w-0 flex-1 p-2">
-                                  <div className={`line-clamp-2 text-[11px] font-bold uppercase leading-tight ${style.text}`}>
-                                    {card.curso}
-                                  </div>
-                                  <div className="mt-1 text-[11px] font-medium text-muted-foreground">
-                                    {formatSchedule(card)}
-                                  </div>
-                                </div>
-                              </button>
-                            )})}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })}
+            {Object.entries(SHIFT_LABELS).map(([shift, label]) => (
+              <div
+                key={shift}
+                className="grid border-b last:border-b-0 text-xs"
+                style={{ gridTemplateColumns: `minmax(7.5rem, 9rem) repeat(${Math.max(aulaCount, 1)}, ${aulaCol})` }}
+              >
+                <div className="p-2 font-medium">{label}</div>
+                {visibleAulas.map((aula) => {
+                  const shiftCards = visibleCards.filter((card) => card.aulaId === aula.id && card.turno === shift)
+                  return (
+                    <div key={`${aula.id}-${shift}`} className="border-l p-2">
+                      {shiftCards.length === 0 ? (
+                        <span className="text-muted-foreground">Libre</span>
+                      ) : (
+                        shiftCards.map((card) => (
+                          <button
+                            key={card.id}
+                            className="w-full rounded-md border bg-card p-2 text-left"
+                            onClick={() => window.location.assign(`/dashboard/programacion/${card.id}`)}
+                          >
+                            {card.curso}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>
@@ -558,7 +543,7 @@ export default function PlannerPage() {
         actions={
           <Button onClick={() => router.push(convocatoriaNuevaHref('/planner'))}>
             <Plus className="mr-2 h-4 w-4" />
-            Nueva Convocatoria
+            + Nueva convocatoria
           </Button>
         }
       />

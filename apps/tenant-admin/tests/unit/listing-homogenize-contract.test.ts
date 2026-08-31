@@ -18,14 +18,14 @@ describe('listing homogenize contract', () => {
     expect(source).not.toContain('whitespace-nowrap')
   })
 
-  it('listing chrome uses Badge static and directory campus red', () => {
+  it('listing chrome uses Badge static and campus identity', () => {
     const badges = read('@payload-config/components/akademate/dashboard/CourseTaxonomyBadges.tsx')
     const shell = read('@payload-config/components/directory/PremiumDirectoryShell.tsx')
     expect(badges).toContain('variant="static"')
-    expect(shell).toContain('DirectoryCampusBadge')
-    expect(shell).toContain('DIRECTORY_CAMPUS_PILL_CLASS')
+    expect(shell).toContain('DirectoryCampusIdentity')
     expect(shell).toContain('DirectoryAreaBadge')
     expect(shell).toContain('parseDirectoryHexColor')
+    expect(shell).toContain('formatDirectoryAreaLabel')
   })
 
   it('course listings replace slate privados with funding badges', () => {

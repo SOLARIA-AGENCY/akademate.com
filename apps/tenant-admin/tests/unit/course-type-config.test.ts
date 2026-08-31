@@ -25,8 +25,9 @@ describe('course type config', () => {
   it('treats teleformacion as modality, not funding', () => {
     expect(resolveCourseFundingType('teleformacion')).toBe('privados')
     expect(resolveCourseModality('teleformacion')).toBe('teleformacion')
-    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).toContain('bg-yellow-300')
-    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).toContain('text-orange-600')
+    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).toContain('bg-yellow-50')
+    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).toContain('text-amber-700')
+    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).not.toContain('bg-yellow-300')
   })
 
   it('keeps mixto off slate', () => {

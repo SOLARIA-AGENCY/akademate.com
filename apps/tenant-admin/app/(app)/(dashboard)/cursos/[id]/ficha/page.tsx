@@ -276,13 +276,22 @@ export default function CourseFichaPage({ params }: Props) {
           <ArrowLeft className="mr-2 h-4 w-4" />Volver al curso
         </Button>
         <div className="flex flex-wrap gap-2">
-          {dossierUrl && (
-            <Button asChild variant="outline">
+          <Button
+            variant="outline"
+            asChild={Boolean(dossierUrl)}
+            disabled={!dossierUrl}
+            title={dossierUrl ? 'Descargar dossier PDF' : 'Este curso no tiene dossier PDF'}
+          >
+            {dossierUrl ? (
               <a href={dossierUrl} target="_blank" rel="noopener noreferrer">
                 <Download className="mr-2 h-4 w-4" />Descargar PDF
               </a>
-            </Button>
-          )}
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />Descargar PDF
+              </>
+            )}
+          </Button>
           <Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir curso</Button>
         </div>
       </div>

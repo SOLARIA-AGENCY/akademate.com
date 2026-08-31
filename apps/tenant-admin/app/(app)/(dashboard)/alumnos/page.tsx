@@ -30,7 +30,8 @@ import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import {
   ListingSearch,
   PremiumDirectoryShell,
-  DirectoryCampusBadge,
+  DirectoryCampusIdentity,
+  useCampusIdentityMap,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface Student {
@@ -64,6 +65,7 @@ interface StudentsApiResponse {
 
 export default function AlumnosPage() {
   const router = useRouter()
+  const campusImages = useCampusIdentityMap()
 
   // Estados de visualización
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
@@ -511,7 +513,10 @@ export default function AlumnosPage() {
                         className="h-4 w-4 text-muted-foreground flex-shrink-0"
                         data-oid="g_wnq1v"
                       />
-                      <DirectoryCampusBadge name={selectedStudent.sede} />
+                    <DirectoryCampusIdentity
+                      name={selectedStudent.sede || 'Sin sede'}
+                      imageUrl={selectedStudent.sede ? campusImages[selectedStudent.sede] : undefined}
+                    />
                     </div>
                     <div className="flex items-center gap-2 text-sm" data-oid="u9shji8">
                       <GraduationCap
@@ -657,7 +662,10 @@ export default function AlumnosPage() {
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground" data-oid="kpn6o9.">
                     <MapPin className="h-4 w-4 flex-shrink-0" data-oid="0lpo8q6" />
-                    <DirectoryCampusBadge name={student.sede} />
+                    <DirectoryCampusIdentity
+                      name={student.sede || 'Sin sede'}
+                      imageUrl={student.sede ? campusImages[student.sede] : undefined}
+                    />
                   </div>
                 </div>
 

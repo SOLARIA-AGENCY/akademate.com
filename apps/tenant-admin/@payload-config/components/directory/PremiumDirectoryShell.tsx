@@ -5,14 +5,19 @@ import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Kbd } from '../ui/kbd'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Badge } from '../ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { cn } from '@payload-config/lib/utils'
 import {
   DIRECTORY_CAMPUS_PILL_CLASS,
+  formatDirectoryAreaLabel,
   getDirectoryAreaTone,
   parseDirectoryHexColor,
 } from '@payload-config/lib/courseTypeConfig'
+import { isStockAcademicCover, useCampusIdentityMap } from './campus-identity-map'
+export { useCampusIdentityMap, buildCampusIdentityMap } from './campus-identity-map'
+export type { CampusIdentityMap } from './campus-identity-map'
 
 export function ListingSearch({
   value,
@@ -126,7 +131,7 @@ export function DirectoryAreaBadge({
   color?: string | null
   className?: string
 }) {
-  const text = (label ?? '').trim() || 'Sin área'
+  const text = formatDirectoryAreaLabel(label)
   const hex = parseDirectoryHexColor(color)
   const tone = getDirectoryAreaTone(text)
 
@@ -134,7 +139,12 @@ export function DirectoryAreaBadge({
     <Badge
       variant="static"
       data-slot="directory-area-badge"
-      className={cn(hex ? 'border' : tone.pillClass, 'hover:opacity-100', className)}
+      title={text}
+      className={cn(
+        hex ? 'border' : tone.pillClass,
+        'max-w-[14rem] truncate whitespace-nowrap hover:opacity-100',
+        className,
+      )}
       style={
         hex
           ? {
@@ -148,6 +158,49 @@ export function DirectoryAreaBadge({
       {text}
     </Badge>
   )
+}
+
+export function DirectoryCampusIdentity({
+  name,
+  imageUrl,
+  href,
+}: {
+  name: string
+  imageUrl?: string | null
+  href?: string
+}) {
+  const photo = imageUrl && !isStockAcademicCover(imageUrl) ? imageUrl : null
+  const initials = (name || 'S')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0] ?? '')
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'S'
+
+  const inner = (
+    <span
+      data-slot="directory-campus-identity"
+      className="inline-flex max-w-full items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-3"
+    >
+      <Avatar className="h-7 w-7">
+        {photo ? <AvatarImage src={photo} alt="" /> : null}
+        <AvatarFallback className="bg-slate-100 text-[10px] font-semibold text-slate-700">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+      <span className="truncate text-sm font-medium">{name}</span>
+    </span>
+  )
+
+  if (href) {
+    return (
+      <Link href={href} className="min-w-0 max-w-full">
+        {inner}
+      </Link>
+    )
+  }
+  return inner
 }
 
 export function DirectoryCampusBadge({

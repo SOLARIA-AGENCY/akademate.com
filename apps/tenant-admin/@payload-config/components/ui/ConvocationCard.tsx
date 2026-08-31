@@ -8,7 +8,7 @@ import {
   CourseModalityBadge,
 } from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
 import {
-  DirectoryCampusBadge,
+  DirectoryCampusIdentity,
   DirectoryNeutralBadge,
   DirectoryStaffIcons,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
@@ -88,7 +88,7 @@ export function ConvocationCard({ instance, onClick, className }: ConvocationCar
           {/* Sede específica */}
           <div className="flex items-center gap-2 text-sm" data-oid="phfefco">
             <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" data-oid="b5h8r7_" />
-            <DirectoryCampusBadge name={instance.sedeNombre} />
+            <DirectoryCampusIdentity name={instance.sedeNombre} />
           </div>
         </div>
 

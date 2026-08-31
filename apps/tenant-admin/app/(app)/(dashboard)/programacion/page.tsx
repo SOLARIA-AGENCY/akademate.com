@@ -47,9 +47,10 @@ import {
   CourseModalityBadge,
 } from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
 import {
-  DirectoryCampusBadge,
+  DirectoryCampusIdentity,
   DirectoryNeutralBadge,
   DirectoryStaffIcons,
+  useCampusIdentityMap,
   type DirectoryStaffRef,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 
@@ -542,6 +543,7 @@ function DayView({ convocatorias, date, holidays, onConvClick }: {
 // ---------------------------------------------------------------------------
 
 export default function ProgramacionPage() {
+  const campusImages = useCampusIdentityMap()
   const router = useRouter()
   const [view, setView] = useState<ViewMode>('anual')
   const [year, setYear] = useState(new Date().getFullYear())
@@ -827,16 +829,20 @@ export default function ProgramacionPage() {
                         onClick={() => handleConvClick(conv.id)}
                       >
                         <TableCell className="max-w-0">
-                          <p className="truncate font-medium" title={conv.curso}>{conv.curso}</p>
-                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
-                            <CourseFundingBadge courseType={conv.tipo} />
-                            <CourseModalityBadge courseType={conv.tipo} modality={conv.modalidad} />
+                          <div className="flex min-w-0 items-center gap-1.5">
+                            <p className="min-w-0 truncate font-medium" title={conv.curso}>{conv.curso}</p>
+                            <span className="flex shrink-0 items-center gap-1.5">
+                              <CourseFundingBadge courseType={conv.tipo} />
+                              <CourseModalityBadge courseType={conv.tipo} modality={conv.modalidad} />
+                            </span>
                           </div>
-                          <p className="truncate text-xs text-muted-foreground sm:hidden" title={conv.sede}>{conv.sede}</p>
                         </TableCell>
                         <TableCell className="hidden max-w-0 sm:table-cell">
                           {conv.sede ? (
-                            <DirectoryCampusBadge name={conv.sede} />
+                            <DirectoryCampusIdentity
+                              name={conv.sede}
+                              imageUrl={campusImages[conv.sede]}
+                            />
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
                           )}

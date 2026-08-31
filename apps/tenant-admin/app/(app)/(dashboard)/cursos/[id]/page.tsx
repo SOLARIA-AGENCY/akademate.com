@@ -335,6 +335,22 @@ export default function CursoDetailPage({ params }: Props) {
           <Button variant="outline" onClick={() => router.push(`/dashboard/cursos/${id}/ficha`)}>
             <Printer className="mr-2 h-4 w-4" />Imprimir curso
           </Button>
+          <Button
+            variant="outline"
+            asChild={Boolean(dossierUrl)}
+            disabled={!dossierUrl}
+            title={dossierUrl ? 'Descargar dossier PDF' : 'Este curso no tiene dossier PDF'}
+          >
+            {dossierUrl ? (
+              <a href={dossierUrl} download>
+                <Download className="mr-2 h-4 w-4" />Descargar PDF
+              </a>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />Descargar PDF
+              </>
+            )}
+          </Button>
         </>}
         />
       </div>

@@ -14,7 +14,7 @@ describe('planning visuals', () => {
 
   it('modality pastels match the closed contract', () => {
     expect(COURSE_MODALITY_CONFIG.presencial.pillClass).toContain('bg-emerald-50')
-    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).toContain('bg-yellow-300')
+    expect(COURSE_MODALITY_CONFIG.teleformacion.pillClass).toContain('bg-yellow-50')
     expect(COURSE_MODALITY_CONFIG.mixto.pillClass).toContain('bg-teal-50')
   })
 

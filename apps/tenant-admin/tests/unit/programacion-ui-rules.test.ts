@@ -17,9 +17,10 @@ describe('programacion ui rules', () => {
     expect(source).not.toContain('{conv.profesor}')
   })
 
-  it('lista sede uses corporate campus badge and modality chips', () => {
+  it('lista sede uses campus identity, not the red text pill', () => {
     const source = read('app/(app)/(dashboard)/programacion/page.tsx')
-    expect(source).toContain('DirectoryCampusBadge')
+    expect(source).toContain('DirectoryCampusIdentity')
+    expect(source).not.toContain('<DirectoryCampusBadge')
     expect(source).toContain('CourseModalityBadge')
     expect(source).toContain('CourseFundingBadge')
   })

@@ -50,12 +50,12 @@ export const COURSE_TYPE_CONFIG = {
   },
   teleformacion: {
     label: 'Teleformación',
-    bgColor: 'bg-yellow-300',
-    hoverColor: 'hover:bg-yellow-300',
-    textColor: 'text-orange-600',
-    borderColor: 'border-yellow-400',
-    dotColor: 'bg-orange-500',
-    pillClass: 'border-yellow-400 bg-yellow-300 text-orange-600 hover:bg-yellow-300 hover:text-orange-600',
+    bgColor: 'bg-yellow-50',
+    hoverColor: 'hover:bg-yellow-50',
+    textColor: 'text-amber-700',
+    borderColor: 'border-amber-200',
+    dotColor: 'bg-amber-500',
+    pillClass: 'border-amber-200 bg-yellow-50 text-amber-700 hover:bg-yellow-50 hover:text-amber-700',
     badgeVariant: 'warning' as BadgeSemanticVariant,
   },
   'ciclo-medio': {
@@ -95,9 +95,11 @@ export const COURSE_MODALITY_CONFIG = {
   },
   teleformacion: {
     label: 'Teleformación',
-    pillClass: 'border-yellow-400 bg-yellow-300 text-orange-600 hover:bg-yellow-300 hover:text-orange-600',
+    pillClass: 'border-amber-200 bg-yellow-50 text-amber-700 hover:bg-yellow-50 hover:text-amber-700',
   },
 } as const
+
+export const TELEFORMACION_PILL = COURSE_MODALITY_CONFIG.teleformacion.pillClass
 
 export const DIRECTORY_CAMPUS_PILL_CLASS =
   'border-red-600 bg-red-600 text-white hover:bg-red-600 hover:text-white'
@@ -114,6 +116,12 @@ export const DIRECTORY_AREA_TONES = [
   { pillClass: 'border-violet-200 bg-violet-100 text-violet-800' },
   { pillClass: 'border-fuchsia-200 bg-fuchsia-100 text-fuchsia-800' },
 ] as const
+
+export function formatDirectoryAreaLabel(value: string | null | undefined): string {
+  const trimmed = String(value ?? '').trim()
+  if (!trimmed) return 'Sin área'
+  return trimmed.replace(/^Área\s+/i, '').trim() || trimmed
+}
 
 export function parseDirectoryHexColor(value?: string | null): string | null {
   const raw = (value ?? '').trim()

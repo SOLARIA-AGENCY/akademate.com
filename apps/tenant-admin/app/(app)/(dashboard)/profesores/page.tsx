@@ -23,8 +23,9 @@ import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
 import {
   ListingSearch,
   PremiumDirectoryShell,
-  DirectoryCampusBadge,
+  DirectoryCampusIdentity,
   DirectoryNeutralBadge,
+  useCampusIdentityMap,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface Certification {
@@ -72,12 +73,6 @@ function TeacherPhotoFallback({ className = 'h-16 w-16' }: { className?: string 
   )
 }
 
-function getDefaultCampusLabel(assignedCampuses: StaffMember['assignedCampuses']) {
-  if (!assignedCampuses.length) return 'Sin sede asignada'
-  const [campus] = assignedCampuses
-  return campus.city ? `${campus.name} · ${campus.city}` : campus.name
-}
-
 interface TeacherExpanded extends StaffMember {
   initials: string
   active: boolean
@@ -94,6 +89,7 @@ interface StaffApiResponse {
 
 export default function ProfesoresPage() {
   const router = useRouter()
+  const campusImages = useCampusIdentityMap()
 
   // View preference
   const [view, setView] = useViewPreference('profesores')
@@ -336,7 +332,14 @@ export default function ProfesoresPage() {
                       {teacher.department}
                     </p>
                     <p className="mt-1 flex items-center gap-1.5 text-xs" data-oid="teacher-campus">
-                      <DirectoryCampusBadge name={getDefaultCampusLabel(teacher.assignedCampuses)} />
+                      <DirectoryCampusIdentity
+                        name={teacher.assignedCampuses[0]?.name || 'Sin sede'}
+                        imageUrl={
+                          teacher.assignedCampuses[0]?.name
+                            ? campusImages[teacher.assignedCampuses[0].name]
+                            : undefined
+                        }
+                      />
                     </p>
                     <StatusDotBadge
                       tone={teacher.active ? 'success' : 'neutral'}
