@@ -1,0 +1,9 @@
+flowchart TB
+  STAFF[SURF-DASH /auth/login]
+  LEARN[SURF-CAMPUS /campus/login]
+  OPS[SURF-OPS /login]
+  WEB[SURF-WEB /login to app]
+  STAFF --> CARD[Card Input Button]
+  LEARN --> CARD
+  OPS --> CARD
+  WEB --> STAFF

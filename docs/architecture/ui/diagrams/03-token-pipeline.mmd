@@ -1,0 +1,12 @@
+flowchart TB
+  BASE[TOK-BASE base.css]
+  SEM[TOK-SEM semantic.css]
+  TEN[TOK-TENANT tenant.css]
+  V4[TOK-THEME-V4 theme inline]
+  RT[TOK-RUNTIME TenantBranding]
+  APP[app globals.css]
+  BASE --> SEM
+  SEM --> TEN
+  TEN --> V4
+  V4 --> APP
+  RT --> APP

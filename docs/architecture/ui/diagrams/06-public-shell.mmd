@@ -1,0 +1,9 @@
+flowchart TB
+  HTML[own html body]
+  HEAD[SHELL-PUBLIC header]
+  MAIN[page]
+  FOOT[tenant footer]
+  HTML --> HEAD
+  HTML --> MAIN
+  HTML --> FOOT
+  BRAND[tenant primaryColor --brand] --> HTML

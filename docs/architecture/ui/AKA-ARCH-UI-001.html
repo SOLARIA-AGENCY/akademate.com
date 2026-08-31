@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AKA-ARCH-UI-001 Rev A · AKADEMATE UI and frontend architecture</title>
+  <meta name="author" content="BRIK64 Inc." />
+  <meta name="aka:doc-id" content="AKA-ARCH-UI-001" />
+  <meta name="aka:rev" content="A" />
+  <meta name="aka:ingest" content="AKA-ARCH-UI-001.ingest.json" />
+  <link rel="alternate" type="application/json" href="AKA-ARCH-UI-001.ingest.json" title="Machine ingest" />
+  <link rel="alternate" type="text/markdown" href="AKA-ARCH-UI-001.AGENT.md" title="Agent implementation prompt" />
+  <style>
+    :root {
+      --ink: #1c1c1c;
+      --muted: #5a5a5a;
+      --rule: #0066CC;
+      --line: #c4c4c4;
+      --paper: #ffffff;
+      --band: #0b1d36;
+      --gutter: 25mm;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #cfcfcf;
+      color: var(--ink);
+      font-family: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.48;
+    }
+    .sheet {
+      width: 210mm;
+      height: 297mm;
+      background: var(--paper);
+      margin: 10px auto;
+      padding: 44mm 28mm 34mm 28mm;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+      break-after: page;
+    }
+    .sheet::before {
+      content: "";
+      position: absolute;
+      top: 12mm;
+      right: 12mm;
+      bottom: 12mm;
+      left: 12mm;
+      border: 0.7pt solid #2a2a2a;
+      pointer-events: none;
+    }
+    .sheet:last-child { page-break-after: auto; break-after: auto; }
+    .hdr, .ftr {
+      position: absolute;
+      left: 16mm;
+      right: 16mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+    .hdr {
+      top: 16mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1.25pt solid var(--rule);
+      padding: 0 2mm 3mm 2mm;
+    }
+    .hdr strong { color: var(--ink); font-weight: 700; }
+    .ftr {
+      bottom: 16mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-top: 0.6pt solid var(--line);
+      padding: 3mm 2mm 0 2mm;
+    }
+    .body { min-height: 0; }
+    .codes h2 { margin: 4mm 0 2mm; }
+    .codes table { font-size: 9pt; margin: 0 0 3.5mm; }
+    .codes th, .codes td { padding: 1.7mm 2.2mm; }
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15pt;
+      margin: 0 0 7mm;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    h2 {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+      margin: 5.5mm 0 2.5mm;
+      color: var(--rule);
+      font-weight: 700;
+    }
+    p { margin: 0 0 3.2mm; }
+    ul, ol { margin: 0 0 3.5mm 6mm; padding: 0; }
+    li { margin-bottom: 1.4mm; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 4.5mm;
+      font-size: 9.5pt;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.35;
+    }
+    th, td {
+      border: 0.4pt solid #b0b0b0;
+      padding: 2.2mm 2.4mm;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eef4fb; font-weight: 700; }
+    .tree {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8.5pt;
+      line-height: 1.4;
+      white-space: pre;
+      margin: 0 0 4mm;
+    }
+    .sign-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      margin-top: 3mm;
+    }
+    .sign-cell {
+      border: 0.5pt solid #b0b0b0;
+      min-height: 38mm;
+      padding: 3.5mm 4mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sign-cell.wide { grid-column: 1 / -1; }
+    .sign-cell .role {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9.5pt;
+      font-weight: 700;
+    }
+    .sign-cell .org { font-size: 8.5pt; color: var(--muted); margin-top: 0.8mm; }
+    .sign-cell .line {
+      border-top: 0.4pt solid #888;
+      margin-top: 16mm;
+      padding-top: 1.8mm;
+      font-size: 8pt;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .label {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .cover { padding: 0; }
+    .cover .hdr, .cover .ftr, .back .hdr, .back .ftr { display: none; }
+    .cover-band {
+      margin: 12mm 12mm 0 12mm;
+      height: 38mm;
+      background: var(--band);
+      color: #fff;
+      padding: 13mm 18mm 0;
+    }
+    .cover-band .kicker {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .cover-body {
+      padding: 32mm 28mm 0;
+      min-height: 100mm;
+    }
+    .cover h1 {
+      font-size: 32pt;
+      line-height: 1.08;
+      margin: 0 0 5mm;
+    }
+    .cover .sub {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13pt;
+      color: var(--rule);
+      font-weight: 700;
+      margin: 0 0 14mm;
+    }
+    .titleblock {
+      position: absolute;
+      left: 16mm;
+      right: 16mm;
+      bottom: 24mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5pt;
+    }
+    .titleblock table { margin: 0; }
+    .titleblock th {
+      width: 48mm;
+      background: #eef4fb;
+      font-weight: 700;
+    }
+    .toc-wrap { display: flex; gap: 10mm; }
+    .toc-wrap table { width: 50%; margin: 0; }
+    .toc td {
+      border: none;
+      border-bottom: 0.4pt dotted #ccc;
+      padding: 1.05mm 0;
+      font-size: 8.2pt;
+    }
+    .code-line {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8pt;
+      color: var(--muted);
+      margin: 0 0 2mm;
+    }
+    .mmd-src {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 7pt;
+      line-height: 1.22;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0 0 4mm;
+      padding: 2mm 2.5mm;
+      border: 0.4pt solid var(--line);
+      background: #f7f8fa;
+    }
+    .toc .num { width: 16mm; font-weight: 700; color: var(--rule); font-family: Arial, Helvetica, sans-serif; }
+    .toc .pg { width: 12mm; text-align: right; color: var(--muted); }
+    .sheet.fig { display: flex; flex-direction: column; padding-bottom: 26mm; }
+    .sheet.fig h1 { margin-bottom: 4mm; font-size: 13pt; }
+    .fig-frame {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4mm 0 2mm;
+    }
+    .sheet.fig img {
+      max-width: 160mm;
+      max-height: 198mm;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    .sheet h1 + .mmd-src { margin-top: 0; }
+    code {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.92em;
+    }
+    .back { padding: 0; background: var(--band); color: #fff; }
+    .back::before { border-color: rgba(255,255,255,0.28); }
+    .back-inner {
+      padding: 70mm 28mm 0;
+      text-align: left;
+    }
+    .back-inner .kicker {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin: 0 0 8mm;
+    }
+    .back-inner h1 {
+      color: #fff;
+      font-size: 28pt;
+      margin: 0 0 8mm;
+    }
+    .back-inner p {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      opacity: 0.9;
+      margin: 0 0 2.5mm;
+    }
+    .back-foot {
+      position: absolute;
+      left: 28mm;
+      right: 28mm;
+      bottom: 24mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      opacity: 0.75;
+      display: flex;
+      justify-content: space-between;
+    }
+    @media print {
+      html, body { background: #fff; }
+      .sheet {
+        margin: 0;
+        box-shadow: none;
+        width: 210mm;
+        height: 297mm;
+      }
+    }
+    @page { size: A4; margin: 0; }
+
+  </style>
+</head>
+<body>
+
+<section class="sheet cover" aria-label="Cover">
+  <div class="cover-band">
+    <div class="kicker">BRIK64 Inc. · Delaware</div>
+  </div>
+  <div class="cover-body">
+    <h1>AKADEMATE</h1>
+    <p class="sub">UI and frontend architecture description</p>
+    <p>Seven product surfaces on Next.js 15 App Router. Tokens as CSS variables. shadcn new-york primitives. Shells per surface. Catalog order for every new screen.</p>
+  </div>
+  <div class="titleblock">
+    <table>
+      <tr><th>Legal owner</th><td>BRIK64 Inc. (Delaware)</td></tr>
+      <tr><th>Identification</th><td>AKA-ARCH-UI-001</td></tr>
+      <tr><th>Revision / issue</th><td>A · 2026-08-30</td></tr>
+      <tr><th>Classification</th><td>Internal · Confidential</td></tr>
+      <tr><th>Sheet</th><td>1 / 46</td></tr>
+    </table>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 1 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="0.1 Identification">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>0.1 Identification</h1>
+  
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Legal owner</td><td>BRIK64 Inc., Delaware, United States. Foundry. Initial legal owner.</td></tr>
+    <tr><td>Identification number</td><td>AKA-ARCH-UI-001</td></tr>
+    <tr><td>Revision index</td><td>A</td></tr>
+    <tr><td>Date of issue</td><td>2026-08-30</td></tr>
+    <tr><td>Effective</td><td>On last approval signature</td></tr>
+    <tr><td>Next review</td><td>2026-11-30</td></tr>
+    <tr><td>Language</td><td>en (ISO 639)</td></tr>
+    <tr><td>Document type</td><td>Architecture description</td></tr>
+    <tr><td>Product</td><td>AKADEMATE</td></tr>
+    <tr><td>System of interest</td><td>AKADEMATE UI and frontend across marketing, academy, campus, ops and CMS</td></tr>
+    <tr><td>Classification</td><td>Internal · Confidential</td></tr>
+    <tr><td>Paper size</td><td>A4</td></tr>
+    <tr><td>Normative sources</td><td>ISO/IEC/IEEE 42010 · ISO 7200 · arc42 · ADR-0004 · ACADEIMATE SPEC v1.5</td></tr>
+    <tr><td>Machine ingest</td><td>AKA-ARCH-UI-001.ingest.json · AKA-ARCH-UI-001.AGENT.md · diagrams/*.mmd · Appendix A</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 2 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="0.1b Approvals">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>0.1b Approvals</h1>
+  
+  <table>
+    <tr><th>Role</th><th>Organisation</th><th>Name</th><th>Date</th></tr>
+    <tr><td>Creator / Foundry</td><td>BRIK64 Inc.</td><td></td><td></td></tr>
+    <tr><td>Architect</td><td>AKADEMATE</td><td></td><td></td></tr>
+    <tr><td>Product</td><td>AKADEMATE</td><td></td><td></td></tr>
+    <tr><td>Design</td><td>AKADEMATE</td><td></td><td></td></tr>
+    <tr><td>Approval</td><td>BRIK64 Inc. / AKADEMATE</td><td></td><td></td></tr>
+  </table>
+  <div class="sign-board">
+    <div class="sign-cell">
+      <div><div class="role">Creator / Foundry</div><div class="org">BRIK64 Inc.</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell">
+      <div><div class="role">Architect</div><div class="org">AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell">
+      <div><div class="role">Product</div><div class="org">AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell">
+      <div><div class="role">Design</div><div class="org">AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell wide">
+      <div><div class="role">Approval</div><div class="org">BRIK64 Inc. / AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+  </div>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 3 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="0.2 Stakeholders and concerns">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>0.2 Stakeholders and concerns</h1>
+  
+  <table>
+    <tr><th>Stakeholder</th><th>Concern</th></tr>
+    <tr><td>Academy staff</td><td>Dense, keyboard-reachable dashboard. One chrome. Tokens follow the academy brand.</td></tr>
+    <tr><td>Learners and teachers</td><td>Campus and public pages that read as the academy, with a clear login.</td></tr>
+    <tr><td>Platform ops</td><td>A separate ops shell. Dark default. No academy sidebar mix-in.</td></tr>
+    <tr><td>Foundry / design</td><td>One catalog, one token pipeline, WCAG AA, no painted-blank screens.</td></tr>
+    <tr><td>Implementing agent</td><td>Codes, Mermaid source, and a prompt that names slugs before paint.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 4 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="0.3 Viewpoints">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>0.3 Viewpoints</h1>
+  
+  <table>
+    <tr><th>Viewpoint</th><th>View in this description</th></tr>
+    <tr><td>Context</td><td>Seven surfaces. Two public webs. Live product vs scaffold.</td></tr>
+    <tr><td>Functional</td><td>Shells, primitives, catalog order, auth composition.</td></tr>
+    <tr><td>Runtime</td><td>Token injection, class-based light/dark, compose sequence.</td></tr>
+    <tr><td>Deployment</td><td>App packages, design-system pages, Storybook.</td></tr>
+    <tr><td>Quality</td><td>AA contrast, focus, keyboard, motion policy.</td></tr>
+  </table>
+  <p>Companion description: AKA-ARCH-SAAS-001 (Cloudflare runtime). This document owns presentation.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 5 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="0.4 Contents">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>0.4 Contents</h1>
+  <div class="toc-wrap">
+    <table class="toc"><tr><td class="num"></td><td>Cover</td><td class="pg">1</td></tr>
+<tr><td class="num">0.1</td><td>Identification</td><td class="pg">2</td></tr>
+<tr><td class="num">0.1b</td><td>Approvals</td><td class="pg">3</td></tr>
+<tr><td class="num">0.2</td><td>Stakeholders and concerns</td><td class="pg">4</td></tr>
+<tr><td class="num">0.3</td><td>Viewpoints</td><td class="pg">5</td></tr>
+<tr><td class="num">0.4</td><td>Contents</td><td class="pg">6</td></tr>
+<tr><td class="num">1</td><td>Introduction and goals</td><td class="pg">7</td></tr>
+<tr><td class="num">2</td><td>Constraints</td><td class="pg">8</td></tr>
+<tr><td class="num">3</td><td>Context and scope</td><td class="pg">9</td></tr>
+<tr><td class="num">4</td><td>Solution strategy</td><td class="pg">10</td></tr>
+<tr><td class="num">5.1</td><td>Building blocks: surfaces</td><td class="pg">11</td></tr>
+<tr><td class="num">5.2</td><td>Building blocks: tokens</td><td class="pg">12</td></tr>
+<tr><td class="num">5.3</td><td>Building blocks: primitives</td><td class="pg">13</td></tr>
+<tr><td class="num">6.1</td><td>Runtime: compose</td><td class="pg">14</td></tr>
+<tr><td class="num">6.2</td><td>Runtime: theming</td><td class="pg">15</td></tr>
+<tr><td class="num">7.1</td><td>Deployment: apps</td><td class="pg">16</td></tr>
+<tr><td class="num">7.2</td><td>Deployment: design system</td><td class="pg">17</td></tr>
+<tr><td class="num">8.1</td><td>Shells</td><td class="pg">18</td></tr>
+<tr><td class="num">8.2</td><td>Auth</td><td class="pg">19</td></tr>
+<tr><td class="num">8.3</td><td>Catalog and motion</td><td class="pg">20</td></tr>
+<tr><td class="num">8.4</td><td>Access</td><td class="pg">21</td></tr></table>
+    <table class="toc"><tr><td class="num">9</td><td>Architecture decisions</td><td class="pg">22</td></tr>
+<tr><td class="num">10</td><td>Quality requirements</td><td class="pg">23</td></tr>
+<tr><td class="num">11</td><td>Glossary and references</td><td class="pg">24</td></tr>
+<tr><td class="num">12</td><td>Agent ingest</td><td class="pg">25</td></tr>
+<tr><td class="num">12.1</td><td>Surface codes</td><td class="pg">26</td></tr>
+<tr><td class="num">12.2</td><td>Token and shell codes</td><td class="pg">27</td></tr>
+<tr><td class="num">12.3</td><td>Implementation prompt</td><td class="pg">28</td></tr>
+<tr><td class="num">12.4</td><td>Implementation sequence</td><td class="pg">29</td></tr>
+<tr><td class="num">Fig. 1</td><td>Product surfaces</td><td class="pg">30</td></tr>
+<tr><td class="num">Fig. 2</td><td>Two public webs</td><td class="pg">31</td></tr>
+<tr><td class="num">Fig. 3</td><td>Token pipeline</td><td class="pg">32</td></tr>
+<tr><td class="num">Fig. 4</td><td>Primitive ownership</td><td class="pg">33</td></tr>
+<tr><td class="num">Fig. 5</td><td>Dashboard shell</td><td class="pg">34</td></tr>
+<tr><td class="num">Fig. 6</td><td>Tenant public shell</td><td class="pg">35</td></tr>
+<tr><td class="num">Fig. 7</td><td>Theming</td><td class="pg">36</td></tr>
+<tr><td class="num">Fig. 8</td><td>Auth surfaces</td><td class="pg">37</td></tr>
+<tr><td class="num">Fig. 9</td><td>Catalog order</td><td class="pg">38</td></tr>
+<tr><td class="num">Fig. 10</td><td>Design-system delivery</td><td class="pg">39</td></tr>
+<tr><td class="num">Fig. 11</td><td>Compose sequence</td><td class="pg">40</td></tr>
+<tr><td class="num">Fig. 12</td><td>Quality and access</td><td class="pg">41</td></tr>
+<tr><td class="num">A.1</td><td>Mermaid FIG-01 to FIG-03</td><td class="pg">42</td></tr>
+<tr><td class="num">A.2</td><td>Mermaid FIG-04 to FIG-06</td><td class="pg">43</td></tr>
+<tr><td class="num">A.3</td><td>Mermaid FIG-07 to FIG-09</td><td class="pg">44</td></tr>
+<tr><td class="num">A.4</td><td>Mermaid FIG-10 to FIG-12</td><td class="pg">45</td></tr>
+<tr><td class="num"></td><td>Back cover</td><td class="pg">46</td></tr></table>
+  </div>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 6 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="1 Introduction and goals">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>1 Introduction and goals</h1>
+  
+  <p>AKADEMATE presents one product through several windows: marketing, academy dashboard, tenant public site, campus, platform ops, access hub, and CMS admin.</p>
+  <p>The goal is a single visual language. Tokens in CSS variables. Primitives from shadcn new-york. A shell per surface. An implementing agent reads codes and Mermaid the same way a human reads the sheet.</p>
+  <h2>Quality goals</h2>
+  <ul>
+    <li>WCAG 2.1 AA on text and controls.</li>
+    <li>Visible focus and a complete keyboard path.</li>
+    <li>Tenant brand through variables, one primitive catalog.</li>
+    <li>Every new screen names a catalog slug before paint.</li>
+  </ul>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 7 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="2 Constraints">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>2 Constraints</h1>
+  
+  <ul>
+    <li>Next.js 15 App Router, React 19, TypeScript.</li>
+    <li>Tailwind v4 with colors in <code>theme.colors</code> and PostCSS <code>@tailwindcss/postcss</code>.</li>
+    <li>shadcn/ui new-york, CSS variables, Lucide as the icon library of record.</li>
+    <li>Multitenant brand: CSS variables, never a second component tree per tenant.</li>
+    <li>Dashboard chrome stays on SaaS tokens. Tenant public may apply a host overlay through variables.</li>
+    <li>Product chrome animation: CSS, Radix, tw-animate. Marketing motion: Motion library by slug.</li>
+  </ul>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 8 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="3 Context and scope">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>3 Context and scope</h1>
+  
+  <p>System of interest: presentation for AKADEMATE. Runtime compute and data live in AKA-ARCH-SAAS-001.</p>
+  <p>In scope: surfaces, tokens, primitives, shells, theming, auth screens, catalog order, access, design-system delivery.</p>
+  <p>Live product UI: SURF-WEB, SURF-DASH, SURF-PUBLIC, SURF-CAMPUS, SURF-OPS, SURF-CMS. SURF-PORTAL is the access hub. <code>apps/campus</code> and <code>apps/ops</code> are scaffolds beside the live surfaces.</p>
+  <p>Figure 1.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 9 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="4 Solution strategy">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>4 Solution strategy</h1>
+  
+  <ol>
+    <li>Own each window as a surface code (SURF-*).</li>
+    <li>Feed color and type from TOK-* . Runtime brand is TenantBrandingProvider.</li>
+    <li>Compose pages from CAT-REPO then CAT-SHADCN. Motion by slug only.</li>
+    <li>Give each surface one shell. Dashboard and tenant public do not share html.</li>
+    <li>Lift primitives into <code>@akademate/ui</code> while the Payload-config alias keeps resolving.</li>
+    <li>Complete SURF-WEB on Tailwind v4 <code>theme.colors</code>.</li>
+  </ol>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 10 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="5.1 Building blocks: surfaces">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>5.1 Building blocks: surfaces</h1>
+  
+  <p>Seven windows. One product. Figure 1.</p>
+  <table>
+    <tr><th>Code</th><th>Location</th><th>Role</th></tr>
+    <tr><td>SURF-WEB</td><td><code>apps/web</code></td><td>SaaS marketing</td></tr>
+<tr><td>SURF-DASH</td><td><code>apps/tenant-admin (app)/(dashboard)</code></td><td>Academy dashboard</td></tr>
+<tr><td>SURF-PUBLIC</td><td><code>apps/tenant-admin (public)</code></td><td>Tenant public site</td></tr>
+<tr><td>SURF-CAMPUS</td><td><code>apps/tenant-admin (app)/campus</code></td><td>Academy campus</td></tr>
+<tr><td>SURF-OPS</td><td><code>apps/admin-client</code></td><td>Platform ops</td></tr>
+<tr><td>SURF-PORTAL</td><td><code>apps/portal</code></td><td>Access hub</td></tr>
+<tr><td>SURF-CMS</td><td><code>Payload admin</code></td><td>CMS chrome</td></tr>
+  </table>
+  <p>SURF-WEB is SaaS marketing on akademate.com. SURF-PUBLIC is the academy site on the tenant host. Figure 2.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 11 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="5.2 Building blocks: tokens">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>5.2 Building blocks: tokens</h1>
+  
+  <p>Three-layer tokens: primitive, semantic, tenant. Tailwind v4 maps them through TOK-THEME-V4. Figure 3.</p>
+  <table>
+    <tr><th>Code</th><th>Source</th><th>Role</th></tr>
+    <tr><td>TOK-BASE</td><td><code>packages/ui/src/tokens/base.css</code></td><td>Primitive palette and type</td></tr>
+<tr><td>TOK-SEM</td><td><code>packages/ui/src/tokens/semantic.css</code></td><td>Purpose aliases</td></tr>
+<tr><td>TOK-TENANT</td><td><code>packages/ui/src/tokens/tenant.css</code></td><td>Brand accent</td></tr>
+<tr><td>TOK-THEME-V4</td><td><code>@theme inline</code></td><td>Tailwind v4 color map</td></tr>
+<tr><td>TOK-RUNTIME</td><td><code>TenantBrandingProvider</code></td><td>Injects --primary and --sidebar</td></tr>
+  </table>
+  <p>Locked defaults: Manrope in TOK-BASE, runtime primary <code>#0066CC</code>, sidebar <code>#0F2440</code>. Light and dark as <code>.light</code> / <code>.dark</code> on html.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 12 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="5.3 Building blocks: primitives">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>5.3 Building blocks: primitives</h1>
+  
+  <p>Canonical catalog: shadcn new-york in tenant-admin <code>components.json</code>, <code>cssVariables: true</code>, <code>iconLibrary: lucide</code>. Dashboard imports <code>@payload-config/components/ui</code>. Figure 4.</p>
+  <p>Stable slugs: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, card, checkbox, dialog, dropdown-menu, input, label, select, separator, sheet, sidebar, skeleton, switch, table, tabs, textarea, tooltip.</p>
+  <p><code>@akademate/ui</code> exports tokens and Pill. The target is the same slugs in that package. SURF-WEB, SURF-PORTAL and SURF-OPS keep smaller local trees until the lift lands.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 13 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="6.1 Runtime: compose">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>6.1 Runtime: compose</h1>
+  
+  <p>A route selects a shell. The shell applies tokens. The page composes primitives. Figure 11.</p>
+  <ol>
+    <li>Layout (SHELL-*) wraps the segment.</li>
+    <li>ThemeProvider sets <code>light</code> or <code>dark</code> on html.</li>
+    <li>TenantBrandingProvider writes --primary, --sidebar, --brand from academy color.</li>
+    <li>The page imports button, card, dialog, table from the catalog alias.</li>
+  </ol>
+  <p>Forms: React Hook Form and zod on dashboard flows.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 14 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="6.2 Runtime: theming">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>6.2 Runtime: theming</h1>
+  
+  <p>Three knobs, one tree. Figure 7.</p>
+  <ul>
+    <li>Class: <code>light</code> / <code>dark</code> on html. Storage key <code>akademate-theme</code> on the academy app. Ops uses <code>akademate-ops-theme</code>, dark default.</li>
+    <li>Variables: --primary, --sidebar, --brand, --ring from TOK-RUNTIME.</li>
+    <li>SURF-WEB may read an <code>akademate_theme</code> cookie into the same variables.</li>
+  </ul>
+  <p>Tenant public injects --brand from the academy primary color. Overlay type and footer copy stay variables and content, not a fork of button or card.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 15 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="7.1 Deployment: apps">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>7.1 Deployment: apps</h1>
+  
+  <table>
+    <tr><th>Surface</th><th>Package</th><th>Notes</th></tr>
+    <tr><td>SURF-WEB</td><td><code>apps/web</code></td><td>Marketing Worker. Completes Tailwind v4 cutover.</td></tr>
+    <tr><td>SURF-DASH, PUBLIC, CAMPUS, CMS</td><td><code>apps/tenant-admin</code></td><td>Primary product UI. Payload admin in the same app.</td></tr>
+    <tr><td>SURF-OPS</td><td><code>apps/admin-client</code></td><td>Platform ops.</td></tr>
+    <tr><td>SURF-PORTAL</td><td><code>apps/portal</code></td><td>Access hub.</td></tr>
+  </table>
+  <p>Scaffolds <code>apps/campus</code> and <code>apps/ops</code> remain beside the live surfaces until callers move to SURF-CAMPUS and SURF-OPS.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 16 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="7.2 Deployment: design system">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>7.2 Deployment: design system</h1>
+  
+  <p>Delivery surfaces, not a second token source. Figure 10.</p>
+  <ul>
+    <li>SURF-WEB <code>/design-system</code> and template sandbox.</li>
+    <li>SURF-DASH <code>/design-system</code> playground.</li>
+    <li>Storybook on tenant-admin at port 6006: foundations, patterns, akademate blocks.</li>
+    <li>Vendor kit copy-in: templates restyle to TOK-* at the moment of install.</li>
+  </ul>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 17 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="8.1 Shells">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>8.1 Shells</h1>
+  
+  <p>One shell per window. Figures 5 and 6.</p>
+  <table>
+    <tr><th>Code</th><th>Implementation</th><th>Surface</th></tr>
+    <tr><td>SHELL-DASH</td><td>AppSidebar + SidebarProvider</td><td>Dashboard</td></tr>
+<tr><td>SHELL-PUBLIC</td><td>Public header and footer</td><td>Tenant public</td></tr>
+<tr><td>SHELL-OPS</td><td>OpsSidebar</td><td>Platform ops</td></tr>
+<tr><td>SHELL-CAMPUS</td><td>CampusNavbar</td><td>Campus</td></tr>
+<tr><td>SHELL-AUTH</td><td>Auth canvas</td><td>Staff login</td></tr>
+<tr><td>SHELL-MKT</td><td>Marketing header and footer</td><td>SURF-WEB</td></tr>
+  </table>
+  <p>SHELL-DASH: AppSidebar, SidebarProvider, SidebarInset, DashboardFooter, CommandPalette, NotificationBell, ThemeToggle. Canvas token --dashboard-canvas.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 18 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="8.2 Auth">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>8.2 Auth</h1>
+  
+  <p>Every live login is Card, Input, Button. Figure 8.</p>
+  <ul>
+    <li>SURF-DASH: <code>/auth/login</code>, signup, forgot-password, accept-invite. SHELL-AUTH canvas.</li>
+    <li>SURF-CAMPUS: <code>/campus/login</code>.</li>
+    <li>SURF-OPS: <code>/login</code>.</li>
+    <li>SURF-WEB: <code>/login</code> continues to the academy app login. <code>/registro</code> is the lead form.</li>
+    <li>SURF-CMS: Payload admin login.</li>
+  </ul>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 19 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="8.3 Catalog and motion">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>8.3 Catalog and motion</h1>
+  
+  <p>Do not invent a hero, pricing, sidebar, form, empty state, or chat. Figure 9.</p>
+  <table>
+    <tr><th>Code</th><th>Source</th><th>When</th></tr>
+    <tr><td>CAT-REPO</td><td>components/ui in the app tree</td><td>First</td></tr>
+<tr><td>CAT-SHADCN</td><td>shadcn new-york official slug</td><td>Second</td></tr>
+<tr><td>CAT-MOTION</td><td>Magic UI or Aceternity by slug</td><td>Marketing motion</td></tr>
+<tr><td>CAT-EXT</td><td>One 21st.dev or ReUI block</td><td>If the pattern is missing</td></tr>
+  </table>
+  <p>Chat UI is the official shadcn block. Product chrome motion is CSS, Radix, tw-animate. Marketing motion is the Motion library by slug.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 20 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="8.4 Access">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>8.4 Access</h1>
+  
+  <p>Figure 12.</p>
+  <ul>
+    <li>WCAG 2.1 AA contrast on text and UI components.</li>
+    <li>Visible focus ring on every control. Keyboard path through sidebar, dialog, sheet, select, tabs.</li>
+    <li>Semantic headings, labels, and live regions (sonner toasts).</li>
+    <li>Hit targets at least 44 by 44 CSS pixels on public and campus.</li>
+    <li>Decorative icons: <code>aria-hidden</code>. Icon-only buttons: accessible name.</li>
+  </ul>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 21 / 46</span></div>
+</section>
+
+<section class="sheet codes" aria-label="9 Architecture decisions">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>9 Architecture decisions</h1>
+  
+  <table>
+    <tr><th>Code</th><th>Decision</th></tr>
+    <tr><td>ADR-U1</td><td>Product UIs are Next.js 15 App Router.</td></tr>
+<tr><td>ADR-U2</td><td>Color is CSS variables in HSL channels. Tenant branding writes --primary and --sidebar.</td></tr>
+<tr><td>ADR-U3</td><td>The shadcn new-york catalog lives in tenant-admin. Dashboard imports the Payload-config alias.</td></tr>
+<tr><td>ADR-U4</td><td>@akademate/ui ships tokens and Pill. Primitives migrate into that package.</td></tr>
+<tr><td>ADR-U5</td><td>Dashboard chrome reads --sidebar and TenantBranding.</td></tr>
+<tr><td>ADR-U6</td><td>Tenant public is its own html document, separate from the dashboard shell.</td></tr>
+<tr><td>ADR-U7</td><td>Platform ops UI is apps/admin-client.</td></tr>
+<tr><td>ADR-U8</td><td>Campus product routes live under tenant-admin. apps/campus is a scaffold.</td></tr>
+<tr><td>ADR-U9</td><td>Light and dark are a class on html.</td></tr>
+<tr><td>ADR-U10</td><td>Compose from catalog order: repo, official shadcn, motion by slug.</td></tr>
+<tr><td>ADR-U11</td><td>Tailwind v4 with theme.colors and @tailwindcss/postcss. SURF-WEB completes that cutover.</td></tr>
+<tr><td>ADR-U12</td><td>Motion on product chrome is CSS, Radix, and tw-animate. Marketing motion uses the Motion library by slug.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 22 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="10 Quality requirements">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>10 Quality requirements</h1>
+  
+  <table>
+    <tr><th>Quality</th><th>Requirement</th></tr>
+    <tr><td>Accessibility</td><td>AA, focus, keyboard, names on icon buttons.</td></tr>
+    <tr><td>Consistency</td><td>One catalog. One token pipeline. Shell per surface.</td></tr>
+    <tr><td>Tenant brand</td><td>Variables only. Dashboard chrome stays SaaS-tokenized.</td></tr>
+    <tr><td>Performance</td><td>next/image, self-hosted fonts, CSS animation on chrome.</td></tr>
+    <tr><td>Evolvability</td><td>Primitive lift into @akademate/ui with the alias intact.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 23 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="11 Glossary and references">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>11 Glossary and references</h1>
+  
+  <table>
+    <tr><th>Term</th><th>Definition</th></tr>
+    <tr><td>Surface</td><td>A product window with its own shell and routes.</td></tr>
+    <tr><td>Primitive</td><td>A catalog component (button, dialog, sidebar).</td></tr>
+    <tr><td>Token</td><td>A CSS variable for color, type, space, or radius.</td></tr>
+    <tr><td>Host overlay</td><td>Tenant public type, footer and contact channels on top of the same primitives.</td></tr>
+    <tr><td>Catalog order</td><td>Repo, official shadcn, motion by slug, one extension block.</td></tr>
+  </table>
+  <h2>References</h2>
+  <ul>
+    <li>ISO/IEC/IEEE 42010:2022 · ISO 7200:2004 · arc42</li>
+    <li>docs/adr/0004-ui-kit.md</li>
+    <li>docs/specs/ACADEIMATE_SPEC.md v1.5</li>
+    <li>AKA-ARCH-SAAS-001</li>
+    <li>ui.shadcn.com new-york</li>
+  </ul>
+  <h2>Revision history</h2>
+  <table>
+    <tr><th>Rev</th><th>Date</th><th>Change</th></tr>
+    <tr><td>A</td><td>2026-08-30</td><td>Initial UI and frontend architecture description.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 24 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="12 Agent ingest">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>12 Agent ingest</h1>
+  
+  <p>This description ships a machine form so an implementing agent reads the same source a human reads on paper.</p>
+  <h2>Read order</h2>
+  <ol>
+    <li><code>AKA-ARCH-UI-001.ingest.json</code>: codes, ADRs, surfaces, shells, tokens, catalog, every figure as Mermaid.</li>
+    <li><code>diagrams/*.mmd</code>: figure sources, MIME <code>text/vnd.mermaid</code>.</li>
+    <li><code>AKA-ARCH-UI-001.AGENT.md</code>: implementation prompt.</li>
+    <li>This HTML, or the PDF text layer: ingest sheets, figure atlas, and Appendix A.</li>
+  </ol>
+  <p>Each figure sheet names its source. Example: <code>FIG-01 · diagrams/01-surfaces.mmd</code>. Appendix A repeats the Mermaid as selectable text.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 25 / 46</span></div>
+</section>
+
+<section class="sheet codes" aria-label="12.1 Surface codes">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>12.1 Surface codes</h1>
+  
+  <table>
+    <tr><th>Code</th><th>Location</th><th>Role</th></tr>
+    <tr><td>SURF-WEB</td><td><code>apps/web</code></td><td>SaaS marketing</td></tr>
+<tr><td>SURF-DASH</td><td><code>apps/tenant-admin (app)/(dashboard)</code></td><td>Academy dashboard</td></tr>
+<tr><td>SURF-PUBLIC</td><td><code>apps/tenant-admin (public)</code></td><td>Tenant public site</td></tr>
+<tr><td>SURF-CAMPUS</td><td><code>apps/tenant-admin (app)/campus</code></td><td>Academy campus</td></tr>
+<tr><td>SURF-OPS</td><td><code>apps/admin-client</code></td><td>Platform ops</td></tr>
+<tr><td>SURF-PORTAL</td><td><code>apps/portal</code></td><td>Access hub</td></tr>
+<tr><td>SURF-CMS</td><td><code>Payload admin</code></td><td>CMS chrome</td></tr>
+  </table>
+  <p>Entry codes: INGEST-JSON, INGEST-PROMPT, INGEST-LLMS, FIG-01 to FIG-12, ADR-U1 to ADR-U12.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 26 / 46</span></div>
+</section>
+
+<section class="sheet codes" aria-label="12.2 Token and shell codes">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>12.2 Token and shell codes</h1>
+  
+  <h2>Tokens</h2>
+  <table>
+    <tr><th>Code</th><th>Source</th><th>Role</th></tr>
+    <tr><td>TOK-BASE</td><td><code>packages/ui/src/tokens/base.css</code></td><td>Primitive palette and type</td></tr>
+<tr><td>TOK-SEM</td><td><code>packages/ui/src/tokens/semantic.css</code></td><td>Purpose aliases</td></tr>
+<tr><td>TOK-TENANT</td><td><code>packages/ui/src/tokens/tenant.css</code></td><td>Brand accent</td></tr>
+<tr><td>TOK-THEME-V4</td><td><code>@theme inline</code></td><td>Tailwind v4 color map</td></tr>
+<tr><td>TOK-RUNTIME</td><td><code>TenantBrandingProvider</code></td><td>Injects --primary and --sidebar</td></tr>
+  </table>
+  <h2>Shells</h2>
+  <table>
+    <tr><th>Code</th><th>Implementation</th><th>Surface</th></tr>
+    <tr><td>SHELL-DASH</td><td>AppSidebar + SidebarProvider</td><td>Dashboard</td></tr>
+<tr><td>SHELL-PUBLIC</td><td>Public header and footer</td><td>Tenant public</td></tr>
+<tr><td>SHELL-OPS</td><td>OpsSidebar</td><td>Platform ops</td></tr>
+<tr><td>SHELL-CAMPUS</td><td>CampusNavbar</td><td>Campus</td></tr>
+<tr><td>SHELL-AUTH</td><td>Auth canvas</td><td>Staff login</td></tr>
+<tr><td>SHELL-MKT</td><td>Marketing header and footer</td><td>SURF-WEB</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 27 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="12.3 Implementation prompt">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>12.3 Implementation prompt</h1>
+  
+  <p class="code-line">INGEST-PROMPT · AKA-ARCH-UI-001.AGENT.md · part 1 of 2</p>
+  <pre class="mmd-src"># AKA-ARCH-UI-001 agent implementation prompt
+
+You are implementing AKADEMATE UI and frontend from architecture description AKA-ARCH-UI-001 (BRIK64 Inc.).
+
+## Ingest order
+
+1. Read AKA-ARCH-UI-001.ingest.json. Canonical machine form: codes, ADRs, surfaces, shells, tokens, catalog, figures as Mermaid.
+2. Read each diagrams/*.mmd named in that file. PNG files are renderings of those sources.
+3. Read this file for the execution contract.
+4. Read AKA-ARCH-UI-001.html or the PDF text layer for the ingest sheets, the figure atlas, and Appendix A.
+
+Appendix A holds Mermaid as selectable text. Figure sheets name the source path (example: FIG-01 · diagrams/01-surfaces.mmd).
+
+## Execution contract
+
+Apply every ADR-U1 through ADR-U12.
+
+Paint from catalog. Search the repo primitive, then official shadcn slug, then Magic UI or Aceternity by slug for marketing motion. Name Superficie / Catalogo / Slug / Source / Tokens / Salto on every new visual surface.
+
+Tokens flow TOK-BASE to TOK-SEM to TOK-TENANT to TOK-THEME-V4. Runtime accent is TOK-RUNTIME TenantBrandingProvider writing --primary, --sidebar, --brand. Default primary #0066CC. Sidebar default #0F2440.
+
+SURF-DASH uses SHELL-DASH (AppSidebar, SidebarProvider, SidebarInset). SURF-PUBLIC uses SHELL-PUBLIC on its own html document. SURF-OPS uses SHELL-OPS. SURF-CAMPUS uses SHELL-CAMPUS. SURF-WEB uses SHELL-MKT.
+
+Dashboard chrome is SaaS tokens. Tenant public may carry a host overlay (type, footer, contact channels) through CSS variables, not a second primitive catalog.
+
+Canonical primitives today: tenant-admin components/ui, aliased as @payload-config/components/ui. Target: the same slugs in @akademate/ui.
+
+Auth screens compose Card, Input, Button. SURF-WEB /login routes to the academy app login.
+
+Quality: WCAG AA contrast, visible focus, keyboard path, semantic HTML. Product chrome uses CSS and Radix animation. SURF-WEB completes Tailwind v4 theme.colors.</pre>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 28 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="12.4 Implementation sequence">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>12.4 Implementation sequence</h1>
+  
+  <p class="code-line">INGEST-PROMPT · AKA-ARCH-UI-001.AGENT.md · part 2 of 2</p>
+  <pre class="mmd-src">## Implementation sequence
+
+1. Map SURF-* to apps and route groups.
+2. Wire TOK-* into each live surface. Remove duplicate palettes once the package import is in place.
+3. Keep CAT-SHADCN slugs stable (button, card, dialog, sheet, sidebar, input, table, tabs, select, badge, tooltip).
+4. Implement SHELL-DASH, SHELL-PUBLIC, SHELL-OPS, SHELL-CAMPUS, SHELL-AUTH, SHELL-MKT.
+5. Auth: Card + Input + Button on each live login.
+6. Design-system pages and Storybook stay delivery surfaces, not a second source of tokens.
+7. Cut SURF-WEB to Tailwind v4 theme.colors and @tailwindcss/postcss.
+8. Lift primitives from tenant-admin into @akademate/ui while the alias keeps working.
+
+## Done when
+
+Every figure in ingest.json has a matching .mmd. Every SURF, SHELL, TOK, CAT, ADR-U code is present in code or this pack. A new screen names a catalog slug. verify_print_pdf.py exits 0 on this PDF.</pre>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 29 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 1 Product surfaces">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 1. Product surfaces</h1>
+  <p class="code-line">FIG-01 · diagrams/01-surfaces.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/01-surfaces.png" alt="FIG-01 Product surfaces. Machine source diagrams/01-surfaces.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 30 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 2 Two public webs">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 2. Two public webs</h1>
+  <p class="code-line">FIG-02 · diagrams/02-dual-public.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/02-dual-public.png" alt="FIG-02 Two public webs. Machine source diagrams/02-dual-public.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 31 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 3 Token pipeline">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 3. Token pipeline</h1>
+  <p class="code-line">FIG-03 · diagrams/03-token-pipeline.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/03-token-pipeline.png" alt="FIG-03 Token pipeline. Machine source diagrams/03-token-pipeline.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 32 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 4 Primitive ownership">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 4. Primitive ownership</h1>
+  <p class="code-line">FIG-04 · diagrams/04-primitive-ownership.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/04-primitive-ownership.png" alt="FIG-04 Primitive ownership. Machine source diagrams/04-primitive-ownership.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 33 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 5 Dashboard shell">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 5. Dashboard shell</h1>
+  <p class="code-line">FIG-05 · diagrams/05-dashboard-shell.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/05-dashboard-shell.png" alt="FIG-05 Dashboard shell. Machine source diagrams/05-dashboard-shell.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 34 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 6 Tenant public shell">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 6. Tenant public shell</h1>
+  <p class="code-line">FIG-06 · diagrams/06-public-shell.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/06-public-shell.png" alt="FIG-06 Tenant public shell. Machine source diagrams/06-public-shell.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 35 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 7 Theming">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 7. Theming</h1>
+  <p class="code-line">FIG-07 · diagrams/07-theming.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/07-theming.png" alt="FIG-07 Theming. Machine source diagrams/07-theming.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 36 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 8 Auth surfaces">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 8. Auth surfaces</h1>
+  <p class="code-line">FIG-08 · diagrams/08-auth-surfaces.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/08-auth-surfaces.png" alt="FIG-08 Auth surfaces. Machine source diagrams/08-auth-surfaces.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 37 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 9 Catalog order">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 9. Catalog order</h1>
+  <p class="code-line">FIG-09 · diagrams/09-catalog-order.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/09-catalog-order.png" alt="FIG-09 Catalog order. Machine source diagrams/09-catalog-order.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 38 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 10 Design-system delivery">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 10. Design-system delivery</h1>
+  <p class="code-line">FIG-10 · diagrams/10-design-system-delivery.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/10-design-system-delivery.png" alt="FIG-10 Design-system delivery. Machine source diagrams/10-design-system-delivery.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 39 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 11 Compose sequence">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 11. Compose sequence</h1>
+  <p class="code-line">FIG-11 · diagrams/11-compose-sequence.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/11-compose-sequence.png" alt="FIG-11 Compose sequence. Machine source diagrams/11-compose-sequence.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 40 / 46</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 12 Quality and access">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>Figure 12. Quality and access</h1>
+  <p class="code-line">FIG-12 · diagrams/12-quality-a11y.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/12-quality-a11y.png" alt="FIG-12 Quality and access. Machine source diagrams/12-quality-a11y.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 41 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="A.1 Mermaid source FIG-01 to FIG-03">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>A.1 Mermaid source FIG-01 to FIG-03</h1>
+  <p class="code-line">FIG-01 · diagrams/01-surfaces.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-01-src">flowchart TB
+  MKT[SURF-WEB marketing]
+  DASH[SURF-DASH academy dashboard]
+  PUB[SURF-PUBLIC tenant public]
+  CAMP[SURF-CAMPUS academy campus]
+  OPS[SURF-OPS platform ops]
+  PORT[SURF-PORTAL access hub]
+  CMS[SURF-CMS Payload admin]
+  MKT --&gt; DASH
+  PORT --&gt; DASH
+  PORT --&gt; CAMP
+  PORT --&gt; OPS
+  DASH --&gt; PUB
+  DASH --&gt; CAMP
+  DASH --&gt; CMS</pre>
+<p class="code-line">FIG-02 · diagrams/02-dual-public.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-02-src">flowchart LR
+  subgraph SAAS[&quot;SaaS marketing&quot;]
+    WEB[SURF-WEB]
+    REG[registro]
+    DS[design-system]
+    WEB --&gt; REG
+    WEB --&gt; DS
+  end
+  subgraph TENANT[&quot;Tenant public&quot;]
+    PUB[SURF-PUBLIC]
+    COURSES[courses convocatorias]
+    PUB --&gt; COURSES
+  end
+  HOST[tenant host] --&gt; PUB
+  AKA[akademate.com] --&gt; WEB</pre>
+<p class="code-line">FIG-03 · diagrams/03-token-pipeline.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-03-src">flowchart TB
+  BASE[TOK-BASE base.css]
+  SEM[TOK-SEM semantic.css]
+  TEN[TOK-TENANT tenant.css]
+  V4[TOK-THEME-V4 theme inline]
+  RT[TOK-RUNTIME TenantBranding]
+  APP[app globals.css]
+  BASE --&gt; SEM
+  SEM --&gt; TEN
+  TEN --&gt; V4
+  V4 --&gt; APP
+  RT --&gt; APP</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 42 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="A.2 Mermaid source FIG-04 to FIG-06">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>A.2 Mermaid source FIG-04 to FIG-06</h1>
+  <p class="code-line">FIG-04 · diagrams/04-primitive-ownership.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-04-src">flowchart TB
+  PKG[&quot;@akademate/ui tokens + Pill&quot;]
+  SHAD[CAT-SHADCN tenant-admin new-york]
+  ALIAS[&quot;@payload-config/components/ui&quot;]
+  DASH[SURF-DASH]
+  PKG --&gt; DASH
+  SHAD --&gt; ALIAS
+  ALIAS --&gt; DASH</pre>
+<p class="code-line">FIG-05 · diagrams/05-dashboard-shell.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-05-src">flowchart TB
+  ROOT[ClientLayout ThemeProvider TenantBranding]
+  SIDE[SHELL-DASH AppSidebar]
+  INSET[SidebarInset canvas]
+  FOOT[DashboardFooter]
+  ROOT --&gt; SIDE
+  ROOT --&gt; INSET
+  INSET --&gt; FOOT
+  SIDE --&gt; NAV[module nav]
+  INSET --&gt; PAGE[route page]</pre>
+<p class="code-line">FIG-06 · diagrams/06-public-shell.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-06-src">flowchart TB
+  HTML[own html body]
+  HEAD[SHELL-PUBLIC header]
+  MAIN[page]
+  FOOT[tenant footer]
+  HTML --&gt; HEAD
+  HTML --&gt; MAIN
+  HTML --&gt; FOOT
+  BRAND[tenant primaryColor --brand] --&gt; HTML</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 43 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="A.3 Mermaid source FIG-07 to FIG-09">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>A.3 Mermaid source FIG-07 to FIG-09</h1>
+  <p class="code-line">FIG-07 · diagrams/07-theming.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-07-src">flowchart LR
+  CLASS[&quot;.light / .dark on html&quot;]
+  VARS[&quot;--primary --sidebar --brand&quot;]
+  COOKIE[akademate-theme]
+  CLASS --&gt; VARS
+  COOKIE --&gt; CLASS
+  TB[TenantBranding] --&gt; VARS</pre>
+<p class="code-line">FIG-08 · diagrams/08-auth-surfaces.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-08-src">flowchart TB
+  STAFF[SURF-DASH /auth/login]
+  LEARN[SURF-CAMPUS /campus/login]
+  OPS[SURF-OPS /login]
+  WEB[SURF-WEB /login to app]
+  STAFF --&gt; CARD[Card Input Button]
+  LEARN --&gt; CARD
+  OPS --&gt; CARD
+  WEB --&gt; STAFF</pre>
+<p class="code-line">FIG-09 · diagrams/09-catalog-order.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-09-src">flowchart TB
+  R[CAT-REPO primitives in tree]
+  S[CAT-SHADCN official slug]
+  M[CAT-MOTION Magic UI or Aceternity by slug]
+  X[one 21st or ReUI block if pattern missing]
+  R --&gt; S
+  S --&gt; M
+  M --&gt; X</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 44 / 46</span></div>
+</section>
+
+<section class="sheet" aria-label="A.4 Mermaid source FIG-10 to FIG-12">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-UI-001 · Rev A · en</span></div>
+  <div class="body">
+  <h1>A.4 Mermaid source FIG-10 to FIG-12</h1>
+  <p class="code-line">FIG-10 · diagrams/10-design-system-delivery.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-10-src">flowchart LR
+  WEBDS[SURF-WEB /design-system]
+  DASHDS[SURF-DASH /design-system]
+  SB[Storybook :6006]
+  VEND[vendor kit copy-in]
+  WEBDS --&gt; SB
+  DASHDS --&gt; SB
+  VEND --&gt; DASHDS</pre>
+<p class="code-line">FIG-11 · diagrams/11-compose-sequence.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-11-src">sequenceDiagram
+  participant R as Route
+  participant L as Shell
+  participant T as Tokens
+  participant P as Primitive
+  R-&gt;&gt;L: layout
+  L-&gt;&gt;T: CSS variables
+  L-&gt;&gt;P: Button Card Dialog
+  P--&gt;&gt;R: page</pre>
+<p class="code-line">FIG-12 · diagrams/12-quality-a11y.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-12-src">flowchart TB
+  AA[WCAG AA contrast]
+  FOCUS[visible focus]
+  KEY[keyboard]
+  SEM[semantic HTML]
+  AA --&gt; FOCUS
+  FOCUS --&gt; KEY
+  KEY --&gt; SEM</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 45 / 46</span></div>
+</section>
+
+<section class="sheet back" aria-label="Back cover">
+  <div class="back-inner">
+    <p class="kicker">BRIK64 Inc. · Delaware</p>
+    <h1>AKADEMATE</h1>
+    <p>AKA-ARCH-UI-001</p>
+    <p>Rev A · 2026-08-30 · en</p>
+    <p>Internal · Confidential</p>
+  </div>
+  <div class="back-foot">
+    <span>UI and frontend architecture</span>
+    <span>Sheet 46 / 46</span>
+  </div>
+</section>
+
+</body>
+</html>

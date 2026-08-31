@@ -1,0 +1,7 @@
+# AKA-ARCH-SAAS-001 Rev E
+Canonical machine ingest for AKADEMATE Cloudflare architecture.
+
+AKA-ARCH-SAAS-001.ingest.json
+AKA-ARCH-SAAS-001.AGENT.md
+AKA-ARCH-SAAS-001.html
+diagrams/*.mmd

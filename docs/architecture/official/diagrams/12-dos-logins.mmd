@@ -1,0 +1,7 @@
+flowchart LR
+  STU[Learner] --> AID[Akademate Identity]
+  TEA[Teacher] --> AID
+  ADM[Tenant admin] --> AID
+  AID --> APP[SaaS app / campus]
+  STAFF[AKADEMATE staff] --> ACC[Cloudflare Access]
+  ACC --> OPS[Platform Ops]

@@ -1,0 +1,9 @@
+flowchart LR
+  UP[Teacher / Admin] --> MW[akademate-media]
+  MW --> ST[Cloudflare Stream]
+  ST --> TOK[Signed playback]
+  TOK --> STU[Campus learner]
+  MEET[Meet] --> ING[Recording ingest]
+  ZOOM[Zoom] --> ING
+  TEAMS[Teams] --> ING
+  ING --> ST

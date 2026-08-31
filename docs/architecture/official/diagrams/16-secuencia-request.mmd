@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant U as Client
+  participant W as akademate-app
+  participant C as Control D1
+  participant S as Tenant D1
+  U->>W: HTTPS
+  W->>W: identity + tenant host/claim
+  W->>C: mapping tenant to store
+  W->>S: query with tenant_id
+  S-->>W: rows
+  W-->>U: response

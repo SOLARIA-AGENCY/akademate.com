@@ -1,0 +1,15 @@
+flowchart TB
+  MKT[SURF-WEB marketing]
+  DASH[SURF-DASH academy dashboard]
+  PUB[SURF-PUBLIC tenant public]
+  CAMP[SURF-CAMPUS academy campus]
+  OPS[SURF-OPS platform ops]
+  PORT[SURF-PORTAL access hub]
+  CMS[SURF-CMS Payload admin]
+  MKT --> DASH
+  PORT --> DASH
+  PORT --> CAMP
+  PORT --> OPS
+  DASH --> PUB
+  DASH --> CAMP
+  DASH --> CMS

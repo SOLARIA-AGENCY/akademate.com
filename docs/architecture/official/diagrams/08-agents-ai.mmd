@@ -1,0 +1,10 @@
+flowchart TB
+  EVT[Event] --> AR[Agent Runtime DO]
+  AR --> PE[Policy Engine R0-R4]
+  PE --> API[Control API / MCP]
+  API --> SVC[Application Service]
+  SVC --> DOM[Domain + TenantDataContext]
+  AR --> GW[AI Gateway]
+  GW --> WAI[Workers AI]
+  GW --> EXT[Frontier models]
+  AR --> CTR[Containers]

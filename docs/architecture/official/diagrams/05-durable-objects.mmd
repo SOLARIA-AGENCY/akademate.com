@@ -1,0 +1,6 @@
+flowchart TB
+  APP[akademate-app] --> TC[TenantCoordinator]
+  APP --> LS[LiveClassSession]
+  APP --> RH[RealtimeHub]
+  TDC[TenantDataContext] --> LOCK[CriticalLock]
+  AG[akademate-agents] --> AR[AgentRuntime]

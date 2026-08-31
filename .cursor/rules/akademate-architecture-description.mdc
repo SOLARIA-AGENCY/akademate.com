@@ -1,0 +1,15 @@
+---
+description: Official AKADEMATE printable architecture descriptions (ISO 7200 / 42010 / arc42, agent ingest, A4 print).
+globs: docs/architecture/**,docs/architecture/official/**
+alwaysApply: false
+---
+
+# Architecture description print pack
+
+Before writing or revising an architecture PDF, HTML print source, Mermaid atlas, or agent-ingest sidecar, read and follow:
+
+`~/.cursor/skills/akademate-architecture-description/SKILL.md`
+
+Repo copy: `.cursor/skills/akademate-architecture-description/SKILL.md`
+
+Hard gates: affirmative English, no host-vendor names in the AD, split sheets instead of footer overflow, Mermaid as selectable text plus `.mmd`, `verify_print_pdf.py` before done.

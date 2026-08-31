@@ -1,0 +1,364 @@
+{
+  "schema": "aka-arch-ingest/1",
+  "doc_id": "AKA-ARCH-SAAS-001",
+  "rev": "E",
+  "issue": "2026-08-30",
+  "language": "en",
+  "owner": "BRIK64 Inc.",
+  "product": "AKADEMATE",
+  "prompt_file": "AKA-ARCH-SAAS-001.AGENT.md",
+  "html_file": "AKA-ARCH-SAAS-001.html",
+  "pdf_file": "AKA-ARCH-SAAS-001_v2.0.pdf",
+  "ingest_order": [
+    "AKA-ARCH-SAAS-001.ingest.json",
+    "diagrams/*.mmd",
+    "AKA-ARCH-SAAS-001.AGENT.md",
+    "AKA-ARCH-SAAS-001.html",
+    "PDF text layer: sheets 12–12.5 and Appendix A"
+  ],
+  "figure_png": "Rendering of the matching .mmd. Machine source is the .mmd and Appendix A.",
+  "codes": {
+    "units": [
+      {
+        "id": "UNIT-APP",
+        "name": "akademate-app",
+        "role": "Frontend, BFF and tenant API"
+      },
+      {
+        "id": "UNIT-CTRL",
+        "name": "akademate-control",
+        "role": "Platform Ops and Control API"
+      },
+      {
+        "id": "UNIT-INT",
+        "name": "akademate-integrations",
+        "role": "OAuth, webhooks and connectors"
+      },
+      {
+        "id": "UNIT-MEDIA",
+        "name": "akademate-media",
+        "role": "Uploads, R2 and Stream tokens"
+      },
+      {
+        "id": "UNIT-EVT",
+        "name": "akademate-events",
+        "role": "Queue consumers"
+      },
+      {
+        "id": "UNIT-AUTO",
+        "name": "akademate-automation",
+        "role": "Workflows, schedules and Cron"
+      },
+      {
+        "id": "UNIT-AGENTS",
+        "name": "akademate-agents",
+        "role": "AutonomousOps / Agents SDK"
+      }
+    ],
+    "queues": [
+      {
+        "id": "Q-DOMAIN",
+        "name": "domain-events",
+        "role": "Canonical domain outbox"
+      },
+      {
+        "id": "Q-INT",
+        "name": "integrations",
+        "role": "Connector and webhook work"
+      },
+      {
+        "id": "Q-NOTIFY",
+        "name": "notifications",
+        "role": "Outbound notices"
+      },
+      {
+        "id": "Q-USAGE",
+        "name": "usage-metering",
+        "role": "Platform usage"
+      },
+      {
+        "id": "Q-MEDIA",
+        "name": "media",
+        "role": "R2 and Stream jobs"
+      },
+      {
+        "id": "Q-AGENT",
+        "name": "agent-jobs",
+        "role": "Agent execution"
+      }
+    ],
+    "objects": [
+      {
+        "id": "DO-TC",
+        "class": "TenantCoordinator",
+        "id_pattern": "tenant-{id}"
+      },
+      {
+        "id": "DO-LOCK",
+        "class": "IdempotencyLock",
+        "id_pattern": "lock-{hash}"
+      },
+      {
+        "id": "DO-RATE",
+        "class": "RateLimiter",
+        "id_pattern": "rl-{tenant}-{route}"
+      },
+      {
+        "id": "DO-PRESENCE",
+        "class": "PresenceRoom",
+        "id_pattern": "room-{id}"
+      },
+      {
+        "id": "DO-AGENT",
+        "class": "AgentSession",
+        "id_pattern": "agent-{runId}"
+      }
+    ],
+    "adrs": [
+      {
+        "id": "ADR-C1",
+        "decision": "Cloud runtime is Cloudflare Workers, D1, R2, Durable Objects, Queues, Workflows, Stream."
+      },
+      {
+        "id": "ADR-C2",
+        "decision": "Seven deployment units. Domain modules compose inside those units."
+      },
+      {
+        "id": "ADR-C3",
+        "decision": "TenantDataContext is the path to tenant data."
+      },
+      {
+        "id": "ADR-C4",
+        "decision": "V1 D1 uses Control + shards. Per-tenant D1 is the target once dynamic attach is GA."
+      },
+      {
+        "id": "ADR-C5",
+        "decision": "R2 uses prefixes, a small set of product buckets."
+      },
+      {
+        "id": "ADR-C6",
+        "decision": "Queues by function with DLQ. Workflows by class, instantiated per run."
+      },
+      {
+        "id": "ADR-C7",
+        "decision": "Akademate Identity for the academy. Cloudflare Access for Platform Ops."
+      },
+      {
+        "id": "ADR-C8",
+        "decision": "Agents execute through Policy Engine and Control API. Models through AI Gateway."
+      },
+      {
+        "id": "ADR-C9",
+        "decision": "Platform Billing (BRIK64 Stripe / Mercury) is a separate box from tenant learner payments."
+      },
+      {
+        "id": "ADR-C10",
+        "decision": "Plane 2 stays at one institutional account per system."
+      }
+    ],
+    "risk_classes": [
+      {
+        "id": "R0",
+        "meaning": "observe"
+      },
+      {
+        "id": "R1",
+        "meaning": "suggest"
+      },
+      {
+        "id": "R2",
+        "meaning": "reversible change"
+      },
+      {
+        "id": "R3",
+        "meaning": "sensitive change"
+      },
+      {
+        "id": "R4",
+        "meaning": "irreversible change"
+      }
+    ],
+    "planes": [
+      {
+        "id": "PLANE-1",
+        "name": "Cloudflare interior"
+      },
+      {
+        "id": "PLANE-2",
+        "name": "Institutional account perimeter"
+      }
+    ]
+  },
+  "figures": [
+    {
+      "id": "FIG-01",
+      "code": "Figure 1",
+      "title": "Two planes",
+      "stem": "01-dos-planos",
+      "source_path": "diagrams/01-dos-planos.mmd",
+      "png_path": "diagrams/01-dos-planos.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  LEGAL[BRIK64 Inc]\n  LEGAL --> PERIM[Plane 2 - External perimeter]\n  LEGAL --> CF[Plane 1 - Cloudflare interior]\n  PERIM --> WS[Workspace akademate.com]\n  PERIM --> GH[GitHub org]\n  PERIM --> GCP[GCP org]\n  PERIM --> OP[1Password vaults]\n  PERIM --> OAUTH[OAuth apps]\n  PERIM --> BILL[Stripe + Mercury]\n  CF --> EDGE[Edge + WAF]\n  CF --> RUN[7 Workers]\n  CF --> DATA[D1 + R2 + DO]\n  CF --> ASYNC[Queues + Workflows]\n"
+    },
+    {
+      "id": "FIG-02",
+      "code": "Figure 2",
+      "title": "Edge and seven Workers",
+      "stem": "02-edge-workers",
+      "source_path": "diagrams/02-edge-workers.mmd",
+      "png_path": "diagrams/02-edge-workers.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  NET[Internet]\n  CUSTOM[campus.cliente.com]\n  AKA[\"*.akademate.com\"]\n  subgraph EDGE[\"Edge / Security\"]\n    DNS[DNS]\n    SAAS[Cloudflare for SaaS]\n    WAF[WAF + DDoS + Rate limit]\n    TURN[Turnstile]\n    ACCESS[Access - Ops]\n  end\n  NET --> DNS\n  CUSTOM --> SAAS\n  AKA --> DNS\n  DNS --> WAF\n  SAAS --> WAF\n  WAF --> TURN\n  subgraph RUN[\"Runtime - 7 Workers\"]\n    APP[akademate-app]\n    CTRL[akademate-control]\n    INT[akademate-integrations]\n    MEDIA[akademate-media]\n    EVENTS[akademate-events]\n    AUTO[akademate-automation]\n    AGENTS[akademate-agents]\n  end\n  TURN --> APP\n  ACCESS --> CTRL\n  APP --> INT\n  APP --> MEDIA\n  APP --> CTRL\n  APP --> EVENTS\n  AUTO --> EVENTS\n  AGENTS --> CTRL\n"
+    },
+    {
+      "id": "FIG-03",
+      "code": "Figure 3",
+      "title": "Identity and tenant data",
+      "stem": "03-identidad-datos",
+      "source_path": "diagrams/03-identidad-datos.mmd",
+      "png_path": "diagrams/03-identidad-datos.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  APP[akademate-app]\n  APP --> SESS[Session / Auth Context]\n  SESS --> GID[GlobalIdentity]\n  SESS --> MEM[Tenant Membership]\n  MEM --> POL[RBAC + ABAC + capabilities]\n  APP --> TDC[TenantDataContext]\n  TDC --> CTRLDB[(D1 Control)]\n  TDC --> SHARD[(D1 shard / tenant)]\n  APP --> R2[(R2 tenant/id)]\n  CTRL[akademate-control] --> CTRLDB\n"
+    },
+    {
+      "id": "FIG-04",
+      "code": "Figure 4",
+      "title": "D1 resolution",
+      "stem": "04-d1-resolucion",
+      "source_path": "diagrams/04-d1-resolucion.mmd",
+      "png_path": "diagrams/04-d1-resolucion.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  REQ[Request] --> AUTH[Identity]\n  AUTH --> TEN[Tenant Resolver]\n  TEN --> CTX[TenantDataContext]\n  CTX --> CTRL[(D1 Control mapping)]\n  CTX --> DB[(D1 tenant or shard)]\n"
+    },
+    {
+      "id": "FIG-05",
+      "code": "Figure 5",
+      "title": "Durable Objects",
+      "stem": "05-durable-objects",
+      "source_path": "diagrams/05-durable-objects.mmd",
+      "png_path": "diagrams/05-durable-objects.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  APP[akademate-app] --> TC[TenantCoordinator]\n  APP --> LS[LiveClassSession]\n  APP --> RH[RealtimeHub]\n  TDC[TenantDataContext] --> LOCK[CriticalLock]\n  AG[akademate-agents] --> AR[AgentRuntime]\n"
+    },
+    {
+      "id": "FIG-06",
+      "code": "Figure 6",
+      "title": "Queues, DLQ and Workflows",
+      "stem": "06-colas-workflows",
+      "source_path": "diagrams/06-colas-workflows.mmd",
+      "png_path": "diagrams/06-colas-workflows.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  APP[akademate-app] --> QD[domain-events]\n  INT[akademate-integrations] --> QI[integrations]\n  APP --> QM[notifications]\n  APP --> QU[usage-metering]\n  MEDIA[akademate-media] --> QV[media]\n  AG[akademate-agents] --> QA[agent-jobs]\n  QD --> EV[akademate-events]\n  QI --> EV\n  QM --> EV\n  QU --> EV\n  QV --> EV\n  QA --> EV\n  EV --> DLQ[Dead letter queues]\n  EV --> WF[Workflow classes]\n  WF --> W1[Tenant lifecycle]\n  WF --> W2[Import / Export]\n  WF --> W3[GDPR]\n  WF --> W4[Billing]\n  WF --> W5[Media ingest]\n  WF --> W6[Incident]\n"
+    },
+    {
+      "id": "FIG-07",
+      "code": "Figure 7",
+      "title": "Cloudflare Stream",
+      "stem": "07-stream",
+      "source_path": "diagrams/07-stream.mmd",
+      "png_path": "diagrams/07-stream.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  UP[Teacher / Admin] --> MW[akademate-media]\n  MW --> ST[Cloudflare Stream]\n  ST --> TOK[Signed playback]\n  TOK --> STU[Campus learner]\n  MEET[Meet] --> ING[Recording ingest]\n  ZOOM[Zoom] --> ING\n  TEAMS[Teams] --> ING\n  ING --> ST\n"
+    },
+    {
+      "id": "FIG-08",
+      "code": "Figure 8",
+      "title": "Agents and AI Gateway",
+      "stem": "08-agents-ai",
+      "source_path": "diagrams/08-agents-ai.mmd",
+      "png_path": "diagrams/08-agents-ai.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  EVT[Event] --> AR[Agent Runtime DO]\n  AR --> PE[Policy Engine R0-R4]\n  PE --> API[Control API / MCP]\n  API --> SVC[Application Service]\n  SVC --> DOM[Domain + TenantDataContext]\n  AR --> GW[AI Gateway]\n  GW --> WAI[Workers AI]\n  GW --> EXT[Frontier models]\n  AR --> CTR[Containers]\n"
+    },
+    {
+      "id": "FIG-09",
+      "code": "Figure 9",
+      "title": "Observability and secrets",
+      "stem": "09-observabilidad-secretos",
+      "source_path": "diagrams/09-observabilidad-secretos.mmd",
+      "png_path": "diagrams/09-observabilidad-secretos.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  RUN[Workers] --> LOG[Workers Logs]\n  RUN --> TR[Traces]\n  RUN --> MET[Metrics]\n  RUN --> AE[Analytics Engine]\n  CTRL[akademate-control] --> AUD[Platform Audit]\n  OP[1Password ROOT] --> WS[Workers Secrets]\n  OP -.-> SS[Secrets Store]\n  SS -.-> RUN\n  WS --> RUN\n"
+    },
+    {
+      "id": "FIG-10",
+      "code": "Figure 10",
+      "title": "Account perimeter",
+      "stem": "10-perimetro-cuentas",
+      "source_path": "diagrams/10-perimetro-cuentas.mmd",
+      "png_path": "diagrams/10-perimetro-cuentas.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  LEGAL[BRIK64 Inc]\n  LEGAL --> DOMAIN[akademate.com]\n  LEGAL --> WS[Google Workspace]\n  LEGAL --> PASS[1Password]\n  LEGAL --> CF[CF Account AKADEMATE]\n  LEGAL --> GH[GitHub akademate]\n  LEGAL --> GCP[GCP Organization]\n  LEGAL --> MS[Entra app]\n  LEGAL --> ZOOM[Zoom app]\n  LEGAL --> AI[AI provider projects]\n  LEGAL --> STRIPE[Stripe BRIK64]\n  STRIPE --> MERCURY[Mercury]\n  WS --> ADMIN[\"admin@\"]\n  WS --> BREAK[\"breakglass@\"]\n  WS --> INFRA[\"infra@\"]\n  WS --> SEC[\"security@\"]\n  ADMIN --> CF\n  ADMIN --> GCP\n  ADMIN --> GH\n  ADMIN --> PASS\n  BREAK -.-> CF\n  BREAK -.-> GCP\n"
+    },
+    {
+      "id": "FIG-11",
+      "code": "Figure 11",
+      "title": "Tenant OAuth",
+      "stem": "11-oauth-clientes",
+      "source_path": "diagrams/11-oauth-clientes.mmd",
+      "png_path": "diagrams/11-oauth-clientes.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  subgraph TENANT[\"Tenant accounts\"]\n    GW[Google Workspace]\n    Z[Zoom]\n    M365[Microsoft 365]\n    PAY[Stripe / Redsys]\n  end\n  subgraph AKA[\"AKADEMATE connectors\"]\n    GO[Google OAuth app]\n    ZO[Zoom OAuth app]\n    MO[Entra multi-tenant]\n    PO[Payment connectors]\n  end\n  GW --> GO\n  Z --> ZO\n  M365 --> MO\n  PAY --> PO\n  GO --> INT[akademate-integrations]\n  ZO --> INT\n  MO --> INT\n  PO --> INT\n"
+    },
+    {
+      "id": "FIG-12",
+      "code": "Figure 12",
+      "title": "Academy identity and Access",
+      "stem": "12-dos-logins",
+      "source_path": "diagrams/12-dos-logins.mmd",
+      "png_path": "diagrams/12-dos-logins.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  STU[Learner] --> AID[Akademate Identity]\n  TEA[Teacher] --> AID\n  ADM[Tenant admin] --> AID\n  AID --> APP[SaaS app / campus]\n  STAFF[AKADEMATE staff] --> ACC[Cloudflare Access]\n  ACC --> OPS[Platform Ops]\n"
+    },
+    {
+      "id": "FIG-13",
+      "code": "Figure 13",
+      "title": "Platform billing and learner payments",
+      "stem": "13-billing",
+      "source_path": "diagrams/13-billing.mmd",
+      "png_path": "diagrams/13-billing.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  subgraph PLATFORM[\"AKADEMATE subscription\"]\n    B64[BRIK64 Inc] --> ST[Stripe AKADEMATE products]\n    ST --> MER[Mercury]\n  end\n  subgraph LEARNER[\"Tenant enrolments\"]\n    T[Tenant] --> TP[Tenant Stripe / Redsys]\n    TP --> AL[Learners]\n  end\n"
+    },
+    {
+      "id": "FIG-14",
+      "code": "Figure 14",
+      "title": "Cloudflare runtime",
+      "stem": "14-runtime-cloud",
+      "source_path": "diagrams/14-runtime-cloud.mmd",
+      "png_path": "diagrams/14-runtime-cloud.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  CORE[Canonical Core]\n  CORE --> D1[D1TenantDataStore]\n  D1 --> CLOUD[Cloud SaaS Workers]\n"
+    },
+    {
+      "id": "FIG-15",
+      "code": "Figure 15",
+      "title": "Compressed system map",
+      "stem": "15-mapa-comprimido",
+      "source_path": "diagrams/15-mapa-comprimido.mmd",
+      "png_path": "diagrams/15-mapa-comprimido.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  B64[BRIK64 Inc] --> CORP[Corporate Stripe Mercury]\n  B64 --> PROD[Product Workspace GCP GitHub CF]\n  PROD --> EDGE[Cloudflare Edge]\n  EDGE --> APP[akademate-app]\n  EDGE --> OPS[akademate-control]\n  EDGE --> INT[akademate-integrations]\n  APP --> TDC[TenantDataContext]\n  TDC --> CD1[(Control D1)]\n  TDC --> TD1[(Tenant D1 / shards)]\n  APP --> R2[(R2)]\n  APP --> ST[(Stream)]\n  APP --> DO[Durable Objects]\n  APP --> Q[Queues]\n  Q --> WF[Workflows]\n  WF --> AG[Agents]\n  AG --> GW[AI Gateway]\n"
+    },
+    {
+      "id": "FIG-16",
+      "code": "Figure 16",
+      "title": "Request sequence",
+      "stem": "16-secuencia-request",
+      "source_path": "diagrams/16-secuencia-request.mmd",
+      "png_path": "diagrams/16-secuencia-request.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "sequenceDiagram\n  participant U as Client\n  participant W as akademate-app\n  participant C as Control D1\n  participant S as Tenant D1\n  U->>W: HTTPS\n  W->>W: identity + tenant host/claim\n  W->>C: mapping tenant to store\n  W->>S: query with tenant_id\n  S-->>W: rows\n  W-->>U: response\n"
+    },
+    {
+      "id": "FIG-17",
+      "code": "Figure 17",
+      "title": "AutonomousOps loop",
+      "stem": "17-autonomous-loop",
+      "source_path": "diagrams/17-autonomous-loop.mmd",
+      "png_path": "diagrams/17-autonomous-loop.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  O[Observe] --> I[Interpret]\n  I --> P[Plan]\n  P --> E[Execute]\n  E --> V[Verify]\n  V --> R[Record]\n  R --> L[Learn]\n  L --> O\n"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+flowchart TB
+  subgraph PLATFORM["AKADEMATE subscription"]
+    B64[BRIK64 Inc] --> ST[Stripe AKADEMATE products]
+    ST --> MER[Mercury]
+  end
+  subgraph LEARNER["Tenant enrolments"]
+    T[Tenant] --> TP[Tenant Stripe / Redsys]
+    TP --> AL[Learners]
+  end

@@ -1,0 +1,15 @@
+flowchart LR
+  subgraph SAAS["SaaS marketing"]
+    WEB[SURF-WEB]
+    REG[registro]
+    DS[design-system]
+    WEB --> REG
+    WEB --> DS
+  end
+  subgraph TENANT["Tenant public"]
+    PUB[SURF-PUBLIC]
+    COURSES[courses convocatorias]
+    PUB --> COURSES
+  end
+  HOST[tenant host] --> PUB
+  AKA[akademate.com] --> WEB

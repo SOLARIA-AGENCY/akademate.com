@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AKA-ARCH-SAAS-001 Rev E · AKADEMATE Cloudflare Architecture Description</title>
+  <meta name="author" content="BRIK64 Inc." />
+  <meta name="aka:doc-id" content="AKA-ARCH-SAAS-001" />
+  <meta name="aka:rev" content="E" />
+  <meta name="aka:ingest" content="AKA-ARCH-SAAS-001.ingest.json" />
+  <meta name="aka:agent-prompt" content="AKA-ARCH-SAAS-001.AGENT.md" />
+  <link rel="alternate" type="application/json" href="AKA-ARCH-SAAS-001.ingest.json" title="Machine ingest" />
+  <link rel="alternate" type="text/markdown" href="AKA-ARCH-SAAS-001.AGENT.md" title="Agent implementation prompt" />
+  <style>
+    :root {
+      --ink: #1c1c1c;
+      --muted: #5a5a5a;
+      --rule: #0066CC;
+      --line: #c4c4c4;
+      --paper: #ffffff;
+      --band: #0b1d36;
+      --gutter: 25mm;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #cfcfcf;
+      color: var(--ink);
+      font-family: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.48;
+    }
+    .sheet {
+      width: 210mm;
+      height: 297mm;
+      background: var(--paper);
+      margin: 10px auto;
+      padding: 44mm 28mm 34mm 28mm;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+      break-after: page;
+    }
+    .sheet::before {
+      content: "";
+      position: absolute;
+      top: 12mm;
+      right: 12mm;
+      bottom: 12mm;
+      left: 12mm;
+      border: 0.7pt solid #2a2a2a;
+      pointer-events: none;
+    }
+    .sheet:last-child { page-break-after: auto; break-after: auto; }
+    .hdr, .ftr {
+      position: absolute;
+      left: 16mm;
+      right: 16mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+    .hdr {
+      top: 16mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1.25pt solid var(--rule);
+      padding: 0 2mm 3mm 2mm;
+    }
+    .hdr strong { color: var(--ink); font-weight: 700; }
+    .ftr {
+      bottom: 16mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-top: 0.6pt solid var(--line);
+      padding: 3mm 2mm 0 2mm;
+    }
+    .body { min-height: 0; }
+    .codes h2 { margin: 4mm 0 2mm; }
+    .codes table { font-size: 9pt; margin: 0 0 3.5mm; }
+    .codes th, .codes td { padding: 1.7mm 2.2mm; }
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15pt;
+      margin: 0 0 7mm;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    h2 {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+      margin: 5.5mm 0 2.5mm;
+      color: var(--rule);
+      font-weight: 700;
+    }
+    p { margin: 0 0 3.2mm; }
+    ul, ol { margin: 0 0 3.5mm 6mm; padding: 0; }
+    li { margin-bottom: 1.4mm; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 4.5mm;
+      font-size: 9.5pt;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.35;
+    }
+    th, td {
+      border: 0.4pt solid #b0b0b0;
+      padding: 2.2mm 2.4mm;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eef4fb; font-weight: 700; }
+    .tree {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8.5pt;
+      line-height: 1.4;
+      white-space: pre;
+      margin: 0 0 4mm;
+    }
+    .sign-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      margin-top: 3mm;
+    }
+    .sign-cell {
+      border: 0.5pt solid #b0b0b0;
+      min-height: 38mm;
+      padding: 3.5mm 4mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sign-cell.wide { grid-column: 1 / -1; }
+    .sign-cell .role {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9.5pt;
+      font-weight: 700;
+    }
+    .sign-cell .org { font-size: 8.5pt; color: var(--muted); margin-top: 0.8mm; }
+    .sign-cell .line {
+      border-top: 0.4pt solid #888;
+      margin-top: 16mm;
+      padding-top: 1.8mm;
+      font-size: 8pt;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .label {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .cover { padding: 0; }
+    .cover .hdr, .cover .ftr, .back .hdr, .back .ftr { display: none; }
+    .cover-band {
+      margin: 12mm 12mm 0 12mm;
+      height: 38mm;
+      background: var(--band);
+      color: #fff;
+      padding: 13mm 18mm 0;
+    }
+    .cover-band .kicker {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .cover-body {
+      padding: 32mm 28mm 0;
+      min-height: 100mm;
+    }
+    .cover h1 {
+      font-size: 32pt;
+      line-height: 1.08;
+      margin: 0 0 5mm;
+    }
+    .cover .sub {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13pt;
+      color: var(--rule);
+      font-weight: 700;
+      margin: 0 0 14mm;
+    }
+    .titleblock {
+      position: absolute;
+      left: 16mm;
+      right: 16mm;
+      bottom: 24mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5pt;
+    }
+    .titleblock table { margin: 0; }
+    .titleblock th {
+      width: 48mm;
+      background: #eef4fb;
+      font-weight: 700;
+    }
+    .toc-wrap { display: flex; gap: 10mm; }
+    .toc-wrap table { width: 50%; margin: 0; }
+    .toc td {
+      border: none;
+      border-bottom: 0.4pt dotted #ccc;
+      padding: 1.05mm 0;
+      font-size: 8.2pt;
+    }
+    .code-line {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8pt;
+      color: var(--muted);
+      margin: 0 0 2mm;
+    }
+    .mmd-src {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 7pt;
+      line-height: 1.22;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0 0 4mm;
+      padding: 2mm 2.5mm;
+      border: 0.4pt solid var(--line);
+      background: #f7f8fa;
+    }
+    .toc .num { width: 16mm; font-weight: 700; color: var(--rule); font-family: Arial, Helvetica, sans-serif; }
+    .toc .pg { width: 12mm; text-align: right; color: var(--muted); }
+    .sheet.fig { display: flex; flex-direction: column; padding-bottom: 26mm; }
+    .sheet.fig h1 { margin-bottom: 4mm; font-size: 13pt; }
+    .fig-frame {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4mm 0 2mm;
+    }
+    .sheet.fig img {
+      max-width: 160mm;
+      max-height: 198mm;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    .sheet h1 + .mmd-src { margin-top: 0; }
+    code {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.92em;
+    }
+    .back { padding: 0; background: var(--band); color: #fff; }
+    .back::before { border-color: rgba(255,255,255,0.28); }
+    .back-inner {
+      padding: 70mm 28mm 0;
+      text-align: left;
+    }
+    .back-inner .kicker {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin: 0 0 8mm;
+    }
+    .back-inner h1 {
+      color: #fff;
+      font-size: 28pt;
+      margin: 0 0 8mm;
+    }
+    .back-inner p {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      opacity: 0.9;
+      margin: 0 0 2.5mm;
+    }
+    .back-foot {
+      position: absolute;
+      left: 28mm;
+      right: 28mm;
+      bottom: 24mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      opacity: 0.75;
+      display: flex;
+      justify-content: space-between;
+    }
+    @media print {
+      html, body { background: #fff; }
+      .sheet {
+        margin: 0;
+        box-shadow: none;
+        width: 210mm;
+        height: 297mm;
+      }
+    }
+    @page { size: A4; margin: 0; }
+
+  </style>
+</head>
+<body>
+
+<section class="sheet cover" aria-label="Cover">
+  <div class="cover-band">
+    <div class="kicker">BRIK64 Inc. · Delaware</div>
+  </div>
+  <div class="cover-body">
+    <h1>AKADEMATE</h1>
+    <p class="sub">Cloudflare architecture description</p>
+    <p>Multi-tenant academic SaaS on Cloudflare Workers, D1, R2, Durable Objects, Queues, Workflows, Stream and Agents. Canonical Core through TenantDataContext. Seven deployment units.</p>
+  </div>
+  <div class="titleblock">
+    <table>
+      <tr><th>Legal owner</th><td>BRIK64 Inc. (Delaware)</td></tr>
+      <tr><th>Identification</th><td>AKA-ARCH-SAAS-001</td></tr>
+      <tr><th>Revision / issue</th><td>E · 2026-08-30</td></tr>
+      <tr><th>Classification</th><td>Internal · Confidential</td></tr>
+      <tr><th>Sheet</th><td>1 / 55</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sheet" aria-label="0.1 Identification">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>0.1 Identification</h1>
+  
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Legal owner</td><td>BRIK64 Inc., Delaware, United States. Foundry. Initial legal owner.</td></tr>
+    <tr><td>Identification number</td><td>AKA-ARCH-SAAS-001</td></tr>
+    <tr><td>Revision index</td><td>E</td></tr>
+    <tr><td>Date of issue</td><td>2026-08-30</td></tr>
+    <tr><td>Effective</td><td>On last approval signature</td></tr>
+    <tr><td>Next review</td><td>2026-11-30, or on material Cloudflare limit change</td></tr>
+    <tr><td>Language</td><td>en (ISO 639)</td></tr>
+    <tr><td>Document type</td><td>Architecture description</td></tr>
+    <tr><td>Product</td><td>AKADEMATE</td></tr>
+    <tr><td>System of interest</td><td>AKADEMATE Cloud SaaS on the Cloudflare account AKADEMATE</td></tr>
+    <tr><td>Classification</td><td>Internal · Confidential</td></tr>
+    <tr><td>Paper size</td><td>A4</td></tr>
+    <tr><td>Normative sources</td><td>ISO/IEC/IEEE 42010 · ISO 7200 · arc42 · AKADEMATE Master Architecture Spec v1.2 · AKADEMATE Cloudflare-native SaaS v1.1</td></tr>
+    <tr><td>Machine ingest</td><td>AKA-ARCH-SAAS-001.ingest.json · AKA-ARCH-SAAS-001.AGENT.md · diagrams/*.mmd · Appendix A</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 2 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="0.1b Approvals">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>0.1b Approvals</h1>
+  
+  <table>
+    <tr><th>Role</th><th>Organisation</th><th>Name</th><th>Date</th></tr>
+    <tr><td>Creator / Foundry</td><td>BRIK64 Inc.</td><td></td><td></td></tr>
+    <tr><td>Architect</td><td>AKADEMATE</td><td></td><td></td></tr>
+    <tr><td>Product</td><td>AKADEMATE</td><td></td><td></td></tr>
+    <tr><td>Security</td><td>AKADEMATE</td><td></td><td></td></tr>
+    <tr><td>Approval</td><td>BRIK64 Inc. / AKADEMATE</td><td></td><td></td></tr>
+  </table>
+  <div class="sign-board">
+    <div class="sign-cell">
+      <div><div class="role">Creator / Foundry</div><div class="org">BRIK64 Inc.</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell">
+      <div><div class="role">Architect</div><div class="org">AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell">
+      <div><div class="role">Product</div><div class="org">AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell">
+      <div><div class="role">Security</div><div class="org">AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+    <div class="sign-cell wide">
+      <div><div class="role">Approval</div><div class="org">BRIK64 Inc. / AKADEMATE</div></div>
+      <div class="line"><span>Signature</span><span>Date</span></div>
+    </div>
+  </div>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 3 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="0.2 Stakeholders and concerns">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>0.2 Stakeholders and concerns</h1>
+  
+  <table>
+    <tr><th>Stakeholder</th><th>Concerns</th></tr>
+    <tr><td>BRIK64 Inc. foundry</td><td>Isolable product perimeter: identity, Cloudflare account, git, data, secrets, P&amp;L. Transferable asset.</td></tr>
+    <tr><td>Architecture</td><td>One Core. TenantDataContext as the path to tenant data. Seven Workers. D1 shards in V1.</td></tr>
+    <tr><td>Product</td><td>Academy workflows (Person, Enrollment, Campus P1, Finance) unchanged by serverless runtime.</td></tr>
+    <tr><td>Security</td><td>Akademate Identity for the academy. Cloudflare Access for Platform Ops. Deny by default. R0–R4 on agents.</td></tr>
+    <tr><td>Platform engineering</td><td>Wrangler bindings, D1 mapping, Queues, Durable Objects, Stream, AI Gateway.</td></tr>
+    <tr><td>Tenant academy</td><td>Own Workspace, Zoom, Microsoft 365 and payment provider. Consent to AKADEMATE OAuth apps.</td></tr>
+    <tr><td>Learner / teacher</td><td>Campus session, signed Stream playback, RBAC + ABAC inside the tenant.</td></tr>
+  </table>
+  <h2>Quality goals</h2>
+  <table>
+    <tr><th>Goal</th><th>Scenario</th></tr>
+    <tr><td>Tenant isolation</td><td>A request opens TenantDataContext for one tenantId. Rows live in Control D1 mapping plus shard or tenant D1.</td></tr>
+    <tr><td>Scale 10 to 10 000</td><td>Worker count stays in the order 7–12. Volume moves into D1 shards, queue shards and Durable Object IDs.</td></tr>
+    <tr><td>Least privilege</td><td>Institutional identities @akademate.com. Short-lived credentials. Agents call Control API.</td></tr>
+    <tr><td>Operability</td><td>Logs, traces, metrics, Analytics Engine and Platform Audit on the seven Workers. External synthetic monitor.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 4 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="0.3 Viewpoints">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>0.3 Viewpoints</h1>
+  
+  <p>Each concern is framed by a viewpoint. Each viewpoint has one view. Models of those views appear as Figures 1–17.</p>
+  <table>
+    <tr><th>Viewpoint</th><th>Stakeholders</th><th>Language</th><th>View / figure</th></tr>
+    <tr><td>Context</td><td>Foundry, architecture</td><td>Context diagram</td><td>Figure 1, Figure 10, Figure 15</td></tr>
+    <tr><td>Container</td><td>Engineering</td><td>Deployment units</td><td>Figure 2</td></tr>
+    <tr><td>Data</td><td>Architecture, security</td><td>Store resolution</td><td>Figure 3, Figure 4, Figure 14</td></tr>
+    <tr><td>Concurrency</td><td>Engineering</td><td>Object and queue graph</td><td>Figure 5, Figure 6</td></tr>
+    <tr><td>Runtime</td><td>Engineering</td><td>Sequence / loop</td><td>Figure 16, Figure 17</td></tr>
+    <tr><td>Media</td><td>Product, campus</td><td>Stream path</td><td>Figure 7</td></tr>
+    <tr><td>Agents</td><td>Security, architecture</td><td>Policy chain</td><td>Figure 8</td></tr>
+    <tr><td>Operations</td><td>SRE, security</td><td>Logs and vaults</td><td>Figure 9</td></tr>
+    <tr><td>Identity</td><td>Security, tenant</td><td>OAuth and login</td><td>Figure 11, Figure 12</td></tr>
+    <tr><td>Commerce</td><td>Finance, product</td><td>Two cash boxes</td><td>Figure 13</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 5 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="0.4 Contents">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>0.4 Contents</h1>
+  
+  <div class="toc-wrap">
+    <table class="toc"><tr><td class="num"></td><td>Cover</td><td class="pg">1</td></tr>
+<tr><td class="num">0.1</td><td>Identification</td><td class="pg">2</td></tr>
+<tr><td class="num">0.1b</td><td>Approvals</td><td class="pg">3</td></tr>
+<tr><td class="num">0.2</td><td>Stakeholders and concerns</td><td class="pg">4</td></tr>
+<tr><td class="num">0.3</td><td>Viewpoints</td><td class="pg">5</td></tr>
+<tr><td class="num">0.4</td><td>Contents</td><td class="pg">6</td></tr>
+<tr><td class="num">1</td><td>Introduction and goals</td><td class="pg">7</td></tr>
+<tr><td class="num">2</td><td>Constraints</td><td class="pg">8</td></tr>
+<tr><td class="num">3</td><td>Context and scope</td><td class="pg">9</td></tr>
+<tr><td class="num">4</td><td>Solution strategy</td><td class="pg">10</td></tr>
+<tr><td class="num">5.1</td><td>Building blocks: Workers</td><td class="pg">11</td></tr>
+<tr><td class="num">5.2</td><td>Building blocks: persistence</td><td class="pg">12</td></tr>
+<tr><td class="num">5.3</td><td>Building blocks: objects</td><td class="pg">13</td></tr>
+<tr><td class="num">6.1</td><td>Runtime: request path</td><td class="pg">14</td></tr>
+<tr><td class="num">6.2</td><td>Runtime: asynchronous work</td><td class="pg">15</td></tr>
+<tr><td class="num">7.1</td><td>Deployment: edge</td><td class="pg">16</td></tr>
+<tr><td class="num">7.2</td><td>Deployment: provision</td><td class="pg">17</td></tr>
+<tr><td class="num">8.1</td><td>Identity</td><td class="pg">18</td></tr>
+<tr><td class="num">8.2</td><td>Media</td><td class="pg">19</td></tr>
+<tr><td class="num">8.3</td><td>Agents</td><td class="pg">20</td></tr>
+<tr><td class="num">8.4</td><td>Observability and secrets</td><td class="pg">21</td></tr>
+<tr><td class="num">8.5</td><td>Accounts, OAuth, billing</td><td class="pg">22</td></tr></table>
+    <table class="toc"><tr><td class="num">9</td><td>Architecture decisions</td><td class="pg">23</td></tr>
+<tr><td class="num">10</td><td>Quality requirements</td><td class="pg">24</td></tr>
+<tr><td class="num">11</td><td>Glossary and references</td><td class="pg">25</td></tr>
+<tr><td class="num">12</td><td>Agent ingest</td><td class="pg">26</td></tr>
+<tr><td class="num">12.1</td><td>Entry codes and planes</td><td class="pg">27</td></tr>
+<tr><td class="num">12.2</td><td>Workers and queues</td><td class="pg">28</td></tr>
+<tr><td class="num">12.3</td><td>Durable Objects</td><td class="pg">29</td></tr>
+<tr><td class="num">12.4</td><td>Implementation prompt</td><td class="pg">30</td></tr>
+<tr><td class="num">12.5</td><td>Implementation sequence</td><td class="pg">31</td></tr>
+<tr><td class="num">Fig. 1</td><td>Two planes</td><td class="pg">32</td></tr>
+<tr><td class="num">Fig. 2</td><td>Edge and seven Workers</td><td class="pg">33</td></tr>
+<tr><td class="num">Fig. 3</td><td>Identity and tenant data</td><td class="pg">34</td></tr>
+<tr><td class="num">Fig. 4</td><td>D1 resolution</td><td class="pg">35</td></tr>
+<tr><td class="num">Fig. 5</td><td>Durable Objects</td><td class="pg">36</td></tr>
+<tr><td class="num">Fig. 6</td><td>Queues, DLQ and Workflows</td><td class="pg">37</td></tr>
+<tr><td class="num">Fig. 7</td><td>Cloudflare Stream</td><td class="pg">38</td></tr>
+<tr><td class="num">Fig. 8</td><td>Agents and AI Gateway</td><td class="pg">39</td></tr>
+<tr><td class="num">Fig. 9</td><td>Observability and secrets</td><td class="pg">40</td></tr>
+<tr><td class="num">Fig. 10</td><td>Account perimeter</td><td class="pg">41</td></tr>
+<tr><td class="num">Fig. 11</td><td>Tenant OAuth</td><td class="pg">42</td></tr>
+<tr><td class="num">Fig. 12</td><td>Academy identity and Access</td><td class="pg">43</td></tr>
+<tr><td class="num">Fig. 13</td><td>Platform billing and learner payments</td><td class="pg">44</td></tr>
+<tr><td class="num">Fig. 14</td><td>Cloudflare runtime</td><td class="pg">45</td></tr>
+<tr><td class="num">Fig. 15</td><td>Compressed system map</td><td class="pg">46</td></tr>
+<tr><td class="num">Fig. 16</td><td>Request sequence</td><td class="pg">47</td></tr>
+<tr><td class="num">Fig. 17</td><td>AutonomousOps loop</td><td class="pg">48</td></tr>
+<tr><td class="num">A.1</td><td>Mermaid FIG-01 to FIG-03</td><td class="pg">49</td></tr>
+<tr><td class="num">A.2</td><td>Mermaid FIG-04 to FIG-06</td><td class="pg">50</td></tr>
+<tr><td class="num">A.3</td><td>Mermaid FIG-07 to FIG-09</td><td class="pg">51</td></tr>
+<tr><td class="num">A.4</td><td>Mermaid FIG-10 to FIG-12</td><td class="pg">52</td></tr>
+<tr><td class="num">A.5</td><td>Mermaid FIG-13 to FIG-15</td><td class="pg">53</td></tr>
+<tr><td class="num">A.6</td><td>Mermaid FIG-16 to FIG-17</td><td class="pg">54</td></tr>
+<tr><td class="num"></td><td>Back cover</td><td class="pg">55</td></tr></table>
+  </div>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 6 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="1 Introduction and goals">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>1 Introduction and goals</h1>
+  
+  <p>AKADEMATE is a multi-tenant SaaS for academies and schools. The academic domain (Person, Enrollment, Campus P1, Finance) is defined in the Master Architecture Spec. This architecture description covers runtime, data, account perimeter and scale on Cloudflare.</p>
+  <h2>1.1 Requirements</h2>
+  <ul>
+    <li>One product perimeter: DNS, Cloudflare account, git, data, secrets, CI, P&amp;L.</li>
+    <li>Hostnames akademate.com, app, api, campus, ops, plus tenant custom hostnames via Cloudflare for SaaS.</li>
+    <li>Academy actors authenticate with Akademate Identity. AKADEMATE staff authenticate with Google Workspace and Cloudflare Access.</li>
+    <li>Tenant data reached only through TenantDataContext.</li>
+    <li>Same design from 10 to 10 000 tenants.</li>
+  </ul>
+  <h2>1.2 System of interest</h2>
+  <p>Cloudflare account AKADEMATE. Workers Paid. D1 Control plus tenant shards. R2 prefixes. Durable Objects. Queues and Workflows. Stream. Agents SDK and AI Gateway.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 7 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="2 Constraints">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>2 Constraints</h1>
+  
+  <table>
+    <tr><th>Source</th><th>Constraint</th></tr>
+    <tr><td>Workers Paid (2026-08-29)</td><td>~5 000 bindings per Worker script. 50 000 D1 databases per account. 10 GB per database. ~1 TB aggregate D1 per account initially.</td></tr>
+    <tr><td>D1</td><td>SQLite dialect. Single-threaded database. V1 uses CONTROL_D1 + TENANT_SHARD_00…N with tenantId → shardId mapping.</td></tr>
+    <tr><td>Durable Objects</td><td>Unlimited objects, ≤500 classes, ≤10 GB SQLite per object, single-threaded, ~1 000 req/s soft limit per object.</td></tr>
+    <tr><td>Queues</td><td>≤10 000 queues per account, ≤5 000 messages/s per queue, one active consumer, at-least-once.</td></tr>
+    <tr><td>Cloudflare for SaaS</td><td>100 hostnames included; USD 0.10 per additional hostname on documented standard plans.</td></tr>
+    <tr><td>Stream</td><td>Billed on stored minutes plus delivered minutes. Quotas by AKADEMATE plan.</td></tr>
+    <tr><td>Governance</td><td>R3/R4 operations follow PREVIEW → VALIDATE → APPROVE → COMMIT → VERIFY. R4 requires a human signature.</td></tr>
+    <tr><td>Beta products</td><td>Critical path uses GA capabilities. Secrets Store and Email Sending enter with a GA fallback.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 8 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="3 Context and scope">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>3 Context and scope</h1>
+  
+  <p>Two planes. Plane 1 runs the SaaS. Plane 2 holds institutional accounts. Plane 1 scales with academies. Plane 2 stays constant. Figure 1.</p>
+  <table>
+    <tr><th>Plane 1. Cloudflare interior</th><th>Plane 2. External perimeter</th></tr>
+    <tr>
+      <td>Edge, Workers, D1, R2, Durable Objects, queues, workflows, Stream, Agents, logs.</td>
+      <td>Workspace, GCP, GitHub, 1Password, Entra, Zoom, Stripe BRIK64, Mercury, AI providers.</td>
+    </tr>
+    <tr>
+      <td>Grows with D1, objects, events, video, hostnames, AI use.</td>
+      <td>One Workspace, one GCP org, one Cloudflare account, one GitHub, one legal Stripe.</td>
+    </tr>
+  </table>
+  <p>Cloudflare for SaaS terminates campus.cliente.com. Access terminates Platform Ops, staging and internal tools.</p>
+  <div class="tree">BRIK64 Inc. (Delaware)
+  corporate: legal, Stripe / Mercury
+  +-- AKADEMATE
+  +-- other BRIK64 products</div>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 9 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="4 Solution strategy">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>4 Solution strategy</h1>
+  
+  <ol>
+    <li>Canonical Core. Cloud persistence through D1TenantDataStore and TenantDataContext.</li>
+    <li>Seven deployment units. Domain modules (Students, Courses, Campus, Finance, CRM, …) live inside those units.</li>
+    <li>V1 data: Control D1 + shard pool (N well below 5 000 bindings). Target: one D1 per tenant when dynamic attach is GA.</li>
+    <li>R2 prefixes tenant/&#123;tenantId&#125;/… on a small set of product buckets.</li>
+    <li>Queues by function, each with a DLQ. Workflows instantiated per run.</li>
+    <li>Durable Objects keyed by tenant, session, hub, lock or agent.</li>
+    <li>Video on Cloudflare Stream with signed playback tokens from akademate-media.</li>
+    <li>Agents: Policy Engine R0–R4 → Control API → Application Service → TenantDataContext. Models through AI Gateway.</li>
+    <li>Institutional identities @akademate.com. Break-glass dual control, audit, rotate after use.</li>
+  </ol>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 10 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="5.1 Building blocks: Workers">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>5.1 Building blocks: Workers</h1>
+  
+  <p>Figure 2. Application Worker count stays in the order 8–12 at 10 000 tenants.</p>
+  <table>
+    <tr><th>Worker</th><th>Responsibility</th></tr>
+    <tr><td>akademate-app</td><td>Frontend, BFF and tenant API</td></tr>
+    <tr><td>akademate-control</td><td>Platform Ops and Control API</td></tr>
+    <tr><td>akademate-integrations</td><td>OAuth, webhooks and connectors</td></tr>
+    <tr><td>akademate-media</td><td>Uploads, R2 and Stream tokens</td></tr>
+    <tr><td>akademate-events</td><td>Queue consumers</td></tr>
+    <tr><td>akademate-automation</td><td>Workflows, schedules and Cron</td></tr>
+    <tr><td>akademate-agents</td><td>AutonomousOps / Agents SDK</td></tr>
+  </table>
+  <p>Public path: Internet → DNS / SaaS hostname → WAF → Turnstile → akademate-app. Ops path: Access → akademate-control.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 11 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="5.2 Building blocks: persistence">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>5.2 Building blocks: persistence</h1>
+  
+  <p>Control D1 holds platform metadata: tenant, plan, mapping, audit, agents. Academic data lives in shards; the target is one D1 per tenant. Figures 3, 4 and 14.</p>
+  <table>
+    <tr><th>Mode</th><th>Design</th></tr>
+    <tr><td>V1</td><td>CONTROL_D1 + TENANT_SHARD_00…N. Mapping tenantId → shardId. tenant_id column inside the shard.</td></tr>
+    <tr><td>Target</td><td>Provisioned D1 per tenant through the attach API once GA and verified.</td></tr>
+  </table>
+  <p>Preventive split at ~7–8 GB per tenant: core / academic / finance / archive. Account aggregate near 1 TB: request a limit lift from Cloudflare. Isolation is database or shard plus server-side policy.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 12 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="5.3 Building blocks: objects">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>5.3 Building blocks: objects</h1>
+  
+  <p>R2 product buckets with logical prefixes:</p>
+  <div class="tree">akademate-prod-private
+akademate-prod-exports
+akademate-prod-system
+akademate-staging-*
+
+tenant/{tenantId}/students/...
+tenant/{tenantId}/documents/...
+tenant/{tenantId}/assignments/...</div>
+  <p>Order of magnitude: 3 GB of documents per tenant → 10 tenants 30 GB; 10 000 tenants 30 TB. Documents, exports, backups and artefacts on R2. Video on Stream.</p>
+  <h2>Durable Objects</h2>
+  <table>
+    <tr><th>Class</th><th>Key</th><th>Use</th></tr>
+    <tr><td>TenantCoordinator</td><td>tenant-&#123;id&#125;</td><td>Per-academy coordination</td></tr>
+    <tr><td>LiveClassSession</td><td>session-&#123;id&#125;</td><td>Live class / presence</td></tr>
+    <tr><td>RealtimeHub</td><td>hub-&#123;id&#125;</td><td>Realtime fan-out</td></tr>
+    <tr><td>CriticalLock</td><td>lock-&#123;resource&#125;</td><td>Short exclusions</td></tr>
+    <tr><td>AgentRuntime</td><td>agent-&#123;id&#125;</td><td>Durable agent runtime</td></tr>
+  </table>
+  <p>10 000 tenants imply ~10 000 TenantCoordinator instances plus ephemeral objects. D1 remains the academic system of record. Figure 5.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 13 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="6.1 Runtime: request path">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>6.1 Runtime: request path</h1>
+  
+  <p>Figure 16.</p>
+  <ol>
+    <li>Client HTTPS to akademate-app.</li>
+    <li>Identity from session or token. Tenant from hostname or claim. Client-supplied tenantId is not authority.</li>
+    <li>Authorization: RBAC + ABAC + ResourcePolicy.</li>
+    <li>TenantDataContext.open(tenantId).</li>
+    <li>Control D1 returns the store mapping.</li>
+    <li>Query on tenant D1 or shard, with tenant_id.</li>
+    <li>Domain operation. Outbox in the same transaction or batch.</li>
+    <li>Response.</li>
+  </ol>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 14 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="6.2 Runtime: asynchronous work">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>6.2 Runtime: asynchronous work</h1>
+  
+  <p>Queues by function: domain-events, integrations, notifications, usage-metering, media, agent-jobs, each with a DLQ. Consumer: akademate-events. Figure 6.</p>
+  <p>At volume: domain-events-0…3 with hash(tenantId) modulo 4.</p>
+  <p>Workflow classes deployed once: provisioning, offboarding, import, export, GDPR, billing, recording ingest, integration sync, incident. Instantiated per run. A step may wait on wall-clock. Active CPU 30 s default, configurable to five minutes on Paid.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 15 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="7.1 Deployment: edge">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>7.1 Deployment: edge</h1>
+  
+  <p>Product hostnames: akademate.com, app.akademate.com, api.akademate.com, campus.akademate.com, ops.akademate.com, and tenant custom hostnames. Figure 2.</p>
+  <table>
+    <tr><th>Layer</th><th>Function</th></tr>
+    <tr><td>DNS</td><td>Zone akademate.com in the AKADEMATE Cloudflare account</td></tr>
+    <tr><td>Cloudflare for SaaS</td><td>TLS and tenant hostname</td></tr>
+    <tr><td>WAF + DDoS + rate limit</td><td>Common edge for app and integrations</td></tr>
+    <tr><td>Turnstile</td><td>Abuse on login and leads, with authentication</td></tr>
+    <tr><td>Cloudflare Access</td><td>AKADEMATE staff on Platform Ops, staging and internal tools</td></tr>
+  </table>
+  <p>akademate.com and www run on the marketing Worker (OpenNext) on Cloudflare. Tenant runtime is akademate-app on the same platform.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 16 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="7.2 Deployment: provision">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>7.2 Deployment: provision</h1>
+  
+  <ol>
+    <li>Create or isolate Cloudflare account AKADEMATE and zone akademate.com.</li>
+    <li>Bind the seven Workers to Control D1, shards, R2, Queues and Durable Objects.</li>
+    <li>Enable Cloudflare for SaaS and Access for Platform Ops.</li>
+    <li>Publish akademate-app, akademate-control and the remaining units with Wrangler / OpenNext by surface.</li>
+    <li>Enable Stream, AI Gateway and Analytics Engine with tenant metadata.</li>
+    <li>Verify health, Turnstile, signed playback and a synthetic transaction.</li>
+  </ol>
+  <p>PHASE 0 of the execution programme: audit schema and TenantDataContext mapping. Cutover by capability, with evidence in the ledger.</p>
+  <h2>Scale matrix</h2>
+  <table>
+    <tr><th>Resource</th><th>10</th><th>100</th><th>1 000</th><th>10 000</th></tr>
+    <tr><td>App Workers</td><td>~7</td><td>~7</td><td>7–9</td><td>8–12</td></tr>
+    <tr><td>D1 Control</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+    <tr><td>D1 tenant / shards</td><td>10 / pool</td><td>100 / pool</td><td>shards</td><td>shards + 1 TB lift</td></tr>
+    <tr><td>R2 prod buckets</td><td>3–4</td><td>3–4</td><td>3–5</td><td>3–8</td></tr>
+    <tr><td>Queues + DLQ</td><td>6+6</td><td>6+6</td><td>6–10</td><td>12–24 shard</td></tr>
+    <tr><td>TenantCoordinator DO</td><td>~10</td><td>~100</td><td>~1 000</td><td>~10 000</td></tr>
+    <tr><td>Custom hostnames</td><td>0–10</td><td>~100</td><td>~1 000</td><td>~10 000+</td></tr>
+    <tr><td>Admin accounts (plane 2)</td><td>constant</td><td>constant</td><td>constant</td><td>constant</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 17 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="8.1 Identity">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>8.1 Identity</h1>
+  
+  <table>
+    <tr><th>Actor</th><th>Identity</th><th>Authorization</th></tr>
+    <tr><td>Learner / teacher / academy admin</td><td>Akademate Identity (campus_session or equivalent)</td><td>RBAC + ABAC + tenant ResourcePolicy</td></tr>
+    <tr><td>AKADEMATE staff</td><td>Google Workspace @akademate.com + Cloudflare Access</td><td>Akademate authorization on Control API</td></tr>
+    <tr><td>Agent</td><td>AgentIdentity + AgentGrant (Master Spec §18)</td><td>R0–R4 via Policy Engine</td></tr>
+  </table>
+  <p>Campus P1: campus session distinct from staff AuthShell. GlobalIdentity indexes people across tenants. TenantMembership binds identity to tenant. Capability policies close features by plan. Figures 3 and 12.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 18 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="8.2 Media">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>8.2 Media</h1>
+  
+  <p>Teacher or admin uploads to akademate-media. The Worker publishes to Cloudflare Stream. The learner plays with a short-lived signed token bound to identity and tenant. Figure 7.</p>
+  <p>Meet, Zoom and Teams recordings enter Stream through recording ingest. Dimension stored minutes plus delivered minutes. Quotas by AKADEMATE plan.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 19 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="8.3 Agents">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>8.3 Agents</h1>
+  
+  <p>Event → Agent Runtime (Durable Object) → Policy Engine R0–R4 → Control API / MCP → Application Service → Domain / TenantDataContext. Figures 8 and 17.</p>
+  <p>AI Gateway: akademate-production and akademate-staging. Metadata: tenantId, agentId, operation, riskClass, feature. Per-tenant quota, per-agent budget, emergency cap. Workers AI and frontier models leave through the Gateway.</p>
+  <p>Heavy code (coding agent): Cloudflare Containers, isolated workspace, scale to zero, billed while active.</p>
+  <p>Loop: Observe → Interpret → Plan → Execute → Verify → Record → Learn.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 20 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="8.4 Observability and secrets">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>8.4 Observability and secrets</h1>
+  
+  <p>Workers Logs, Traces and Metrics on the seven Workers. Analytics Engine datasets: platform_usage, tenant_usage, platform_health, business_events, ai_usage, media_usage. Platform Audit on akademate-control. Figure 9.</p>
+  <p>External monitor (Better Stack or equivalent) against akademate.com, app, api, ops, /auth health and one synthetic transaction.</p>
+  <p>1Password is the human root of truth. Runtime GA: Workers Secrets. Secrets Store (open beta) enters gradually. Vaults AKADEMATE: ROOT, CLOUDFLARE, GITHUB, GOOGLE, MICROSOFT, ZOOM, AI, PAYMENTS, PROD, DR.</p>
+  <p>EmailProvider with CloudflareEmailProvider and ExternalEmailProvider. Inbound Routing available. Outbound Sending in public beta; verify quotas at contract.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 21 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="8.5 Accounts, OAuth, billing">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>8.5 Accounts, OAuth, billing</h1>
+  
+  <table>
+    <tr><th>System</th><th>Count at 10–10 000 tenants</th></tr>
+    <tr><td>Google Workspace AKADEMATE</td><td>1 (employees)</td></tr>
+    <tr><td>GCP Organization AKADEMATE</td><td>1</td></tr>
+    <tr><td>Cloudflare account AKADEMATE</td><td>1</td></tr>
+    <tr><td>GitHub Organization</td><td>1</td></tr>
+    <tr><td>1Password</td><td>1 (separate vaults)</td></tr>
+    <tr><td>Entra / Zoom OAuth apps</td><td>~2 environments each</td></tr>
+    <tr><td>Stripe legal BRIK64</td><td>1</td></tr>
+    <tr><td>Mercury</td><td>1 corporate</td></tr>
+  </table>
+  <p>GCP covers OAuth, Calendar, Meet and Drive. Tenant consents to AKADEMATE OAuth apps. Credentials stay per academy. Figures 10–12.</p>
+  <table>
+    <tr><th>Box</th><th>Flow</th></tr>
+    <tr><td>Platform Billing</td><td>BRIK64 Inc. → Stripe (AKADEMATE products) → Mercury</td></tr>
+    <tr><td>Learner payments</td><td>Tenant → tenant Stripe / Redsys / provider → learners</td></tr>
+  </table>
+  <p>Each box has its merchant of record. Figure 13. Cloudflare for Startups in the name of BRIK64 Inc. is a human step (B-050).</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 22 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="9 Architecture decisions">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>9 Architecture decisions</h1>
+  
+  <table>
+    <tr><th>ID</th><th>Decision</th></tr>
+    <tr><td>ADR-C1</td><td>Cloud runtime is Cloudflare Workers, D1, R2, Durable Objects, Queues, Workflows, Stream.</td></tr>
+    <tr><td>ADR-C2</td><td>Seven deployment units. Domain modules compose inside those units.</td></tr>
+    <tr><td>ADR-C3</td><td>TenantDataContext is the path to tenant data.</td></tr>
+    <tr><td>ADR-C4</td><td>V1 D1 uses Control + shards. Per-tenant D1 is the target once dynamic attach is GA.</td></tr>
+    <tr><td>ADR-C5</td><td>R2 uses prefixes, a small set of product buckets.</td></tr>
+    <tr><td>ADR-C6</td><td>Queues by function with DLQ. Workflows by class, instantiated per run.</td></tr>
+    <tr><td>ADR-C7</td><td>Akademate Identity for the academy. Cloudflare Access for Platform Ops.</td></tr>
+    <tr><td>ADR-C8</td><td>Agents execute through Policy Engine and Control API. Models through AI Gateway.</td></tr>
+    <tr><td>ADR-C9</td><td>Platform Billing (BRIK64 Stripe / Mercury) is a separate box from tenant learner payments.</td></tr>
+    <tr><td>ADR-C10</td><td>Plane 2 stays at one institutional account per system.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 23 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="10 Quality requirements">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>10 Quality requirements</h1>
+  
+  <table>
+    <tr><th>Attribute</th><th>Scenario</th></tr>
+    <tr><td>Isolation</td><td>Given two tenants, a query under TenantDataContext A returns only A rows.</td></tr>
+    <tr><td>Availability</td><td>Edge, Workers and Stream remain the serving path. External monitor alerts on health failure.</td></tr>
+    <tr><td>Integrity</td><td>Outbox committed with the domain write. DLQ holds failed consumers.</td></tr>
+    <tr><td>Confidentiality</td><td>Signed Stream tokens. Workers Secrets from 1Password. Access on ops hostnames.</td></tr>
+    <tr><td>Scalability</td><td>10 000 tenants: shard D1 and high-volume queues; split a tenant near 10 GB; request D1 aggregate lift.</td></tr>
+    <tr><td>Operability</td><td>Analytics Engine datasets and Platform Audit identify tenant, Worker and risk class.</td></tr>
+    <tr><td>Evolvability</td><td>Core stays canonical. Capability cutover with ledger evidence.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 24 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="11 Glossary and references">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>11 Glossary and references</h1>
+  
+  <table>
+    <tr><th>Term</th><th>Definition</th></tr>
+    <tr><td>TenantDataContext</td><td>Opened with tenantId. Yields the D1 binding and object prefix for that tenant.</td></tr>
+    <tr><td>Control D1</td><td>Platform metadata database: tenants, plans, shard map, audit, agents.</td></tr>
+    <tr><td>Shard</td><td>Shared D1 holding many tenants, filtered by tenant_id. V1 isolation unit.</td></tr>
+    <tr><td>Plane 1</td><td>Cloudflare interior: compute, data, async, media, agents.</td></tr>
+    <tr><td>Plane 2</td><td>Institutional accounts of the product.</td></tr>
+    <tr><td>R0–R4</td><td>Agent autonomy: observe, suggest, reversible change, sensitive change, irreversible change.</td></tr>
+  </table>
+  <h2>References</h2>
+  <ul>
+    <li>ISO/IEC/IEEE 42010:2022, Architecture description</li>
+    <li>ISO 7200:2004, Data fields in title blocks and document headers</li>
+    <li>arc42 template, sections 1–12</li>
+    <li>Clements et al., Documenting Software Architectures: Views and Beyond</li>
+    <li>docs/specs/AKADEMATE_MASTER_ARCHITECTURE_SPEC.md v1.2</li>
+    <li>docs/specs/AKADEMATE_CLOUDFLARE_NATIVE_SAAS.md v1.1</li>
+    <li>Cloudflare product limits, consulted 2026-08-29</li>
+  </ul>
+  <h2>Revision history</h2>
+  <table>
+    <tr><th>Rev</th><th>Date</th><th>Change</th></tr>
+    <tr><td>A</td><td>2026-08-30</td><td>Initial architecture description.</td></tr>
+    <tr><td>B</td><td>2026-08-30</td><td>English. ISO 7200 identification. arc42 + 42010 views. Type-area margins.</td></tr>
+    <tr><td>C</td><td>2026-08-30</td><td>Cover and back cover. Approvals on a dedicated sheet.</td></tr>
+    <tr><td>D</td><td>2026-08-30</td><td>Agent ingest: machine codes, implementation prompt, Mermaid source in Appendix A.</td></tr>
+    <tr><td>E</td><td>2026-08-30</td><td>Split agent-ingest and machine-code sheets so tables sit above the footer.</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 25 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="12 Agent ingest">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>12 Agent ingest</h1>
+  
+  <p>This architecture description ships a machine form so an implementing agent reads the same source a human reads on paper.</p>
+  <h2>Read order</h2>
+  <ol>
+    <li><code>AKA-ARCH-SAAS-001.ingest.json</code>: codes, ADRs, units, queues, objects, every figure as Mermaid.</li>
+    <li><code>diagrams/*.mmd</code>: figure sources, MIME <code>text/vnd.mermaid</code>.</li>
+    <li><code>AKA-ARCH-SAAS-001.AGENT.md</code>: implementation prompt and done-when checks.</li>
+    <li>This HTML, or the PDF text layer: sheets 12 to 12.5 and Appendix A.</li>
+  </ol>
+  <p>Each figure sheet names its source on the page. Example: <code>FIG-01 · diagrams/01-dos-planos.mmd</code>. The PNG is a rendering of that file. Appendix A repeats the Mermaid as selectable text in this PDF.</p>
+  <p>Codes continue on 12.1 (entry and planes), 12.2 (Workers and queues), 12.3 (Durable Objects). The implementation prompt is 12.4 and 12.5.</p>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 26 / 55</span></div>
+</section>
+
+<section class="sheet codes" aria-label="12.1 Entry codes and planes">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>12.1 Entry codes and planes</h1>
+  
+  <h2>Entry codes</h2>
+  <table>
+    <tr><th>Code</th><th>Artifact</th></tr>
+    <tr><td>INGEST-JSON</td><td>AKA-ARCH-SAAS-001.ingest.json</td></tr>
+    <tr><td>INGEST-PROMPT</td><td>AKA-ARCH-SAAS-001.AGENT.md</td></tr>
+    <tr><td>INGEST-LLMS</td><td>llms.txt</td></tr>
+    <tr><td>FIG-01 … FIG-17</td><td>diagrams/01-*.mmd … 17-*.mmd</td></tr>
+    <tr><td>UNIT-APP … UNIT-AGENTS</td><td>Seven Workers</td></tr>
+    <tr><td>ADR-C1 … ADR-C10</td><td>Architecture decisions, section 9</td></tr>
+  </table>
+  <h2>Planes and risk classes</h2>
+  <table>
+    <tr><th>Code</th><th>Meaning</th></tr>
+    <tr><td>PLANE-1</td><td>Cloudflare interior: compute, data, async, media, agents</td></tr>
+    <tr><td>PLANE-2</td><td>Institutional account perimeter</td></tr>
+    <tr><td>R0</td><td>observe</td></tr>
+    <tr><td>R1</td><td>suggest</td></tr>
+    <tr><td>R2</td><td>reversible change</td></tr>
+    <tr><td>R3</td><td>sensitive change</td></tr>
+    <tr><td>R4</td><td>irreversible change</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 27 / 55</span></div>
+</section>
+
+<section class="sheet codes" aria-label="12.2 Workers and queues">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>12.2 Workers and queues</h1>
+  
+  <h2>Workers</h2>
+  <table>
+    <tr><th>Code</th><th>Unit</th><th>Role</th></tr>
+    <tr><td>UNIT-APP</td><td><code>akademate-app</code></td><td>Frontend, BFF and tenant API</td></tr>
+<tr><td>UNIT-CTRL</td><td><code>akademate-control</code></td><td>Platform Ops and Control API</td></tr>
+<tr><td>UNIT-INT</td><td><code>akademate-integrations</code></td><td>OAuth, webhooks and connectors</td></tr>
+<tr><td>UNIT-MEDIA</td><td><code>akademate-media</code></td><td>Uploads, R2 and Stream tokens</td></tr>
+<tr><td>UNIT-EVT</td><td><code>akademate-events</code></td><td>Queue consumers</td></tr>
+<tr><td>UNIT-AUTO</td><td><code>akademate-automation</code></td><td>Workflows, schedules and Cron</td></tr>
+<tr><td>UNIT-AGENTS</td><td><code>akademate-agents</code></td><td>AutonomousOps / Agents SDK</td></tr>
+  </table>
+  <h2>Queues</h2>
+  <p>Each queue has a companion DLQ. Consumer: <code>akademate-events</code>.</p>
+  <table>
+    <tr><th>Code</th><th>Queue</th><th>Role</th></tr>
+    <tr><td>Q-DOMAIN</td><td><code>domain-events</code></td><td>Canonical domain outbox</td></tr>
+<tr><td>Q-INT</td><td><code>integrations</code></td><td>Connector and webhook work</td></tr>
+<tr><td>Q-NOTIFY</td><td><code>notifications</code></td><td>Outbound notices</td></tr>
+<tr><td>Q-USAGE</td><td><code>usage-metering</code></td><td>Platform usage</td></tr>
+<tr><td>Q-MEDIA</td><td><code>media</code></td><td>R2 and Stream jobs</td></tr>
+<tr><td>Q-AGENT</td><td><code>agent-jobs</code></td><td>Agent execution</td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 28 / 55</span></div>
+</section>
+
+<section class="sheet codes" aria-label="12.3 Durable Objects">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>12.3 Durable Objects</h1>
+  
+  <p>D1 remains the academic system of record. Object IDs follow the patterns below.</p>
+  <table>
+    <tr><th>Code</th><th>Class</th><th>ID pattern</th></tr>
+    <tr><td>DO-TC</td><td><code>TenantCoordinator</code></td><td><code>tenant-{id}</code></td></tr>
+<tr><td>DO-LOCK</td><td><code>IdempotencyLock</code></td><td><code>lock-{hash}</code></td></tr>
+<tr><td>DO-RATE</td><td><code>RateLimiter</code></td><td><code>rl-{tenant}-{route}</code></td></tr>
+<tr><td>DO-PRESENCE</td><td><code>PresenceRoom</code></td><td><code>room-{id}</code></td></tr>
+<tr><td>DO-AGENT</td><td><code>AgentSession</code></td><td><code>agent-{runId}</code></td></tr>
+  </table>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 29 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="12.4 Implementation prompt">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>12.4 Implementation prompt</h1>
+  
+  <p class="code-line">INGEST-PROMPT · AKA-ARCH-SAAS-001.AGENT.md · part 1 of 2</p>
+  <pre class="mmd-src"># AKA-ARCH-SAAS-001 agent implementation prompt
+
+You are implementing AKADEMATE on Cloudflare from architecture description AKA-ARCH-SAAS-001 (BRIK64 Inc.).
+
+## Ingest order
+
+1. Read `AKA-ARCH-SAAS-001.ingest.json` in this folder. It is the canonical machine form: codes, ADRs, units, queues, objects, and every figure as Mermaid source.
+2. Read each `diagrams/*.mmd` named in that file. PNG files are renderings of those sources.
+3. Read this file for the execution contract.
+4. Read `AKA-ARCH-SAAS-001.html` or the PDF text layer (sheets 12–12.5 and Appendix A) when you need the human layout.
+
+Appendix A of the PDF holds the Mermaid as selectable text. Figure sheets name the source path on the page (example: FIG-01 · diagrams/01-dos-planos.mmd).
+
+## Execution contract
+
+Apply every ADR-C1 through ADR-C10.
+
+Open tenant data only through TenantDataContext(tenantId). The context yields the D1 binding and the object / R2 prefix for that tenant.
+
+Ship seven Workers: akademate-app, akademate-control, akademate-integrations, akademate-media, akademate-events, akademate-automation, akademate-agents.
+
+Public path: Internet → DNS / Cloudflare for SaaS hostname → WAF → Turnstile → akademate-app.
+Ops path: Cloudflare Access → akademate-control.
+
+V1 D1: one Control D1 plus tenant shards. Binding budget about 5 000 per Worker. Shard map lives in Control D1.
+
+R2: product buckets with tenant prefixes `tenants/{tenantId}/`.
+
+Queues by function, each with a DLQ. Consumer akademate-events. Workflows by class, new instance per run, on akademate-automation.
+
+Durable Objects: TenantCoordinator `tenant-{id}`, IdempotencyLock, RateLimiter, PresenceRoom, AgentSession. D1 remains the academic system of record.
+
+Video: upload via akademate-media to Cloudflare Stream. Playback with a short-lived signed token bound to identity and tenant.
+
+Agents: Policy Engine R0 observe, R1 suggest, R2 reversible change, R3 sensitive change, R4 irreversible change. Mutating work goes through Control API. Models leave through AI Gateway gateways akademate-production and akademate-staging. Metadata: tenantId, agentId, operation, riskClass, feature.
+
+Identity: Akademate Identity for academy staff, teachers, learners. Cloudflare Access for Platform Ops.
+
+Billing: BRIK64 Stripe / Mercury for the platform. Tenant learner payments in a separate box.
+
+Plane 1 is the Cloudflare interior. Plane 2 is one institutional account set for the product.
+
+Marketing host akademate.com and www run on the marketing Worker (OpenNext) on Cloudflare. Tenant runtime is akademate-app.</pre>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 30 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="12.5 Implementation sequence">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>12.5 Implementation sequence</h1>
+  
+  <p class="code-line">INGEST-PROMPT · AKA-ARCH-SAAS-001.AGENT.md · part 2 of 2</p>
+  <pre class="mmd-src">## Implementation sequence
+
+1. Map UNIT-* to Wrangler projects and routes.
+2. Create CONTROL_D1 and the first shard bindings. Implement TenantDataContext and the shard map.
+3. Create R2 buckets and prefix helpers.
+4. Create the six functional queues and their DLQs. Implement the outbox with the domain write.
+5. Implement the five Durable Object classes.
+6. Wire Stream signed playback on akademate-media.
+7. Stand Akademate Identity and Access in front of the two paths.
+8. Stand Policy Engine R0–R4 and AI Gateway.
+9. Split Platform Billing from learner payments.
+10. Emit traces, logs and Analytics Engine datasets named in section 8.4.
+
+## Done when
+
+Every figure in ingest.json has a matching `.mmd`. Every UNIT, Q, DO and ADR-C code is present in code or Wrangler config. Tenant isolation is enforced by TenantDataContext. Agents cannot mutate except through Control API at the stated R-class.</pre>
+
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 31 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 1 Two planes">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 1. Two planes</h1>
+  <p class="code-line">FIG-01 · diagrams/01-dos-planos.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/01-dos-planos.png" alt="FIG-01 Two planes. Machine source diagrams/01-dos-planos.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 32 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 2 Edge and seven Workers">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 2. Edge and seven Workers</h1>
+  <p class="code-line">FIG-02 · diagrams/02-edge-workers.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/02-edge-workers.png" alt="FIG-02 Edge and seven Workers. Machine source diagrams/02-edge-workers.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 33 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 3 Identity and tenant data">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 3. Identity and tenant data</h1>
+  <p class="code-line">FIG-03 · diagrams/03-identidad-datos.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/03-identidad-datos.png" alt="FIG-03 Identity and tenant data. Machine source diagrams/03-identidad-datos.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 34 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 4 D1 resolution">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 4. D1 resolution</h1>
+  <p class="code-line">FIG-04 · diagrams/04-d1-resolucion.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/04-d1-resolucion.png" alt="FIG-04 D1 resolution. Machine source diagrams/04-d1-resolucion.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 35 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 5 Durable Objects">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 5. Durable Objects</h1>
+  <p class="code-line">FIG-05 · diagrams/05-durable-objects.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/05-durable-objects.png" alt="FIG-05 Durable Objects. Machine source diagrams/05-durable-objects.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 36 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 6 Queues, DLQ and Workflows">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 6. Queues, DLQ and Workflows</h1>
+  <p class="code-line">FIG-06 · diagrams/06-colas-workflows.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/06-colas-workflows.png" alt="FIG-06 Queues, DLQ and Workflows. Machine source diagrams/06-colas-workflows.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 37 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 7 Cloudflare Stream">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 7. Cloudflare Stream</h1>
+  <p class="code-line">FIG-07 · diagrams/07-stream.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/07-stream.png" alt="FIG-07 Cloudflare Stream. Machine source diagrams/07-stream.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 38 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 8 Agents and AI Gateway">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 8. Agents and AI Gateway</h1>
+  <p class="code-line">FIG-08 · diagrams/08-agents-ai.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/08-agents-ai.png" alt="FIG-08 Agents and AI Gateway. Machine source diagrams/08-agents-ai.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 39 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 9 Observability and secrets">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 9. Observability and secrets</h1>
+  <p class="code-line">FIG-09 · diagrams/09-observabilidad-secretos.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/09-observabilidad-secretos.png" alt="FIG-09 Observability and secrets. Machine source diagrams/09-observabilidad-secretos.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 40 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 10 Account perimeter">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 10. Account perimeter</h1>
+  <p class="code-line">FIG-10 · diagrams/10-perimetro-cuentas.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/10-perimetro-cuentas.png" alt="FIG-10 Account perimeter. Machine source diagrams/10-perimetro-cuentas.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 41 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 11 Tenant OAuth">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 11. Tenant OAuth</h1>
+  <p class="code-line">FIG-11 · diagrams/11-oauth-clientes.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/11-oauth-clientes.png" alt="FIG-11 Tenant OAuth. Machine source diagrams/11-oauth-clientes.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 42 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 12 Academy identity and Access">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 12. Academy identity and Access</h1>
+  <p class="code-line">FIG-12 · diagrams/12-dos-logins.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/12-dos-logins.png" alt="FIG-12 Academy identity and Access. Machine source diagrams/12-dos-logins.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 43 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 13 Platform billing and learner payments">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 13. Platform billing and learner payments</h1>
+  <p class="code-line">FIG-13 · diagrams/13-billing.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/13-billing.png" alt="FIG-13 Platform billing and learner payments. Machine source diagrams/13-billing.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 44 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 14 Cloudflare runtime">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 14. Cloudflare runtime</h1>
+  <p class="code-line">FIG-14 · diagrams/14-runtime-cloud.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/14-runtime-cloud.png" alt="FIG-14 Cloudflare runtime. Machine source diagrams/14-runtime-cloud.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 45 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 15 Compressed system map">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 15. Compressed system map</h1>
+  <p class="code-line">FIG-15 · diagrams/15-mapa-comprimido.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/15-mapa-comprimido.png" alt="FIG-15 Compressed system map. Machine source diagrams/15-mapa-comprimido.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 46 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 16 Request sequence">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 16. Request sequence</h1>
+  <p class="code-line">FIG-16 · diagrams/16-secuencia-request.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/16-secuencia-request.png" alt="FIG-16 Request sequence. Machine source diagrams/16-secuencia-request.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 47 / 55</span></div>
+</section>
+
+<section class="sheet fig" aria-label="Figure 17 AutonomousOps loop">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>Figure 17. AutonomousOps loop</h1>
+  <p class="code-line">FIG-17 · diagrams/17-autonomous-loop.mmd · text/vnd.mermaid · PNG is a rendering of that source</p>
+  </div>
+  <div class="fig-frame">
+    <img src="diagrams/17-autonomous-loop.png" alt="FIG-17 AutonomousOps loop. Machine source diagrams/17-autonomous-loop.mmd" />
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 48 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="A.1 Mermaid source FIG-01 to FIG-03">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>A.1 Mermaid source FIG-01 to FIG-03</h1>
+  <p class="code-line">FIG-01 · diagrams/01-dos-planos.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-01-src">flowchart TB
+  LEGAL[BRIK64 Inc]
+  LEGAL --&gt; PERIM[Plane 2 - External perimeter]
+  LEGAL --&gt; CF[Plane 1 - Cloudflare interior]
+  PERIM --&gt; WS[Workspace akademate.com]
+  PERIM --&gt; GH[GitHub org]
+  PERIM --&gt; GCP[GCP org]
+  PERIM --&gt; OP[1Password vaults]
+  PERIM --&gt; OAUTH[OAuth apps]
+  PERIM --&gt; BILL[Stripe + Mercury]
+  CF --&gt; EDGE[Edge + WAF]
+  CF --&gt; RUN[7 Workers]
+  CF --&gt; DATA[D1 + R2 + DO]
+  CF --&gt; ASYNC[Queues + Workflows]</pre>
+<p class="code-line">FIG-02 · diagrams/02-edge-workers.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-02-src">flowchart TB
+  NET[Internet]
+  CUSTOM[campus.cliente.com]
+  AKA[&quot;*.akademate.com&quot;]
+  subgraph EDGE[&quot;Edge / Security&quot;]
+    DNS[DNS]
+    SAAS[Cloudflare for SaaS]
+    WAF[WAF + DDoS + Rate limit]
+    TURN[Turnstile]
+    ACCESS[Access - Ops]
+  end
+  NET --&gt; DNS
+  CUSTOM --&gt; SAAS
+  AKA --&gt; DNS
+  DNS --&gt; WAF
+  SAAS --&gt; WAF
+  WAF --&gt; TURN
+  subgraph RUN[&quot;Runtime - 7 Workers&quot;]
+    APP[akademate-app]
+    CTRL[akademate-control]
+    INT[akademate-integrations]
+    MEDIA[akademate-media]
+    EVENTS[akademate-events]
+    AUTO[akademate-automation]
+    AGENTS[akademate-agents]
+  end
+  TURN --&gt; APP
+  ACCESS --&gt; CTRL
+  APP --&gt; INT
+  APP --&gt; MEDIA
+  APP --&gt; CTRL
+  APP --&gt; EVENTS
+  AUTO --&gt; EVENTS
+  AGENTS --&gt; CTRL</pre>
+<p class="code-line">FIG-03 · diagrams/03-identidad-datos.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-03-src">flowchart LR
+  APP[akademate-app]
+  APP --&gt; SESS[Session / Auth Context]
+  SESS --&gt; GID[GlobalIdentity]
+  SESS --&gt; MEM[Tenant Membership]
+  MEM --&gt; POL[RBAC + ABAC + capabilities]
+  APP --&gt; TDC[TenantDataContext]
+  TDC --&gt; CTRLDB[(D1 Control)]
+  TDC --&gt; SHARD[(D1 shard / tenant)]
+  APP --&gt; R2[(R2 tenant/id)]
+  CTRL[akademate-control] --&gt; CTRLDB</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 49 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="A.2 Mermaid source FIG-04 to FIG-06">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>A.2 Mermaid source FIG-04 to FIG-06</h1>
+  <p class="code-line">FIG-04 · diagrams/04-d1-resolucion.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-04-src">flowchart LR
+  REQ[Request] --&gt; AUTH[Identity]
+  AUTH --&gt; TEN[Tenant Resolver]
+  TEN --&gt; CTX[TenantDataContext]
+  CTX --&gt; CTRL[(D1 Control mapping)]
+  CTX --&gt; DB[(D1 tenant or shard)]</pre>
+<p class="code-line">FIG-05 · diagrams/05-durable-objects.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-05-src">flowchart TB
+  APP[akademate-app] --&gt; TC[TenantCoordinator]
+  APP --&gt; LS[LiveClassSession]
+  APP --&gt; RH[RealtimeHub]
+  TDC[TenantDataContext] --&gt; LOCK[CriticalLock]
+  AG[akademate-agents] --&gt; AR[AgentRuntime]</pre>
+<p class="code-line">FIG-06 · diagrams/06-colas-workflows.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-06-src">flowchart TB
+  APP[akademate-app] --&gt; QD[domain-events]
+  INT[akademate-integrations] --&gt; QI[integrations]
+  APP --&gt; QM[notifications]
+  APP --&gt; QU[usage-metering]
+  MEDIA[akademate-media] --&gt; QV[media]
+  AG[akademate-agents] --&gt; QA[agent-jobs]
+  QD --&gt; EV[akademate-events]
+  QI --&gt; EV
+  QM --&gt; EV
+  QU --&gt; EV
+  QV --&gt; EV
+  QA --&gt; EV
+  EV --&gt; DLQ[Dead letter queues]
+  EV --&gt; WF[Workflow classes]
+  WF --&gt; W1[Tenant lifecycle]
+  WF --&gt; W2[Import / Export]
+  WF --&gt; W3[GDPR]
+  WF --&gt; W4[Billing]
+  WF --&gt; W5[Media ingest]
+  WF --&gt; W6[Incident]</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 50 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="A.3 Mermaid source FIG-07 to FIG-09">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>A.3 Mermaid source FIG-07 to FIG-09</h1>
+  <p class="code-line">FIG-07 · diagrams/07-stream.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-07-src">flowchart LR
+  UP[Teacher / Admin] --&gt; MW[akademate-media]
+  MW --&gt; ST[Cloudflare Stream]
+  ST --&gt; TOK[Signed playback]
+  TOK --&gt; STU[Campus learner]
+  MEET[Meet] --&gt; ING[Recording ingest]
+  ZOOM[Zoom] --&gt; ING
+  TEAMS[Teams] --&gt; ING
+  ING --&gt; ST</pre>
+<p class="code-line">FIG-08 · diagrams/08-agents-ai.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-08-src">flowchart TB
+  EVT[Event] --&gt; AR[Agent Runtime DO]
+  AR --&gt; PE[Policy Engine R0-R4]
+  PE --&gt; API[Control API / MCP]
+  API --&gt; SVC[Application Service]
+  SVC --&gt; DOM[Domain + TenantDataContext]
+  AR --&gt; GW[AI Gateway]
+  GW --&gt; WAI[Workers AI]
+  GW --&gt; EXT[Frontier models]
+  AR --&gt; CTR[Containers]</pre>
+<p class="code-line">FIG-09 · diagrams/09-observabilidad-secretos.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-09-src">flowchart LR
+  RUN[Workers] --&gt; LOG[Workers Logs]
+  RUN --&gt; TR[Traces]
+  RUN --&gt; MET[Metrics]
+  RUN --&gt; AE[Analytics Engine]
+  CTRL[akademate-control] --&gt; AUD[Platform Audit]
+  OP[1Password ROOT] --&gt; WS[Workers Secrets]
+  OP -.-&gt; SS[Secrets Store]
+  SS -.-&gt; RUN
+  WS --&gt; RUN</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 51 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="A.4 Mermaid source FIG-10 to FIG-12">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>A.4 Mermaid source FIG-10 to FIG-12</h1>
+  <p class="code-line">FIG-10 · diagrams/10-perimetro-cuentas.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-10-src">flowchart TB
+  LEGAL[BRIK64 Inc]
+  LEGAL --&gt; DOMAIN[akademate.com]
+  LEGAL --&gt; WS[Google Workspace]
+  LEGAL --&gt; PASS[1Password]
+  LEGAL --&gt; CF[CF Account AKADEMATE]
+  LEGAL --&gt; GH[GitHub akademate]
+  LEGAL --&gt; GCP[GCP Organization]
+  LEGAL --&gt; MS[Entra app]
+  LEGAL --&gt; ZOOM[Zoom app]
+  LEGAL --&gt; AI[AI provider projects]
+  LEGAL --&gt; STRIPE[Stripe BRIK64]
+  STRIPE --&gt; MERCURY[Mercury]
+  WS --&gt; ADMIN[&quot;admin@&quot;]
+  WS --&gt; BREAK[&quot;breakglass@&quot;]
+  WS --&gt; INFRA[&quot;infra@&quot;]
+  WS --&gt; SEC[&quot;security@&quot;]
+  ADMIN --&gt; CF
+  ADMIN --&gt; GCP
+  ADMIN --&gt; GH
+  ADMIN --&gt; PASS
+  BREAK -.-&gt; CF
+  BREAK -.-&gt; GCP</pre>
+<p class="code-line">FIG-11 · diagrams/11-oauth-clientes.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-11-src">flowchart LR
+  subgraph TENANT[&quot;Tenant accounts&quot;]
+    GW[Google Workspace]
+    Z[Zoom]
+    M365[Microsoft 365]
+    PAY[Stripe / Redsys]
+  end
+  subgraph AKA[&quot;AKADEMATE connectors&quot;]
+    GO[Google OAuth app]
+    ZO[Zoom OAuth app]
+    MO[Entra multi-tenant]
+    PO[Payment connectors]
+  end
+  GW --&gt; GO
+  Z --&gt; ZO
+  M365 --&gt; MO
+  PAY --&gt; PO
+  GO --&gt; INT[akademate-integrations]
+  ZO --&gt; INT
+  MO --&gt; INT
+  PO --&gt; INT</pre>
+<p class="code-line">FIG-12 · diagrams/12-dos-logins.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-12-src">flowchart LR
+  STU[Learner] --&gt; AID[Akademate Identity]
+  TEA[Teacher] --&gt; AID
+  ADM[Tenant admin] --&gt; AID
+  AID --&gt; APP[SaaS app / campus]
+  STAFF[AKADEMATE staff] --&gt; ACC[Cloudflare Access]
+  ACC --&gt; OPS[Platform Ops]</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 52 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="A.5 Mermaid source FIG-13 to FIG-15">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>A.5 Mermaid source FIG-13 to FIG-15</h1>
+  <p class="code-line">FIG-13 · diagrams/13-billing.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-13-src">flowchart TB
+  subgraph PLATFORM[&quot;AKADEMATE subscription&quot;]
+    B64[BRIK64 Inc] --&gt; ST[Stripe AKADEMATE products]
+    ST --&gt; MER[Mercury]
+  end
+  subgraph LEARNER[&quot;Tenant enrolments&quot;]
+    T[Tenant] --&gt; TP[Tenant Stripe / Redsys]
+    TP --&gt; AL[Learners]
+  end</pre>
+<p class="code-line">FIG-14 · diagrams/14-runtime-cloud.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-14-src">flowchart LR
+  CORE[Canonical Core]
+  CORE --&gt; D1[D1TenantDataStore]
+  D1 --&gt; CLOUD[Cloud SaaS Workers]</pre>
+<p class="code-line">FIG-15 · diagrams/15-mapa-comprimido.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-15-src">flowchart TB
+  B64[BRIK64 Inc] --&gt; CORP[Corporate Stripe Mercury]
+  B64 --&gt; PROD[Product Workspace GCP GitHub CF]
+  PROD --&gt; EDGE[Cloudflare Edge]
+  EDGE --&gt; APP[akademate-app]
+  EDGE --&gt; OPS[akademate-control]
+  EDGE --&gt; INT[akademate-integrations]
+  APP --&gt; TDC[TenantDataContext]
+  TDC --&gt; CD1[(Control D1)]
+  TDC --&gt; TD1[(Tenant D1 / shards)]
+  APP --&gt; R2[(R2)]
+  APP --&gt; ST[(Stream)]
+  APP --&gt; DO[Durable Objects]
+  APP --&gt; Q[Queues]
+  Q --&gt; WF[Workflows]
+  WF --&gt; AG[Agents]
+  AG --&gt; GW[AI Gateway]</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 53 / 55</span></div>
+</section>
+
+<section class="sheet" aria-label="A.6 Mermaid source FIG-16 to FIG-17">
+  <div class="hdr"><span><strong>BRIK64 Inc.</strong> · AKADEMATE</span><span>AKA-ARCH-SAAS-001 · Rev E · en</span></div>
+  <div class="body">
+  <h1>A.6 Mermaid source FIG-16 to FIG-17</h1>
+  <p class="code-line">FIG-16 · diagrams/16-secuencia-request.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-16-src">sequenceDiagram
+  participant U as Client
+  participant W as akademate-app
+  participant C as Control D1
+  participant S as Tenant D1
+  U-&gt;&gt;W: HTTPS
+  W-&gt;&gt;W: identity + tenant host/claim
+  W-&gt;&gt;C: mapping tenant to store
+  W-&gt;&gt;S: query with tenant_id
+  S--&gt;&gt;W: rows
+  W--&gt;&gt;U: response</pre>
+<p class="code-line">FIG-17 · diagrams/17-autonomous-loop.mmd · text/vnd.mermaid</p><pre class="mmd-src" id="FIG-17-src">flowchart LR
+  O[Observe] --&gt; I[Interpret]
+  I --&gt; P[Plan]
+  P --&gt; E[Execute]
+  E --&gt; V[Verify]
+  V --&gt; R[Record]
+  R --&gt; L[Learn]
+  L --&gt; O</pre>
+  </div>
+  <div class="ftr"><span>Internal · Confidential</span><span>Sheet 54 / 55</span></div>
+</section>
+
+<section class="sheet back" aria-label="Back cover">
+  <div class="back-inner">
+    <p class="kicker">BRIK64 Inc. · Delaware</p>
+    <h1>AKADEMATE</h1>
+    <p>AKA-ARCH-SAAS-001</p>
+    <p>Rev E · 2026-08-30 · en</p>
+    <p>Internal · Confidential</p>
+  </div>
+  <div class="back-foot">
+    <span>Architecture description</span>
+    <span>Sheet 55 / 55</span>
+  </div>
+</section>
+
+</body>
+</html>

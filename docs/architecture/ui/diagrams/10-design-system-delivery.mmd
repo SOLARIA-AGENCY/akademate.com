@@ -1,0 +1,8 @@
+flowchart LR
+  WEBDS[SURF-WEB /design-system]
+  DASHDS[SURF-DASH /design-system]
+  SB[Storybook :6006]
+  VEND[vendor kit copy-in]
+  WEBDS --> SB
+  DASHDS --> SB
+  VEND --> DASHDS

@@ -1,0 +1,312 @@
+{
+  "schema": "aka-arch-ingest/1",
+  "doc_id": "AKA-ARCH-UI-001",
+  "rev": "A",
+  "issue": "2026-08-30",
+  "language": "en",
+  "owner": "BRIK64 Inc.",
+  "product": "AKADEMATE",
+  "kind": "ui-frontend",
+  "prompt_file": "AKA-ARCH-UI-001.AGENT.md",
+  "html_file": "AKA-ARCH-UI-001.html",
+  "pdf_file": "AKA-ARCH-UI-001_v1.0.pdf",
+  "ingest_order": [
+    "AKA-ARCH-UI-001.ingest.json",
+    "diagrams/*.mmd",
+    "AKA-ARCH-UI-001.AGENT.md",
+    "AKA-ARCH-UI-001.html",
+    "PDF text layer: ingest sheets, figure atlas, Appendix A"
+  ],
+  "codes": {
+    "surfaces": [
+      {
+        "id": "SURF-WEB",
+        "path": "apps/web",
+        "role": "SaaS marketing"
+      },
+      {
+        "id": "SURF-DASH",
+        "path": "apps/tenant-admin (app)/(dashboard)",
+        "role": "Academy dashboard"
+      },
+      {
+        "id": "SURF-PUBLIC",
+        "path": "apps/tenant-admin (public)",
+        "role": "Tenant public site"
+      },
+      {
+        "id": "SURF-CAMPUS",
+        "path": "apps/tenant-admin (app)/campus",
+        "role": "Academy campus"
+      },
+      {
+        "id": "SURF-OPS",
+        "path": "apps/admin-client",
+        "role": "Platform ops"
+      },
+      {
+        "id": "SURF-PORTAL",
+        "path": "apps/portal",
+        "role": "Access hub"
+      },
+      {
+        "id": "SURF-CMS",
+        "path": "Payload admin",
+        "role": "CMS chrome"
+      }
+    ],
+    "shells": [
+      {
+        "id": "SHELL-DASH",
+        "impl": "AppSidebar + SidebarProvider",
+        "surface": "Dashboard"
+      },
+      {
+        "id": "SHELL-PUBLIC",
+        "impl": "Public header and footer",
+        "surface": "Tenant public"
+      },
+      {
+        "id": "SHELL-OPS",
+        "impl": "OpsSidebar",
+        "surface": "Platform ops"
+      },
+      {
+        "id": "SHELL-CAMPUS",
+        "impl": "CampusNavbar",
+        "surface": "Campus"
+      },
+      {
+        "id": "SHELL-AUTH",
+        "impl": "Auth canvas",
+        "surface": "Staff login"
+      },
+      {
+        "id": "SHELL-MKT",
+        "impl": "Marketing header and footer",
+        "surface": "SURF-WEB"
+      }
+    ],
+    "tokens": [
+      {
+        "id": "TOK-BASE",
+        "source": "packages/ui/src/tokens/base.css",
+        "role": "Primitive palette and type"
+      },
+      {
+        "id": "TOK-SEM",
+        "source": "packages/ui/src/tokens/semantic.css",
+        "role": "Purpose aliases"
+      },
+      {
+        "id": "TOK-TENANT",
+        "source": "packages/ui/src/tokens/tenant.css",
+        "role": "Brand accent"
+      },
+      {
+        "id": "TOK-THEME-V4",
+        "source": "@theme inline",
+        "role": "Tailwind v4 color map"
+      },
+      {
+        "id": "TOK-RUNTIME",
+        "source": "TenantBrandingProvider",
+        "role": "Injects --primary and --sidebar"
+      }
+    ],
+    "catalog": [
+      {
+        "id": "CAT-REPO",
+        "source": "components/ui in the app tree",
+        "role": "First"
+      },
+      {
+        "id": "CAT-SHADCN",
+        "source": "shadcn new-york official slug",
+        "role": "Second"
+      },
+      {
+        "id": "CAT-MOTION",
+        "source": "Magic UI or Aceternity by slug",
+        "role": "Marketing motion"
+      },
+      {
+        "id": "CAT-EXT",
+        "source": "One 21st.dev or ReUI block",
+        "role": "If the pattern is missing"
+      }
+    ],
+    "adrs": [
+      {
+        "id": "ADR-U1",
+        "decision": "Product UIs are Next.js 15 App Router."
+      },
+      {
+        "id": "ADR-U2",
+        "decision": "Color is CSS variables in HSL channels. Tenant branding writes --primary and --sidebar."
+      },
+      {
+        "id": "ADR-U3",
+        "decision": "The shadcn new-york catalog lives in tenant-admin. Dashboard imports the Payload-config alias."
+      },
+      {
+        "id": "ADR-U4",
+        "decision": "@akademate/ui ships tokens and Pill. Primitives migrate into that package."
+      },
+      {
+        "id": "ADR-U5",
+        "decision": "Dashboard chrome reads --sidebar and TenantBranding."
+      },
+      {
+        "id": "ADR-U6",
+        "decision": "Tenant public is its own html document, separate from the dashboard shell."
+      },
+      {
+        "id": "ADR-U7",
+        "decision": "Platform ops UI is apps/admin-client."
+      },
+      {
+        "id": "ADR-U8",
+        "decision": "Campus product routes live under tenant-admin. apps/campus is a scaffold."
+      },
+      {
+        "id": "ADR-U9",
+        "decision": "Light and dark are a class on html."
+      },
+      {
+        "id": "ADR-U10",
+        "decision": "Compose from catalog order: repo, official shadcn, motion by slug."
+      },
+      {
+        "id": "ADR-U11",
+        "decision": "Tailwind v4 with theme.colors and @tailwindcss/postcss. SURF-WEB completes that cutover."
+      },
+      {
+        "id": "ADR-U12",
+        "decision": "Motion on product chrome is CSS, Radix, and tw-animate. Marketing motion uses the Motion library by slug."
+      }
+    ]
+  },
+  "figures": [
+    {
+      "id": "FIG-01",
+      "code": "Figure 1",
+      "title": "Product surfaces",
+      "stem": "01-surfaces",
+      "source_path": "diagrams/01-surfaces.mmd",
+      "png_path": "diagrams/01-surfaces.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  MKT[SURF-WEB marketing]\n  DASH[SURF-DASH academy dashboard]\n  PUB[SURF-PUBLIC tenant public]\n  CAMP[SURF-CAMPUS academy campus]\n  OPS[SURF-OPS platform ops]\n  PORT[SURF-PORTAL access hub]\n  CMS[SURF-CMS Payload admin]\n  MKT --> DASH\n  PORT --> DASH\n  PORT --> CAMP\n  PORT --> OPS\n  DASH --> PUB\n  DASH --> CAMP\n  DASH --> CMS\n"
+    },
+    {
+      "id": "FIG-02",
+      "code": "Figure 2",
+      "title": "Two public webs",
+      "stem": "02-dual-public",
+      "source_path": "diagrams/02-dual-public.mmd",
+      "png_path": "diagrams/02-dual-public.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  subgraph SAAS[\"SaaS marketing\"]\n    WEB[SURF-WEB]\n    REG[registro]\n    DS[design-system]\n    WEB --> REG\n    WEB --> DS\n  end\n  subgraph TENANT[\"Tenant public\"]\n    PUB[SURF-PUBLIC]\n    COURSES[courses convocatorias]\n    PUB --> COURSES\n  end\n  HOST[tenant host] --> PUB\n  AKA[akademate.com] --> WEB\n"
+    },
+    {
+      "id": "FIG-03",
+      "code": "Figure 3",
+      "title": "Token pipeline",
+      "stem": "03-token-pipeline",
+      "source_path": "diagrams/03-token-pipeline.mmd",
+      "png_path": "diagrams/03-token-pipeline.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  BASE[TOK-BASE base.css]\n  SEM[TOK-SEM semantic.css]\n  TEN[TOK-TENANT tenant.css]\n  V4[TOK-THEME-V4 theme inline]\n  RT[TOK-RUNTIME TenantBranding]\n  APP[app globals.css]\n  BASE --> SEM\n  SEM --> TEN\n  TEN --> V4\n  V4 --> APP\n  RT --> APP\n"
+    },
+    {
+      "id": "FIG-04",
+      "code": "Figure 4",
+      "title": "Primitive ownership",
+      "stem": "04-primitive-ownership",
+      "source_path": "diagrams/04-primitive-ownership.mmd",
+      "png_path": "diagrams/04-primitive-ownership.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  PKG[\"@akademate/ui tokens + Pill\"]\n  SHAD[CAT-SHADCN tenant-admin new-york]\n  ALIAS[\"@payload-config/components/ui\"]\n  DASH[SURF-DASH]\n  PKG --> DASH\n  SHAD --> ALIAS\n  ALIAS --> DASH\n"
+    },
+    {
+      "id": "FIG-05",
+      "code": "Figure 5",
+      "title": "Dashboard shell",
+      "stem": "05-dashboard-shell",
+      "source_path": "diagrams/05-dashboard-shell.mmd",
+      "png_path": "diagrams/05-dashboard-shell.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  ROOT[ClientLayout ThemeProvider TenantBranding]\n  SIDE[SHELL-DASH AppSidebar]\n  INSET[SidebarInset canvas]\n  FOOT[DashboardFooter]\n  ROOT --> SIDE\n  ROOT --> INSET\n  INSET --> FOOT\n  SIDE --> NAV[module nav]\n  INSET --> PAGE[route page]\n"
+    },
+    {
+      "id": "FIG-06",
+      "code": "Figure 6",
+      "title": "Tenant public shell",
+      "stem": "06-public-shell",
+      "source_path": "diagrams/06-public-shell.mmd",
+      "png_path": "diagrams/06-public-shell.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  HTML[own html body]\n  HEAD[SHELL-PUBLIC header]\n  MAIN[page]\n  FOOT[tenant footer]\n  HTML --> HEAD\n  HTML --> MAIN\n  HTML --> FOOT\n  BRAND[tenant primaryColor --brand] --> HTML\n"
+    },
+    {
+      "id": "FIG-07",
+      "code": "Figure 7",
+      "title": "Theming",
+      "stem": "07-theming",
+      "source_path": "diagrams/07-theming.mmd",
+      "png_path": "diagrams/07-theming.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  CLASS[\".light / .dark on html\"]\n  VARS[\"--primary --sidebar --brand\"]\n  COOKIE[akademate-theme]\n  CLASS --> VARS\n  COOKIE --> CLASS\n  TB[TenantBranding] --> VARS\n"
+    },
+    {
+      "id": "FIG-08",
+      "code": "Figure 8",
+      "title": "Auth surfaces",
+      "stem": "08-auth-surfaces",
+      "source_path": "diagrams/08-auth-surfaces.mmd",
+      "png_path": "diagrams/08-auth-surfaces.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  STAFF[SURF-DASH /auth/login]\n  LEARN[SURF-CAMPUS /campus/login]\n  OPS[SURF-OPS /login]\n  WEB[SURF-WEB /login to app]\n  STAFF --> CARD[Card Input Button]\n  LEARN --> CARD\n  OPS --> CARD\n  WEB --> STAFF\n"
+    },
+    {
+      "id": "FIG-09",
+      "code": "Figure 9",
+      "title": "Catalog order",
+      "stem": "09-catalog-order",
+      "source_path": "diagrams/09-catalog-order.mmd",
+      "png_path": "diagrams/09-catalog-order.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  R[CAT-REPO primitives in tree]\n  S[CAT-SHADCN official slug]\n  M[CAT-MOTION Magic UI or Aceternity by slug]\n  X[one 21st or ReUI block if pattern missing]\n  R --> S\n  S --> M\n  M --> X\n"
+    },
+    {
+      "id": "FIG-10",
+      "code": "Figure 10",
+      "title": "Design-system delivery",
+      "stem": "10-design-system-delivery",
+      "source_path": "diagrams/10-design-system-delivery.mmd",
+      "png_path": "diagrams/10-design-system-delivery.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart LR\n  WEBDS[SURF-WEB /design-system]\n  DASHDS[SURF-DASH /design-system]\n  SB[Storybook :6006]\n  VEND[vendor kit copy-in]\n  WEBDS --> SB\n  DASHDS --> SB\n  VEND --> DASHDS\n"
+    },
+    {
+      "id": "FIG-11",
+      "code": "Figure 11",
+      "title": "Compose sequence",
+      "stem": "11-compose-sequence",
+      "source_path": "diagrams/11-compose-sequence.mmd",
+      "png_path": "diagrams/11-compose-sequence.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "sequenceDiagram\n  participant R as Route\n  participant L as Shell\n  participant T as Tokens\n  participant P as Primitive\n  R->>L: layout\n  L->>T: CSS variables\n  L->>P: Button Card Dialog\n  P-->>R: page\n"
+    },
+    {
+      "id": "FIG-12",
+      "code": "Figure 12",
+      "title": "Quality and access",
+      "stem": "12-quality-a11y",
+      "source_path": "diagrams/12-quality-a11y.mmd",
+      "png_path": "diagrams/12-quality-a11y.png",
+      "mime": "text/vnd.mermaid",
+      "mermaid": "flowchart TB\n  AA[WCAG AA contrast]\n  FOCUS[visible focus]\n  KEY[keyboard]\n  SEM[semantic HTML]\n  AA --> FOCUS\n  FOCUS --> KEY\n  KEY --> SEM\n"
+    }
+  ]
+}

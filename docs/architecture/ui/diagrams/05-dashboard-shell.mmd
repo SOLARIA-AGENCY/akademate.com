@@ -1,0 +1,10 @@
+flowchart TB
+  ROOT[ClientLayout ThemeProvider TenantBranding]
+  SIDE[SHELL-DASH AppSidebar]
+  INSET[SidebarInset canvas]
+  FOOT[DashboardFooter]
+  ROOT --> SIDE
+  ROOT --> INSET
+  INSET --> FOOT
+  SIDE --> NAV[module nav]
+  INSET --> PAGE[route page]

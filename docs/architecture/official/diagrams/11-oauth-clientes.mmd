@@ -1,0 +1,21 @@
+flowchart LR
+  subgraph TENANT["Tenant accounts"]
+    GW[Google Workspace]
+    Z[Zoom]
+    M365[Microsoft 365]
+    PAY[Stripe / Redsys]
+  end
+  subgraph AKA["AKADEMATE connectors"]
+    GO[Google OAuth app]
+    ZO[Zoom OAuth app]
+    MO[Entra multi-tenant]
+    PO[Payment connectors]
+  end
+  GW --> GO
+  Z --> ZO
+  M365 --> MO
+  PAY --> PO
+  GO --> INT[akademate-integrations]
+  ZO --> INT
+  MO --> INT
+  PO --> INT

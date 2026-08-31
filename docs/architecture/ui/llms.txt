@@ -1,0 +1,7 @@
+# AKA-ARCH-UI-001 Rev A
+Canonical machine ingest for AKADEMATE UI and frontend architecture.
+
+AKA-ARCH-UI-001.ingest.json
+AKA-ARCH-UI-001.AGENT.md
+AKA-ARCH-UI-001.html
+diagrams/*.mmd

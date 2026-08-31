@@ -1,0 +1,7 @@
+flowchart LR
+  CLASS[".light / .dark on html"]
+  VARS["--primary --sidebar --brand"]
+  COOKIE[akademate-theme]
+  CLASS --> VARS
+  COOKIE --> CLASS
+  TB[TenantBranding] --> VARS

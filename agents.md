@@ -3,6 +3,16 @@
 ## Propósito
 Guía rápida para agentes (Claude/Codex/Copilot) sobre el trabajo en este repo.
 
+## Architecture description (print pack)
+
+Official A4 architecture PDFs (ISO 7200, 42010, arc42, agent ingest): follow skill `akademate-architecture-description`.
+
+- Cursor / any local agent: `~/.cursor/skills/akademate-architecture-description/SKILL.md`
+- Repo copy: `.cursor/skills/akademate-architecture-description/SKILL.md`
+- Runtime pack: `python3 ~/.cursor/skills/akademate-architecture-description/scripts/verify_print_pdf.py docs/architecture/official/AKA-ARCH-SAAS-001_v2.0.pdf --expect-pages 55`
+- UI pack: `python3 ~/.cursor/skills/akademate-architecture-description/scripts/verify_print_pdf.py docs/architecture/ui/AKA-ARCH-UI-001_v1.0.pdf --expect-pages 46 --needles "flowchart TB,SURF-DASH,ADR-U1,INGEST-JSON,You are implementing AKADEMATE UI,CAT-SHADCN,TenantBranding"`
+
+
 ## Contexto
 - Proyecto: Akademate (SaaS multitenant para academias/escuelas).
 - Dominio principal: `akademate.com` (ej. `cepfp.akademate.com` o dominio custom).

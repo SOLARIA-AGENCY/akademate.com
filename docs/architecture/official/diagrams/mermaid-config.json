@@ -1,0 +1,15 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#eef4fb",
+    "primaryTextColor": "#1a1a1a",
+    "primaryBorderColor": "#0066CC",
+    "lineColor": "#0066CC",
+    "secondaryColor": "#ffffff",
+    "tertiaryColor": "#f7f8fa",
+    "fontFamily": "Arial, Helvetica, sans-serif",
+    "fontSize": "15px"
+  },
+  "flowchart": { "curve": "basis", "padding": 12 },
+  "sequence": { "actorMargin": 24 }
+}
