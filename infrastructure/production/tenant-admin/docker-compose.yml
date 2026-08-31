@@ -63,11 +63,13 @@ services:
       SMTP_PASS: ${SMTP_PASS}
       SMTP_SECURE: ${SMTP_SECURE}
       SMTP_FROM: ${SMTP_FROM}
+      MEDIA_DIR: ${MEDIA_DIR:-/app/apps/tenant-admin/public/media}
       DKIM_DOMAIN: ${DKIM_DOMAIN}
       DKIM_SELECTOR: ${DKIM_SELECTOR}
       DKIM_PRIVATE_KEY_PATH: ${DKIM_PRIVATE_KEY_PATH}
     volumes:
       - media_data:/app/apps/tenant-admin/public/media
+      - media_data:/app/apps/uploads
       - /opt/akademate/mail/dkim:/app/dkim:ro
     networks:
       - internal

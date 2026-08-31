@@ -1,10 +1,13 @@
 'use client'
 
-import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { CalendarDays, Clock } from 'lucide-react'
-import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import {
+  CourseFundingBadge,
+  CourseModalityBadge,
+} from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
+import { DirectoryAreaBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
 import type { PlantillaCurso } from '@/types'
 
 interface CourseListItemProps {
@@ -14,7 +17,8 @@ interface CourseListItemProps {
 }
 
 export function CourseListItem({ course, onClick, className }: CourseListItemProps) {
-  const typeConfig = COURSE_TYPE_CONFIG[course.tipo] || COURSE_TYPE_CONFIG.privados
+  const modality = (course as PlantillaCurso & { modality?: string }).modality
+  const areaColor = (course as PlantillaCurso & { areaColor?: string | null }).areaColor
 
   return (
     <div
@@ -33,16 +37,10 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
           >
             {course.nombre}
           </h3>
-          <div className="flex items-center gap-2" data-oid="royfh3h">
-            <Badge variant="outline" className="text-[11px]" data-oid="ggfknjb">
-              {course.area}
-            </Badge>
-            <Badge
-              className={`${typeConfig.bgColor} ${typeConfig.textColor} text-[11px]`}
-              data-oid=":y7r6uz"
-            >
-              {typeConfig.label}
-            </Badge>
+          <div className="flex min-w-0 flex-wrap items-center gap-2" data-oid="royfh3h">
+            <CourseFundingBadge courseType={course.tipo} />
+            <DirectoryAreaBadge label={course.area} color={areaColor} />
+            <CourseModalityBadge courseType={course.tipo} modality={modality} />
           </div>
         </div>
 
@@ -53,7 +51,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
               {course.duracionReferencia ? `${course.duracionReferencia} h` : 'Pendiente'}
             </span>
           </div>
-          <div className="flex items-center gap-1.5" data-oid="sa8jbtd">
+          <div className="flex items-center gap-1.5" data-oid="in3hcfx">
             <CalendarDays className="h-4 w-4 text-muted-foreground" data-oid="in3hcfx" />
             <span className="font-medium" data-oid="4w4-k36">
               {course.totalConvocatorias} {course.totalConvocatorias === 1 ? 'convocatoria' : 'convocatorias'}

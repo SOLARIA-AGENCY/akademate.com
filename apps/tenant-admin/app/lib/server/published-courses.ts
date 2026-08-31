@@ -40,7 +40,7 @@ type CourseDoc = {
   landing_faqs?: { question?: string | null; answer?: string | null }[] | null
   active?: boolean | null
   featured?: boolean | null
-  area_formativa?: { nombre?: string | null } | number | null
+  area_formativa?: { nombre?: string | null; color?: string | null } | number | null
   featured_image?: { url?: string | null; filename?: string | null } | number | null
   image?: { url?: string | null; filename?: string | null } | number | null
   dossier_pdf?: { url?: string | null; filename?: string | null } | number | null
@@ -88,6 +88,7 @@ export type PublishedCourse = {
   descripcion: string
   descripcionDetallada: string[]
   area: string
+  areaColor: string | null
   modality: string
   duracionReferencia: number
   precioReferencia: number
@@ -148,6 +149,11 @@ type GetPublishedCoursesOptions = {
 function isValidHexColor(color: string | null | undefined): color is string {
   if (!color) return false
   return /^#[0-9A-Fa-f]{6}$/.test(color)
+}
+
+function toAreaColor(area: CourseDoc['area_formativa']): string | null {
+  if (typeof area === 'object' && area && isValidHexColor(area.color)) return area.color
+  return null
 }
 
 function toAreaName(area: CourseDoc['area_formativa']): string {
@@ -388,6 +394,7 @@ function mapCourseDocToPublishedCourse(
       'Curso de formación profesional',
     descripcionDetallada: extractTextFromRichText(course.long_description),
     area: toAreaName(course.area_formativa),
+    areaColor: toAreaColor(course.area_formativa),
     modality: String(course.modality || 'presencial'),
     duracionReferencia: Number(course.duration_hours || 0),
     precioReferencia: Number(course.base_price || 0),

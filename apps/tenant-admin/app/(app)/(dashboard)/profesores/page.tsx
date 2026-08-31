@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
+import { Plus, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
@@ -23,6 +23,8 @@ import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
 import {
   ListingSearch,
   PremiumDirectoryShell,
+  DirectoryCampusBadge,
+  DirectoryNeutralBadge,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface Certification {
@@ -333,9 +335,8 @@ export default function ProfesoresPage() {
                     <p className="text-sm text-muted-foreground truncate" data-oid="j9cy:nh">
                       {teacher.department}
                     </p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground" data-oid="teacher-campus">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
-                      <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs" data-oid="teacher-campus">
+                      <DirectoryCampusBadge name={getDefaultCampusLabel(teacher.assignedCampuses)} />
                     </p>
                     <StatusDotBadge
                       tone={teacher.active ? 'success' : 'neutral'}
@@ -360,10 +361,10 @@ export default function ProfesoresPage() {
                 </div>
 
                 <div className="border-t pt-3" data-oid="n2dx5nr">
-                  <Badge variant="outline" className="gap-1" data-oid="4zvp0-t">
+                  <DirectoryNeutralBadge className="gap-1">
                     <BookOpen className="h-3.5 w-3.5" data-oid="9t33254" />
                     {teacher.courseRunsCount} convocatorias
-                  </Badge>
+                  </DirectoryNeutralBadge>
                 </div>
 
                 <div className="pt-3 border-t" data-oid="c.v05ji">

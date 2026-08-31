@@ -30,6 +30,7 @@ import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import {
   ListingSearch,
   PremiumDirectoryShell,
+  DirectoryCampusBadge,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface Student {
@@ -510,7 +511,7 @@ export default function AlumnosPage() {
                         className="h-4 w-4 text-muted-foreground flex-shrink-0"
                         data-oid="g_wnq1v"
                       />
-                      <span data-oid="f6oj.-g">{selectedStudent.sede}</span>
+                      <DirectoryCampusBadge name={selectedStudent.sede} />
                     </div>
                     <div className="flex items-center gap-2 text-sm" data-oid="u9shji8">
                       <GraduationCap
@@ -656,7 +657,7 @@ export default function AlumnosPage() {
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground" data-oid="kpn6o9.">
                     <MapPin className="h-4 w-4 flex-shrink-0" data-oid="0lpo8q6" />
-                    <span data-oid="c5no04x">{student.sede}</span>
+                    <DirectoryCampusBadge name={student.sede} />
                   </div>
                 </div>
 

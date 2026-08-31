@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, GraduationCap, Calendar, Clock } from 'lucide-react'
+import { DirectoryAreaBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 // TypeScript interfaces
 interface CicloSuperior {
@@ -501,9 +501,7 @@ export default function CiclosSuperiorPage() {
                   </Badge>
                 </div>
 
-                <Badge variant="outline" className="w-fit" data-oid="2jzn73b">
-                  {ciclo.familia}
-                </Badge>
+                <DirectoryAreaBadge label={ciclo.familia} />
 
                 <p className="line-clamp-2 text-sm text-muted-foreground" data-oid="nd2lnk7">
                   {ciclo.descripcion || 'Sin descripción disponible.'}

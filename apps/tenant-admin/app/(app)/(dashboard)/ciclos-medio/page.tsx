@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, GraduationCap, Calendar, Clock } from 'lucide-react'
+import { DirectoryAreaBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 /** Represents a Ciclo Formativo de Grado Medio */
 interface CicloMedio {
@@ -436,9 +436,7 @@ export default function CiclosMedioPage() {
                   </Badge>
                 </div>
 
-                <Badge variant="outline" className="w-fit" data-oid="ykh8-.b">
-                  {ciclo.familia}
-                </Badge>
+                <DirectoryAreaBadge label={ciclo.familia} />
 
                 <p className="line-clamp-2 text-sm text-muted-foreground" data-oid="t4vz03k">
                   {ciclo.descripcion || 'Sin descripción disponible.'}

@@ -86,6 +86,7 @@ interface CampaignLike {
 }
 
 interface StaffLike {
+  id?: number | string | null
   full_name?: string | null;
   first_name?: string | null;
   last_name?: string | null;
@@ -173,6 +174,42 @@ function normalizeInstructorName(instructor: unknown): string {
   }
 
   return 'Sin asignar';
+}
+
+export type ProfesorRef = { id: string | null; name: string }
+
+function toProfesorRef(value: unknown): ProfesorRef | null {
+  if (value == null) return null
+  if (typeof value === 'string') {
+    const name = value.trim()
+    if (!name || name === 'Sin asignar') return null
+    return { id: null, name }
+  }
+  if (typeof value === 'object') {
+    const staff = value as StaffLike
+    const name = normalizeInstructorName(staff)
+    if (!name || name === 'Sin asignar') return null
+    const id = staff.id == null ? null : String(staff.id)
+    return { id, name }
+  }
+  return null
+}
+
+function toProfesorRefs(instructor: unknown, instructors?: unknown): ProfesorRef[] {
+  const refs: ProfesorRef[] = []
+  const seen = new Set<string>()
+  const push = (ref: ProfesorRef | null) => {
+    if (!ref) return
+    const key = `${ref.id ?? 'x'}:${ref.name}`
+    if (seen.has(key)) return
+    seen.add(key)
+    refs.push(ref)
+  }
+  push(toProfesorRef(instructor))
+  if (Array.isArray(instructors)) {
+    for (const item of instructors) push(toProfesorRef(item))
+  }
+  return refs
 }
 
 const DAY_LABELS: Record<string, string> = {
@@ -552,6 +589,7 @@ export async function GET(request: NextRequest) {
           cuotaCantidad: conv.installment_count_snapshot,
           priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
+          profesorRefs: toProfesorRefs(conv.instructor, (conv as { instructors?: unknown }).instructors),
           responsable: normalizeInstructorName(conv.administrative_owner),
           modalidad: conv.modality ?? 'presencial',
           campaignId: campaign ? String(campaign.id) : null,

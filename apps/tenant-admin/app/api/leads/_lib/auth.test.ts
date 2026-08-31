@@ -23,6 +23,22 @@ describe('getAuthenticatedUserContext', () => {
     process.env.PAYLOAD_SECRET = 'test-secret'
   })
 
+  it('tries original request headers with payload.auth before reconstructing cookies', async () => {
+    const payload = {
+      auth: vi.fn(async () => ({
+        user: { id: 3, role: 'superadmin', tenant: null },
+      })),
+      findByID: vi.fn(),
+      db: { drizzle: { execute: vi.fn() } },
+    }
+
+    await getAuthenticatedUserContext(requestWithToken('live-cookie'), payload)
+
+    expect(payload.auth).toHaveBeenCalled()
+    const firstCall = payload.auth.mock.calls[0]?.[0] as { headers?: Headers }
+    expect(firstCall.headers?.get('cookie')).toContain('payload-token=live-cookie')
+  })
+
   it('returns Payload superadmin with null tenantId without forcing JWT', async () => {
     const payload = {
       auth: vi.fn(async () => ({

@@ -282,7 +282,9 @@ export interface PlantillaCurso {
   descripcion: string
   imagenPortada: string
   area: string // Marketing, Desarrollo, Diseño, Audiovisual, Gestión
+  areaColor?: string | null
   tipo: CourseType
+  modality?: string
   duracionReferencia: number // horas de referencia
   precioReferencia?: number // precio base de referencia
   objetivos: string[]

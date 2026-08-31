@@ -105,8 +105,13 @@ async function findUserAuthRow(
   }
 }
 
-async function authViaPayload(payload: any, token: string): Promise<AuthenticatedUserContext | null> {
+async function authViaPayload(
+  payload: any,
+  token: string,
+  originalHeaders?: Headers,
+): Promise<AuthenticatedUserContext | null> {
   const attempts = [
+    originalHeaders,
     new Headers({ cookie: `payload-token=${token}` }),
     new Headers({
       cookie: `payload-token=${token}`,
@@ -116,7 +121,7 @@ async function authViaPayload(payload: any, token: string): Promise<Authenticate
       cookie: `payload-token=${token}`,
       authorization: `Bearer ${token}`,
     }),
-  ]
+  ].filter((headers): headers is Headers => Boolean(headers))
 
   for (const headers of attempts) {
     try {
@@ -204,7 +209,7 @@ export async function getAuthenticatedUserContext(
   const token = request.cookies.get('payload-token')?.value ?? parseSessionToken(request)
   if (!token) return null
 
-  const payloadAuth = await authViaPayload(payload, token)
+  const payloadAuth = await authViaPayload(payload, token, request.headers)
   if (payloadAuth && (payloadAuth.tenantId !== null || isSuperadmin(payloadAuth))) {
     return payloadAuth
   }

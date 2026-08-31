@@ -1,11 +1,14 @@
 'use client'
 
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { CalendarDays, Clock, Monitor, Users } from 'lucide-react'
-import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import { CalendarDays, Clock, Users } from 'lucide-react'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import {
+  CourseFundingBadge,
+  CourseModalityBadge,
+} from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
+import { DirectoryAreaBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
 import type { PlantillaCurso } from '@/types'
 
 interface CourseTemplateCardProps {
@@ -16,12 +19,11 @@ interface CourseTemplateCardProps {
 }
 
 export function CourseTemplateCard({ template, onClick, className }: CourseTemplateCardProps) {
-  const typeConfig = COURSE_TYPE_CONFIG[template.tipo] || COURSE_TYPE_CONFIG.privados
   const description =
     template.descripcion?.trim() ||
     'Curso pendiente de completar con informacion editorial.'
-  const modality = (template as PlantillaCurso & { modality?: string }).modality || 'presencial'
-  const modalityLabel = modality === 'online' ? 'Online' : modality === 'semipresencial' ? 'Semipresencial' : 'Presencial'
+  const modality = (template as PlantillaCurso & { modality?: string }).modality
+  const areaColor = (template as PlantillaCurso & { areaColor?: string | null }).areaColor
 
   return (
     <Card
@@ -34,15 +36,9 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2" data-oid="le_pykk">
-            <Badge
-              className={`${typeConfig.bgColor} ${typeConfig.textColor} text-[11px] font-semibold`}
-              data-oid="8730cp-"
-            >
-              {typeConfig.label}
-            </Badge>
-            <Badge variant="outline" className="max-w-full truncate text-[11px]" data-oid="4kdxate">
-              {template.area || 'Sin area'}
-            </Badge>
+            <CourseFundingBadge courseType={template.tipo} />
+            <DirectoryAreaBadge label={template.area || 'Sin area'} color={areaColor} />
+            <CourseModalityBadge courseType={template.tipo} modality={modality} />
           </div>
 
           <h3
@@ -73,10 +69,6 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
               <span className="font-semibold text-foreground" data-oid="be2u8o2">
                 {template.totalConvocatorias} {template.totalConvocatorias === 1 ? 'convocatoria' : 'convocatorias'}
               </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Monitor className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-              <span className="font-semibold text-foreground">{modalityLabel}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Users className="h-4 w-4 flex-shrink-0 text-muted-foreground" />

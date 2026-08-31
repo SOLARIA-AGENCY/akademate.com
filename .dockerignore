@@ -1,0 +1,13 @@
+.git
+**/.git
+node_modules
+**/node_modules
+.next
+**/.next
+**/.turbo
+output
+tmp
+**/.DS_Store
+**/*.md
+docs
+.cursor

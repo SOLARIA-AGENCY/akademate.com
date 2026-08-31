@@ -30,6 +30,10 @@ import {
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import {
+  CourseFundingBadge,
+  CourseModalityBadge,
+} from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
 import { ListingKpiStrip } from '@payload-config/components/ui/listing-kpi'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
@@ -301,10 +305,12 @@ function CursosPageContent() {
                     <EntityThumb alt={style.label} fallback="book" size="lg" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className={`inline-flex rounded-md px-2.5 py-1 text-xs font-semibold ${style.bgColor} ${style.textColor}`}>
-                          {style.label}
-                        </span>
-                        <IconByType className={`h-4 w-4 ${style.textColor}`} />
+                        {type === 'teleformacion' ? (
+                          <CourseModalityBadge courseType="teleformacion" />
+                        ) : (
+                          <CourseFundingBadge courseType={type} />
+                        )}
+                        <IconByType className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <p className="mt-3 text-3xl font-semibold tabular-nums">{typeCounts[type]}</p>
                       <p className="text-sm text-muted-foreground">cursos disponibles</p>

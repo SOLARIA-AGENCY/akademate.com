@@ -42,6 +42,16 @@ import {
 } from '@payload-config/components/ui/table'
 import { AssignEmptyButton } from '@payload-config/components/ui/assign-empty'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
+import {
+  CourseFundingBadge,
+  CourseModalityBadge,
+} from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
+import {
+  DirectoryCampusBadge,
+  DirectoryNeutralBadge,
+  DirectoryStaffIcons,
+  type DirectoryStaffRef,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -51,9 +61,11 @@ interface Convocatoria {
   id: string
   curso: string
   tipo: string
+  modalidad: string
   sede: string
   sedeId: string
   profesor: string
+  profesorRefs: DirectoryStaffRef[]
   aula: string
   fechaInicio: string
   fechaFin: string
@@ -561,13 +573,31 @@ export default function ProgramacionPage() {
               profesorName = record.full_name?.trim()
                 || `${record.first_name?.trim() ?? ''} ${record.last_name?.trim() ?? ''}`.trim()
             }
+            const rawRefs = Array.isArray(c.profesorRefs) ? c.profesorRefs : []
+            const profesorRefs: DirectoryStaffRef[] = rawRefs
+              .map((ref) => {
+                if (!ref || typeof ref !== 'object') return null
+                const record = ref as { id?: unknown; name?: unknown }
+                const name = typeof record.name === 'string' ? record.name.trim() : ''
+                if (!name) return null
+                return {
+                  id: record.id == null ? null : String(record.id),
+                  name,
+                }
+              })
+              .filter((ref): ref is DirectoryStaffRef => Boolean(ref))
+            if (profesorRefs.length === 0 && profesorName && profesorName !== 'Sin asignar') {
+              profesorRefs.push({ id: null, name: profesorName })
+            }
             return {
             id: String(c.id),
             curso: (c.cursoNombre as string) || 'Curso',
             tipo: (c.cursoTipo as string) || '',
+            modalidad: (c.modalidad as string) || '',
             sede: (c.campusNombre as string) || '',
             sedeId: String(c.campusId || ''),
             profesor: profesorName,
+            profesorRefs,
             aula: (c.aulaNombre as string) || '',
             fechaInicio: (c.fechaInicio as string) || '',
             fechaFin: (c.fechaFin as string) || '',
@@ -796,34 +826,31 @@ export default function ProgramacionPage() {
                         className="cursor-pointer"
                         onClick={() => handleConvClick(conv.id)}
                       >
-                        <TableCell className="max-w-0 whitespace-normal">
+                        <TableCell className="max-w-0">
                           <p className="truncate font-medium" title={conv.curso}>{conv.curso}</p>
+                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                            <CourseFundingBadge courseType={conv.tipo} />
+                            <CourseModalityBadge courseType={conv.tipo} modality={conv.modalidad} />
+                          </div>
                           <p className="truncate text-xs text-muted-foreground sm:hidden" title={conv.sede}>{conv.sede}</p>
                         </TableCell>
                         <TableCell className="hidden max-w-0 sm:table-cell">
                           {conv.sede ? (
-                            <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
-                              <MapPin className="h-3 w-3 shrink-0" />
-                              <span className="truncate" title={conv.sede}>{conv.sede}</span>
-                            </span>
+                            <DirectoryCampusBadge name={conv.sede} />
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
                           )}
                         </TableCell>
                         <TableCell className="hidden max-w-0 md:table-cell">
-                          {conv.profesor ? (
-                            <span className="block truncate text-muted-foreground" title={conv.profesor}>
-                              {conv.profesor}
-                            </span>
+                          {conv.profesorRefs.length > 0 ? (
+                            <DirectoryStaffIcons staff={conv.profesorRefs} />
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar docente" />
                           )}
                         </TableCell>
                         <TableCell className="hidden max-w-0 lg:table-cell">
                           {conv.aula ? (
-                            <span className="block truncate text-muted-foreground" title={conv.aula}>
-                              {conv.aula}
-                            </span>
+                            <DirectoryNeutralBadge>{conv.aula}</DirectoryNeutralBadge>
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar aula" />
                           )}

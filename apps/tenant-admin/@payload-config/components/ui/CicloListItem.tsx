@@ -1,9 +1,12 @@
 'use client'
 
-import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Clock, BookOpen, Users } from 'lucide-react'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import {
+  DirectoryAreaBadge,
+  DirectoryNeutralBadge,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
 import type { CicloPlantilla } from '@/types'
 
 interface CicloListItemProps {
@@ -30,9 +33,9 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
           >
             {ciclo.nombre}
           </h3>
-          <p className="truncate text-xs text-muted-foreground" data-oid="0-:5dy7">
-            {ciclo.familia_profesional}
-          </p>
+          <div className="mt-1">
+            <DirectoryAreaBadge label={ciclo.familia_profesional} color={ciclo.color} />
+          </div>
         </div>
 
         <div className="hidden items-center gap-3 text-xs sm:flex" data-oid="s6g7:.p">
@@ -51,9 +54,9 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
         </div>
 
         <div className="hidden w-[160px] justify-center lg:flex" data-oid="2s8r.-y">
-          <Badge variant="neutral" className="whitespace-nowrap px-2.5 py-1 text-[10px] font-semibold leading-tight">
+          <DirectoryNeutralBadge className="px-2.5 py-1 text-[10px] font-semibold leading-tight">
             {ciclo.tipo === 'superior' ? 'Ciclo superior' : 'Ciclo medio'}
-          </Badge>
+          </DirectoryNeutralBadge>
         </div>
 
         <div className="hidden w-28 items-center gap-1 text-xs md:flex" data-oid="p:rueq5">

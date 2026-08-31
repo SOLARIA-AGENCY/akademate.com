@@ -1,10 +1,18 @@
 'use client'
 
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { Users, Clock, Euro, MapPin, User, Calendar, DoorOpen } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import {
+  CourseFundingBadge,
+  CourseModalityBadge,
+} from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
+import {
+  DirectoryCampusBadge,
+  DirectoryNeutralBadge,
+  DirectoryStaffIcons,
+} from '@payload-config/components/directory/PremiumDirectoryShell'
+import { Users, Clock, Euro, MapPin, Calendar, DoorOpen } from 'lucide-react'
 import type { InstanciaVistaCompleta } from '@/types'
 
 interface ConvocationCardProps {
@@ -34,12 +42,7 @@ export function ConvocationCard({ instance, onClick, className }: ConvocationCar
       <CardContent className="p-6 space-y-3 flex flex-col" data-oid="zbz8_68">
         {/* Header with Type Badge */}
         <div className="space-y-2" data-oid=".5i2xim">
-          <Badge
-            className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-xs font-bold uppercase tracking-wide`}
-            data-oid="podtj4j"
-          >
-            {typeConfig.label}
-          </Badge>
+          <CourseFundingBadge courseType={instance.tipo} />
 
           {/* Título - ALTURA FIJA, 1 LÍNEA con ellipsis */}
           <div className="h-7 overflow-hidden" data-oid="y93o.jm">
@@ -85,9 +88,7 @@ export function ConvocationCard({ instance, onClick, className }: ConvocationCar
           {/* Sede específica */}
           <div className="flex items-center gap-2 text-sm" data-oid="phfefco">
             <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" data-oid="b5h8r7_" />
-            <span className="font-medium text-xs" data-oid="5i3z-6r">
-              {instance.sedeNombre}
-            </span>
+            <DirectoryCampusBadge name={instance.sedeNombre} />
           </div>
         </div>
 
@@ -131,27 +132,31 @@ export function ConvocationCard({ instance, onClick, className }: ConvocationCar
 
           <div className="flex items-center gap-2 text-sm" data-oid="uuz048u">
             <DoorOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" data-oid="4irm67u" />
-            <span className="text-xs" data-oid="ut3ai-8">
+            <DirectoryNeutralBadge className="text-xs">
               {instance.aulaNombre}
-            </span>
+            </DirectoryNeutralBadge>
           </div>
         </div>
 
         {/* Profesor */}
         <div className="flex items-center gap-2 py-2 border-t" data-oid="l_en_yh">
-          <User className="h-4 w-4 text-muted-foreground flex-shrink-0" data-oid="rzrpjui" />
-          <div className="flex items-center gap-2 flex-1 overflow-hidden" data-oid="6sy-yib">
-            <span className="text-xs font-medium truncate" data-oid="yg-f.e1">
-              {instance.profesorNombre}
-            </span>
-          </div>
+          <DirectoryStaffIcons
+            staff={[
+              {
+                id: instance.profesorId || null,
+                name: instance.profesorNombre,
+                photo: instance.profesorAvatar,
+              },
+            ]}
+          />
         </div>
 
         {/* Modalidad y Ocupación */}
         <div className="flex items-center justify-between gap-2" data-oid="0e8a0pp">
-          <Badge variant="outline" className="text-xs uppercase" data-oid="u9rh874">
-            {instance.modalidad}
-          </Badge>
+          <CourseModalityBadge
+            courseType={instance.tipo}
+            modality={instance.modalidad}
+          />
           <span className="text-xs text-muted-foreground" data-oid="entcdjd">
             {occupancyPercentage}% ocupado
           </span>

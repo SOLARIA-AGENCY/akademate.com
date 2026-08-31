@@ -1,10 +1,18 @@
 'use client'
 
 import * as React from 'react'
+import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Kbd } from '../ui/kbd'
+import { Badge } from '../ui/badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { cn } from '@payload-config/lib/utils'
+import {
+  DIRECTORY_CAMPUS_PILL_CLASS,
+  getDirectoryAreaTone,
+  parseDirectoryHexColor,
+} from '@payload-config/lib/courseTypeConfig'
 
 export function ListingSearch({
   value,
@@ -84,6 +92,160 @@ export function PremiumDirectoryShell({
         </div>
       </div>
       {children}
+    </div>
+  )
+}
+
+export function DirectoryNeutralBadge({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <Badge
+      variant="static"
+      data-slot="directory-neutral-badge"
+      className={cn(
+        'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-100',
+        className,
+      )}
+    >
+      {children}
+    </Badge>
+  )
+}
+
+export function DirectoryAreaBadge({
+  label,
+  color,
+  className,
+}: {
+  label?: string | null
+  color?: string | null
+  className?: string
+}) {
+  const text = (label ?? '').trim() || 'Sin área'
+  const hex = parseDirectoryHexColor(color)
+  const tone = getDirectoryAreaTone(text)
+
+  return (
+    <Badge
+      variant="static"
+      data-slot="directory-area-badge"
+      className={cn(hex ? 'border' : tone.pillClass, 'hover:opacity-100', className)}
+      style={
+        hex
+          ? {
+              backgroundColor: `${hex}26`,
+              color: hex,
+              borderColor: `${hex}59`,
+            }
+          : undefined
+      }
+    >
+      {text}
+    </Badge>
+  )
+}
+
+export function DirectoryCampusBadge({
+  name,
+  className,
+}: {
+  name?: string | null
+  className?: string
+}) {
+  const text = (name ?? '').trim() || 'Sin sede'
+  return (
+    <Badge
+      variant="static"
+      data-slot="directory-campus-badge"
+      className={cn(DIRECTORY_CAMPUS_PILL_CLASS, className)}
+    >
+      {text}
+    </Badge>
+  )
+}
+
+export type DirectoryStaffRef = {
+  id?: string | number | null
+  name: string
+  photo?: string | null
+}
+
+function staffInitials(name: string): string {
+  const parts = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase()
+}
+
+function DirectoryStaffIcon({ staff }: { staff: DirectoryStaffRef }) {
+  const name = staff.name.trim() || 'Sin asignar'
+  const id = staff.id == null || staff.id === '' ? null : String(staff.id)
+  const avatar = (
+    <span
+      data-slot="directory-staff-icon"
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-background bg-primary/10 text-[10px] font-semibold text-primary"
+      aria-label={name}
+    >
+      {staff.photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={staff.photo} alt="" className="h-full w-full object-cover" />
+      ) : (
+        staffInitials(name)
+      )}
+    </span>
+  )
+
+  const node = id ? (
+    <Link
+      href={`/dashboard/profesores/${id}`}
+      onClick={(event) => event.stopPropagation()}
+      className="inline-flex rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {avatar}
+    </Link>
+  ) : (
+    <span className="inline-flex" onClick={(event) => event.stopPropagation()}>
+      {avatar}
+    </span>
+  )
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{node}</TooltipTrigger>
+      <TooltipContent>{name}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+export function DirectoryStaffIcons({
+  staff,
+  className,
+}: {
+  staff: DirectoryStaffRef[]
+  className?: string
+}) {
+  const items = staff.filter((item) => (item.name ?? '').trim().length > 0)
+  if (items.length === 0) return null
+
+  return (
+    <div
+      data-slot="directory-staff-icons"
+      className={cn('flex min-w-0 items-center -space-x-1.5', className)}
+    >
+      {items.map((item, index) => (
+        <DirectoryStaffIcon
+          key={`${item.id ?? 'no-id'}-${item.name}-${index}`}
+          staff={item}
+        />
+      ))}
     </div>
   )
 }

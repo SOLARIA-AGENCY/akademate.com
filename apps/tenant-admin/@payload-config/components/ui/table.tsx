@@ -6,12 +6,12 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full min-w-0 max-w-full overflow-x-auto overflow-y-auto overscroll-none"
+      className="relative w-full min-w-0 max-w-full overflow-x-hidden overflow-y-auto overscroll-none"
       data-oid=".wvrv8:"
     >
       <table
         data-slot="table"
-        className={cn('w-full caption-bottom text-sm', className)}
+        className={cn('w-full table-fixed caption-bottom text-sm', className)}
         {...props}
         data-oid="a5bik87"
       />
@@ -74,7 +74,7 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'text-muted-foreground sticky top-0 z-10 h-11 border-b border-border bg-card px-4 py-3 text-left align-middle text-xs font-normal whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'text-muted-foreground sticky top-0 z-10 h-11 min-w-0 border-b border-border bg-card px-4 py-3 text-left align-middle text-xs font-normal [overflow-wrap:anywhere] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
@@ -88,7 +88,7 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
     <td
       data-slot="table-cell"
       className={cn(
-        'p-4 align-middle text-foreground/90 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'min-w-0 p-4 align-middle text-foreground/90 [overflow-wrap:anywhere] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}

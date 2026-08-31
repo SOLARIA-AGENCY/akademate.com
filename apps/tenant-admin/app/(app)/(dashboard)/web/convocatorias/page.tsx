@@ -20,6 +20,9 @@ import {
 import {
   ListingSearch,
   PremiumDirectoryShell,
+  DirectoryCampusBadge,
+  DirectoryStaffIcons,
+  type DirectoryStaffRef,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import {
@@ -48,10 +51,12 @@ interface ConvocatoriaApiItem {
   profesor?:
     | string
     | {
+        id?: string | number | null
         full_name?: string | null
         first_name?: string | null
         last_name?: string | null
       }
+  profesorRefs?: Array<{ id?: string | number | null; name?: string | null }>
   fechaInicio?: string
   fechaFin?: string
   plazasTotales?: number
@@ -102,6 +107,7 @@ interface Convocatoria {
   cursoNombre: string
   sedeName: string
   profesorName: string
+  profesorRefs: DirectoryStaffRef[]
   fechaInicio: string
   fechaFin: string
   plazasTotales: number
@@ -343,6 +349,13 @@ export default function WebConvocatoriasPage() {
             cursoNombre: item.cursoNombre ?? 'Curso',
             sedeName: item.campusNombre ?? '',
             profesorName: formatProfesorName(item.profesor),
+            profesorRefs: (Array.isArray(item.profesorRefs) ? item.profesorRefs : [])
+              .map((ref) => {
+                const name = typeof ref?.name === 'string' ? ref.name.trim() : ''
+                if (!name) return null
+                return { id: ref.id == null ? null : String(ref.id), name }
+              })
+              .filter((ref): ref is DirectoryStaffRef => Boolean(ref)),
             fechaInicio: item.fechaInicio ?? '',
             fechaFin: item.fechaFin ?? '',
             plazasTotales: item.plazasTotales ?? 0,
@@ -521,7 +534,7 @@ export default function WebConvocatoriasPage() {
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3 w-3 shrink-0" />
                       {conv.sedeName ? (
-                        <span className="truncate">{conv.sedeName}</span>
+                        <DirectoryCampusBadge name={conv.sedeName} />
                       ) : (
                         <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
                       )}
@@ -592,8 +605,8 @@ export default function WebConvocatoriasPage() {
 
       {/* DESKTOP: Table layout (visible on lg and above) */}
       {!isLoading && convocatorias.length > 0 && (
-        <Card className="hidden lg:block overflow-x-auto">
-          <Table className="min-w-[800px]">
+        <Card className="hidden lg:block overflow-x-hidden">
+          <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Ciclo / curso</TableHead>
@@ -620,14 +633,18 @@ export default function WebConvocatoriasPage() {
                     <TableCell className="font-medium max-w-[220px] truncate">
                       {conv.cursoNombre}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {conv.sedeName ? conv.sedeName : (
+                    <TableCell>
+                      {conv.sedeName ? (
+                        <DirectoryCampusBadge name={conv.sedeName} />
+                      ) : (
                         <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
                       )}
                     </TableCell>
                     <TableCell>
-                      {conv.profesorName ? (
-                        <span className="text-muted-foreground">{conv.profesorName}</span>
+                      {conv.profesorRefs.length > 0 ? (
+                        <DirectoryStaffIcons staff={conv.profesorRefs} />
+                      ) : conv.profesorName ? (
+                        <DirectoryStaffIcons staff={[{ id: null, name: conv.profesorName }]} />
                       ) : (
                         <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar docente" />
                       )}

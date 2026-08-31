@@ -8,6 +8,7 @@ interface AreaFormativaDocument {
   codigo: string;
   nombre: string;
   descripcion?: string;
+  color?: string;
   activo?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -37,6 +38,7 @@ export async function GET() {
         codigo: area.codigo,
         nombre: area.nombre,
         descripcion: area.descripcion ?? '',
+        color: area.color ?? null,
         active: area.activo ?? true,
       })),
       total: result.totalDocs,

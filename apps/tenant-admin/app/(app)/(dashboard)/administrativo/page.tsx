@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
@@ -18,6 +17,7 @@ import {
   ListingSearch,
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
+import { DirectoryNeutralBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
 
 interface AdminStaff {
   id: string
@@ -246,9 +246,9 @@ export default function AdministrativosPage() {
               </div>
 
               <div className="space-y-2" data-oid="6xnyx.f">
-                <Badge variant="secondary" className="text-xs" data-oid="6xz2_jk">
+                <DirectoryNeutralBadge className="text-xs">
                   {admin.department}
-                </Badge>
+                </DirectoryNeutralBadge>
               </div>
 
               <div className="space-y-2 text-sm" data-oid="ouwgdtd">

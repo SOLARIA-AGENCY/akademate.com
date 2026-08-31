@@ -265,8 +265,9 @@ describe('gutter, collapsed rail, tenant tokens', () => {
       expect(source, file).not.toContain('applyCepHostIdentity')
     }
     expect(read('components/ui/SegmentedToggle.tsx')).toContain('data-[state=on]:bg-primary')
-    expect(read('@payload-config/lib/courseTypeConfig.ts')).toContain("bgColor: 'bg-primary/10'")
-    expect(read('@payload-config/lib/courseTypeConfig.ts')).not.toContain('bg-red-600')
+    expect(read('@payload-config/lib/courseTypeConfig.ts')).toContain("bgColor: 'bg-red-600'")
+    expect(read('@payload-config/lib/courseTypeConfig.ts')).toContain('hover:bg-red-600')
+    expect(read('@payload-config/lib/courseTypeConfig.ts')).not.toContain("bgColor: 'bg-primary/10'")
     expect(read('app/globals.css')).toContain('--primary: 210 100% 40%')
     expect(read('app/globals.css')).toContain('--dashboard-canvas: 220 9% 96%')
   })
