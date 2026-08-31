@@ -12,12 +12,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import { Plus, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import {
   ListingSearch,
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import { DirectoryNeutralBadge } from '@payload-config/components/directory/PremiumDirectoryShell'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const ADMINISTRATIVO_SORT_KINDS = {
+  nombre: 'text',
+  departamento: 'text',
+  rol: 'text',
+  estado: 'text',
+} as const satisfies Record<string, SortKind>
 
 interface AdminStaff {
   id: string
@@ -33,20 +44,6 @@ interface AdminStaff {
 
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
-
-function AdminPhotoFallback() {
-  return (
-    <div
-      aria-label="Imagen genérica de administrativo"
-      className="relative flex h-16 w-16 items-center justify-center rounded-full border bg-primary/10 text-primary shadow-md"
-    >
-      <User className="h-7 w-7" aria-hidden="true" />
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <Briefcase className="h-3.5 w-3.5" aria-hidden="true" />
-      </span>
-    </div>
-  )
-}
 
 interface ApiStaffData {
   id: string | number
@@ -71,6 +68,9 @@ export default function AdministrativosPage() {
   const [administrativosData, setAdministrativosData] = useState<AdminStaff[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(
+    ADMINISTRATIVO_SORT_KINDS,
+  )
 
   // Load administrative staff from API
   useEffect(() => {
@@ -121,17 +121,39 @@ export default function AdministrativosPage() {
 
   const departments = Array.from(new Set(administrativosData.map((a) => a.department)))
 
-  const filteredAdmins = administrativosData.filter((admin) => {
-    const matchesSearch =
-      admin.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.department.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAdmins = sortRows(
+    administrativosData.filter((admin) => {
+      const matchesSearch =
+        admin.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.department.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesDepartment = filterDepartment === 'all' || admin.department === filterDepartment
+      const matchesDepartment = filterDepartment === 'all' || admin.department === filterDepartment
 
-    return matchesSearch && matchesDepartment
-  })
+      return matchesSearch && matchesDepartment
+    }),
+    (admin, column) => {
+      switch (column) {
+        case 'nombre':
+          return `${admin.first_name} ${admin.last_name}`
+        case 'departamento':
+          return admin.department
+        case 'rol':
+          return admin.role
+        case 'estado':
+          return admin.active ? 'Activo' : 'Inactivo'
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, filterDepartment, resetSort])
 
   // Show loading state
   if (loading) {
@@ -207,6 +229,18 @@ export default function AdministrativosPage() {
         }
       />
 
+      <div className="space-y-3">
+        <SortableListHeader
+          sort={sortState}
+          onToggle={toggleSort}
+          leadingClassName={null}
+          columns={[
+            { id: 'nombre', label: 'Nombre', className: 'flex-1' },
+            { id: 'departamento', label: 'Departamento', className: 'w-40' },
+            { id: 'rol', label: 'Cargo', className: 'w-36' },
+            { id: 'estado', label: 'Estado', className: 'w-24' },
+          ]}
+        />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=".qyvxmm">
         {filteredAdmins.map((admin) => (
           <Card
@@ -218,16 +252,19 @@ export default function AdministrativosPage() {
             <CardContent className="p-6 space-y-4" data-oid="c-731r_">
               <div className="flex items-start gap-4" data-oid="z3h91.f">
                 <div className="relative" data-oid="5_myoha">
-                  {!isPlaceholderPhoto(admin.photo) ? (
-                    <img
-                      src={admin.photo}
+                  <div
+                    aria-label={
+                      isPlaceholderPhoto(admin.photo) ? 'Imagen genérica de administrativo' : undefined
+                    }
+                  >
+                    <EntityThumb
+                      src={isPlaceholderPhoto(admin.photo) ? null : admin.photo}
                       alt={`${admin.first_name} ${admin.last_name}`}
-                      className="h-16 w-16 rounded-full object-cover border-2 border-background shadow-md"
-                      data-oid="9kjjih1"
+                      fallback="admin"
+                      size="md"
+                      className="h-16 w-16"
                     />
-                  ) : (
-                    <AdminPhotoFallback />
-                  )}
+                  </div>
                   {admin.active && (
                     <div
                       className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white"
@@ -283,6 +320,7 @@ export default function AdministrativosPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
       </div>
 
       {filteredAdmins.length === 0 && (

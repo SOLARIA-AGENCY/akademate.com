@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Save, Loader2, MapPin, Plus, Trash2, Upload, User } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, MapPin, Plus, Trash2, User } from 'lucide-react'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 
 interface Campus {
   id: number
@@ -43,20 +44,6 @@ interface StaffPhotoUploadResponse {
     url?: string | null
   }
   error?: string
-}
-
-function TeacherPhotoFallback() {
-  return (
-    <div
-      aria-label="Imagen genérica de docente"
-      className="relative flex h-20 w-20 items-center justify-center rounded-full border bg-primary/10 text-primary"
-    >
-      <User className="h-9 w-9" aria-hidden="true" />
-      <div className="absolute -right-1 -top-1 rounded-full border bg-background p-1 shadow-sm">
-        <GraduationCap className="h-5 w-5" aria-hidden="true" />
-      </div>
-    </div>
-  )
 }
 
 interface StaffApiResponse {
@@ -257,7 +244,7 @@ export default function NewProfesorPage() {
               Completa los datos del nuevo profesor. Los campos marcados con * son obligatorios.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6" data-oid="y4.yy7v">
+          <CardContent className="space-y-6 text-sm [&_[data-slot=label]]:text-sm [&_input]:text-sm [&_textarea]:text-sm" data-oid="y4.yy7v">
             {/* Error Message */}
             {error && (
               <div
@@ -271,35 +258,31 @@ export default function NewProfesorPage() {
               </div>
             )}
 
-            <div className="space-y-3">
-              <Label htmlFor="photo-upload">Foto del profesor</Label>
-              <div className="flex items-center gap-4">
-                {photoPreview ? (
-                  <img
-                    src={photoPreview}
-                    alt="Foto del profesor"
-                    className="h-20 w-20 rounded-full object-cover border"
-                    onError={() => setPhotoPreview(null)}
-                  />
-                ) : (
-                  <TeacherPhotoFallback />
-                )}
-                <div className="space-y-2">
-                  <Input
-                    id="photo-upload"
-                    type="file"
-                    accept="image/*"
-                    disabled={uploadingPhoto || loading}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) void handlePhotoUpload(file)
-                    }}
-                  />
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {uploadingPhoto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                    <span>{uploadingPhoto ? 'Subiendo foto...' : 'La imagen se vinculará a la ficha del profesor.'}</span>
-                  </div>
+            <div className="flex items-center gap-4">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt={`${formData.firstName} ${formData.lastName}`.trim() || 'Docente'}
+                  className="h-20 w-20 rounded-lg object-cover border"
+                  onError={() => setPhotoPreview(null)}
+                />
+              ) : (
+                <div aria-label="Imagen genérica de docente">
+                  <EntityThumb alt="Docente" fallback="person" size="lg" className="h-20 w-20" />
                 </div>
+              )}
+              <div className="space-y-2">
+                <Input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="text-sm"
+                  disabled={uploadingPhoto || loading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) void handlePhotoUpload(file)
+                  }}
+                />
               </div>
             </div>
 
@@ -324,7 +307,7 @@ export default function NewProfesorPage() {
 
               <div className="space-y-2" data-oid="ekzlnto">
                 <Label htmlFor="lastName" data-oid="mpbpc7d">
-                  Apellidos{' '}
+                  Primer apellido{' '}
                   <span className="text-destructive" data-oid="61qi481">
                     *
                   </span>
@@ -468,7 +451,7 @@ export default function NewProfesorPage() {
             {/* Assigned Campus */}
             <div className="space-y-2" data-oid="mru1ua6">
               <Label htmlFor="baseCampus" data-oid="y6ceg6d">
-                Sede base asignada{' '}
+                Sede base{' '}
                 <span className="text-destructive" data-oid="4anwf0v">
                   *
                 </span>
@@ -491,8 +474,8 @@ export default function NewProfesorPage() {
                   onValueChange={handleBaseCampusChange}
                   data-oid="8ed4v20"
                 >
-                  <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
-                    <SelectValue placeholder="Selecciona una sede base" />
+                  <SelectTrigger id="baseCampus" aria-label="Sede base" className="w-full">
+                    <SelectValue placeholder="Sede base" />
                   </SelectTrigger>
                   <SelectContent>
                     {campuses.map((campus) => (
@@ -507,11 +490,9 @@ export default function NewProfesorPage() {
                   </SelectContent>
                 </Select>
               )}
-              {formData.assignedCampuses.length === 0 && (
-                <p className="text-sm text-destructive" data-oid="l08yfnq">
-                  Debe seleccionar al menos una sede
-                </p>
-              )}
+              <p className="text-xs text-muted-foreground">
+                Esta sede determinará también la empresa y base de facturación del docente.
+              </p>
             </div>
 
             {/* Bio */}
@@ -530,21 +511,11 @@ export default function NewProfesorPage() {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <Label>Titulaciones y certificaciones</Label>
-                <Button type="button" size="sm" variant="outline" onClick={addCertification}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Añadir
-                </Button>
-              </div>
-              {formData.certifications.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Añade titulaciones para mostrarlas en la ficha pública del docente.
-                </p>
-              ) : (
+              <Label>Titulaciones y certificaciones</Label>
+              {formData.certifications.length > 0 ? (
                 <div className="space-y-3">
                   {formData.certifications.map((cert, index) => (
-                    <div key={index} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]">
+                    <div key={index} className="grid gap-3 md:grid-cols-[1fr_1fr_120px_auto]">
                       <Input
                         value={cert.title}
                         onChange={(event) => updateCertification(index, 'title', event.target.value)}
@@ -567,7 +538,11 @@ export default function NewProfesorPage() {
                     </div>
                   ))}
                 </div>
-              )}
+              ) : null}
+              <Button type="button" size="sm" variant="outline" onClick={addCertification}>
+                <Plus className="mr-2 h-4 w-4" />
+                Añadir
+              </Button>
             </div>
 
             {/* Action Buttons */}

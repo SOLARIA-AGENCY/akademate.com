@@ -15,9 +15,15 @@ function resolveCampusImage(image: unknown): string | null {
 
 export function isStockAcademicCover(src?: string | null): boolean {
   if (typeof src !== 'string') return true
-  const trimmed = src.trim()
+  const trimmed = src.trim().toLowerCase()
   if (!trimmed) return true
-  return trimmed.includes('/website/akademate/')
+  return (
+    trimmed.includes('/website/akademate/') ||
+    trimmed.includes('/website/cep/') ||
+    trimmed.includes('/stock/') ||
+    trimmed.includes('placeholder') ||
+    trimmed.includes('unsplash.com')
+  )
 }
 
 export function buildCampusIdentityMap(

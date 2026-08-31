@@ -8,7 +8,9 @@ import { Button } from '@payload-config/components/ui/button'
 import { Switch } from '@payload-config/components/ui/switch'
 import { useToast, type UseToastReturn } from '@payload-config/hooks/use-toast'
 import { useRouter } from 'next/navigation'
-import { Globe, GraduationCap, ExternalLink, Pencil, ImageIcon } from 'lucide-react'
+import { Globe, GraduationCap, ExternalLink, Pencil } from 'lucide-react'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { resolvePayloadMediaSrc } from '@/app/lib/payload-media-url'
 
 interface CycleApiItem {
   id: string
@@ -50,14 +52,7 @@ function getLevelVariant(level?: string): 'default' | 'secondary' | 'outline' {
 }
 
 function getImageUrl(image: CycleApiItem['image']): string | null {
-  if (!image) return null
-  if (typeof image === 'number') return null
-  if (typeof image === 'string') return image
-  if (typeof image === 'object' && image !== null) {
-    if (image.url) return image.url
-    if (image.filename) return `/media/${image.filename}`
-  }
-  return null
+  return resolvePayloadMediaSrc(image)
 }
 
 export default function WebCiclosPage() {
@@ -190,19 +185,7 @@ export default function WebCiclosPage() {
                     className="flex items-center gap-4 px-4 py-3 sm:px-6"
                   >
                     {/* Thumbnail */}
-                    <div className="hidden sm:block h-10 w-[60px] flex-shrink-0 rounded overflow-hidden bg-muted">
-                      {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={cycle.name ?? 'Ciclo'}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center">
-                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
+                    <EntityThumb src={imageUrl} alt={cycle.name ?? 'Ciclo'} fallback="cycle" size="sm" />
 
                     {/* Name & Level */}
                     <div className="flex-1 min-w-0">

@@ -1,6 +1,20 @@
 import type React from 'react'
 import type { Metadata } from 'next'
+import { Manrope, Poppins } from 'next/font/google'
 import '../globals.css'
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+})
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['600', '700'],
+  display: 'swap',
+  variable: '--font-display',
+})
 import { ClientLayout } from '../ClientLayout'
 import type { TenantBranding } from '@/app/providers/tenant-branding'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
@@ -85,6 +99,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <html
       lang="es"
       suppressHydrationWarning
+      className={`${manrope.variable} ${poppins.variable} ${manrope.className}`}
       style={{
         ['--primary' as string]: primaryHsl,
         ['--ring' as string]: primaryHsl,
@@ -93,7 +108,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         ['--sidebar-ring' as string]: primaryHsl,
       }}
     >
-      <body>
+      <body className="font-sans">
         <ClientLayout initialBranding={initialBranding}>{children}</ClientLayout>
       </body>
     </html>

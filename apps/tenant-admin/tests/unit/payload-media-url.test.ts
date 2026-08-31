@@ -16,7 +16,9 @@ describe('payload media url', () => {
     )
   })
 
-  it('drops placeholders', () => {
+  it('drops placeholders, CEP website assets and Unsplash', () => {
     expect(canonicalizePayloadMediaUrl('/placeholder-avatar.svg')).toBeNull()
+    expect(canonicalizePayloadMediaUrl('/website/cep/team/elena.jpg')).toBeNull()
+    expect(canonicalizePayloadMediaUrl('/stock/cursos.jpg')).toBe('/stock/cursos.jpg')
   })
 })

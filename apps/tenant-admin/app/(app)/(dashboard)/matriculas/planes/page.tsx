@@ -107,7 +107,7 @@ export default function PlanesMatriculaPage() {
         icon={CreditCard}
         actions={
           <>
-            <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
+            <Button variant="outline" onClick={() => router.push('/matriculas')}>
               Volver
             </Button>
             <Button onClick={() => router.push('/matriculas/nueva')}>

@@ -8,6 +8,8 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { canonicalizePayloadMediaUrl } from '@/app/lib/payload-media-url'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +36,6 @@ import {
   User,
   Loader2,
   Building2,
-  GraduationCap,
   Plus,
   ExternalLink,
   AlertCircle,
@@ -112,24 +113,6 @@ interface StaffMember {
 
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
-
-function TeacherPhotoFallback({ size = 'large' }: { size?: 'large' | 'small' }) {
-  const isLarge = size === 'large'
-  return (
-    <div
-      aria-label="Imagen genérica de docente"
-      className={[
-        'relative flex items-center justify-center rounded-full border bg-primary/10 text-primary shadow-lg',
-        isLarge ? 'h-48 w-48' : 'h-16 w-16',
-      ].join(' ')}
-    >
-      <User className={isLarge ? 'h-20 w-20' : 'h-7 w-7'} />
-      <div className="absolute right-2 top-2 rounded-full border bg-background p-2 shadow-sm">
-        <GraduationCap className={isLarge ? 'h-7 w-7' : 'h-4 w-4'} />
-      </div>
-    </div>
-  )
-}
 
 export default function ProfesorDetailPage() {
   const router = useRouter()
@@ -337,21 +320,14 @@ export default function ProfesorDetailPage() {
           <CardContent className="pt-6 space-y-6" data-oid="bzau5u3">
             {/* Photo */}
             <div className="flex flex-col items-center" data-oid="8ush656">
-              {!isPlaceholderPhoto(professor.photo) ? (
-                <img
-                  src={professor.photo}
+              <div aria-label={isPlaceholderPhoto(professor.photo) ? 'Imagen genérica de docente' : undefined}>
+                <EntityThumb
+                  src={canonicalizePayloadMediaUrl(professor.photo)}
                   alt={professor.fullName}
-                  className="h-48 w-48 rounded-full object-cover border-4 border-background shadow-lg"
-                  onError={() =>
-                    setProfessor((current) =>
-                      current ? { ...current, photo: '/placeholder-avatar.svg' } : current,
-                    )
-                  }
-                  data-oid="-ttwq2p"
+                  fallback="person"
+                  className="h-48 w-48 rounded-full border-4 border-background shadow-lg"
                 />
-              ) : (
-                <TeacherPhotoFallback />
-              )}
+              </div>
               <div className="mt-4 text-center" data-oid="xlofrur">
                 <h2 className="text-xl font-bold" data-oid="s.pjw6y">
                   {professor.fullName}

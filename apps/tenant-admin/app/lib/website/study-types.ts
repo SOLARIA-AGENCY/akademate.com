@@ -1,3 +1,5 @@
+import { STOCK_FALLBACK_IMAGES } from '@/app/lib/stock-fallbacks'
+
 export type NormalizedStudyType =
   | 'privados'
   | 'ocupados'
@@ -29,7 +31,7 @@ export const PUBLIC_STUDY_TYPE_FALLBACK_IMAGES: Record<PublicStudyType, string> 
   teleformacion: '/website/cep/courses/fallback-teleformacion.png',
 }
 
-export const DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE = '/placeholder-course.svg'
+export const DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE = STOCK_FALLBACK_IMAGES.book
 
 export function normalizeStudyType(value: string | null | undefined): NormalizedStudyType | null {
   if (!value) return null
@@ -63,17 +65,8 @@ export function normalizePublicStudyType(value: string | null | undefined): Publ
   return isPublicStudyType(normalized) ? normalized : null
 }
 
-function toFallbackStudyType(studyType: NormalizedStudyType | null): PublicStudyType | null {
-  if (!studyType) return null
-  if (studyType === 'ciclo_medio' || studyType === 'ciclo_superior') return 'privados'
-  return isPublicStudyType(studyType) ? studyType : null
-}
-
-export function getPublicStudyTypeFallbackImage(value: string | null | undefined): string {
-  const normalized = normalizeStudyType(value)
-  const fallbackType = toFallbackStudyType(normalized)
-  if (!fallbackType) return DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE
-  return PUBLIC_STUDY_TYPE_FALLBACK_IMAGES[fallbackType]
+export function getPublicStudyTypeFallbackImage(_value?: string | null): string {
+  return DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE
 }
 
 export function toDashboardStudyType(value: string | null | undefined): PublicStudyType {

@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import {
   ArrowLeft,
   Edit,
@@ -126,7 +127,7 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
     )
   }
 
-  const initials = `${student.first_name[0] ?? ''}${student.last_name[0] ?? ''}`.toUpperCase()
+  const fullName = `${student.first_name} ${student.last_name}`
 
   return (
     <div className="space-y-6" data-oid="seiyw9a">
@@ -164,14 +165,12 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
             <CardContent className="pt-6" data-oid="ztkf:1t">
               <div className="flex flex-col items-center text-center space-y-4" data-oid="6d5dxk0">
                 <div className="relative" data-oid="uubzj4:">
-                  <Avatar className="h-24 w-24" data-oid="ys_yghx">
-                    <AvatarFallback
-                      className="bg-primary text-primary-foreground text-2xl font-bold"
-                      data-oid="2f.ag73"
-                    >
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <EntityThumb
+                    alt={fullName}
+                    fallback="student"
+                    size="lg"
+                    className="h-24 w-24"
+                  />
                   {student.active && (
                     <div
                       className="absolute bottom-1 right-1 h-5 w-5 rounded-full bg-green-500 border-2 border-background"

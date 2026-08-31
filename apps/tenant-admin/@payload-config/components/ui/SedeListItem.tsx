@@ -40,7 +40,7 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
       }}
       data-oid="em0zouv"
     >
-      <EntityThumb src={sede.imagen} alt={sede.nombre} fallback="campus" size="md" />
+      <EntityThumb src={sede.imagen} alt={sede.nombre} fallback="campus" size="sm" />
 
       <div className="flex min-w-0 flex-1 items-center gap-3" data-oid="gpb8lda">
         <div className="min-w-0 flex-1" data-oid="ca9xgr4">
@@ -79,22 +79,22 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
 
         <div className="hidden items-center gap-3 text-xs lg:flex" data-oid="l6mueao">
           <div className="flex items-center gap-1" data-oid="s2b4elg">
-            <DoorOpen className="h-3.5 w-3.5 text-muted-foreground" data-oid=":0nki8c" />
             <span className="font-medium" data-oid="_vvkkhz">
               {sede.aulas}
             </span>
             <span className="text-muted-foreground" data-oid="1-kvdq.">
               aulas
             </span>
+            <DoorOpen className="h-3 w-3 text-muted-foreground" aria-hidden="true" data-oid=":0nki8c" />
           </div>
           <div className="flex items-center gap-1" data-oid="zj5n1s7">
-            <Users className="h-3.5 w-3.5 text-muted-foreground" data-oid="ztd2ggo" />
             <span className="font-medium" data-oid="n._-q0z">
               {sede.capacidad}
             </span>
             <span className="text-muted-foreground" data-oid="t5.nvcw">
               cap.
             </span>
+            <Users className="h-3 w-3 text-muted-foreground" aria-hidden="true" data-oid="ztd2ggo" />
           </div>
         </div>
 

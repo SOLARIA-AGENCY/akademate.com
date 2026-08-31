@@ -71,6 +71,16 @@ describe('AppSidebar', () => {
     expect(screen.getByText('Ayuda y Documentación')).toBeInTheDocument()
   })
 
+  it('routes Nueva matrícula to the internal wizard, not a portal CTA', () => {
+    const source = readFileSync(
+      resolve(__dirname, '../../@payload-config/components/layout/AppSidebar.tsx'),
+      'utf8',
+    )
+    expect(source).toContain("title: 'Nueva matrícula'")
+    expect(source).toContain("url: '/matriculas/nueva'")
+    expect(source).not.toContain('sidebar-enrollment-cta')
+  })
+
   it('does not keep a collapse toggle inside the rail', () => {
     renderSidebar()
     expect(screen.queryByTitle(/sidebar/i)).not.toBeInTheDocument()

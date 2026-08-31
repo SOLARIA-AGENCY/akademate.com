@@ -56,9 +56,9 @@ describe('wizard stages', () => {
     expect(createEmptyDraft().step).toBe('course')
   })
 
-  it('detects enrollment focus path', async () => {
+  it('keeps the wizard inside the dashboard shell', async () => {
     const { isEnrollmentFocusPath } = await import('@/app/lib/dashboard-listing-scroll')
-    expect(isEnrollmentFocusPath('/matriculas/nueva')).toBe(true)
+    expect(isEnrollmentFocusPath('/matriculas/nueva')).toBe(false)
     expect(isEnrollmentFocusPath('/matriculas/portal')).toBe(false)
   })
 })

@@ -14,8 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap } from 'lucide-react'
+import { Plus, Mail, Phone, BookOpen, Eye, Loader2 } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -27,6 +28,16 @@ import {
   DirectoryNeutralBadge,
   useCampusIdentityMap,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const PROFESORES_SORT_KINDS = {
+  nombre: 'text',
+  departamento: 'text',
+  estado: 'text',
+  cursos: 'number',
+} as const satisfies Record<string, SortKind>
 
 interface Certification {
   title: string
@@ -59,20 +70,6 @@ interface StaffMember {
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
-function TeacherPhotoFallback({ className = 'h-16 w-16' }: { className?: string }) {
-  return (
-    <div
-      aria-label="Imagen genérica de docente"
-      className={`relative flex ${className} items-center justify-center rounded-full border bg-primary/10 text-primary`}
-    >
-      <User className="h-7 w-7" aria-hidden="true" />
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-      </span>
-    </div>
-  )
-}
-
 interface TeacherExpanded extends StaffMember {
   initials: string
   active: boolean
@@ -103,6 +100,9 @@ export default function ProfesoresPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(
+    PROFESORES_SORT_KINDS,
+  )
 
   // Load staff data from API
   useEffect(() => {
@@ -166,22 +166,44 @@ export default function ProfesoresPage() {
   const departments = Array.from(new Set(teachersExpanded.map((t) => t.department)))
 
   // Filtrado de profesores
-  const filteredTeachers = teachersExpanded.filter((teacher) => {
-    const matchesSearch =
-      teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.specialties.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredTeachers = sortRows(
+    teachersExpanded.filter((teacher) => {
+      const matchesSearch =
+        teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        teacher.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        teacher.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        teacher.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        teacher.specialties.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    const matchesDepartment = filterDepartment === 'all' || teacher.department === filterDepartment
-    const matchesStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'active' && teacher.active) ||
-      (filterStatus === 'inactive' && !teacher.active)
+      const matchesDepartment = filterDepartment === 'all' || teacher.department === filterDepartment
+      const matchesStatus =
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && teacher.active) ||
+        (filterStatus === 'inactive' && !teacher.active)
 
-    return matchesSearch && matchesDepartment && matchesStatus
-  })
+      return matchesSearch && matchesDepartment && matchesStatus
+    }),
+    (teacher, column) => {
+      switch (column) {
+        case 'nombre':
+          return `${teacher.firstName} ${teacher.lastName}`
+        case 'departamento':
+          return teacher.department
+        case 'estado':
+          return teacher.active ? 'Activo' : 'Inactivo'
+        case 'cursos':
+          return teacher.courseRunsCount
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, filterDepartment, filterStatus, resetSort])
 
   // Show loading state
   if (loading) {
@@ -295,6 +317,19 @@ export default function ProfesoresPage() {
         view={<ViewToggle view={view} onViewChange={setView} />}
       />
 
+      <SortableListHeader
+        sort={sortState}
+        onToggle={toggleSort}
+        leadingClassName="h-12 w-12 shrink-0"
+        trailingClassName="h-7 w-14 shrink-0"
+        columns={[
+          { id: 'nombre', label: 'Docente', className: 'flex-1' },
+          { id: 'departamento', label: 'Contacto', className: 'hidden min-w-[180px] md:block' },
+          { id: 'estado', label: 'Estado', className: 'hidden w-[100px] lg:block' },
+          { id: 'cursos', label: 'Cursos', className: 'hidden w-28 sm:block' },
+        ]}
+      />
+
       {view === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="39mqpx7">
           {filteredTeachers.map((teacher) => (
@@ -307,16 +342,18 @@ export default function ProfesoresPage() {
               <CardContent className="p-6 space-y-4" data-oid="..9i8:7">
                 <div className="flex items-start gap-4" data-oid="uisstqq">
                   <div className="relative" data-oid="0gj2jev">
-                    {!isPlaceholderPhoto(teacher.photo) ? (
-                      <img
-                        src={teacher.photo}
+                    <div
+                      aria-label={
+                        isPlaceholderPhoto(teacher.photo) ? 'Imagen genérica de docente' : undefined
+                      }
+                    >
+                      <EntityThumb
+                        src={isPlaceholderPhoto(teacher.photo) ? null : teacher.photo}
                         alt={`${teacher.firstName} ${teacher.lastName}`}
-                        className="h-16 w-16 rounded-full object-cover"
-                        data-oid="fvzsjyv"
+                        fallback="person"
+                        size="md"
                       />
-                    ) : (
-                      <TeacherPhotoFallback />
-                    )}
+                    </div>
                     {teacher.active && (
                       <div
                         className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white"
@@ -354,7 +391,7 @@ export default function ProfesoresPage() {
                   <div className="flex items-center gap-2 text-muted-foreground" data-oid="0m4es40">
                     <Mail className="h-4 w-4 flex-shrink-0" data-oid="gv811l:" />
                     <span className="truncate" data-oid="7r7086-">
-                      {teacher.email}
+                      {teacher.email?.trim() ? teacher.email : '–'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground" data-oid="9bdf1cp">
@@ -366,7 +403,7 @@ export default function ProfesoresPage() {
                 <div className="border-t pt-3" data-oid="n2dx5nr">
                   <DirectoryNeutralBadge className="gap-1">
                     <BookOpen className="h-3.5 w-3.5" data-oid="9t33254" />
-                    {teacher.courseRunsCount} convocatorias
+                    {teacher.courseRunsCount} {teacher.courseRunsCount === 1 ? 'convocatoria' : 'convocatorias'}
                   </DirectoryNeutralBadge>
                 </div>
 
@@ -382,7 +419,7 @@ export default function ProfesoresPage() {
                     data-oid="..tsp8r"
                   >
                     <Eye className="mr-2 h-4 w-4" data-oid="2z3k-sj" />
-                    Ver ficha docente
+                    Ver docente
                   </Button>
                 </div>
               </CardContent>

@@ -12,7 +12,7 @@ import {
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
   ArrowLeft,
@@ -26,7 +26,6 @@ import {
   FileText,
   Users,
   User,
-  GraduationCap,
 } from 'lucide-react'
 
 interface StaffDetailPageProps {
@@ -75,23 +74,6 @@ const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
 const isTeachingStaff = (staffType: StaffMember['staffType']) => staffType === 'profesor'
-
-function StaffFallbackIcon({ staffType }: { staffType: StaffMember['staffType'] }) {
-  const teaching = isTeachingStaff(staffType)
-  return (
-    <div
-      aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
-      className="relative flex h-full w-full items-center justify-center bg-primary/10 text-primary"
-    >
-      <User className="h-14 w-14" aria-hidden="true" />
-      {teaching ? (
-        <GraduationCap className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background" aria-hidden="true" />
-      ) : (
-        <Briefcase className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background" aria-hidden="true" />
-      )}
-    </div>
-  )
-}
 
 export default function StaffDetailPage({ params }: StaffDetailPageProps) {
   const router = useRouter()
@@ -205,17 +187,23 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
           <Card data-oid="3emv57j">
             <CardContent className="pt-6" data-oid="ubgub38">
               <div className="flex items-start gap-6" data-oid="bs_.k:v">
-                <Avatar
-                  className="h-32 w-32 border-4 border-background shadow-lg"
-                  data-oid="7yjq_n-"
+                <div
+                  aria-label={
+                    isPlaceholderPhoto(staff.photo)
+                      ? isTeachingStaff(staff.staffType)
+                        ? 'Imagen genérica de docente'
+                        : 'Imagen genérica de administrativo'
+                      : undefined
+                  }
                 >
-                  {!isPlaceholderPhoto(staff.photo) ? (
-                    <AvatarImage src={staff.photo} alt={staff.fullName} data-oid="mhbq-ha" />
-                  ) : null}
-                  <AvatarFallback className="text-2xl" data-oid="t6actrp">
-                    <StaffFallbackIcon staffType={staff.staffType} />
-                  </AvatarFallback>
-                </Avatar>
+                  <EntityThumb
+                    src={isPlaceholderPhoto(staff.photo) ? null : staff.photo}
+                    alt={staff.fullName}
+                    fallback={isTeachingStaff(staff.staffType) ? 'person' : 'admin'}
+                    size="lg"
+                    className="h-32 w-32"
+                  />
+                </div>
 
                 <div className="flex-1 space-y-4" data-oid="dhr3bvy">
                   <div data-oid=":j9udep">

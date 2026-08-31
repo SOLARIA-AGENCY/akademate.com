@@ -146,6 +146,8 @@ describe('visual audit corrections', () => {
     expect(source).toContain('DASHBOARD_LISTING_MAIN_INNER_CLASS')
     expect(source).not.toContain('overflow-x-hidden')
     expect(read('app/lib/dashboard-listing-scroll.ts')).toContain('min-w-0')
+    expect(read('app/lib/dashboard-listing-scroll.ts')).toContain('overflow-x-clip')
+    expect(read('app/lib/dashboard-listing-scroll.ts')).not.toContain('overflow-x-hidden')
   })
 
   it('hides scrollbar indicators globally while keeping overflow', () => {
@@ -242,7 +244,9 @@ describe('gutter, collapsed rail, tenant tokens', () => {
     expect(sidebar).toContain('const next = activeParent ? [activeParent.title] : []')
     expect(sidebar).not.toContain('onMouseEnter')
     expect(sidebar).toContain("title: 'Dashboard'")
-    expect(sidebar).toContain('Ayuda y Documentación')
+    expect(sidebar).toContain('Matriculacion')
+    expect(sidebar).toContain("title: 'Nueva matrícula'")
+    expect(sidebar).not.toContain('sidebar-enrollment-cta')
     expect(sidebar).toContain('sidebar-active-bar')
     expect(sidebar).toContain('sidebar-subnav-indicator')
     expect(sidebar).toContain('bg-primary')
@@ -364,7 +368,8 @@ describe('sidebar order and split analytics', () => {
     expect(read('app/(app)/(dashboard)/matriculas/portal/planes/page.tsx')).toContain(
       "redirect('/matriculas/planes')",
     )
-    expect(read('app/(app)/(dashboard)/matriculas/page.tsx')).toContain('/matriculas/portal')
+    expect(read('app/(app)/(dashboard)/matriculas/page.tsx')).toContain('/matriculas/nueva')
+    expect(read('app/(app)/(dashboard)/matriculas/page.tsx')).not.toContain('/matriculas/portal')
     expect(read('app/(app)/(dashboard)/matriculas/planes/page.tsx')).toContain('TabsTrigger')
     const stepper = read('app/(app)/(dashboard)/matriculas/wizard/EnrollmentStepper.tsx')
     expect(stepper).toContain("from '@payload-config/components/ui/button'")
@@ -375,15 +380,22 @@ describe('sidebar order and split analytics', () => {
     expect(read('@payload-config/components/ui/field.tsx')).toContain('data-slot="field"')
     expect(portal).toContain('lg:grid-cols-3')
     expect(portal).toContain('/matriculas/nueva?paso=1')
+    expect(portal).toContain('Nueva matrícula')
+    expect(portal).not.toContain('Empezar')
     expect(portal).not.toContain('#f2014b')
     expect(portal).not.toContain('/finanzas/metodos')
-    expect(read('app/(app)/(dashboard)/layout.tsx')).toContain('isEnrollmentFocusPath')
+    expect(read('app/(app)/(dashboard)/layout.tsx')).not.toContain('isEnrollmentFocusPath')
+    expect(read('app/(app)/(dashboard)/layout.tsx')).toContain('<AppSidebar />')
+    expect(read('app/(app)/(dashboard)/layout.tsx')).toContain('DASHBOARD_LISTING_MAIN_INNER_CLASS')
     const steps = read('app/(app)/(dashboard)/matriculas/wizard/steps.tsx')
     expect(steps).toContain('export function AlumnoStep')
     expect(steps).toContain('showErrors')
     expect(steps).toContain('FieldLabel')
     const wizard = read('app/(app)/(dashboard)/matriculas/wizard/EnrollmentWizard.tsx')
-    expect(wizard).toContain('Guardar y salir')
+    expect(wizard).toContain('Guardar borrador')
+    expect(wizard).toContain('EnrollmentBreadcrumb')
+    expect(wizard).not.toContain('Guardar y salir')
+    expect(wizard).not.toContain('100vw')
     expect(wizard).toContain('Continuar a Alumno')
     expect(wizard).toContain('sticky bottom-0')
     expect(read('app/(app)/(dashboard)/matriculas/tarifas-acceso/page.tsx')).toContain(
@@ -403,15 +415,20 @@ describe('elera canvas primitives', () => {
     expect(read('@payload-config/components/ui/table.tsx')).not.toContain('uppercase')
   })
 
-  it('EntityThumb is square and never rounded-full', () => {
+  it('EntityThumb is square, never rounded-full, and uses /stock photos', () => {
     const thumb = read('@payload-config/components/ui/entity-thumb.tsx')
+    const stock = read('app/lib/stock-fallbacks.ts')
     expect(thumb).toContain('aspect-square')
     expect(thumb).toContain('rounded-lg')
     expect(thumb).not.toContain('rounded-full')
+    expect(thumb).toContain('STOCK_FALLBACK_IMAGES')
+    expect(stock).toContain('/stock/cursos.jpg')
     expect(read('@payload-config/components/ui/CourseListItem.tsx')).toContain('EntityThumb')
     expect(read('@payload-config/components/ui/CourseListItem.tsx')).not.toContain('rounded-full')
     expect(read('@payload-config/components/ui/CicloListItem.tsx')).not.toContain('rounded-full')
     expect(read('@payload-config/components/ui/SedeListItem.tsx')).not.toContain('rounded-full')
+    expect(read('app/(app)/(dashboard)/alumnos/page.tsx')).toContain('fallback="student"')
+    expect(read('app/(app)/(dashboard)/alumnos/page.tsx')).not.toContain('student.first_name[0]')
   })
 
   it('does not change AppSidebar identity classes in this pass', () => {

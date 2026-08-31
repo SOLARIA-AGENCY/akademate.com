@@ -685,7 +685,7 @@ export default function CursoDetailPage({ params }: Props) {
             </div>
           ) : (
             <div className="mt-2">
-              <Table>
+              <Table className="min-w-[720px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Codigo</TableHead>

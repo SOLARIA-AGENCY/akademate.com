@@ -3,7 +3,8 @@
 import * as React from 'react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { Mail, Phone, BookOpen, User, GraduationCap } from 'lucide-react'
+import { Mail, Phone, BookOpen } from 'lucide-react'
+import { EntityThumb, type EntityThumbFallback } from '@payload-config/components/ui/entity-thumb'
 
 interface TeacherExpanded {
   id: number
@@ -29,49 +30,29 @@ interface PersonalListItemProps {
   teacher: TeacherExpanded
   onClick?: () => void
   className?: string
+  fallback?: EntityThumbFallback
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
-function TeacherListFallback() {
-  return (
-    <div
-      aria-label="Imagen genérica de docente"
-      className="relative flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary"
-    >
-      <User className="h-7 w-7" aria-hidden="true" />
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-      </span>
-    </div>
-  )
-}
-
-export function PersonalListItem({ teacher, onClick, className }: PersonalListItemProps) {
-  const [photoError, setPhotoError] = React.useState(false)
+export function PersonalListItem({
+  teacher,
+  onClick,
+  className,
+  fallback = 'person',
+}: PersonalListItemProps) {
+  const photoSrc = isPlaceholderPhoto(teacher.photo) ? null : teacher.photo
+  const fullName = `${teacher.firstName} ${teacher.lastName}`
 
   return (
     <div
-      className={`flex min-h-24 items-center rounded-lg border bg-card py-3 pl-5 pr-4 transition-shadow duration-150 hover:shadow-md cursor-pointer ${className || ''}`}
+      className={`flex min-h-16 items-center rounded-lg border bg-card py-3 pl-5 pr-4 transition-shadow duration-150 hover:shadow-md cursor-pointer ${className || ''}`}
       onClick={onClick}
       data-oid="afb5w:u"
     >
-      <div
-        className="h-20 w-20 flex-shrink-0 overflow-visible rounded-full bg-muted"
-        data-oid="jbwoqz1"
-      >
-        {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
-          <img
-            src={teacher.photo}
-            alt={`${teacher.firstName} ${teacher.lastName}`}
-            className="h-full w-full rounded-full object-cover"
-            onError={() => setPhotoError(true)}
-            data-oid="28ijt7d"
-          />
-        ) : (
-          <TeacherListFallback />
-        )}
+      <div aria-label="Imagen genérica de docente">
+        <EntityThumb src={photoSrc} alt={fullName} fallback={fallback} size="md" />
       </div>
 
       {/* Contenido con padding interno */}
@@ -91,7 +72,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
           <div className="flex items-center gap-1" data-oid="nz-6sx_">
             <Mail className="h-3 w-3 text-muted-foreground" data-oid="quf6j77" />
             <span className="text-muted-foreground truncate" data-oid="ua52l:d">
-              {teacher.email}
+              {teacher.email?.trim() ? teacher.email : '–'}
             </span>
           </div>
           <div className="flex items-center gap-1" data-oid="uwks_u_">
@@ -134,7 +115,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
             {teacher.courseRunsCount}
           </span>
           <span className="text-muted-foreground" data-oid="e366udr">
-            cursos
+            {teacher.courseRunsCount === 1 ? 'convocatoria' : 'convocatorias'}
           </span>
         </div>
 

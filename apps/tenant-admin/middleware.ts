@@ -128,6 +128,7 @@ const staticPaths = [
   '/api/config',
   '/api/media/file', // Serve uploaded media files without auth
   '/placeholder-course.svg',
+  '/stock',
   '/media',
   '/website',
   '/og-image',

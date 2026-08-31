@@ -42,11 +42,11 @@ describe('normalizeStudyType', () => {
     expect(toDashboardStudyType('ciclo_superior')).toBe('privados')
   })
 
-  it('returns fallback images by study type', () => {
-    expect(getPublicStudyTypeFallbackImage('privado')).toBe('/website/cep/courses/fallback-privados.png')
-    expect(getPublicStudyTypeFallbackImage('desempleados')).toBe('/website/cep/courses/fallback-desempleados.png')
-    expect(getPublicStudyTypeFallbackImage('ocupados')).toBe('/website/cep/courses/fallback-ocupados.png')
-    expect(getPublicStudyTypeFallbackImage('teleformacion')).toBe('/website/cep/courses/fallback-teleformacion.png')
-    expect(getPublicStudyTypeFallbackImage('ciclo-superior')).toBe('/website/cep/courses/fallback-privados.png')
+  it('returns SaaS stock photographs instead of CEP study-type assets', () => {
+    expect(getPublicStudyTypeFallbackImage('privado')).toBe('/stock/cursos.jpg')
+    expect(getPublicStudyTypeFallbackImage('desempleados')).toBe('/stock/cursos.jpg')
+    expect(getPublicStudyTypeFallbackImage('ocupados')).toBe('/stock/cursos.jpg')
+    expect(getPublicStudyTypeFallbackImage('teleformacion')).toBe('/stock/cursos.jpg')
+    expect(getPublicStudyTypeFallbackImage('ciclo-superior')).toBe('/stock/cursos.jpg')
   })
 })

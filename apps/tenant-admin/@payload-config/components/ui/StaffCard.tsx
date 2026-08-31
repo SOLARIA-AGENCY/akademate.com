@@ -12,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
-import { Eye, Edit, Trash2, MoreHorizontal, MapPin, Mail, Phone, Briefcase, GraduationCap, User } from 'lucide-react'
+import { Eye, Edit, Trash2, MoreHorizontal, MapPin, Mail, Phone, Briefcase } from 'lucide-react'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 
 interface StaffCardProps {
   id: number
@@ -66,27 +67,19 @@ function StaffPhoto({
   staffType?: string
 }) {
   const teaching = isTeachingStaff(staffType)
-  const BadgeIcon = teaching ? GraduationCap : Briefcase
+  const photoSrc = isPlaceholderPhoto(photo) ? null : photo
 
   return (
-    <div className="relative h-16 w-16 overflow-visible">
-      {!isPlaceholderPhoto(photo) ? (
-        <img
-          src={photo}
-          alt={fullName}
-          className="h-16 w-16 rounded-full border-2 border-background object-cover shadow-md ring-2 ring-muted ring-offset-2"
-        />
-      ) : (
-        <div
-          aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
-          className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-background bg-primary/10 text-primary shadow-md ring-2 ring-muted ring-offset-2"
-        >
-          <User className="h-7 w-7" aria-hidden="true" />
-        </div>
-      )}
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <BadgeIcon className="h-3.5 w-3.5" aria-hidden="true" />
-      </span>
+    <div
+      className="relative"
+      aria-label={!photoSrc ? (teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo') : undefined}
+    >
+      <EntityThumb
+        src={photoSrc}
+        alt={fullName}
+        fallback={teaching ? 'person' : 'admin'}
+        size="md"
+      />
     </div>
   )
 }

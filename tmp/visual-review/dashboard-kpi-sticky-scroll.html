@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard KPI sticky — scroll intermedio</title>
+    <style>
+      :root {
+        --dashboard-canvas: 220 9% 96%;
+        --card: 0 0% 100%;
+        --border: 220 13% 91%;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: hsl(var(--dashboard-canvas)); font-family: ui-sans-serif, system-ui, sans-serif; }
+      .shell { display: flex; height: 100dvh; overflow: hidden; }
+      .rail { width: 72px; background: #0f2440; }
+      .inset { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; margin: 12px 12px 12px 0; border-radius: 12px; background: hsl(var(--dashboard-canvas)); }
+      .chrome { position: relative; z-index: 30; flex-shrink: 0; height: 56px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--card)); }
+      .main { min-height: 0; flex: 1; overflow-y: auto; overflow-x: clip; padding: 0 16px 16px; }
+      .page { display: flex; flex-direction: column; }
+      .title { padding: 16px 0 8px; font-size: 18px; font-weight: 600; }
+      .range {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        isolation: isolate;
+        margin-top: 0;
+        margin-left: -16px;
+        margin-right: -16px;
+        padding: 0 16px;
+        border-top: 1px solid hsl(var(--border) / 0.6);
+        border-bottom: 1px solid hsl(var(--border) / 0.6);
+        background: hsl(var(--dashboard-canvas));
+      }
+      .range-inner { display: flex; align-items: center; height: 48px; gap: 8px; }
+      .chip { padding: 4px 12px; border: 1px solid hsl(var(--border)); border-radius: 6px; background: hsl(var(--card)); font-size: 13px; }
+      .chip.on { background: #111; color: #fff; }
+      .stack { display: flex; flex-direction: column; gap: 24px; padding-top: 24px; }
+      .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+      .kpi { background: hsl(var(--card)); border: 1px solid rgba(0,0,0,0.04); border-radius: 16px; padding: 20px; min-height: 110px; }
+      .kpi .label { font-size: 13px; color: #64748b; }
+      .kpi .value { margin-top: 8px; font-size: 24px; font-weight: 600; }
+      .kpi .delta { margin-top: 8px; font-size: 11px; color: #64748b; }
+      .block { height: 420px; background: hsl(var(--card)); border-radius: 16px; border: 1px solid rgba(0,0,0,0.04); }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="rail"></div>
+      <div class="inset">
+        <div class="chrome">Dashboard</div>
+        <div class="main" id="scroller">
+          <div class="page">
+            <div class="title">Dashboard</div>
+            <div class="range" data-testid="dashboard-home-range-bar">
+              <div class="range-inner">
+                <span class="chip">1D</span>
+                <span class="chip on">7D</span>
+                <span class="chip">30D</span>
+                <span class="chip">6M</span>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="kpis">
+                <div class="kpi"><div class="label">Alumnos activos</div><div class="value">128</div><div class="delta">— sin cambio · vs. -7d</div></div>
+                <div class="kpi"><div class="label">Leads del mes</div><div class="value">42</div><div class="delta">-100% · vs. -7d</div></div>
+                <div class="kpi"><div class="label">Matrículas de la semana</div><div class="value">9</div><div class="delta">— sin cambio · vs. -7d</div></div>
+                <div class="kpi"><div class="label">Convocatorias abiertas</div><div class="value">6</div><div class="delta">— sin cambio · vs. -7d</div></div>
+              </div>
+              <div class="block"></div>
+              <div class="block"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const scroller = document.getElementById('scroller')
+      scroller.scrollTop = 88
+    </script>
+  </body>
+</html>

@@ -2,9 +2,13 @@
 
 import * as React from 'react'
 import { useEffect, useState } from 'react'
+import { SortableTableHead } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
 import Link from 'next/link'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -21,6 +25,7 @@ import {
   ListingSearch,
   PremiumDirectoryShell,
   DirectoryCampusIdentity,
+  DirectoryAreaBadge,
   DirectoryStaffIcons,
   useCampusIdentityMap,
   type DirectoryStaffRef,
@@ -33,7 +38,6 @@ import {
   Calendar,
   Loader2,
   Plus,
-  MapPin,
   Users,
 } from 'lucide-react'
 import { AssignEmptyButton } from '@payload-config/components/ui/assign-empty'
@@ -48,7 +52,9 @@ interface ConvocatoriaApiItem {
   codigo?: string
   cursoNombre?: string
   cursoTipo?: string
-  campusNombre?: string
+  cursoArea?: string | null
+  cursoAreaColor?: string | null
+  campusNombre?: string | null
   profesor?:
     | string
     | {
@@ -106,6 +112,8 @@ interface Convocatoria {
   id: string
   codigo: string
   cursoNombre: string
+  cursoArea: string
+  cursoAreaColor: string | null
   sedeName: string
   profesorName: string
   profesorRefs: DirectoryStaffRef[]
@@ -131,6 +139,17 @@ const ESTADO_MAP: Record<string, { label: string; variant: 'info' | 'success' | 
   completed: { label: 'Completada', variant: 'neutral' },
   cancelled: { label: 'Cancelada', variant: 'destructive' },
 }
+
+const WEB_CONVOCATORIAS_SORT_KINDS = {
+  curso: 'text',
+  sede: 'text',
+  docente: 'number',
+  fechas: 'date',
+  plazas: 'number',
+  estado: 'text',
+  campana: 'text',
+  publicada: 'text',
+} as const satisfies Record<string, SortKind>
 
 function formatProfesorName(
   profesor: ConvocatoriaApiItem['profesor'],
@@ -301,6 +320,9 @@ export default function WebConvocatoriasPage() {
   const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set())
   const [searchTerm, setSearchTerm] = useState('')
   const [publishFilter, setPublishFilter] = useState<'all' | 'published' | 'draft'>('all')
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(
+    WEB_CONVOCATORIAS_SORT_KINDS,
+  )
 
   useEffect(() => {
     const fetchConvocatorias = async () => {
@@ -349,6 +371,8 @@ export default function WebConvocatoriasPage() {
             id: String(item.id),
             codigo,
             cursoNombre: item.cursoNombre ?? 'Curso',
+            cursoArea: item.cursoArea ?? '',
+            cursoAreaColor: item.cursoAreaColor ?? null,
             sedeName: item.campusNombre ?? '',
             profesorName: formatProfesorName(item.profesor),
             profesorRefs: (Array.isArray(item.profesorRefs) ? item.profesorRefs : [])
@@ -421,18 +445,48 @@ export default function WebConvocatoriasPage() {
   }
 
   const publishedCount = convocatorias.filter((c) => c.isPublishable).length
-  const visibleConvocatorias = convocatorias.filter((conv) => {
-    const query = searchTerm.trim().toLowerCase()
-    const matchesSearch =
-      !query ||
-      conv.cursoNombre.toLowerCase().includes(query) ||
-      conv.sedeName.toLowerCase().includes(query)
-    const matchesPublish =
-      publishFilter === 'all' ||
-      (publishFilter === 'published' && conv.isPublishable) ||
-      (publishFilter === 'draft' && !conv.isPublishable)
-    return matchesSearch && matchesPublish
-  })
+  const visibleConvocatorias = sortRows(
+    convocatorias.filter((conv) => {
+      const query = searchTerm.trim().toLowerCase()
+      const matchesSearch =
+        !query ||
+        conv.cursoNombre.toLowerCase().includes(query) ||
+        conv.sedeName.toLowerCase().includes(query)
+      const matchesPublish =
+        publishFilter === 'all' ||
+        (publishFilter === 'published' && conv.isPublishable) ||
+        (publishFilter === 'draft' && !conv.isPublishable)
+      return matchesSearch && matchesPublish
+    }),
+    (conv, column) => {
+      switch (column) {
+        case 'curso':
+          return conv.cursoNombre
+        case 'sede':
+          return conv.sedeName
+        case 'docente':
+          return conv.profesorRefs.length > 0 ? conv.profesorRefs.length : conv.profesorName ? 1 : 0
+        case 'fechas':
+          return conv.fechaInicio
+        case 'plazas':
+          return conv.plazasTotales > 0 ? conv.plazasOcupadas / conv.plazasTotales : conv.plazasOcupadas
+        case 'estado':
+          return ESTADO_MAP[conv.estado]?.label ?? conv.estado
+        case 'campana':
+          return conv.campaign.primaryCampaignName || conv.campaign.status
+        case 'publicada':
+          return conv.isPublishable ? 'Publicada' : 'Borrador'
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, publishFilter, resetSort])
 
   return (
     <div className="space-y-6">
@@ -525,6 +579,9 @@ export default function WebConvocatoriasPage() {
                       <h3 className="font-semibold text-sm leading-tight line-clamp-2">{conv.cursoNombre}</h3>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <Badge variant={estadoConfig.variant} className="text-[10px]">{estadoConfig.label}</Badge>
+                        {conv.cursoArea ? (
+                          <DirectoryAreaBadge label={conv.cursoArea} color={conv.cursoAreaColor} />
+                        ) : null}
                       </div>
                     </div>
                     <Switch
@@ -537,16 +594,11 @@ export default function WebConvocatoriasPage() {
 
                   {/* Info grid */}
                   <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="h-3 w-3 shrink-0" />
-                      {conv.sedeName ? (
-                        <DirectoryCampusIdentity
-                          name={conv.sedeName}
-                          imageUrl={campusImages[conv.sedeName]}
-                        />
-                      ) : (
-                        <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
-                      )}
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <DirectoryCampusIdentity
+                        name={conv.sedeName}
+                        imageUrl={conv.sedeName ? campusImages[conv.sedeName] : undefined}
+                      />
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Calendar className="h-3 w-3 shrink-0" />
@@ -615,17 +667,17 @@ export default function WebConvocatoriasPage() {
       {/* DESKTOP: Table layout (visible on lg and above) */}
       {!isLoading && convocatorias.length > 0 && (
         <Card className="hidden lg:block overflow-x-hidden">
-          <Table>
+          <Table className="min-w-[980px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Ciclo / curso</TableHead>
-                <TableHead>Sede</TableHead>
-                <TableHead>Docente</TableHead>
-                <TableHead>Fechas</TableHead>
-                <TableHead className="text-center">Plazas</TableHead>
-                <TableHead className="text-center">Estado</TableHead>
-                <TableHead className="text-center">Campaña</TableHead>
-                <TableHead className="text-center">Publicada</TableHead>
+                <SortableTableHead className="min-w-0" label="Ciclo / curso" column="curso" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead className="min-w-0" label="Sede" column="sede" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead label="Docente" column="docente" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead label="Fechas" column="fechas" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead className="text-center" label="Plazas" column="plazas" sort={sortState} onToggle={toggleSort} align="center" />
+                <SortableTableHead className="text-center" label="Estado" column="estado" sort={sortState} onToggle={toggleSort} align="center" />
+                <SortableTableHead className="text-center" label="Campaña" column="campana" sort={sortState} onToggle={toggleSort} align="center" />
+                <SortableTableHead className="text-center" label="Publicada" column="publicada" sort={sortState} onToggle={toggleSort} align="center" />
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -639,18 +691,26 @@ export default function WebConvocatoriasPage() {
 
                 return (
                   <TableRow key={conv.id}>
-                    <TableCell className="font-medium max-w-[220px] truncate">
-                      {conv.cursoNombre}
+                    <TableCell className="min-w-0 font-medium">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <EntityThumb alt={conv.cursoNombre ?? 'Convocatoria'} fallback="page" size="sm" />
+                        <div className="min-w-0">
+                          <span className="block truncate" title={conv.cursoNombre}>{conv.cursoNombre}</span>
+                          {conv.cursoArea ? (
+                            <div className="mt-1">
+                              <DirectoryAreaBadge label={conv.cursoArea} color={conv.cursoAreaColor} />
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
                     </TableCell>
-                    <TableCell>
-                      {conv.sedeName ? (
+                    <TableCell className="min-w-0">
+                      <div className="flex shrink-0">
                         <DirectoryCampusIdentity
                           name={conv.sedeName}
-                          imageUrl={campusImages[conv.sedeName]}
+                          imageUrl={conv.sedeName ? campusImages[conv.sedeName] : undefined}
                         />
-                      ) : (
-                        <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
-                      )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {conv.profesorRefs.length > 0 ? (
@@ -665,8 +725,11 @@ export default function WebConvocatoriasPage() {
                       {formatDate(conv.fechaInicio)} - {formatDate(conv.fechaFin)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className="font-medium">{conv.plazasOcupadas}</span>
-                      <span className="text-muted-foreground">/{conv.plazasTotales}</span>
+                      <span className="inline-flex items-center justify-center gap-1">
+                        <Users className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                        <span className="font-medium">{conv.plazasOcupadas}</span>
+                        <span className="text-muted-foreground">/{conv.plazasTotales}</span>
+                      </span>
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant={estadoConfig.variant}>{estadoConfig.label}</Badge>

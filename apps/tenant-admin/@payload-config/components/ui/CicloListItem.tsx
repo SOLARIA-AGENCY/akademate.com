@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@payload-config/components/ui/button'
-import { Clock, MapPin } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import {
   DirectoryAreaBadge,
@@ -57,19 +57,22 @@ export function CicloListItem({
         </div>
 
         <div className="hidden w-20 shrink-0 items-center gap-1 text-xs md:flex">
-          <Clock className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="font-medium">{duracionLabel || `${ciclo.duracion_total_horas}h`}</span>
+          <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
         </div>
 
-        <div className="hidden w-16 shrink-0 text-center text-xs font-medium tabular-nums lg:block">
+        <div className="hidden w-28 shrink-0 text-center text-xs font-medium tabular-nums lg:block" title={`${convocatoriasActivas} ${convocatoriasActivas === 1 ? 'convocatoria' : 'convocatorias'}`}>
           {convocatoriasActivas}
         </div>
 
-        <div className="hidden min-w-0 max-w-[10rem] items-center gap-1 text-xs xl:flex">
-          <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          <span className="truncate" title={sedes.join(', ')}>
-            {sedes.length > 0 ? sedes.join(', ') : '—'}
-          </span>
+        <div className="hidden min-w-0 max-w-[12rem] shrink-0 items-center xl:flex">
+          {sedes[0] ? (
+            <DirectoryNeutralBadge className="max-w-full truncate">
+              {sedes[0]}
+            </DirectoryNeutralBadge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
         </div>
 
         <div className="hidden w-[140px] justify-center lg:flex" data-oid="2s8r.-y">

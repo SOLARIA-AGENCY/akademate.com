@@ -49,10 +49,16 @@ export interface WeeklyMetrics {
 }
 
 export interface RecentActivity {
-  id: number;
+  id: string | number;
+  type?: 'lead' | 'enrollment' | 'convocation' | string;
   title: string;
   entity_name: string;
   timestamp: string;
+  lead_id?: string | number | null;
+  lead_type?: string | null;
+  lead_source?: string | null;
+  lead_status?: string | null;
+  href?: string | null;
 }
 
 export interface OperationalAlert {

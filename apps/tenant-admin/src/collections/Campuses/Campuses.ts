@@ -3,6 +3,7 @@ import { canManageCampuses } from './access/canManageCampuses';
 import { campusSchema, formatValidationErrors } from './Campuses.validation';
 import { tenantField } from '../../access/tenantAccess';
 import { ensurePrimaryInServiceLocations } from '../../domain/campus-operating-model';
+import { ensureDefaultClassroom } from './hooks/ensureDefaultClassroom'
 
 interface CampusData {
   id?: number;
@@ -397,6 +398,7 @@ export const Campuses: CollectionConfig = {
     tenantField,
   ],
   hooks: {
+    afterChange: [ensureDefaultClassroom],
     beforeValidate: [
       ({ data }): CampusData | undefined => {
         const typedData = data as CampusData | undefined;

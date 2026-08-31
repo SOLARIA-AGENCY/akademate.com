@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
@@ -46,20 +47,6 @@ interface StaffMember {
 
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
-
-function AdminPhotoFallback() {
-  return (
-    <div
-      aria-label="Imagen genérica de administrativo"
-      className="relative flex h-48 w-48 items-center justify-center rounded-full border bg-primary/10 text-primary shadow-lg"
-    >
-      <User className="h-20 w-20" aria-hidden="true" />
-      <div className="absolute right-2 top-2 rounded-full border bg-background p-2 shadow-sm">
-        <Briefcase className="h-7 w-7" aria-hidden="true" />
-      </div>
-    </div>
-  )
-}
 
 export default function AdministrativoDetailPage() {
   const router = useRouter()
@@ -185,16 +172,19 @@ export default function AdministrativoDetailPage() {
           <CardContent className="pt-6 space-y-6" data-oid="zzitn_q">
             {/* Photo */}
             <div className="flex flex-col items-center" data-oid="xo.xxd9">
-              {!isPlaceholderPhoto(admin.photo) ? (
-                <img
-                  src={admin.photo}
+              <div
+                aria-label={
+                  isPlaceholderPhoto(admin.photo) ? 'Imagen genérica de administrativo' : undefined
+                }
+              >
+                <EntityThumb
+                  src={isPlaceholderPhoto(admin.photo) ? null : admin.photo}
                   alt={admin.fullName}
-                  className="h-48 w-48 rounded-full object-cover border-4 border-background shadow-lg"
-                  data-oid="1qxhdve"
+                  fallback="admin"
+                  size="lg"
+                  className="h-48 w-48"
                 />
-              ) : (
-                <AdminPhotoFallback />
-              )}
+              </div>
               <div className="mt-4 text-center" data-oid="0d3p_ko">
                 <h2 className="text-xl font-bold" data-oid="knocmsm">
                   {admin.fullName}

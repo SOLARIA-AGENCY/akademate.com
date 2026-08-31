@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
@@ -15,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Loader2, MapPin, Plus, Save, Trash2, Upload, User } from 'lucide-react'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { ArrowLeft, Loader2, MapPin, Plus, Save, Trash2, Upload, User, X } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -62,33 +64,52 @@ interface StaffPhotoUploadResponse {
   error?: string
 }
 
+type FieldErrors = {
+  firstName?: string
+  lastName?: string
+  email?: string
+  position?: string
+  assignedCampuses?: string
+}
+
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
-function TeacherPhotoFallback() {
+const FIELD_ERROR = 'Este campo es obligatorio'
+const FORM_TYPE = 'text-sm [&_[data-slot=label]]:text-sm [&_input]:text-sm [&_textarea]:text-sm'
+const HELPER = 'text-xs text-muted-foreground'
+
+function RequiredMark() {
   return (
-    <div
-      aria-label="Imagen genérica de docente"
-      className="relative flex h-20 w-20 items-center justify-center rounded-full border bg-primary/10 text-primary"
-    >
-      <User className="h-9 w-9" />
-      <div className="absolute -right-1 -top-1 rounded-full border bg-background p-1 shadow-sm">
-        <GraduationCap className="h-5 w-5" />
-      </div>
-    </div>
+    <span className="text-destructive" aria-hidden="true">
+      *
+    </span>
   )
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null
+  return <p className="text-xs text-destructive">{message}</p>
+}
+
+function campusLabel(campus: Campus): string {
+  return campus.city ? `${campus.name} - ${campus.city}` : campus.name
 }
 
 export default function EditProfesorPage() {
   const router = useRouter()
   const params = useParams()
   const professorId = params.id as string
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [loadingCampuses, setLoadingCampuses] = useState(true)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [attemptedSave, setAttemptedSave] = useState(false)
+  const [extraCampusKey, setExtraCampusKey] = useState(0)
   const [campuses, setCampuses] = useState<Campus[]>([])
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [photoId, setPhotoId] = useState('')
@@ -170,8 +191,13 @@ export default function EditProfesorPage() {
   }, [professorId])
 
   const handleInputChange =
-    (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+    (field: keyof FieldErrors | 'phone' | 'bio' | 'hireDate') =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value
+      setFormData((prev) => ({ ...prev, [field]: value }))
+      if (attemptedSave && field in { firstName: true, lastName: true, email: true, position: true }) {
+        setFieldErrors((prev) => ({ ...prev, [field]: value.trim() ? undefined : FIELD_ERROR }))
+      }
     }
 
   const handleSelectChange = (field: string) => (value: string) => {
@@ -183,7 +209,28 @@ export default function EditProfesorPage() {
     if (Number.isNaN(campusId)) return
     setFormData((prev) => ({
       ...prev,
-      assignedCampuses: [campusId],
+      assignedCampuses: [campusId, ...prev.assignedCampuses.filter((id) => id !== campusId)],
+    }))
+    if (attemptedSave) {
+      setFieldErrors((prev) => ({ ...prev, assignedCampuses: undefined }))
+    }
+  }
+
+  const addAssignedCampus = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
+    setFormData((prev) =>
+      prev.assignedCampuses.includes(campusId)
+        ? prev
+        : { ...prev, assignedCampuses: [...prev.assignedCampuses, campusId] },
+    )
+    setExtraCampusKey((key) => key + 1)
+  }
+
+  const removeAssignedCampus = (campusId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      assignedCampuses: prev.assignedCampuses.filter((id) => id !== campusId),
     }))
   }
 
@@ -248,8 +295,28 @@ export default function EditProfesorPage() {
     setError(null)
   }
 
+  const validate = (): FieldErrors => {
+    const next: FieldErrors = {}
+    if (!formData.firstName.trim()) next.firstName = FIELD_ERROR
+    if (!formData.lastName.trim()) next.lastName = FIELD_ERROR
+    if (!formData.email.trim()) next.email = FIELD_ERROR
+    if (!formData.position.trim()) next.position = FIELD_ERROR
+    if (formData.assignedCampuses.length === 0) next.assignedCampuses = FIELD_ERROR
+    return next
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setAttemptedSave(true)
+    const nextErrors = validate()
+    setFieldErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) {
+      window.requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+      })
+      return
+    }
+
     setSaving(true)
     setError(null)
 
@@ -303,6 +370,29 @@ export default function EditProfesorPage() {
     )
   }
 
+  const photoAlt = `${formData.firstName} ${formData.lastName}`.trim() || 'Docente'
+  const saveDisabled = saving || uploadingPhoto
+  const availableExtraCampuses = campuses.filter((campus) => !formData.assignedCampuses.includes(campus.id))
+  const assignedCampusRecords = formData.assignedCampuses
+    .map((id) => campuses.find((campus) => campus.id === id))
+    .filter((campus): campus is Campus => Boolean(campus))
+
+  const saveButton = (
+    <Button type="submit" disabled={saveDisabled}>
+      {saving ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Guardando...
+        </>
+      ) : (
+        <>
+          <Save className="mr-2 h-4 w-4" />
+          Guardar Cambios
+        </>
+      )}
+    </Button>
+  )
+
   return (
     <div className="space-y-6 max-w-4xl">
       <PageHeader
@@ -315,82 +405,113 @@ export default function EditProfesorPage() {
         }
       />
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <Card>
           <CardHeader>
             <CardTitle>Ficha del Profesor</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className={`space-y-6 ${FORM_TYPE}`}>
             {error ? (
               <div className="rounded-md border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
                 {error}
               </div>
             ) : null}
 
-            <div className="space-y-3">
-              <Label htmlFor="photo-upload">Foto del profesor</Label>
-              <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
+              <div aria-label={photoPreview ? undefined : 'Imagen genérica de docente'}>
+                <EntityThumb
+                  src={photoPreview}
+                  alt={photoAlt}
+                  fallback="person"
+                  className="h-20 w-20 rounded-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <input
+                  ref={photoInputRef}
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  disabled={uploadingPhoto || saving}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) void handlePhotoUpload(file)
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={uploadingPhoto || saving}
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  {uploadingPhoto ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-3.5 w-3.5" />
+                  )}
+                  Seleccionar imagen
+                </Button>
                 {photoPreview ? (
-                  <img
-                    src={photoPreview}
-                    alt="Foto del profesor"
-                    className="h-20 w-20 rounded-full object-cover border"
-                    onError={() => setPhotoPreview(null)}
-                  />
-                ) : (
-                  <TeacherPhotoFallback />
-                )}
-                <div className="space-y-2">
-                  <Input
-                    id="photo-upload"
-                    type="file"
-                    accept="image/*"
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
                     disabled={uploadingPhoto || saving}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) void handlePhotoUpload(file)
-                    }}
-                  />
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {uploadingPhoto ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Upload className="h-3.5 w-3.5" />
-                    )}
-                    <span>{uploadingPhoto ? 'Subiendo foto...' : 'Puedes reemplazar la foto actual desde aquí.'}</span>
-                  </div>
-                  {photoPreview ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="text-destructive hover:text-destructive"
-                      disabled={uploadingPhoto || saving}
-                      onClick={handleRemovePhoto}
-                    >
-                      <Trash2 className="mr-2 h-3.5 w-3.5" />
-                      Eliminar foto
-                    </Button>
-                  ) : null}
-                </div>
+                    onClick={handleRemovePhoto}
+                  >
+                    <Trash2 className="mr-2 h-3.5 w-3.5" />
+                    Eliminar foto
+                  </Button>
+                ) : null}
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName">Nombre</Label>
-                <Input id="firstName" value={formData.firstName} onChange={handleInputChange('firstName')} required />
+                <Label htmlFor="firstName">
+                  Nombre <RequiredMark />
+                </Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  aria-invalid={Boolean(fieldErrors.firstName)}
+                  className={fieldErrors.firstName ? 'border-destructive' : undefined}
+                  onChange={handleInputChange('firstName')}
+                />
+                <FieldError message={fieldErrors.firstName} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Apellidos</Label>
-                <Input id="lastName" value={formData.lastName} onChange={handleInputChange('lastName')} required />
+                <Label htmlFor="lastName">
+                  Primer apellido <RequiredMark />
+                </Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  aria-invalid={Boolean(fieldErrors.lastName)}
+                  className={fieldErrors.lastName ? 'border-destructive' : undefined}
+                  onChange={handleInputChange('lastName')}
+                />
+                <FieldError message={fieldErrors.lastName} />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={handleInputChange('email')} />
+                <Label htmlFor="email">
+                  Email <RequiredMark />
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  className={fieldErrors.email ? 'border-destructive' : undefined}
+                  onChange={handleInputChange('email')}
+                />
+                <FieldError message={fieldErrors.email} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Teléfono</Label>
@@ -399,15 +520,24 @@ export default function EditProfesorPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="position">Especialidad / Área</Label>
-              <Input id="position" value={formData.position} onChange={handleInputChange('position')} required />
+              <Label htmlFor="position">
+                Especialidad / Área <RequiredMark />
+              </Label>
+              <Input
+                id="position"
+                value={formData.position}
+                aria-invalid={Boolean(fieldErrors.position)}
+                className={fieldErrors.position ? 'border-destructive' : undefined}
+                onChange={handleInputChange('position')}
+              />
+              <FieldError message={fieldErrors.position} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="contractType">Tipo de Contrato</Label>
                 <Select value={formData.contractType} onValueChange={handleSelectChange('contractType')}>
-                  <SelectTrigger id="contractType">
+                  <SelectTrigger id="contractType" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -420,7 +550,7 @@ export default function EditProfesorPage() {
               <div className="space-y-2">
                 <Label htmlFor="employmentStatus">Estado</Label>
                 <Select value={formData.employmentStatus} onValueChange={handleSelectChange('employmentStatus')}>
-                  <SelectTrigger id="employmentStatus">
+                  <SelectTrigger id="employmentStatus" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -437,38 +567,88 @@ export default function EditProfesorPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="baseCampus">Sede base asignada</Label>
+              <Label htmlFor="baseCampus">
+                Sede base <RequiredMark />
+              </Label>
               {loadingCampuses ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Cargando sedes...
                 </div>
               ) : campuses.length === 0 ? (
-                <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-                  No hay sedes disponibles para asignar.
-                </div>
+                <p className={HELPER}>No hay sedes disponibles para asignar.</p>
               ) : (
                 <Select
                   value={formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined}
                   onValueChange={handleBaseCampusChange}
                 >
-                  <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
-                    <SelectValue placeholder="Selecciona una sede base" />
+                  <SelectTrigger
+                    id="baseCampus"
+                    aria-label="Sede base"
+                    aria-invalid={Boolean(fieldErrors.assignedCampuses)}
+                    className={`w-full ${fieldErrors.assignedCampuses ? 'border-destructive' : ''}`}
+                  >
+                    <SelectValue placeholder="Sede base" />
                   </SelectTrigger>
                   <SelectContent>
                     {campuses.map((campus) => (
                       <SelectItem key={campus.id} value={String(campus.id)}>
                         <span className="inline-flex items-center gap-2">
                           <MapPin className="h-3.5 w-3.5" />
-                          {campus.name}
-                          {campus.city ? ` - ${campus.city}` : ''}
+                          {campusLabel(campus)}
                         </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
+              <p className={HELPER}>
+                Esta sede determinará también la empresa y base de facturación del docente.
+              </p>
+              <FieldError message={fieldErrors.assignedCampuses} />
             </div>
+
+            <div className="space-y-2">
+              <Label>Sedes asignadas</Label>
+              {assignedCampusRecords.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {assignedCampusRecords.map((campus, index) => (
+                    <Badge key={campus.id} variant="static" className="gap-1.5 font-medium">
+                      {index === 0 ? `${campus.name} · Base` : campus.name}
+                      {formData.assignedCampuses.length > 1 ? (
+                        <button
+                          type="button"
+                          className="rounded-sm opacity-70 hover:opacity-100"
+                          aria-label={`Quitar ${campus.name}`}
+                          onClick={() => removeAssignedCampus(campus.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      ) : null}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className={HELPER}>Aún no hay sedes en esta ficha.</p>
+              )}
+            </div>
+            {availableExtraCampuses.length > 0 ? (
+              <div className="space-y-2">
+                <Label htmlFor="extraCampus">Añadir sede adicional</Label>
+                <Select key={extraCampusKey} onValueChange={addAssignedCampus}>
+                  <SelectTrigger id="extraCampus" className="w-full" aria-label="Añadir sede adicional">
+                    <SelectValue placeholder="Añadir sede adicional" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableExtraCampuses.map((campus) => (
+                      <SelectItem key={campus.id} value={String(campus.id)}>
+                        {campusLabel(campus)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
 
             <div className="space-y-2">
               <Label htmlFor="bio">Biografía Profesional</Label>
@@ -476,21 +656,11 @@ export default function EditProfesorPage() {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <Label>Titulaciones y certificaciones</Label>
-                <Button type="button" size="sm" variant="outline" onClick={addCertification}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Añadir
-                </Button>
-              </div>
-              {formData.certifications.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Añade titulaciones para mostrarlas en la ficha pública del docente.
-                </p>
-              ) : (
+              <Label>Titulaciones y certificaciones</Label>
+              {formData.certifications.length > 0 ? (
                 <div className="space-y-3">
                   {formData.certifications.map((cert, index) => (
-                    <div key={cert.id ?? index} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]">
+                    <div key={cert.id ?? index} className="grid gap-3 md:grid-cols-[1fr_1fr_120px_auto]">
                       <Input
                         value={cert.title}
                         onChange={(event) => updateCertification(index, 'title', event.target.value)}
@@ -513,26 +683,18 @@ export default function EditProfesorPage() {
                     </div>
                   ))}
                 </div>
-              )}
+              ) : null}
+              <Button type="button" size="sm" variant="outline" onClick={addCertification}>
+                <Plus className="mr-2 h-4 w-4" />
+                Añadir
+              </Button>
             </div>
 
             <div className="flex justify-end gap-4 border-t pt-4">
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={saving}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={saving || uploadingPhoto || formData.assignedCampuses.length === 0}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Guardar Cambios
-                  </>
-                )}
-              </Button>
+              {saveButton}
             </div>
           </CardContent>
         </Card>

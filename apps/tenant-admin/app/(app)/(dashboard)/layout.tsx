@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { NotificationBell } from '@payload-config/components/ui/NotificationBell'
 import { Button } from '@payload-config/components/ui/button'
 import {
@@ -23,7 +23,7 @@ import {
   DASHBOARD_CANVAS_LOCKED_CLASS,
   DASHBOARD_SHELL_LOCKED_CLASS,
 } from '@payload-config/components/layout/dashboard-shell'
-import { DASHBOARD_LISTING_MAIN_INNER_CLASS, isEnrollmentFocusPath } from '@/app/lib/dashboard-listing-scroll'
+import { DASHBOARD_LISTING_MAIN_INNER_CLASS } from '@/app/lib/dashboard-listing-scroll'
 import { ThemeToggle } from '@payload-config/components/ui/ThemeToggle'
 import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@payload-config/components/ui/sidebar'
@@ -46,8 +46,6 @@ interface SessionResponse {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const pathname = usePathname()
-  const enrollmentFocus = isEnrollmentFocusPath(pathname)
   useTenantBranding()
   const [currentUser, setCurrentUser] = useState({
     name: 'Administrador',
@@ -100,11 +98,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className={DASHBOARD_SHELL_LOCKED_CLASS}
           style={{ ['--dashboard-fab-clearance' as string]: '0rem' }}
         >
-          {enrollmentFocus ? null : <AppSidebar />}
+          <AppSidebar />
           <SidebarInset className={DASHBOARD_CANVAS_LOCKED_CLASS} data-oid="asfyqnr">
-            {enrollmentFocus ? null : (
             <header
-              className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6"
+              className="relative z-30 flex h-14 shrink-0 items-center border-b bg-card px-4 md:px-6"
               data-oid="oy8tn.c"
             >
               <div className="flex items-center gap-2 pr-2 md:pr-4" data-oid="w2r2vqk">
@@ -190,23 +187,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </DropdownMenu>
               </div>
             </header>
-            )}
 
             <main
               data-slot="dashboard-main-inner"
-              className={
-                enrollmentFocus
-                  ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden'
-                  : DASHBOARD_LISTING_MAIN_INNER_CLASS
-              }
+              className={DASHBOARD_LISTING_MAIN_INNER_CLASS}
               data-oid="20tk9nh"
             >
               {children}
             </main>
 
-            {enrollmentFocus ? null : <DashboardFooter data-oid="jsy7wdn" />}
+            <DashboardFooter data-oid="jsy7wdn" />
           </SidebarInset>
-          {enrollmentFocus ? null : <ChatbotWidget data-oid="2282j28" />}
+          <ChatbotWidget data-oid="2282j28" />
           <CommandPalette />
           <Toaster />
         </SidebarProvider>

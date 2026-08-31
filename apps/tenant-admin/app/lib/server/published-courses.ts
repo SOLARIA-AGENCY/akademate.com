@@ -3,6 +3,7 @@ import 'server-only'
 import { getPayload, type Payload } from 'payload'
 import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { resolvePayloadMediaSrc } from '@/app/lib/payload-media-url'
 import {
   getPublicStudyTypeFallbackImage,
   isPublicStudyType,
@@ -164,10 +165,7 @@ function toAreaName(area: CourseDoc['area_formativa']): string {
 function resolveMediaImageUrl(
   image: CourseDoc['featured_image'] | CourseDoc['image'] | CourseDoc['dossier_pdf']
 ): string | null {
-  if (!image || typeof image !== 'object') return null
-  if (image.url) return image.url
-  if (image.filename) return `/media/${image.filename}`
-  return null
+  return resolvePayloadMediaSrc(image)
 }
 
 function toTextArray(items: { text?: string | null }[] | null | undefined): string[] {

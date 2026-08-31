@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,12 +36,23 @@ import {
   LayoutGrid,
   List,
   Search,
-  User,
 } from 'lucide-react'
 import { Input } from '@payload-config/components/ui/input'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { ToggleGroup, ToggleGroupItem } from '@payload-config/components/ui/toggle-group'
 import { EmptyState } from '@payload-config/components/ui/EmptyState'
+import { SortableTableHead } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const PERSONAL_SORT_KINDS = {
+  nombre: 'text',
+  cargo: 'text',
+  contrato: 'text',
+  sede: 'text',
+  estado: 'text',
+} as const satisfies Record<string, SortKind>
 
 interface StaffMember {
   id: number
@@ -89,13 +99,26 @@ const isPlaceholderPhoto = (photo?: string | null) =>
 const isTeachingStaff = (staffType: StaffMember['staffType']) =>
   staffType === 'profesor' || staffType === 'academico'
 
-function StaffFallbackIcon({ staffType }: { staffType: StaffMember['staffType'] }) {
+function StaffTableAvatar({ member }: { member: StaffMember }) {
   return (
-    <div
-      aria-label={isTeachingStaff(staffType) ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
-      className="flex h-full w-full items-center justify-center bg-primary/10 text-primary"
-    >
-      <User className="h-5 w-5" aria-hidden="true" />
+    <div className="relative h-10 w-10 overflow-visible">
+      <div
+        aria-label={
+          isPlaceholderPhoto(member.photo)
+            ? isTeachingStaff(member.staffType)
+              ? 'Imagen genérica de docente'
+              : 'Imagen genérica de administrativo'
+            : undefined
+        }
+      >
+        <EntityThumb
+          src={isPlaceholderPhoto(member.photo) ? null : member.photo}
+          alt={member.fullName}
+          fallback={isTeachingStaff(member.staffType) ? 'person' : 'admin'}
+          size="sm"
+        />
+      </div>
+      <StaffTypeBadge staffType={member.staffType} />
     </div>
   )
 }
@@ -110,26 +133,6 @@ function StaffTypeBadge({ staffType }: { staffType: StaffMember['staffType'] }) 
   )
 }
 
-function StaffTableAvatar({ member }: { member: StaffMember }) {
-  return (
-    <div className="relative h-10 w-10 overflow-visible">
-      <Avatar className="h-10 w-10">
-        {!isPlaceholderPhoto(member.photo) ? (
-          <AvatarImage
-            src={member.photo}
-            alt={member.fullName}
-            data-oid="u8y4jco"
-          />
-        ) : null}
-        <AvatarFallback data-oid="98svq64">
-          <StaffFallbackIcon staffType={member.staffType} />
-        </AvatarFallback>
-      </Avatar>
-      <StaffTypeBadge staffType={member.staffType} />
-    </div>
-  )
-}
-
 function PersonalPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -138,6 +141,9 @@ function PersonalPageContent() {
   const [searchTerm, setSearchTerm] = React.useState('')
   const [staff, setStaff] = React.useState<StaffMember[]>([])
   const [loading, setLoading] = React.useState(true)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(
+    PERSONAL_SORT_KINDS,
+  )
 
   React.useEffect(() => {
     const requestedTab = searchParams.get('tab')
@@ -174,11 +180,35 @@ function PersonalPageContent() {
     void fetchStaff()
   }, [activeTab])
 
-  const filteredStaff = staff.filter(
-    (s) =>
-      s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.email ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStaff = sortRows(
+    staff.filter(
+      (s) =>
+        s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (s.email ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
+    (member, column) => {
+      switch (column) {
+        case 'nombre':
+          return member.fullName
+        case 'cargo':
+          return member.position
+        case 'contrato':
+          return CONTRACT_TYPE_LABELS[member.contractType] ?? member.contractType
+        case 'sede':
+          return member.assignedCampuses.map((campus) => campus.name).join(', ')
+        case 'estado':
+          return STATUS_LABELS[member.employmentStatus] ?? member.employmentStatus
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
   )
+
+  React.useEffect(() => {
+    resetSort()
+  }, [searchTerm, activeTab, resetSort])
 
   const handleViewDetail = (id: number) => {
     if (activeTab === 'profesores') {
@@ -340,11 +370,11 @@ function PersonalPageContent() {
                   <TableHeader data-oid="eetu3qb">
                     <TableRow data-oid="qnty0_3">
                       <TableHead className="w-12" data-oid="aisipqm"></TableHead>
-                      <TableHead data-oid="cznag55">Nombre</TableHead>
-                      <TableHead data-oid="g77_b3x">Cargo</TableHead>
-                      <TableHead data-oid="ni42ued">Contrato</TableHead>
-                      <TableHead data-oid="xqi7c4p">Sedes</TableHead>
-                      <TableHead data-oid="7v_6x_2">Estado</TableHead>
+                      <SortableTableHead label="Nombre" column="nombre" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Cargo" column="cargo" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Contrato" column="contrato" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Sedes" column="sede" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Estado" column="estado" sort={sortState} onToggle={toggleSort} />
                       <TableHead className="w-12" data-oid="zy6f3vt"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -504,11 +534,11 @@ function PersonalPageContent() {
                   <TableHeader data-oid="-z:mrfl">
                     <TableRow data-oid="uo5vmqo">
                       <TableHead className="w-12" data-oid="73_.ppb"></TableHead>
-                      <TableHead data-oid="op16-gu">Nombre</TableHead>
-                      <TableHead data-oid="4_z7:il">Cargo</TableHead>
-                      <TableHead data-oid="k4xtxm2">Contrato</TableHead>
-                      <TableHead data-oid="9vrkzzy">Sede</TableHead>
-                      <TableHead data-oid="hqndg:x">Estado</TableHead>
+                      <SortableTableHead label="Nombre" column="nombre" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Cargo" column="cargo" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Contrato" column="contrato" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Sede" column="sede" sort={sortState} onToggle={toggleSort} />
+                      <SortableTableHead label="Estado" column="estado" sort={sortState} onToggle={toggleSort} />
                       <TableHead className="w-12" data-oid="q5k.cms"></TableHead>
                     </TableRow>
                   </TableHeader>

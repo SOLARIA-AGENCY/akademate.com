@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { useToast } from '@payload-config/hooks/use-toast'
 import { AlertCircle, Loader2 } from 'lucide-react'
-import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { EnrollmentBreadcrumb } from './EnrollmentBreadcrumb'
 import { EnrollmentCart } from './EnrollmentCart'
 import { EnrollmentStepper } from './EnrollmentStepper'
 import { clearEnrollmentDraft, loadEnrollmentDraft, saveEnrollmentDraft } from './draft'
@@ -115,7 +116,6 @@ export function EnrollmentWizard() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { branding } = useTenantBranding()
   const [draft, setDraft] = useState<EnrollmentDraft>(createEmptyDraft)
   const [hydrated, setHydrated] = useState(false)
   const [people, setPeople] = useState<EnrollmentPerson[]>([])
@@ -128,6 +128,8 @@ export function EnrollmentWizard() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [alumnoAttempted, setAlumnoAttempted] = useState(false)
+  const [convocatoriaAttempted, setConvocatoriaAttempted] = useState(false)
+  const [pagoAttempted, setPagoAttempted] = useState(false)
   const cameraStreamRef = useRef<MediaStream | null>(null)
 
   const leadId = searchParams.get('leadId')
@@ -136,7 +138,7 @@ export function EnrollmentWizard() {
     return new Set(WIZARD_STAGES.filter((item) => item.id < stage).map((item) => item.id))
   }, [stage])
   const disabledReason = nextDisabledReason(draft)
-  const nextDisabled = Boolean(disabledReason) || submitting
+  const nextDisabled = submitting
 
   const updateDraft = useCallback((patch: Partial<EnrollmentDraft> | ((current: EnrollmentDraft) => EnrollmentDraft)) => {
     setDraft((current) => (typeof patch === 'function' ? patch(current) : { ...current, ...patch }))
@@ -372,14 +374,25 @@ export function EnrollmentWizard() {
   }, [draft, router, toast])
 
   const handleNext = useCallback(() => {
+    if (submitting) return
+    if (stage === 1) setConvocatoriaAttempted(true)
     if (stage === 2) setAlumnoAttempted(true)
-    if (disabledReason) return
+    if (stage === 3) setPagoAttempted(true)
+    if (disabledReason) {
+      window.requestAnimationFrame(() => {
+        const node = document.querySelector<HTMLElement>(
+          '[data-slot="enrollment-wizard"] [data-invalid] input, [data-slot="enrollment-wizard"] [data-invalid] button, [data-slot="enrollment-wizard"] [data-invalid] [role="checkbox"]',
+        )
+        node?.focus()
+      })
+      return
+    }
     if (stage === 4) {
       void submitEnrollment()
       return
     }
     goStage((stage + 1) as WizardStageId)
-  }, [disabledReason, goStage, stage, submitEnrollment])
+  }, [disabledReason, goStage, stage, submitEnrollment, submitting])
 
   const stepContent = (() => {
     switch (stage) {
@@ -390,6 +403,7 @@ export function EnrollmentWizard() {
             courses={courses}
             loading={coursesLoading}
             error={coursesError}
+            attempted={convocatoriaAttempted}
             onRetry={() => void loadCourses()}
             onFilterCampus={(value) => updateDraft({ campusFilter: value })}
             onSelect={(course) => updateDraft({ course })}
@@ -421,6 +435,7 @@ export function EnrollmentWizard() {
           <PagoRgpdStep
             draft={draft}
             cameraError={cameraError}
+            showErrors={pagoAttempted}
             onAccept={(accepted) =>
               updateDraft({
                 consentAccepted: accepted,
@@ -447,51 +462,61 @@ export function EnrollmentWizard() {
   })()
 
   const previousLabel = backLabel(stage)
+  const persistAndLeave = useCallback(() => {
+    saveEnrollmentDraft(draft)
+    toast({
+      title: 'Borrador guardado',
+      description: 'Puedes retomar la matrícula desde Nueva matrícula.',
+    })
+    router.push('/matriculas')
+  }, [draft, router, toast])
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background" data-slot="enrollment-wizard">
-      <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b border-border bg-background px-4 py-3 sm:flex-row sm:items-center">
-        <div className="flex min-w-0 items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={branding.logos.principal} alt={branding.academyName} className="h-8 w-auto" />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">Nueva matrícula</p>
-            <p className="truncate text-xs text-muted-foreground">{branding.academyName}</p>
-          </div>
-        </div>
-        <div className="min-w-0 flex-1">
-          <EnrollmentStepper current={stage} completed={completed} onSelect={goStage} />
-        </div>
-        <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
-          Guardar y salir
-        </Button>
-      </header>
+    <div className="space-y-6" data-slot="enrollment-wizard">
+      <EnrollmentBreadcrumb current="Nueva matrícula" />
+      <PageHeader
+        title="Nueva matrícula"
+        actions={
+          <>
+            <Button variant="outline" onClick={persistAndLeave}>
+              Guardar borrador
+            </Button>
+            <Button variant="ghost" onClick={() => router.push('/matriculas')}>
+              Cancelar
+            </Button>
+          </>
+        }
+      />
+
+      <EnrollmentStepper current={stage} completed={completed} onSelect={goStage} />
 
       {submitError ? (
-        <Alert variant="destructive" className="mx-4 mt-4">
+        <Alert variant="destructive">
           <AlertCircle />
           <AlertTitle>No se pudo confirmar la matrícula</AlertTitle>
           <AlertDescription className="flex items-center justify-between gap-3">
             <span>{submitError}</span>
-            <Button size="sm" variant="outline" onClick={() => void submitEnrollment()}>
+            <Button size="sm" variant="outline" onClick={() => void submitEnrollment()} disabled={submitting}>
               Reintentar
             </Button>
           </AlertDescription>
         </Alert>
       ) : null}
 
-      <div className="grid min-h-0 min-w-0 flex-1 gap-6 overflow-y-auto px-4 py-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 space-y-6 pb-24">{stepContent}</div>
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-6">{stepContent}</div>
         <EnrollmentCart draft={draft} />
       </div>
 
-      <footer className="sticky bottom-0 z-20 flex shrink-0 items-center justify-between gap-3 border-t border-border bg-background px-4 py-3">
+      <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-border bg-[hsl(var(--dashboard-canvas))] py-3">
         {previousLabel ? (
           <Button variant="outline" onClick={() => goStage((stage - 1) as WizardStageId)} disabled={submitting}>
             {previousLabel}
           </Button>
         ) : (
-          <span />
+          <Button variant="outline" onClick={() => router.push('/matriculas')}>
+            Volver a Matrículas
+          </Button>
         )}
         <NextDisabledTooltip disabled={Boolean(disabledReason)} reason={disabledReason ?? ''}>
           <Button onClick={handleNext} disabled={nextDisabled}>
@@ -499,7 +524,7 @@ export function EnrollmentWizard() {
             {continueLabel(stage)}
           </Button>
         </NextDisabledTooltip>
-      </footer>
+      </div>
     </div>
   )
 }

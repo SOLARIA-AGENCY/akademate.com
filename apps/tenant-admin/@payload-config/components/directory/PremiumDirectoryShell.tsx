@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Kbd } from '../ui/kbd'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Badge } from '../ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import { EntityThumb } from '../ui/entity-thumb'
 import { cn } from '@payload-config/lib/utils'
 import {
   DIRECTORY_CAMPUS_PILL_CLASS,
@@ -16,6 +16,7 @@ import {
   parseDirectoryHexColor,
 } from '@payload-config/lib/courseTypeConfig'
 import { isStockAcademicCover, useCampusIdentityMap } from './campus-identity-map'
+import { canonicalizePayloadMediaUrl } from '@/app/lib/payload-media-url'
 export { useCampusIdentityMap, buildCampusIdentityMap } from './campus-identity-map'
 export type { CampusIdentityMap } from './campus-identity-map'
 
@@ -165,37 +166,32 @@ export function DirectoryCampusIdentity({
   imageUrl,
   href,
 }: {
-  name: string
+  name?: string | null
   imageUrl?: string | null
   href?: string
 }) {
+  const trimmed = (name ?? '').trim()
+  const displayName = !trimmed || /^sin sede$/i.test(trimmed) ? '—' : trimmed
   const photo = imageUrl && !isStockAcademicCover(imageUrl) ? imageUrl : null
-  const initials = (name || 'S')
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0] ?? '')
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || 'S'
-
   const inner = (
     <span
       data-slot="directory-campus-identity"
-      className="inline-flex max-w-full items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-3"
+      className="inline-flex min-w-0 max-w-full shrink-0 items-center gap-2"
     >
-      <Avatar className="h-7 w-7">
-        {photo ? <AvatarImage src={photo} alt="" /> : null}
-        <AvatarFallback className="bg-slate-100 text-[10px] font-semibold text-slate-700">
-          {initials}
-        </AvatarFallback>
-      </Avatar>
-      <span className="truncate text-sm font-medium">{name}</span>
+      <EntityThumb src={photo} alt={displayName} fallback="campus" size="sm" />
+      <span className="min-w-0 truncate text-sm font-medium" title={displayName}>
+        {displayName}
+      </span>
     </span>
   )
 
   if (href) {
     return (
-      <Link href={href} className="min-w-0 max-w-full">
+      <Link
+        href={href}
+        className="min-w-0 max-w-full"
+        onClick={(event) => event.stopPropagation()}
+      >
         {inner}
       </Link>
     )
@@ -229,32 +225,17 @@ export type DirectoryStaffRef = {
   src?: string | null
 }
 
-function staffInitials(name: string): string {
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase()
-}
-
 function DirectoryStaffIcon({ staff }: { staff: DirectoryStaffRef }) {
   const name = staff.name.trim() || 'Sin asignar'
   const id = staff.id == null || staff.id === '' ? null : String(staff.id)
-  const photo = staff.photo ?? staff.src ?? null
+  const photo = canonicalizePayloadMediaUrl(staff.photo ?? staff.src ?? null)
   const avatar = (
     <span
       data-slot="directory-staff-icon"
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-background bg-primary/10 text-[10px] font-semibold text-primary"
+      className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-background bg-muted text-muted-foreground"
       aria-label={name}
     >
-      {photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={photo} alt="" className="h-full w-full object-cover" />
-      ) : (
-        staffInitials(name)
-      )}
+      <EntityThumb src={photo} alt={name} fallback="person" size="sm" />
     </span>
   )
 

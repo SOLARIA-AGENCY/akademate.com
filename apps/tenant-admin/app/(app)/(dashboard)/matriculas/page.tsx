@@ -51,6 +51,19 @@ import {
 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
+import { SortableTableHead } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const MATRICULAS_SORT_KINDS = {
+  alumno: 'text',
+  curso: 'text',
+  convocatoria: 'text',
+  pago: 'text',
+  importe: 'number',
+  docs: 'number',
+  estado: 'text',
+} as const satisfies Record<string, SortKind>
 
 interface MatriculaRow {
   id: string
@@ -158,6 +171,9 @@ export default function MatriculasPage() {
   const [tipoFilter, setTipoFilter] = useState('todos')
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(
+    MATRICULAS_SORT_KINDS,
+  )
 
   const loadMatriculas = useCallback(async () => {
     try {
@@ -207,16 +223,44 @@ export default function MatriculasPage() {
     [matriculasData],
   )
 
-  const filteredMatriculas = matriculasData.filter((m) => {
-    const matchesSearch =
-      m.alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.alumno.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.curso.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesEstado = estadoFilter === 'todos' || m.estado === estadoFilter
-    const matchesSede = sedeFilter === 'todas' || m.sede === sedeFilter
-    const matchesTipo = tipoFilter === 'todos' || m.tipo === tipoFilter
-    return matchesSearch && matchesEstado && matchesSede && matchesTipo
-  })
+  const filteredMatriculas = sortRows(
+    matriculasData.filter((m) => {
+      const matchesSearch =
+        m.alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.alumno.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.curso.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesEstado = estadoFilter === 'todos' || m.estado === estadoFilter
+      const matchesSede = sedeFilter === 'todas' || m.sede === sedeFilter
+      const matchesTipo = tipoFilter === 'todos' || m.tipo === tipoFilter
+      return matchesSearch && matchesEstado && matchesSede && matchesTipo
+    }),
+    (row, column) => {
+      switch (column) {
+        case 'alumno':
+          return row.alumno.nombre
+        case 'curso':
+          return row.curso
+        case 'convocatoria':
+          return row.convocatoria
+        case 'pago':
+          return row.metodoPago
+        case 'importe':
+          return row.importe
+        case 'docs':
+          return row.documentacionCompleta ? 1 : 0
+        case 'estado':
+          return row.estado
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, estadoFilter, sedeFilter, tipoFilter, resetSort])
 
   const stats = {
     total: matriculasData.length,
@@ -235,9 +279,6 @@ export default function MatriculasPage() {
         icon={GraduationCap}
         actions={
           <>
-            <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
-              Volver
-            </Button>
             <Button variant="outline" data-oid="lca.h7w">
               <Download className="mr-2 h-4 w-4" data-oid="9l3qgn3" />
               Exportar
@@ -423,13 +464,13 @@ export default function MatriculasPage() {
             <Table data-oid="apef6_7">
               <TableHeader data-oid="x9u39g-">
                 <TableRow data-oid="5ids49c">
-                  <TableHead data-oid="wkqw1:p">Alumno</TableHead>
-                  <TableHead data-oid="utey5m_">Curso/Ciclo</TableHead>
-                  <TableHead data-oid="c:w7bc3">Convocatoria</TableHead>
-                  <TableHead data-oid="vu6crcy">Método Pago</TableHead>
-                  <TableHead data-oid="5ju8thj">Importe</TableHead>
-                  <TableHead data-oid=".7e26z3">Docs</TableHead>
-                  <TableHead data-oid="i.a4cpc">Estado</TableHead>
+                  <SortableTableHead label="Alumno" column="alumno" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead label="Curso/Ciclo" column="curso" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead label="Convocatoria" column="convocatoria" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead label="Método Pago" column="pago" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead label="Importe" column="importe" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead label="Docs" column="docs" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead label="Estado" column="estado" sort={sortState} onToggle={toggleSort} />
                   <TableHead className="text-right" data-oid=":d8z4l-">Acciones</TableHead>
                 </TableRow>
               </TableHeader>

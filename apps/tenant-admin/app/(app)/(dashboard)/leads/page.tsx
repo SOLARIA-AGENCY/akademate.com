@@ -46,6 +46,16 @@ import {
   ListingSearch,
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const LEADS_SORT_KINDS = {
+  nombre: 'text',
+  programa: 'text',
+  estado: 'text',
+  fecha: 'date',
+} as const satisfies Record<string, SortKind>
 import {
   resolveFullLeadName,
   resolveLeadProgramLabel as resolveProgramLabel,
@@ -432,6 +442,7 @@ export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [queueFilter, setQueueFilter] = useState<QueueFilter>('all')
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(LEADS_SORT_KINDS)
 
   const [inlineError, setInlineError] = useState<string | null>(null)
   const [noteEditorLeadId, setNoteEditorLeadId] = useState<string | null>(null)
@@ -524,6 +535,27 @@ export default function LeadsPage() {
   const filtered = useMemo(() => {
     return baseFiltered.filter((lead) => matchesQueue(lead, queueFilter, nowTs, dayStartTs, dayEndTs))
   }, [baseFiltered, queueFilter, nowTs, dayStartTs, dayEndTs])
+
+  const listed = sortRows(filtered, (lead, column) => {
+    switch (column) {
+      case 'nombre':
+        return fullName(lead)
+      case 'programa':
+        return resolveLeadProgramLabel(lead)
+      case 'estado':
+        return STATUS_CONFIG[lead.status ?? 'new']?.label ?? lead.status
+      case 'fecha':
+        return lead.createdAt ?? lead.created_at
+      default: {
+        const _never: never = column
+        return _never
+      }
+    }
+  })
+
+  useEffect(() => {
+    resetSort()
+  }, [search, typeFilter, statusFilter, queueFilter, resetSort])
 
   const overdueTodayTotal = useMemo(() => {
     return leads.filter((lead) => {
@@ -838,7 +870,18 @@ export default function LeadsPage() {
           </p>
 
           <div className="space-y-3">
-            {filtered.map((lead) => {
+            <SortableListHeader
+              sort={sortState}
+              onToggle={toggleSort}
+              leadingClassName={null}
+              columns={[
+                { id: 'nombre', label: 'Lead', className: 'flex-1' },
+                { id: 'programa', label: 'Programa', className: 'hidden w-40 md:block' },
+                { id: 'estado', label: 'Estado', className: 'w-28' },
+                { id: 'fecha', label: 'Alta', className: 'w-24' },
+              ]}
+            />
+            {listed.map((lead) => {
               const created = lead.createdAt ?? lead.created_at
               const status = lead.status ?? 'new'
               const statusConfig = STATUS_CONFIG[status] ?? STATUS_CONFIG.new

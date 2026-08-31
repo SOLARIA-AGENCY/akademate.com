@@ -25,7 +25,7 @@ import {
   GraduationCap,
   UserPlus,
 } from 'lucide-react'
-import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import {
   ListingSearch,
@@ -33,6 +33,15 @@ import {
   DirectoryCampusIdentity,
   useCampusIdentityMap,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const ALUMNOS_SORT_KINDS = {
+  nombre: 'text',
+  estado: 'text',
+  cursos: 'number',
+} as const satisfies Record<string, SortKind>
 
 interface Student {
   id: string
@@ -80,6 +89,9 @@ export default function AlumnosPage() {
   const [filterSede, setFilterSede] = useState('all')
   const [filterCurso, setFilterCurso] = useState('all')
   const [filterCiclo, setFilterCiclo] = useState('all')
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(
+    ALUMNOS_SORT_KINDS,
+  )
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -139,23 +151,43 @@ export default function AlumnosPage() {
   const ciclos = Array.from(new Set(students.map((s) => s.ciclo))).filter(Boolean)
 
   // Filtrado
-  const filteredStudents = students.filter((student) => {
-    const matchesSearch =
-      student.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = sortRows(
+    students.filter((student) => {
+      const matchesSearch =
+        student.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'active' && student.active) ||
-      (filterStatus === 'inactive' && !student.active)
+      const matchesStatus =
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && student.active) ||
+        (filterStatus === 'inactive' && !student.active)
 
-    const matchesSede = filterSede === 'all' || student.sede === filterSede
-    const matchesCurso = filterCurso === 'all' || student.curso_actual === filterCurso
-    const matchesCiclo = filterCiclo === 'all' || student.ciclo === filterCiclo
+      const matchesSede = filterSede === 'all' || student.sede === filterSede
+      const matchesCurso = filterCurso === 'all' || student.curso_actual === filterCurso
+      const matchesCiclo = filterCiclo === 'all' || student.ciclo === filterCiclo
 
-    return matchesSearch && matchesStatus && matchesSede && matchesCurso && matchesCiclo
-  })
+      return matchesSearch && matchesStatus && matchesSede && matchesCurso && matchesCiclo
+    }),
+    (student, column) => {
+      switch (column) {
+        case 'nombre':
+          return `${student.first_name} ${student.last_name}`
+        case 'estado':
+          return student.active ? 'Activo' : 'Inactivo'
+        case 'cursos':
+          return student.enrolled_courses
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, filterStatus, filterSede, filterCurso, filterCiclo, resetSort])
 
   const stats = {
     total: students.length,
@@ -360,6 +392,16 @@ export default function AlumnosPage() {
               </CardHeader>
               <CardContent data-oid="8nm_upd">
                 <div className="space-y-2" data-oid="_3nf_97">
+                  <SortableListHeader
+                    sort={sortState}
+                    onToggle={toggleSort}
+                    leadingClassName="h-10 w-10 shrink-0"
+                    columns={[
+                      { id: 'nombre', label: 'Alumno', className: 'flex-1' },
+                      { id: 'estado', label: 'Estado', className: 'w-24' },
+                      { id: 'cursos', label: 'Cursos', className: 'w-16' },
+                    ]}
+                  />
                   {filteredStudents.map((student) => (
                     <div
                       key={student.id}
@@ -381,15 +423,11 @@ export default function AlumnosPage() {
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0" data-oid="kvz76_j">
                         <div className="relative flex-shrink-0" data-oid="w7pvw9g">
-                          <div
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                            data-oid="j_1i8jg"
-                          >
-                            <span className="text-sm font-bold" data-oid="32zet9l">
-                              {student.first_name[0]}
-                              {student.last_name[0]}
-                            </span>
-                          </div>
+                          <EntityThumb
+                            alt={`${student.first_name} ${student.last_name}`}
+                            fallback="student"
+                            size="sm"
+                          />
                           {student.active && (
                             <div
                               className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"
@@ -461,15 +499,12 @@ export default function AlumnosPage() {
                     data-oid="_zj6xw4"
                   >
                     <div className="relative" data-oid="3gvfxsj">
-                      <div
-                        className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                        data-oid="bkjw._c"
-                      >
-                        <span className="text-2xl font-bold" data-oid="8gm6col">
-                          {selectedStudent.first_name[0]}
-                          {selectedStudent.last_name[0]}
-                        </span>
-                      </div>
+                      <EntityThumb
+                        alt={`${selectedStudent.first_name} ${selectedStudent.last_name}`}
+                        fallback="student"
+                        size="lg"
+                        className="h-20 w-20"
+                      />
                       {selectedStudent.active && (
                         <div
                           className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-green-500 border-2 border-white"
@@ -620,15 +655,12 @@ export default function AlumnosPage() {
               <CardContent className="p-6 space-y-4" data-oid="uu8doez">
                 <div className="flex items-start gap-4" data-oid="o-x-54n">
                   <div className="relative" data-oid="7g.x9no">
-                    <div
-                      className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                      data-oid="v15y-dv"
-                    >
-                      <span className="text-xl font-bold" data-oid="insnk62">
-                        {student.first_name[0]}
-                        {student.last_name[0]}
-                      </span>
-                    </div>
+                    <EntityThumb
+                      alt={`${student.first_name} ${student.last_name}`}
+                      fallback="student"
+                      size="md"
+                      className="h-16 w-16"
+                    />
                     {student.active && (
                       <div
                         className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white"

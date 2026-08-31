@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '../utils/test-utils'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { render, screen, waitFor } from '../utils/test-utils'
 import userEvent from '@testing-library/user-event'
 import TodosLosCiclosPage from '../../app/(dashboard)/ciclos/page'
-import CiclosMedioPage from '../../app/(dashboard)/ciclos-medio/page'
-import CiclosSuperiorPage from '../../app/(dashboard)/ciclos-superior/page'
 
 describe('Todos los Ciclos Page', () => {
   beforeEach(() => {
@@ -164,179 +164,23 @@ describe('Todos los Ciclos Page', () => {
 })
 
 describe('Ciclos Medio Page', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('renders page title correctly', () => {
-    render(<CiclosMedioPage data-oid="dl21j:_" />)
-    expect(screen.getByText('Ciclos Formativos de Grado Medio')).toBeInTheDocument()
-  })
-
-  it('displays 4 CFGM programs', () => {
-    render(<CiclosMedioPage data-oid="_7o93py" />)
-
-    expect(screen.getByText('Gestión Administrativa')).toBeInTheDocument()
-    expect(screen.getByText('ADG201')).toBeInTheDocument()
-    expect(screen.getByText('Sistemas Microinformáticos y Redes')).toBeInTheDocument()
-    expect(screen.getByText('IFC301')).toBeInTheDocument()
-    expect(screen.getByText('Actividades Comerciales')).toBeInTheDocument()
-    expect(screen.getByText('COM101')).toBeInTheDocument()
-    expect(screen.getByText('Gestión de Alojamientos Turísticos')).toBeInTheDocument()
-    expect(screen.getByText('HOT201')).toBeInTheDocument()
-  })
-
-  it('displays correct stats for Grado Medio', () => {
-    render(<CiclosMedioPage data-oid="792utbz" />)
-
-    expect(screen.getByText('Total Ciclos')).toBeInTheDocument()
-    expect(screen.getAllByText('4')[0]).toBeInTheDocument()
-    expect(screen.getByText('Total Plazas')).toBeInTheDocument()
-    expect(screen.getByText('107')).toBeInTheDocument() // 30+25+28+24
-  })
-
-  it('searches ciclos by name', async () => {
-    const user = userEvent.setup()
-    render(<CiclosMedioPage data-oid="-vytnup" />)
-
-    const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
-    await user.type(searchInput, 'Sistemas')
-
-    expect(screen.getByText('Sistemas Microinformáticos y Redes')).toBeInTheDocument()
-    expect(screen.queryByText('Gestión Administrativa')).not.toBeInTheDocument()
-  })
-
-  it('filters by familia profesional', async () => {
-    const user = userEvent.setup()
-    render(<CiclosMedioPage data-oid="s5ixjh9" />)
-
-    const familiaSelect = screen.getAllByRole('combobox')[0]
-    await user.click(familiaSelect)
-
-    await waitFor(() => {
-      const adminOption = screen.getByRole('option', { name: /Administración y Gestión/i })
-      user.click(adminOption)
-    })
-
-    expect(screen.getByText('Gestión Administrativa')).toBeInTheDocument()
-  })
-
-  it('shows ocupación percentage for each ciclo', () => {
-    render(<CiclosMedioPage data-oid="3o32wx2" />)
-
-    // Check for ocupación labels
-    const ocupacionLabels = screen.getAllByText('Ocupación')
-    expect(ocupacionLabels.length).toBeGreaterThan(0)
-  })
-
-  it('navigates to detail page on "Ver Detalles" click', async () => {
-    const user = userEvent.setup()
-    const { mockRouter } = await import('../utils/test-utils')
-
-    render(<CiclosMedioPage data-oid="w:gvlp4" />)
-
-    const verDetallesButtons = screen.getAllByText('Ver Detalles del Ciclo')
-    await user.click(verDetallesButtons[0])
-
-    expect(mockRouter.push).toHaveBeenCalled()
+  it('redirects mock CFGM surface to the live ciclos listing', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'app/(app)/(dashboard)/ciclos-medio/page.tsx'),
+      'utf8',
+    )
+    expect(source).toContain("redirect('/dashboard/ciclos')")
+    expect(source).not.toContain('unsplash')
   })
 })
 
 describe('Ciclos Superior Page', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('renders page title correctly', () => {
-    render(<CiclosSuperiorPage data-oid="ifmpehr" />)
-    expect(screen.getByText('Ciclos Formativos de Grado Superior')).toBeInTheDocument()
-  })
-
-  it('displays 6 CFGS programs', () => {
-    render(<CiclosSuperiorPage data-oid="-p1afw2" />)
-
-    expect(screen.getByText('Desarrollo de Aplicaciones Web')).toBeInTheDocument()
-    expect(screen.getByText('IFC303')).toBeInTheDocument()
-    expect(screen.getByText('Administración y Finanzas')).toBeInTheDocument()
-    expect(screen.getByText('ADG202')).toBeInTheDocument()
-    expect(screen.getByText('Marketing y Publicidad')).toBeInTheDocument()
-    expect(screen.getByText('COM301')).toBeInTheDocument()
-    expect(screen.getByText('Diseño y Edición de Publicaciones')).toBeInTheDocument()
-    expect(screen.getByText('IMP501')).toBeInTheDocument()
-    expect(screen.getByText('Guía, Información y Asistencias Turísticas')).toBeInTheDocument()
-    expect(screen.getByText('HOT401')).toBeInTheDocument()
-    expect(screen.getByText('Producción de Audiovisuales y Espectáculos')).toBeInTheDocument()
-    expect(screen.getByText('IMS301')).toBeInTheDocument()
-  })
-
-  it('displays correct stats for Grado Superior', () => {
-    render(<CiclosSuperiorPage data-oid="xfpz.hb" />)
-
-    expect(screen.getByText('Total Ciclos')).toBeInTheDocument()
-    expect(screen.getAllByText('6')[0]).toBeInTheDocument()
-    expect(screen.getByText('Total Plazas')).toBeInTheDocument()
-    expect(screen.getByText('157')).toBeInTheDocument() // 30+32+28+20+25+22
-  })
-
-  it('filters ciclos by search term', async () => {
-    const user = userEvent.setup()
-    render(<CiclosSuperiorPage data-oid="3pfo_-h" />)
-
-    const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
-    await user.type(searchInput, 'Marketing')
-
-    expect(screen.getByText('Marketing y Publicidad')).toBeInTheDocument()
-    expect(screen.queryByText('Desarrollo de Aplicaciones Web')).not.toBeInTheDocument()
-  })
-
-  it('displays correct modality for each ciclo', () => {
-    render(<CiclosSuperiorPage data-oid="kl9ifm1" />)
-
-    // All ciclos in this page should be "Presencial"
-    const modalityLabels = screen.getAllByText('Presencial')
-    expect(modalityLabels.length).toBeGreaterThan(0)
-  })
-
-  it('shows cursos activos count for each ciclo', () => {
-    render(<CiclosSuperiorPage data-oid=":ou:bu:" />)
-
-    // Check for "cursos" text which appears in "{N} cursos"
-    const cursosLabels = screen.getAllByText(/cursos/)
-    expect(cursosLabels.length).toBeGreaterThan(0)
-  })
-
-  it('applies corporate color to all cards', () => {
-    const { container } = render(<CiclosSuperiorPage data-oid="896vi37" />)
-
-    const corporateColorCards = container.querySelectorAll('.border-\\[\\#ff2014\\]')
-    expect(corporateColorCards.length).toBe(6) // 6 ciclos = 6 cards
-  })
-
-  it('displays "Nuevo Ciclo Superior" button', () => {
-    render(<CiclosSuperiorPage data-oid="4x-84t-" />)
-    expect(screen.getByText('Nuevo Ciclo Superior')).toBeInTheDocument()
-  })
-})
-
-describe('Ciclos Corporate Color Consistency', () => {
-  it('uses #ff2014 corporate color in Todos los Ciclos', () => {
-    const { container } = render(<TodosLosCiclosPage data-oid="y.3-nb_" />)
-    // Check for border-2 cards (which have corporate color border)
-    const cards = container.querySelectorAll('.border-2')
-    expect(cards.length).toBeGreaterThan(0)
-  })
-
-  it('uses #ff2014 corporate color in Ciclos Medio', () => {
-    const { container } = render(<CiclosMedioPage data-oid="d23gbfx" />)
-    // Check for border-2 cards (which have corporate color border)
-    const cards = container.querySelectorAll('.border-2')
-    expect(cards.length).toBe(4) // 4 CFGM programs
-  })
-
-  it('uses #ff2014 corporate color in Ciclos Superior', () => {
-    const { container } = render(<CiclosSuperiorPage data-oid="a66xlk." />)
-    // Check for border-2 cards (which have corporate color border)
-    const cards = container.querySelectorAll('.border-2')
-    expect(cards.length).toBe(6) // 6 CFGS programs
+  it('redirects mock CFGS surface to the live ciclos listing', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'app/(app)/(dashboard)/ciclos-superior/page.tsx'),
+      'utf8',
+    )
+    expect(source).toContain("redirect('/dashboard/ciclos')")
+    expect(source).not.toContain('unsplash')
   })
 })

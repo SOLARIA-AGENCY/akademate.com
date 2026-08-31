@@ -855,11 +855,42 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('[API][Leads] Failed to fetch leads:', error)
-    return NextResponse.json({
-      docs: [], totalDocs: 0, limit: 25, page: 1,
-      totalPages: 0, hasNextPage: false, hasPrevPage: false,
-      warning: 'Leads no disponibles temporalmente.',
-    })
+    try {
+      const payload = await getPayload({ config: configPromise })
+      const authSession = await getAuthenticatedUserContext(request, payload)
+      if (!authSession) {
+        return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+      }
+      const { searchParams } = new URL(request.url)
+      const fallbackLimit = Math.min(parseInt(searchParams.get('limit') ?? '25', 10), 200)
+      const fallbackPage = Math.max(parseInt(searchParams.get('page') ?? '1', 10), 1)
+      const where = authSession.tenantId ? { tenant: { equals: authSession.tenantId } } : undefined
+      const leads = await payload.find({
+        collection: 'leads',
+        limit: fallbackLimit,
+        page: fallbackPage,
+        sort: '-createdAt',
+        depth: 1,
+        where,
+      })
+      const docs = Array.isArray(leads?.docs) ? leads.docs : []
+      return NextResponse.json({
+        ...leads,
+        docs,
+        totalDocs: leads?.totalDocs ?? docs.length,
+        limit: fallbackLimit,
+        page: fallbackPage,
+        totalPages: leads?.totalPages ?? 1,
+        hasNextPage: Boolean(leads?.hasNextPage),
+        hasPrevPage: Boolean(leads?.hasPrevPage),
+      })
+    } catch {
+      return NextResponse.json({
+        docs: [], totalDocs: 0, limit: 25, page: 1,
+        totalPages: 0, hasNextPage: false, hasPrevPage: false,
+        warning: 'Leads no disponibles temporalmente.',
+      })
+    }
   }
 }
 

@@ -36,17 +36,20 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
+import { SortableTableHead } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
 import { AssignEmptyButton } from '@payload-config/components/ui/assign-empty'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import {
   CourseFundingBadge,
-  CourseModalityBadge,
 } from '@payload-config/components/akademate/dashboard/CourseTaxonomyBadges'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import {
+  DirectoryAreaBadge,
   DirectoryCampusIdentity,
   DirectoryNeutralBadge,
   DirectoryStaffIcons,
@@ -62,6 +65,8 @@ interface Convocatoria {
   id: string
   curso: string
   tipo: string
+  area: string
+  areaColor: string | null
   modalidad: string
   sede: string
   sedeId: string
@@ -110,6 +115,17 @@ const STATUS_LABELS: Record<string, string> = {
   completed: 'Completada',
   cancelled: 'Cancelada',
 }
+
+const PROGRAMACION_SORT_KINDS = {
+  curso: 'text',
+  tipo: 'text',
+  sede: 'text',
+  docente: 'number',
+  aula: 'text',
+  fechas: 'date',
+  plazas: 'number',
+  estado: 'text',
+} as const satisfies Record<string, SortKind>
 
 // Festivos Canarias 2026
 const HOLIDAYS_2026: Record<string, string> = {
@@ -553,6 +569,7 @@ export default function ProgramacionPage() {
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [campuses, setCampuses] = useState<Campus[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(PROGRAMACION_SORT_KINDS)
 
   // Fetch data
   useEffect(() => {
@@ -602,6 +619,8 @@ export default function ProgramacionPage() {
             id: String(c.id),
             curso: (c.cursoNombre as string) || 'Curso',
             tipo: (c.cursoTipo as string) || '',
+            area: (c.cursoArea as string) || '',
+            areaColor: typeof c.cursoAreaColor === 'string' ? c.cursoAreaColor : null,
             modalidad: (c.modalidad as string) || '',
             sede: (c.campusNombre as string) || '',
             sedeId: String(c.campusId || ''),
@@ -639,6 +658,39 @@ export default function ProgramacionPage() {
     if (sedeFilter === 'todas') return convocatorias
     return convocatorias.filter((c) => c.sedeId === sedeFilter)
   }, [convocatorias, sedeFilter])
+
+  useEffect(() => {
+    resetSort()
+  }, [sedeFilter, resetSort])
+
+  const listed = useMemo(
+    () =>
+      sortRows(filtered, (conv, column) => {
+        switch (column) {
+          case 'curso':
+            return conv.curso
+          case 'tipo':
+            return conv.tipo
+          case 'sede':
+            return conv.sede
+          case 'docente':
+            return conv.profesorRefs.length > 0 ? conv.profesorRefs.length : conv.profesor ? 1 : 0
+          case 'aula':
+            return conv.aula
+          case 'fechas':
+            return conv.fechaInicio
+          case 'plazas':
+            return conv.plazas > 0 ? conv.inscritos / conv.plazas : conv.inscritos
+          case 'estado':
+            return STATUS_LABELS[conv.estado] ?? conv.estado
+          default: {
+            const _never: never = column
+            return _never
+          }
+        }
+      }),
+    [filtered, sortRows],
+  )
 
   // Navigation
   const navPrev = () => {
@@ -802,24 +854,25 @@ export default function ProgramacionPage() {
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[36%]">Curso / ciclo</TableHead>
-                  <TableHead className="hidden w-[16%] sm:table-cell">Sede</TableHead>
-                  <TableHead className="hidden w-[12%] md:table-cell">Docente</TableHead>
-                  <TableHead className="hidden w-[10%] lg:table-cell">Aula</TableHead>
-                  <TableHead className="hidden w-[8%] lg:table-cell">Fechas</TableHead>
-                  <TableHead className="w-[8%] text-center">Plazas</TableHead>
-                  <TableHead className="w-[10%] text-center">Estado</TableHead>
+                  <SortableTableHead className="w-[30%]" label="Curso / ciclo" column="curso" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden min-w-0 w-[12%] md:table-cell" label="Tipo" column="tipo" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden min-w-0 w-[18%] sm:table-cell" label="Sede" column="sede" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden w-[12%] lg:table-cell" label="Docente" column="docente" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden w-[8%] xl:table-cell" label="Aula" column="aula" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden w-[8%] xl:table-cell" label="Fechas" column="fechas" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="w-[10%] text-center" label="Plazas" column="plazas" sort={sortState} onToggle={toggleSort} align="center" />
+                  <SortableTableHead className="w-[10%] text-center" label="Estado" column="estado" sort={sortState} onToggle={toggleSort} align="center" />
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.length === 0 ? (
+                {listed.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                    <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                       No hay convocatorias
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filtered.map((conv) => {
+                  listed.map((conv) => {
                     const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
                     const fechasLabel = [
                       conv.fechaInicio
@@ -836,47 +889,55 @@ export default function ProgramacionPage() {
                         onClick={() => handleConvClick(conv.id)}
                       >
                         <TableCell className="min-w-0">
-                          <div className="flex min-w-0 items-center gap-1.5">
-                            <p className="min-w-0 whitespace-normal font-medium" title={conv.curso}>{conv.curso}</p>
-                            <span className="flex shrink-0 items-center gap-1.5">
-                              <CourseFundingBadge courseType={conv.tipo} />
-                              <CourseModalityBadge courseType={conv.tipo} modality={conv.modalidad} />
-                            </span>
+                          <div className="flex min-w-0 items-center gap-3">
+                            <EntityThumb alt={conv.curso} fallback="page" size="sm" />
+                            <div className="min-w-0">
+                              <p className="min-w-0 whitespace-normal font-medium" title={conv.curso}>{conv.curso}</p>
+                              {conv.area ? (
+                                <div className="mt-1">
+                                  <DirectoryAreaBadge label={conv.area} color={conv.areaColor} />
+                                </div>
+                              ) : null}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden max-w-0 sm:table-cell">
-                          {conv.sede ? (
+                        <TableCell className="hidden min-w-0 md:table-cell">
+                          <CourseFundingBadge courseType={conv.tipo} className="max-w-full truncate" />
+                        </TableCell>
+                        <TableCell className="hidden min-w-0 sm:table-cell">
+                          <div className="flex shrink-0 justify-end sm:justify-start">
                             <DirectoryCampusIdentity
                               name={conv.sede}
-                              imageUrl={campusImages[conv.sede]}
+                              imageUrl={conv.sede ? campusImages[conv.sede] : undefined}
                               href={conv.sedeId ? `/dashboard/sedes/${conv.sedeId}` : undefined}
                             />
-                          ) : (
-                            <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar sede" />
-                          )}
+                          </div>
                         </TableCell>
-                        <TableCell className="hidden max-w-0 md:table-cell">
+                        <TableCell className="hidden min-w-0 lg:table-cell">
                           {conv.profesorRefs.length > 0 ? (
                             <DirectoryStaffIcons staff={conv.profesorRefs} />
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar docente" />
                           )}
                         </TableCell>
-                        <TableCell className="hidden max-w-0 lg:table-cell">
+                        <TableCell className="hidden min-w-0 xl:table-cell">
                           {conv.aula ? (
                             <DirectoryNeutralBadge>{conv.aula}</DirectoryNeutralBadge>
                           ) : (
                             <AssignEmptyButton href={`/programacion/${conv.id}`} label="Asignar aula" />
                           )}
                         </TableCell>
-                        <TableCell className="hidden max-w-0 lg:table-cell">
+                        <TableCell className="hidden min-w-0 xl:table-cell">
                           <span className="block truncate text-muted-foreground" title={fechasLabel}>
                             {fechasLabel || 'Pendiente'}
                           </span>
                         </TableCell>
                         <TableCell className="text-center whitespace-normal">
-                          <span className="font-medium">{conv.inscritos}</span>
-                          <span className="text-muted-foreground">/{conv.plazas}</span>
+                          <span className="inline-flex items-center justify-center gap-1">
+                            <Users className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                            <span className="font-medium">{conv.inscritos}</span>
+                            <span className="text-muted-foreground">/{conv.plazas}</span>
+                          </span>
                           <div className="mt-1 h-1 w-full rounded-full bg-muted">
                             <div className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${ocupacion}%` }} />
                           </div>

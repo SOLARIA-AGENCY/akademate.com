@@ -18,6 +18,17 @@ import {
 } from '@payload-config/components/ui/table'
 import { Globe, ExternalLink, Pencil } from 'lucide-react'
 import { fetchCoursesCatalog, type StudyTypeMeta } from '@/app/lib/client/courses-catalog'
+import { SortableTableHead } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const WEB_CURSOS_SORT_KINDS = {
+  curso: 'text',
+  tipo: 'text',
+  slug: 'text',
+  estado: 'text',
+  publicacion: 'text',
+} as const satisfies Record<string, SortKind>
 
 type CourseItem = {
   id: string
@@ -37,6 +48,7 @@ export default function WebCursosPage() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [togglingIds, setTogglingIds] = React.useState<Set<string>>(new Set())
+  const { state: sortState, toggle: toggleSort, sortRows } = useCycleSort(WEB_CURSOS_SORT_KINDS)
 
   const fetchCourses = React.useCallback(async () => {
     try {
@@ -92,6 +104,24 @@ export default function WebCursosPage() {
   }, [])
 
   const publishedCount = courses.filter((course) => course.active).length
+  const listedCourses = sortRows(courses, (course, column) => {
+    switch (column) {
+      case 'curso':
+        return course.nombre
+      case 'tipo':
+        return course.studyTypeLabel || course.tipo
+      case 'slug':
+        return course.slug
+      case 'estado':
+        return course.active ? 'Publicado' : 'Borrador'
+      case 'publicacion':
+        return course.active ? 'Publicado' : 'Borrador'
+      default: {
+        const _never: never = column
+        return _never
+      }
+    }
+  })
 
   return (
     <div className="space-y-6">
@@ -137,16 +167,16 @@ export default function WebCursosPage() {
           <Table className="min-w-[860px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Curso</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="text-center">Publicación</TableHead>
+                <SortableTableHead label="Curso" column="curso" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead label="Tipo" column="tipo" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead label="Slug" column="slug" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead label="Estado" column="estado" sort={sortState} onToggle={toggleSort} />
+                <SortableTableHead className="text-center" label="Publicación" column="publicacion" sort={sortState} onToggle={toggleSort} align="center" />
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {courses.map((course) => {
+              {listedCourses.map((course) => {
                 const typeLabel = course.studyTypeLabel || studyTypeMeta[course.studyType ?? '']?.label || course.tipo
                 const typeColor = course.studyTypeColor || studyTypeMeta[course.studyType ?? '']?.color || '#64748B'
                 const isToggling = togglingIds.has(course.id)

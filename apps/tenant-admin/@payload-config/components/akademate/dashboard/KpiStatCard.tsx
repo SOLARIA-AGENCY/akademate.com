@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { type LucideIcon, TrendingDown, TrendingUp } from 'lucide-react'
+import { type LucideIcon, Minus, TrendingDown, TrendingUp } from 'lucide-react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { cn } from '@payload-config/lib/utils'
 
@@ -42,13 +42,17 @@ export function KpiStatCard({
         </div>
         <div className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{value}</div>
         {delta ? (
-          <div className={cn('mt-2 inline-flex min-w-0 items-center gap-1 text-xs font-medium', deltaClass)}>
+          <div className={cn('mt-2 inline-flex min-w-0 items-center gap-2 text-micro font-medium leading-none', deltaClass)}>
             {deltaTone === 'danger' ? (
-              <TrendingDown className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <TrendingDown className="h-3 w-3 shrink-0" aria-hidden="true" />
             ) : deltaTone === 'success' ? (
-              <TrendingUp className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            ) : null}
-            <span>{delta}</span>
+              <TrendingUp className="h-3 w-3 shrink-0" aria-hidden="true" />
+            ) : (
+              <Minus className="h-3 w-3 shrink-0" aria-hidden="true" />
+            )}
+            <span className="text-micro whitespace-nowrap">
+              {deltaTone === 'neutral' && String(delta) === 'sin cambio' ? '— sin cambio' : delta}
+            </span>
             {comparisonLabel ? (
               <span className="text-micro truncate text-[10px] font-normal leading-none text-muted-foreground">
                 {comparisonLabel}

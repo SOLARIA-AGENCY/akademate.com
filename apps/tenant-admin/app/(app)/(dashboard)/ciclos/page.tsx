@@ -30,9 +30,22 @@ import {
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
 import type { CicloPlantilla } from '@/types'
+import { resolvePayloadMediaSrc } from '@/app/lib/payload-media-url'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const CICLOS_SORT_KINDS = {
+  nombre: 'text',
+  modalidad: 'text',
+  horas: 'number',
+  convocatorias: 'number',
+  sede: 'text',
+  nivel: 'text',
+} as const satisfies Record<string, SortKind>
 
 function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
-  return <EntityThumb src={src} alt={alt} fallback="cycle" size="lg" />
+  return <EntityThumb src={src} alt={alt} fallback="cycle" size="md" />
 }
 
 interface Ciclo {
@@ -64,13 +77,6 @@ interface CycleApiItem {
 
 interface CycleApiResponse {
   docs?: CycleApiItem[]
-}
-
-interface CourseRunApiItem {
-  cycle?: { id?: string | number } | string | number | null
-  start_date?: string | null
-  status?: string | null
-  campus?: { id?: string | number; name?: string } | string | number | null
 }
 
 const mockCiclosData: Ciclo[] = []
@@ -105,6 +111,7 @@ export default function TodosLosCiclosPage() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [limitModal, setLimitModal] = React.useState<{ open: boolean; current: number; limit: number } | null>(null)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(CICLOS_SORT_KINDS)
 
   const { checkLimit, plan } = usePlanLimits()
 
@@ -151,15 +158,11 @@ export default function TodosLosCiclosPage() {
           // Resolve image URL from API response (depth=1 returns object)
           let imageUrl = ''
           if (cycle.image) {
-            if (typeof cycle.image === 'object' && cycle.image !== null && 'url' in cycle.image) {
-              imageUrl = (cycle.image as { url?: string; filename?: string }).url
-                ?? ((cycle.image as { filename?: string }).filename
-                  ? `/media/${(cycle.image as { filename?: string }).filename}`
-                  : '')
+            if (typeof cycle.image === 'object' && cycle.image !== null) {
+              imageUrl = resolvePayloadMediaSrc(cycle.image) ?? ''
             } else if (typeof cycle.image === 'string') {
-              imageUrl = cycle.image
+              imageUrl = resolvePayloadMediaSrc(cycle.image) ?? ''
             }
-            // typeof cycle.image === 'number' means depth didn't expand — skip
           }
 
           return {
@@ -184,36 +187,40 @@ export default function TodosLosCiclosPage() {
           setCiclosData(mapped)
         }
 
-        // Fetch convocatorias (course-runs) to count per cycle
+        // Fetch convocatorias to count per cycle and resolve campus names
         try {
-          const crRes = await fetch('/api/course-runs?depth=1&limit=500', { cache: 'no-cache' })
+          const crRes = await fetch('/api/convocatorias?limit=500', { cache: 'no-cache' })
           if (crRes.ok) {
-            const crPayload = await crRes.json()
-            const crDocs: CourseRunApiItem[] = Array.isArray(crPayload.docs) ? crPayload.docs : []
+            const crPayload = await crRes.json() as {
+              data?: Array<{
+                cycleId?: string | number | null
+                campusNombre?: string | null
+                estado?: string | null
+                fechaInicio?: string | null
+              }>
+            }
+            const crDocs = Array.isArray(crPayload.data) ? crPayload.data : []
             const countMap: Record<string, number> = {}
             const activeMap: Record<string, number> = {}
             const nextStartDateMap: Record<string, string> = {}
             const nextSedeMap: Record<string, string[]> = {}
             for (const cr of crDocs) {
-              const cycleId = typeof cr.cycle === 'object' && cr.cycle ? cr.cycle.id : cr.cycle
+              const cycleId = cr.cycleId
               if (cycleId) {
                 const key = String(cycleId)
                 countMap[key] = (countMap[key] || 0) + 1
-                const status = String(cr.status ?? '').toLowerCase()
+                const status = String(cr.estado ?? '').toLowerCase()
                 if (status === 'enrollment_open' || status === 'in_progress' || status === 'published') {
                   activeMap[key] = (activeMap[key] || 0) + 1
                 }
-                const campusName =
-                  typeof cr.campus === 'object' && cr.campus && 'name' in cr.campus
-                    ? cr.campus.name
-                    : null
-                if (campusName) {
+                const campusName = typeof cr.campusNombre === 'string' ? cr.campusNombre.trim() : ''
+                if (campusName && !/^sin sede$/i.test(campusName)) {
                   const names = nextSedeMap[key] ?? []
                   if (!names.includes(campusName)) names.push(campusName)
                   nextSedeMap[key] = names
                 }
-                if (cr.start_date && (!nextStartDateMap[key] || new Date(cr.start_date) < new Date(nextStartDateMap[key]))) {
-                  nextStartDateMap[key] = cr.start_date
+                if (cr.fechaInicio && (!nextStartDateMap[key] || new Date(cr.fechaInicio) < new Date(nextStartDateMap[key]))) {
+                  nextStartDateMap[key] = cr.fechaInicio
                 }
               }
             }
@@ -237,21 +244,45 @@ export default function TodosLosCiclosPage() {
   const familiasProfesionales = Array.from(new Set(ciclosData.map((c) => c.familia)))
 
   // Filter ciclos
-  const filteredCiclos = ciclosData.filter((ciclo) => {
-    const matchesSearch =
-      searchTerm === '' ||
-      ciclo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ciclo.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ciclo.familia.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCiclos = sortRows(
+    ciclosData.filter((ciclo) => {
+      const matchesSearch =
+        searchTerm === '' ||
+        ciclo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ciclo.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ciclo.familia.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesNivel = nivelFilter === 'todos' || ciclo.nivel === nivelFilter
+      const matchesNivel = nivelFilter === 'todos' || ciclo.nivel === nivelFilter
+      const matchesFamilia = familiaFilter === 'todas' || ciclo.familia === familiaFilter
+      const matchesModalidad = modalidadFilter === 'todas' || ciclo.modalidad === modalidadFilter
 
-    const matchesFamilia = familiaFilter === 'todas' || ciclo.familia === familiaFilter
+      return matchesSearch && matchesNivel && matchesFamilia && matchesModalidad
+    }),
+    (ciclo, column) => {
+      switch (column) {
+        case 'nombre':
+          return ciclo.nombre
+        case 'modalidad':
+          return ciclo.modalidad
+        case 'horas':
+          return Number.parseInt(ciclo.duracion, 10) || ciclo.plazas
+        case 'convocatorias':
+          return activeConvocatoriasMap[ciclo.id] || 0
+        case 'sede':
+          return (sedeNamesMap[ciclo.id] ?? []).join(', ')
+        case 'nivel':
+          return formatCycleLevelLabel(ciclo.nivel)
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
 
-    const matchesModalidad = modalidadFilter === 'todas' || ciclo.modalidad === modalidadFilter
-
-    return matchesSearch && matchesNivel && matchesFamilia && matchesModalidad
-  })
+  React.useEffect(() => {
+    resetSort()
+  }, [searchTerm, nivelFilter, familiaFilter, modalidadFilter, resetSort])
 
   const handleViewCiclo = (ciclo: Ciclo) => {
     router.push(`/dashboard/ciclos/${ciclo.id}`)
@@ -362,6 +393,20 @@ export default function TodosLosCiclosPage() {
           </>
         }
         view={<ViewToggle view={view} onViewChange={setView} />}
+      />
+
+      <SortableListHeader
+        sort={sortState}
+        onToggle={toggleSort}
+        trailingClassName="h-8 w-[4.5rem] shrink-0"
+        columns={[
+          { id: 'nombre', label: 'Programa', className: 'flex-1' },
+          { id: 'modalidad', label: 'Modalidad', className: 'hidden w-28 sm:block' },
+          { id: 'horas', label: 'Horas', className: 'hidden w-20 md:block' },
+          { id: 'convocatorias', label: 'Convocatoria', className: 'hidden w-28 lg:block' },
+          { id: 'sede', label: 'Sede(s)', className: 'hidden max-w-[12rem] xl:block' },
+          { id: 'nivel', label: 'Nivel', className: 'hidden w-[140px] lg:block' },
+        ]}
       />
 
       {/* Ciclos Grid o Lista */}

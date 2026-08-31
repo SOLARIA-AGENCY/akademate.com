@@ -13,6 +13,10 @@ vi.mock('@payloadcms/next/utilities', () => ({
   getPayloadHMR: mockGetPayloadHMR,
 }))
 
+vi.mock('payload', () => ({
+  getPayload: mockGetPayloadHMR,
+}))
+
 vi.mock('@payload-config', () => ({
   default: {},
 }))
@@ -143,5 +147,23 @@ describe('Dashboard route - GET /api/dashboard', () => {
     const executedSql = mockExecute.mock.calls.map((call) => String(call[0])).join('\n')
     expect(executedSql).toContain("LOWER(domain) = LOWER('cepformacion.akademate.com')")
     expect(executedSql).toContain('WHERE tenant_id = 1')
+  })
+
+  it('returns 200 when lead COUNT throws', async () => {
+    const previous = mockExecute.getMockImplementation()
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('COUNT(*)::int AS cnt') && sql.includes('FROM leads')) {
+        throw new Error('leads unavailable')
+      }
+      return previous ? previous(sql) : { rows: [] }
+    })
+
+    const request = new NextRequest('http://localhost/api/dashboard?tenantId=2')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.success).toBe(true)
+    expect(payload.data.metrics.leads_this_month).toBe(0)
   })
 })

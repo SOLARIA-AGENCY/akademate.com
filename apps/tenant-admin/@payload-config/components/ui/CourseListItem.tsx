@@ -19,40 +19,57 @@ interface CourseListItemProps {
 export function CourseListItem({ course, onClick, className }: CourseListItemProps) {
   const modality = (course as PlantillaCurso & { modality?: string }).modality
   const areaColor = (course as PlantillaCurso & { areaColor?: string | null }).areaColor
+  const areaLabel = course.area || 'Sin área'
+  const hoursLabel = course.duracionReferencia ? `${course.duracionReferencia} h` : '—'
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-lg border bg-card px-4 py-3 transition-shadow hover:shadow-sm cursor-pointer ${className || ''}`}
+      className={`flex min-h-16 items-center gap-4 rounded-lg border bg-card px-4 py-3 transition-shadow hover:shadow-sm cursor-pointer ${className || ''}`}
       onClick={onClick}
       data-oid="bfba_ve"
     >
       <EntityThumb src={course.imagenPortada} alt={course.nombre} fallback="book" size="sm" />
 
-      <div className="flex min-w-0 flex-1 items-center gap-4" data-oid="ku49jm4">
-        <div className="flex min-w-0 flex-1 items-start gap-2" data-oid="2.vkthd">
+      <div className="flex min-w-0 flex-1 items-center gap-3" data-oid="ku49jm4">
+        <div className="min-w-0 flex-1" data-oid="2.vkthd">
           <h3
-            className="min-w-0 flex-1 whitespace-normal text-sm font-semibold leading-tight"
+            className="whitespace-normal text-sm font-semibold leading-tight"
             title={course.nombre}
             data-oid=".22tcmh"
           >
             {course.nombre}
           </h3>
-          <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap" data-oid="royfh3h">
-            <CourseFundingBadge courseType={course.tipo} />
-            <DirectoryAreaBadge label={course.area} color={areaColor} />
-            <CourseModalityBadge courseType={course.tipo} modality={modality} />
-          </div>
         </div>
 
-        <div className="hidden w-16 shrink-0 items-center gap-1.5 text-sm md:flex" data-oid="3w1ar4y">
-          <Clock className="h-4 w-4 text-muted-foreground" data-oid=".z32xno" />
-          <span className="font-medium tabular-nums" data-oid="t7.uut_">
-            {course.duracionReferencia ? `${course.duracionReferencia} h` : '—'}
-          </span>
+        <div className="hidden min-w-0 w-[8.5rem] overflow-hidden sm:block">
+          <DirectoryAreaBadge
+            label={areaLabel}
+            color={areaColor}
+            className="max-w-full"
+          />
         </div>
-        <div className="hidden w-16 shrink-0 items-center gap-1.5 text-sm md:flex" data-oid="in3hcfx">
-          <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium tabular-nums" data-oid="4w4-k36">
+
+        <div className="hidden min-w-0 w-[7.5rem] overflow-hidden md:block">
+          <CourseFundingBadge courseType={course.tipo} className="max-w-full truncate" />
+        </div>
+
+        <div className="hidden min-w-0 w-[6.5rem] overflow-hidden lg:block">
+          <CourseModalityBadge
+            courseType={course.tipo}
+            modality={modality}
+            className="max-w-full truncate"
+          />
+        </div>
+
+        <div className="flex w-16 shrink-0 items-center gap-1 text-sm" data-oid="3w1ar4y">
+          <span className="font-medium tabular-nums" title={hoursLabel} data-oid="t7.uut_">
+            {hoursLabel}
+          </span>
+          <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" data-oid=".z32xno" />
+        </div>
+        <div className="flex w-14 shrink-0 items-center gap-1 text-sm" data-oid="in3hcfx">
+          <CalendarDays className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+          <span className="font-medium tabular-nums" title={String(course.totalConvocatorias)}>
             {course.totalConvocatorias}
           </span>
         </div>

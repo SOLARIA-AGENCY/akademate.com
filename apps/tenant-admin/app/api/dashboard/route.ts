@@ -40,10 +40,16 @@ interface CampusDoc {
 }
 
 interface RecentActivity {
+  id: string | number;
   type: string;
   title: string;
   entity_name: string;
   timestamp: string;
+  lead_id?: string | number | null;
+  lead_type?: string | null;
+  lead_source?: string | null;
+  lead_status?: string | null;
+  href?: string | null;
 }
 
 interface DashboardAlert {
@@ -167,6 +173,41 @@ function getEntityId(entity: unknown): string | number | null {
     return row.id ?? null;
   }
   return null;
+}
+
+function normalizeLeadIntakeType(leadType: unknown, source: unknown, sourceForm: unknown): string {
+  const type = String(leadType ?? '').trim().toLowerCase();
+  const sourceValue = String(source ?? '').trim().toLowerCase();
+  const form = String(sourceForm ?? '').trim().toLowerCase();
+
+  if (
+    ['ad', 'ads', 'paid', 'paid_ads', 'meta_ads', 'google_ads', 'campaign'].includes(type) ||
+    ['meta', 'meta_ads', 'facebook', 'google', 'google_ads', 'paid'].some((value) =>
+      sourceValue.includes(value),
+    )
+  ) {
+    return 'Ad';
+  }
+  if (['inscripcion', 'inscripción', 'enrollment', 'matricula', 'matrícula'].includes(type)) {
+    return 'Inscripción';
+  }
+  if (type === 'formulario' || type === 'form' || form || sourceValue.includes('form')) {
+    return 'Formulario';
+  }
+  return 'Orgánico';
+}
+
+function normalizeLeadOrigin(source: unknown, utmSource: unknown): string {
+  const value = String(utmSource ?? source ?? '').trim();
+  if (!value) return 'Orgánico';
+  const normalized = value.toLowerCase();
+  if (normalized.includes('meta') || normalized.includes('facebook') || normalized.includes('instagram')) {
+    return 'Meta';
+  }
+  if (normalized.includes('google')) return 'Google';
+  if (normalized.includes('whatsapp')) return 'WhatsApp';
+  if (normalized.includes('web') || normalized.includes('site') || normalized.includes('form')) return 'Web';
+  return value;
 }
 
 function getStartOfWeekUTC(input: Date): Date {
@@ -336,21 +377,26 @@ export async function GET(request: NextRequest) {
         totalTeachers = 0;
       }
 
-      totalLeads = toNumber(
-        (await queryOne(`SELECT COUNT(*)::int AS cnt FROM leads WHERE tenant_id = ${tenantId}${nonTestLeadFilter}`)).cnt,
-      );
+      try {
+        totalLeads = toNumber(
+          (await queryOne(`SELECT COUNT(*)::int AS cnt FROM leads WHERE tenant_id = ${tenantId}${nonTestLeadFilter}`)).cnt,
+        );
 
-      leadsThisMonth = toNumber(
-        (
-          await queryOne(`
-            SELECT COUNT(*)::int AS cnt
-            FROM leads
-            WHERE tenant_id = ${tenantId}
-              ${nonTestLeadFilter}
-              AND created_at >= date_trunc('month', CURRENT_DATE)
-          `)
-        ).cnt,
-      );
+        leadsThisMonth = toNumber(
+          (
+            await queryOne(`
+              SELECT COUNT(*)::int AS cnt
+              FROM leads
+              WHERE tenant_id = ${tenantId}
+                ${nonTestLeadFilter}
+                AND created_at >= date_trunc('month', CURRENT_DATE)
+            `)
+          ).cnt,
+        );
+      } catch {
+        totalLeads = 0;
+        leadsThisMonth = 0;
+      }
 
       try {
         const hasStudentsTenant = toNumber(
@@ -443,7 +489,7 @@ export async function GET(request: NextRequest) {
 
       try {
         const leadActivityRows = await queryAll(`
-          SELECT first_name, last_name, email, created_at
+          SELECT id, first_name, last_name, email, created_at, lead_type, source, utm_source, source_form, status
           FROM leads
           WHERE tenant_id = ${tenantId}
             ${nonTestLeadFilter}
@@ -453,10 +499,16 @@ export async function GET(request: NextRequest) {
         for (const row of leadActivityRows) {
           const fullName = `${String(row.first_name ?? '')} ${String(row.last_name ?? '')}`.trim();
           recentActivities.push({
+            id: String(row.id ?? `lead-${row.created_at ?? fullName}`),
             type: 'lead',
             title: 'Nuevo lead registrado',
             entity_name: fullName || String(row.email ?? 'Lead'),
             timestamp: String(row.created_at ?? new Date().toISOString()),
+            lead_id: row.id == null ? null : String(row.id),
+            lead_type: normalizeLeadIntakeType(row.lead_type, row.source, row.source_form),
+            lead_source: normalizeLeadOrigin(row.source, row.utm_source),
+            lead_status: String(row.status ?? 'new'),
+            href: row.id == null ? null : `/leads/${String(row.id)}`,
           });
         }
       } catch {
@@ -513,10 +565,12 @@ export async function GET(request: NextRequest) {
         .filter((cr) => cr.createdAt)
         .slice(0, 3)
         .map((cr): RecentActivity => ({
+          id: String(cr.id),
           type: 'convocation',
           title: 'Nueva convocatoria creada',
           entity_name: getEntityName(cr.course, 'Curso'),
           timestamp: String(cr.createdAt),
+          href: `/programacion/${String(cr.id)}`,
         })),
     );
 

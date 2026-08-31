@@ -41,7 +41,7 @@ export function EnrollmentStepper({
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-background/20 text-[11px]">
                   {isDone && !isCurrent ? <Check className="h-3 w-3" /> : stage.id}
                 </span>
-                <span className="truncate">{wizardStageTitle(stage.id)}</span>
+                <span className="hidden truncate sm:inline">{wizardStageTitle(stage.id)}</span>
               </Button>
               {index < WIZARD_STAGES.length - 1 ? (
                 <Separator

@@ -42,6 +42,18 @@ import {
   normalizePublicStudyType,
   toDashboardStudyType,
 } from '@/app/lib/website/study-types'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const CURSOS_SORT_KINDS = {
+  nombre: 'text',
+  area: 'text',
+  tipo: 'text',
+  modalidad: 'text',
+  horas: 'number',
+  convocatorias: 'number',
+} as const satisfies Record<string, SortKind>
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -94,6 +106,7 @@ function CursosPageContent() {
   const [error, setError] = useState<string | null>(null)
   const [areas, setAreas] = useState<{ id: number; nombre: string }[]>([])
   const [limitModal, setLimitModal] = useState<{ open: boolean; current: number; limit: number } | null>(null)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(CURSOS_SORT_KINDS)
 
   const { checkLimit, plan } = usePlanLimits()
 
@@ -194,10 +207,36 @@ function CursosPageContent() {
   })
 
   // Filtrado final (incluye tipo)
-  const filteredCourses = baseFilteredCourses.filter((course) => {
-    if (filterType === 'all') return true
-    return getCourseType(course) === filterType
-  })
+  const filteredCourses = sortRows(
+    baseFilteredCourses.filter((course) => {
+      if (filterType === 'all') return true
+      return getCourseType(course) === filterType
+    }),
+    (course, column) => {
+      switch (column) {
+        case 'nombre':
+          return course.nombre
+        case 'area':
+          return course.area
+        case 'tipo':
+          return getCourseType(course)
+        case 'modalidad':
+          return (course as PlantillaCurso & { modality?: string }).modality || getCourseType(course)
+        case 'horas':
+          return course.duracionReferencia
+        case 'convocatorias':
+          return course.totalConvocatorias
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, filterType, filterArea, resetSort])
 
   const visibleTypes =
     filterType === 'all' ? TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0) : [filterType]
@@ -398,6 +437,19 @@ function CursosPageContent() {
       {/* Grid o Lista de Cursos */}
       {!loading && !error && !isTypeLandingPage && groupedCourses.length > 0 && (
         <div className="space-y-8">
+          <SortableListHeader
+            sort={sortState}
+            onToggle={toggleSort}
+            trailingClassName="h-8 w-[4.5rem] shrink-0"
+            columns={[
+              { id: 'nombre', label: 'Curso', className: 'flex-1' },
+              { id: 'area', label: 'Área', className: 'hidden w-[8.5rem] sm:block' },
+              { id: 'tipo', label: 'Tipo', className: 'hidden w-[7.5rem] md:block' },
+              { id: 'modalidad', label: 'Modalidad', className: 'hidden w-[6.5rem] lg:block' },
+              { id: 'horas', label: 'Horas', className: 'hidden w-16 md:block' },
+              { id: 'convocatorias', label: 'Conv.', className: 'hidden w-14 lg:block' },
+            ]}
+          />
           {groupedCourses.map((group) => {
             if (group.courses.length === 0) return null
             const style = COURSE_TYPE_CONFIG[group.type]

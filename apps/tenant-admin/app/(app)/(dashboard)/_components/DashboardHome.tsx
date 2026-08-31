@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Card,
@@ -16,11 +16,9 @@ import {
   Calendar,
   CalendarClock,
   GraduationCap,
-  Building2,
   Loader2,
   AlertTriangle,
   Info,
-  Clock,
   UserRound,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -161,6 +159,29 @@ interface LmsSummary {
   certificatesIssued: number
 }
 
+function mapLeadDocToActivity(doc: Record<string, unknown>): RecentActivity {
+  const id = doc.id == null ? `lead-${String(doc.email ?? '')}` : String(doc.id)
+  const first = String(doc.first_name ?? doc.firstName ?? '').trim()
+  const last = String(doc.last_name ?? doc.lastName ?? '').trim()
+  const name = `${first} ${last}`.trim() || String(doc.email ?? 'Lead')
+  return {
+    id,
+    type: 'lead',
+    title: 'Nuevo lead registrado',
+    entity_name: name,
+    timestamp: String(doc.created_at ?? doc.createdAt ?? new Date().toISOString()),
+    lead_id: doc.id == null ? null : String(doc.id),
+    lead_type: typeof doc.lead_type === 'string'
+      ? doc.lead_type
+      : typeof doc.leadType === 'string'
+        ? doc.leadType
+        : null,
+    lead_source: typeof doc.source === 'string' ? doc.source : null,
+    lead_status: typeof doc.status === 'string' ? doc.status : 'new',
+    href: doc.id == null ? null : `/leads/${String(doc.id)}`,
+  }
+}
+
 // KPI item type for dashboard cards
 interface KpiItem {
   title: string
@@ -274,6 +295,8 @@ export default function DashboardPage() {
   const [homeCampuses, setHomeCampuses] = useState<
     Array<{ id: string; name: string; imageUrl: string | null }>
   >([])
+  const [homeLeads, setHomeLeads] = useState<RecentActivity[]>([])
+  const [directoryError, setDirectoryError] = useState<string | null>(null)
   const [cycleStats, setCycleStats] = useState<{
     gradoMedio: number
     gradoSuperior: number
@@ -376,19 +399,19 @@ export default function DashboardPage() {
     }
   }
 
-  useEffect(() => {
-    setIsClient(true)
-    void refreshCampusSummary()
-    void refreshCycleStats()
-    void refreshHomeShortcuts()
-  }, [])
-
-  const refreshHomeShortcuts = async () => {
+  async function refreshHomeShortcuts() {
     try {
-      const [staffRes, campusRes] = await Promise.all([
+      const [staffRes, campusRes, leadsRes] = await Promise.all([
         fetch('/api/staff?type=profesor&limit=12', { credentials: 'include', cache: 'no-store' }),
         fetch('/api/campuses?limit=12', { credentials: 'include', cache: 'no-store' }),
+        fetch('/api/leads?limit=50&sort=-createdAt', { credentials: 'include', cache: 'no-store' }),
       ])
+      const failed = [
+        !staffRes.ok ? 'profesores' : null,
+        !campusRes.ok ? 'sedes' : null,
+        !leadsRes.ok ? 'leads' : null,
+      ].filter((item): item is string => Boolean(item))
+      setDirectoryError(failed.length > 0 ? `No se pudo cargar ${failed.join(', ')}.` : null)
       if (staffRes.ok) {
         const payload = (await staffRes.json()) as {
           data?: Array<{
@@ -428,10 +451,24 @@ export default function DashboardPage() {
           }),
         )
       }
+      if (leadsRes.ok) {
+        const payload = (await leadsRes.json()) as { docs?: Array<Record<string, unknown>> }
+        setHomeLeads((payload.docs ?? []).map(mapLeadDocToActivity))
+      } else {
+        setHomeLeads([])
+      }
     } catch {
-      // Keep empty shortcuts on transient errors
+      setDirectoryError('No se pudo cargar leads.')
+      setHomeLeads([])
     }
   }
+
+  useEffect(() => {
+    setIsClient(true)
+    void refreshCampusSummary()
+    void refreshCycleStats()
+    void refreshHomeShortcuts()
+  }, [])
 
   const primaryKpis: KpiItem[] = [
     {
@@ -460,6 +497,27 @@ export default function DashboardPage() {
     },
   ]
 
+  const visibleActivities = useMemo(() => {
+    const byId = new Map<string, RecentActivity>()
+    for (const activity of recentActivities) {
+      byId.set(String(activity.id), activity)
+    }
+    for (const activity of homeLeads) {
+      const key = String(activity.id)
+      if (!byId.has(key)) byId.set(key, activity)
+    }
+    return Array.from(byId.values()).sort(
+      (left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime(),
+    )
+  }, [homeLeads, recentActivities])
+
+  const directoryBanner = [
+    directoryError,
+    error ? 'No se pudieron cargar las métricas del dashboard.' : null,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   // Loading state
   if (loading) {
     return (
@@ -474,33 +532,8 @@ export default function DashboardPage() {
     )
   }
 
-  // Error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-96" data-oid="whcoip2">
-        <Card className="max-w-md" data-oid="wj55d45">
-          <CardContent className="pt-6 text-center space-y-4" data-oid="qe-_ke3">
-            <p className="text-destructive font-semibold" data-oid="ep:o68y">
-              Error al cargar dashboard
-            </p>
-            <p className="text-sm text-muted-foreground" data-oid="4jbulqb">
-              {error.message}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-              data-oid="cuj-a3y"
-            >
-              Reintentar
-            </button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-6" data-oid="re7drx3">
+    <div className="flex flex-col" data-oid="re7drx3">
       <PageHeader
         title="Dashboard"
         description={`Vista general de la operativa de ${branding.academyName}`}
@@ -513,7 +546,14 @@ export default function DashboardPage() {
             {isConnected ? 'En vivo' : 'Sin conexión'}
           </Badge>
         }
-        filters={
+        data-oid="qqq2bhb"
+      />
+
+      <div
+        className="sticky top-0 z-20 isolate -mx-4 mt-0 border-y border-border/60 bg-[hsl(var(--dashboard-canvas))] px-4"
+        data-testid="dashboard-home-range-bar"
+      >
+        <div className="flex h-12 items-center">
           <ToggleGroup
             type="single"
             value={range}
@@ -539,10 +579,18 @@ export default function DashboardPage() {
               6M
             </ToggleGroupItem>
           </ToggleGroup>
-        }
-        data-oid="qqq2bhb"
-      />
+        </div>
+      </div>
 
+      <div className="flex flex-col gap-6 pt-6">
+      {directoryBanner ? (
+        <div
+          className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          role="status"
+        >
+          {directoryBanner}
+        </div>
+      ) : null}
       {/* KPIs operativos */}
       <div
         className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
@@ -892,15 +940,15 @@ export default function DashboardPage() {
       {/* New Blocks Row 1: Activity Timeline + Activity Chart */}
       <div className="grid gap-4 md:grid-cols-2" data-oid="fy2n-p0">
         {/* Actividad Reciente */}
-        <Card className="min-w-0" data-oid="gyr4u6s">
+        <Card className="min-w-0 overflow-hidden" data-oid="gyr4u6s">
           <CardHeader data-oid="_1yx95t">
             <CardTitle data-oid="yy10ure">Actividad Reciente</CardTitle>
             <CardDescription data-oid="fb_-r1-">Últimos eventos del sistema</CardDescription>
           </CardHeader>
           <CardContent className="min-w-0 p-0" data-oid="ds2gh4z">
-            {recentActivities.length > 0 ? (
+            {visibleActivities.length > 0 ? (
               <div className="w-full min-w-0 overflow-x-auto" data-oid="4dur1yy">
-                <Table className="w-full table-fixed">
+                <Table className="min-w-[720px] table-fixed">
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[24%]">Persona</TableHead>
@@ -912,7 +960,7 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {recentActivities.map((activity) => {
+                    {visibleActivities.map((activity) => {
                       const name = activity.entity_name || 'Lead'
                       const status = activity.lead_status ?? ''
                       const isLead = activity.type === 'lead' || Boolean(activity.lead_id)
@@ -1169,6 +1217,7 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )

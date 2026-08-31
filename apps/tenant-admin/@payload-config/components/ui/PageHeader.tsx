@@ -54,14 +54,9 @@ export function PageHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between" data-oid="nq9arpo">
         <div className="flex items-center gap-3" data-oid="_zscgyl">
           <div data-oid="msm_hkf">
-            <h1 className="text-lg font-semibold text-foreground" data-oid=".ik_qyi">
+            <h1 className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight text-foreground" data-oid=".ik_qyi">
               {title}
             </h1>
-            {description && (
-              <p className="text-sm text-muted-foreground mt-0.5" data-oid="eclyf72">
-                {description}
-              </p>
-            )}
           </div>
         </div>
 

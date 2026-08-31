@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Loader2, ArrowLeft, Edit, UserPlus, GraduationCap, CreditCard, User } from 'lucide-react'
+import { EnrollmentBreadcrumb } from '../wizard/EnrollmentBreadcrumb'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -107,16 +108,16 @@ export default function MatriculaDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
+      <EnrollmentBreadcrumb current="Expediente" />
       <PageHeader
         title={`Matrícula #${id}`}
-        description={leadName}
         icon={GraduationCap}
         actions={
           <div className="flex gap-2">
             {doc?.lead?.id ? (
               <Button
                 variant="outline"
-                onClick={() => router.push(`/matriculas?nueva=1&leadId=${String(doc.lead?.id)}`)}
+                onClick={() => router.push(`/matriculas/nueva?leadId=${String(doc.lead?.id)}`)}
               >
                 <UserPlus className="mr-2 h-4 w-4" />
                 Matricular en otro curso

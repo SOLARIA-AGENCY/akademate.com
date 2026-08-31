@@ -21,6 +21,16 @@ import {
   ListingSearch,
   PremiumDirectoryShell,
 } from '@payload-config/components/directory/PremiumDirectoryShell'
+import { SortableListHeader } from '@payload-config/components/ui/sortable-table-head'
+import { useCycleSort } from '@payload-config/hooks/useCycleSort'
+import type { SortKind } from '@payload-config/lib/cycle-sort'
+
+const SEDES_SORT_KINDS = {
+  nombre: 'text',
+  contacto: 'text',
+  aulas: 'number',
+  capacidad: 'number',
+} as const satisfies Record<string, SortKind>
 
 /** Sede data structure used for display */
 interface Sede {
@@ -86,6 +96,7 @@ export default function SedesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [limitModal, setLimitModal] = useState<{ open: boolean; current: number; limit: number } | null>(null)
+  const { state: sortState, toggle: toggleSort, reset: resetSort, sortRows } = useCycleSort(SEDES_SORT_KINDS)
 
   const { checkLimit, plan } = usePlanLimits()
 
@@ -199,13 +210,35 @@ export default function SedesPage() {
     router.push('/dashboard/sedes/nueva')
   }
 
-  const filteredSedes = sedes.filter((sede) => {
-    const query = searchTerm.trim().toLowerCase()
-    if (!query) return true
-    return (
-      sede.nombre.toLowerCase().includes(query) || sede.direccion.toLowerCase().includes(query)
-    )
-  })
+  const filteredSedes = sortRows(
+    sedes.filter((sede) => {
+      const query = searchTerm.trim().toLowerCase()
+      if (!query) return true
+      return (
+        sede.nombre.toLowerCase().includes(query) || sede.direccion.toLowerCase().includes(query)
+      )
+    }),
+    (sede, column) => {
+      switch (column) {
+        case 'nombre':
+          return sede.nombre
+        case 'contacto':
+          return sede.telefono
+        case 'aulas':
+          return sede.aulas
+        case 'capacidad':
+          return sede.capacidad
+        default: {
+          const _never: never = column
+          return _never
+        }
+      }
+    },
+  )
+
+  useEffect(() => {
+    resetSort()
+  }, [searchTerm, resetSort])
 
   const totalAulas = sedes.reduce((sum, sede) => sum + (sede.aulas || 0), 0)
   const totalPlazas = sedes.reduce((sum, sede) => sum + (sede.capacidad || 0), 0)
@@ -278,6 +311,18 @@ export default function SedesPage() {
         </Card>
       ) : null}
 
+      <SortableListHeader
+        sort={sortState}
+        onToggle={toggleSort}
+        trailingClassName="h-7 w-14 shrink-0"
+        columns={[
+          { id: 'nombre', label: 'Sede', className: 'flex-1' },
+          { id: 'contacto', label: 'Contacto', className: 'hidden min-w-[180px] md:block' },
+          { id: 'aulas', label: 'Aulas', className: 'hidden lg:block' },
+          { id: 'capacidad', label: 'Capacidad', className: 'hidden lg:block' },
+        ]}
+      />
+
       {view === 'grid' ? (
         <div className="grid gap-6 lg:grid-cols-2" data-oid="sgmd.g2">
           {filteredSedes.map((sede) => (
@@ -324,16 +369,16 @@ export default function SedesPage() {
 
                 <div className="grid grid-cols-3 gap-3 border-t pt-4" data-oid="ukx44fj">
                   <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-aulas">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                      <DoorOpen className="h-3.5 w-3.5" data-oid="calvmou" />
+                    <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">
                       Aulas
+                      <DoorOpen className="h-3.5 w-3.5" data-oid="calvmou" />
                     </div>
                     <p className="mt-1 text-xl font-semibold">{sede.aulas || '—'}</p>
                   </div>
                   <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-capacidad">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                      <Users className="h-3.5 w-3.5" data-oid="2umu.g." />
+                    <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">
                       Plazas
+                      <Users className="h-3.5 w-3.5" data-oid="2umu.g." />
                     </div>
                     <p className="mt-1 text-xl font-semibold">{sede.capacidad || '—'}</p>
                   </div>

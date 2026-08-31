@@ -7,10 +7,12 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
+import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
+import { resolvePayloadMediaSrc } from '@/app/lib/payload-media-url'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
-  Download, FileText, Pencil, Save, AlertCircle, Printer,
+  Download, FileText, Pencil, Save, AlertCircle, Printer, CreditCard, Eye, Globe,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -27,13 +29,7 @@ function formatCurrency(v: number | undefined): string {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(v)
 }
 
-function resolveImageUrl(image: any): string | null {
-  if (!image) return null
-  if (typeof image === 'object' && image.url) return image.url
-  if (typeof image === 'object' && image.filename) return `/api/media/file/${image.filename}`
-  if (typeof image === 'string') return image
-  return null
-}
+const WEB_VISIBLE_STATUSES = new Set(['published', 'enrollment_open'])
 
 function getInstructorName(instructor: any): string {
   return instructor?.full_name || `${instructor?.first_name || ''} ${instructor?.last_name || ''}`.trim() || 'Docente asignado'
@@ -100,6 +96,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [saving, setSaving] = React.useState(false)
   const [saveMessage, setSaveMessage] = React.useState<string | null>(null)
   const [saveError, setSaveError] = React.useState<string | null>(null)
+  const [togglingPublish, setTogglingPublish] = React.useState(false)
   const [dateForm, setDateForm] = React.useState({ start_date: '', end_date: '' })
   const [priceForm, setPriceForm] = React.useState({ price_override: '', enrollment_fee_snapshot: '' })
   const [locationForm, setLocationForm] = React.useState({
@@ -261,6 +258,15 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     })) setEditingLocation(false)
   }
 
+  async function togglePublish(isPublished: boolean) {
+    setTogglingPublish(true)
+    try {
+      await saveRunPatch({ status: isPublished ? 'draft' : 'enrollment_open' })
+    } finally {
+      setTogglingPublish(false)
+    }
+  }
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (error || !conv) return (
     <div className="space-y-6">
@@ -288,15 +294,24 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const inscritos = conv.current_enrollments || 0
   const porcentaje = plazas > 0 ? Math.round((inscritos / plazas) * 100) : 0
 
-  // Inherited image from cycle or course
-  const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
-  const courseImage = course ? resolveImageUrl(course.featured_image) : null
+  const cycleImage = cycle ? resolvePayloadMediaSrc(cycle.image) : null
+  const courseImage = course ? resolvePayloadMediaSrc(course.featured_image) : null
   const heroImage = cycleImage || courseImage
-  const instructorImage = instructor ? resolveImageUrl(instructor.photo) : null
+  const instructorImage = instructor ? resolvePayloadMediaSrc(instructor.photo) : null
   const instructorName = instructor ? getInstructorName(instructor) : ''
   const instructorTitle = instructor?.position || getFirstCertification(instructor) || 'Docente'
   const runSchedule = formatRunSchedule(conv)
-  const dossierPdf = course ? resolveImageUrl(course.dossier_pdf) : null
+  const dossierPdf = course ? resolvePayloadMediaSrc(course.dossier_pdf) : null
+  const isPublished = WEB_VISIBLE_STATUSES.has(String(conv.status ?? ''))
+  const landingUrl =
+    (typeof conv.payment_landing_url === 'string' && conv.payment_landing_url.trim()) ||
+    (typeof conv.landing_url === 'string' && conv.landing_url.trim()) ||
+    null
+  const landingActive = Boolean(landingUrl) || conv.landing_published === true
+  const instructorId = instructor?.id != null ? String(instructor.id) : ''
+  const courseHref = course?.id != null ? `/dashboard/cursos/${course.id}` : null
+  const cycleHref = cycle?.id != null ? `/dashboard/ciclos/${cycle.id}` : null
+  const programaHref = courseHref || cycleHref
 
   const title = cycle?.name || course?.name || course?.title || conv.codigo
   const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
@@ -313,6 +328,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
           <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
           <Button variant="outline" onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}>
             <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
+          </Button>
+          <Button variant="outline" onClick={() => window.open('/campus-virtual', '_blank', 'noopener,noreferrer')}>
+            <Globe className="mr-2 h-4 w-4" />Abrir en Campus Virtual
           </Button>
           <Button variant="outline" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
             <Printer className="mr-2 h-4 w-4" />Imprimir convocatoria
@@ -347,21 +365,6 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
         ))}
       </div>
 
-      {/* Plazas progress */}
-      {plazas > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="font-medium">Ocupacion de plazas</span>
-              <span>{inscritos} de {plazas} ({porcentaje}%)</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-3">
-              <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${Math.min(porcentaje, 100)}%` }} />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {(saveMessage || saveError) && (
         <div className={`rounded-lg border px-4 py-3 text-sm ${saveError ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
           <div className="flex items-center gap-2">
@@ -374,6 +377,99 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3">
+              <CardTitle className="text-base">Resumen de convocatoria</CardTitle>
+              <Button
+                size="sm"
+                variant={isPublished ? 'outline' : 'default'}
+                disabled={saving || togglingPublish}
+                onClick={() => void togglePublish(isPublished)}
+              >
+                {(saving || togglingPublish) && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+                {isPublished ? 'Despublicar' : 'Publicar'}
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground">Estado</span>
+                <Badge variant={isPublished ? 'default' : 'secondary'}>
+                  {isPublished ? 'Publicado' : 'No publicado'}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground">Matrícula</span>
+                <Badge variant={status.variant}>{status.label}</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={landingActive ? undefined : 'grayscale'}>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-primary" />
+                Landing de pago
+              </CardTitle>
+              <Badge variant={landingActive ? 'default' : 'secondary'}>
+                {landingActive ? 'Activa' : 'Borrador'}
+              </Badge>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {landingActive
+                  ? 'La landing de matrícula está configurada y visible para el alumno.'
+                  : 'Esta landing aún no está activa. Configúrala para publicar el pago de matrícula.'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => router.push('/dashboard/web/convocatorias')}>
+                  Configurar landing
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(`/landing/${conv.codigo ?? id}`, '_blank', 'noopener,noreferrer')}
+                >
+                  <Eye className="mr-1.5 h-3.5 w-3.5" />
+                  Previsualizar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {(cycle || course) && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base flex items-center gap-2"><BookOpen className="h-4 w-4" />Programa</CardTitle>
+                {programaHref && (
+                  <Button variant="outline" size="sm" onClick={() => router.push(programaHref)}>
+                    Ver programa
+                  </Button>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {cycle && <p className="text-sm font-medium">{cycle.name}</p>}
+                {course && <p className="text-sm font-medium">{course.name || course.title}</p>}
+                {dossierPdf && (
+                  <a
+                    href={dossierPdf}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center gap-3 rounded-lg border bg-muted/60 p-3 text-sm font-medium text-foreground transition hover:bg-muted"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground shadow-sm">
+                      <FileText className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate">Descargar programa en PDF</span>
+                      <span className="block text-xs font-normal text-muted-foreground">Dossier informativo del curso</span>
+                    </span>
+                    <Download className="h-4 w-4 shrink-0 text-emerald-600" />
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Alumnos matriculados */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -391,74 +487,6 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
               </div>
             </CardContent>
           </Card>
-
-          {/* Profesores asignados */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <GraduationCap className="h-4 w-4 text-primary" />
-                Profesores asignados
-              </CardTitle>
-              <Button size="sm" variant="outline"><UserPlus className="mr-1.5 h-3.5 w-3.5" />Asignar</Button>
-            </CardHeader>
-            <CardContent>
-              {instructor ? (
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-start gap-4">
-                    {instructorImage ? (
-                      <img
-                        src={instructorImage}
-                        alt={instructorName}
-                        className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/15"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-2 ring-primary/15">
-                        <GraduationCap className="h-7 w-7 text-primary" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="truncate text-base font-semibold">{instructorName}</p>
-                          <p className="text-sm text-muted-foreground">{instructorTitle}</p>
-                        </div>
-                        <Badge variant="outline" className="shrink-0">Docente</Badge>
-                      </div>
-                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-primary" />
-                          {runSchedule}
-                        </span>
-                        {conv.shift && (
-                          <span className="inline-flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 text-primary" />
-                            Turno: {conv.shift === 'morning' ? 'Mañana' : conv.shift === 'afternoon' ? 'Tarde' : 'Tercer turno'}
-                          </span>
-                        )}
-                      </div>
-                      {instructor.email && <p className="mt-2 text-xs text-muted-foreground">{instructor.email}</p>}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-6 text-center">
-                  <p className="text-sm text-muted-foreground">No hay profesores asignados</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Notas */}
-          {conv.notes && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Notas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{conv.notes}</p>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Sidebar */}
@@ -466,7 +494,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
           {/* Sede y aula */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Sede</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Sede / aula / horario</CardTitle>
               <Button variant="ghost" size="sm" onClick={() => setEditingLocation((value) => !value)}>
                 <Pencil className="mr-1.5 h-3.5 w-3.5" />{campus ? 'Cambiar' : 'Asignar'}
               </Button>
@@ -483,6 +511,10 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       Aula: <span className="font-medium text-foreground">{typeof conv.classroom === 'object' ? (conv.classroom.name ?? conv.classroom.code) : conv.classroom}</span>
                     </p>
                   )}
+                  <p className="inline-flex items-center gap-1.5 text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    {runSchedule}
+                  </p>
                   {campus && (
                     <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push(`/dashboard/sedes/${campus.id}`)}>
                       Ver sede <ChevronRight className="h-3 w-3 ml-1" />
@@ -605,6 +637,34 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
+          {/* Matrícula */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" />Matrícula</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Estado</span>
+                <Badge variant={status.variant}>{status.label}</Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Plazas</span>
+                <span className="font-medium">{inscritos}/{plazas}</span>
+              </div>
+              {plazas > 0 && (
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${Math.min(porcentaje, 100)}%` }} />
+                </div>
+              )}
+              {conv.enrollment_deadline && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Límite inscripción</span>
+                  <span className="font-medium">{new Date(conv.enrollment_deadline).toLocaleDateString('es-ES')}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Precios */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -639,45 +699,75 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Ciclo / Curso */}
-          {(cycle || course) && (
+          {/* Profesores asignados */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <GraduationCap className="h-4 w-4 text-primary" />
+                Profesores asignados
+              </CardTitle>
+              <Button size="sm" variant="outline"><UserPlus className="mr-1.5 h-3.5 w-3.5" />Asignar</Button>
+            </CardHeader>
+            <CardContent>
+              {instructor ? (
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <EntityThumb
+                      src={instructorImage}
+                      alt={instructorName}
+                      fallback="person"
+                      size="md"
+                      className="h-12 w-12 shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold" title={instructorName}>{instructorName}</p>
+                      <Badge variant="outline" className="mt-1">{instructorTitle || 'Docente'}</Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-primary" />
+                      {runSchedule}
+                    </span>
+                    {conv.shift && (
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-primary" />
+                        Turno: {conv.shift === 'morning' ? 'Mañana' : conv.shift === 'afternoon' ? 'Tarde' : 'Tercer turno'}
+                      </span>
+                    )}
+                    {instructor.email && (
+                      <span className="flex items-center gap-1.5 truncate" title={instructor.email}>
+                        {instructor.email}
+                      </span>
+                    )}
+                  </div>
+                  {instructorId && (
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/dashboard/profesores/${instructorId}`)}
+                      >
+                        Ver docente
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <p className="text-sm text-muted-foreground">No hay profesores asignados</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {conv.notes && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2"><BookOpen className="h-4 w-4" />Programa</CardTitle>
+                <CardTitle className="text-base">Notas</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {cycle && (
-                  <Button variant="outline" size="sm" className="w-full justify-between" onClick={() => router.push(`/dashboard/ciclos/${cycle.id}`)}>
-                    <span className="flex items-center gap-2"><GraduationCap className="h-3 w-3" />{cycle.name}</span>
-                    <ChevronRight className="h-3 w-3" />
-                  </Button>
-                )}
-                {course && (
-                  <Button variant="outline" size="sm" className="h-auto w-full justify-between gap-2 py-2" onClick={() => router.push(`/dashboard/cursos/${course.id}`)}>
-                    <span className="flex min-w-0 items-center gap-2">
-                      <BookOpen className="h-3 w-3 shrink-0" />
-                      <span className="truncate text-left">{course.name || course.title}</span>
-                    </span>
-                    <ChevronRight className="h-3 w-3 shrink-0" />
-                  </Button>
-                )}
-                {dossierPdf && (
-                  <a
-                    href={dossierPdf}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 flex items-center gap-3 rounded-lg border border-red-100 bg-red-50 p-3 text-sm font-medium text-red-700 transition hover:bg-red-100"
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-red-600 shadow-sm">
-                      <FileText className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate">Descargar programa en PDF</span>
-                      <span className="block text-xs font-normal text-red-600/75">Dossier informativo del curso</span>
-                    </span>
-                    <Download className="h-4 w-4 shrink-0" />
-                  </a>
-                )}
+              <CardContent>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{conv.notes}</p>
               </CardContent>
             </Card>
           )}

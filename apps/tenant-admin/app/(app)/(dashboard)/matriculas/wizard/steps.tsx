@@ -61,6 +61,16 @@ const PAYMENT_OPTIONS: Array<{ value: PaymentMethod; label: string; hint: string
   { value: 'cash', label: 'Efectivo', hint: 'Cobro en sede', icon: Banknote },
 ]
 
+function RequiredMark() {
+  return (
+    <span className="text-destructive" aria-hidden="true">
+      *
+    </span>
+  )
+}
+
+const FIELD_ERROR = 'Este campo es obligatorio'
+
 function InlineFieldError({ message }: { message?: string }) {
   if (!message) return null
   return <FieldError>{message}</FieldError>
@@ -176,7 +186,9 @@ export function PersonalStep({
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label htmlFor="firstName">Nombre</Label>
+            <Label htmlFor="firstName">
+              Nombre <RequiredMark />
+            </Label>
             <Input
               id="firstName"
               value={draft.person.firstName}
@@ -185,7 +197,9 @@ export function PersonalStep({
             <InlineFieldError message={errors.firstName} />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="lastName">Apellidos</Label>
+            <Label htmlFor="lastName">
+              Apellidos <RequiredMark />
+            </Label>
             <Input
               id="lastName"
               value={draft.person.lastName}
@@ -205,7 +219,9 @@ export function PersonalStep({
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">
+              Email <RequiredMark />
+            </Label>
             <Input
               id="email"
               type="email"
@@ -215,7 +231,9 @@ export function PersonalStep({
             <InlineFieldError message={errors.email} />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="phone">Teléfono</Label>
+            <Label htmlFor="phone">
+              Teléfono <RequiredMark />
+            </Label>
             <Input
               id="phone"
               value={draft.person.phone}
@@ -283,10 +301,10 @@ export function AlumnoStep({
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [attachDocument, setAttachDocument] = useState(Boolean(draft.person.photoDataUrl))
   const errors: Record<string, string> = {
-    firstName: !draft.person.firstName.trim() ? 'Obligatorio' : '',
-    lastName: !draft.person.lastName.trim() ? 'Obligatorio' : '',
-    email: !draft.person.email.trim() ? 'Obligatorio' : '',
-    phone: !draft.person.phone.trim() ? 'Obligatorio' : '',
+    firstName: !draft.person.firstName.trim() ? FIELD_ERROR : '',
+    lastName: !draft.person.lastName.trim() ? FIELD_ERROR : '',
+    email: !draft.person.email.trim() ? FIELD_ERROR : '',
+    phone: !draft.person.phone.trim() ? FIELD_ERROR : '',
   }
   const reveal = (key: string) => Boolean((touched[key] || showErrors) && errors[key])
 
@@ -363,7 +381,9 @@ export function AlumnoStep({
         <CardContent>
           <FieldGroup className="grid gap-4 sm:grid-cols-2">
             <Field data-invalid={reveal('firstName') || undefined}>
-              <FieldLabel htmlFor="firstName">Nombre</FieldLabel>
+              <FieldLabel htmlFor="firstName">
+                Nombre <RequiredMark />
+              </FieldLabel>
               <Input
                 id="firstName"
                 value={draft.person.firstName}
@@ -373,7 +393,9 @@ export function AlumnoStep({
               {reveal('firstName') ? <FieldError>{errors.firstName}</FieldError> : null}
             </Field>
             <Field data-invalid={reveal('lastName') || undefined}>
-              <FieldLabel htmlFor="lastName">Apellidos</FieldLabel>
+              <FieldLabel htmlFor="lastName">
+                Apellidos <RequiredMark />
+              </FieldLabel>
               <Input
                 id="lastName"
                 value={draft.person.lastName}
@@ -387,7 +409,9 @@ export function AlumnoStep({
               <Input id="dni" value={draft.person.dni} onChange={(event) => onChange({ dni: event.target.value })} />
             </Field>
             <Field data-invalid={reveal('email') || undefined}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldLabel htmlFor="email">
+                Email <RequiredMark />
+              </FieldLabel>
               <Input
                 id="email"
                 type="email"
@@ -398,7 +422,9 @@ export function AlumnoStep({
               {reveal('email') ? <FieldError>{errors.email}</FieldError> : null}
             </Field>
             <Field className="sm:col-span-2" data-invalid={reveal('phone') || undefined}>
-              <FieldLabel htmlFor="phone">Teléfono</FieldLabel>
+              <FieldLabel htmlFor="phone">
+                Teléfono <RequiredMark />
+              </FieldLabel>
               <Input
                 id="phone"
                 value={draft.person.phone}
@@ -450,6 +476,7 @@ export function CourseStep({
   courses,
   loading,
   error,
+  attempted,
   onRetry,
   onFilterCampus,
   onSelect,
@@ -458,6 +485,7 @@ export function CourseStep({
   courses: EnrollmentCourseOption[]
   loading: boolean
   error: string | null
+  attempted?: boolean
   onRetry: () => void
   onFilterCampus: (value: string) => void
   onSelect: (course: EnrollmentCourseOption) => void
@@ -470,8 +498,17 @@ export function CourseStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Curso y convocatoria</h2>
+        <h2 className="text-lg font-semibold">
+          Curso y convocatoria <RequiredMark />
+        </h2>
       </div>
+      {attempted && !draft.course ? (
+        <Alert variant="destructive" data-invalid>
+          <AlertCircle />
+          <AlertTitle>Selecciona una convocatoria</AlertTitle>
+          <AlertDescription>Elige el curso y la sede para continuar.</AlertDescription>
+        </Alert>
+      ) : null}
       <div className="flex min-w-0 flex-wrap gap-2">
         <Button
           variant={draft.campusFilter === 'todas' ? 'default' : 'outline'}
@@ -514,7 +551,10 @@ export function CourseStep({
           description="No hay convocatorias disponibles con los filtros actuales."
         />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div
+          className="grid gap-3 sm:grid-cols-2"
+          data-invalid={attempted && !draft.course ? true : undefined}
+        >
           {filtered.map((course) => {
             const occupancy = course.seatsMax > 0 ? Math.round((course.seatsUsed / course.seatsMax) * 100) : 0
             const selected = draft.course?.id === course.id
@@ -557,14 +597,19 @@ export function CourseStep({
 export function ConsentStep({
   draft,
   onAccept,
+  showErrors,
 }: {
   draft: EnrollmentDraft
   onAccept: (accepted: boolean) => void
+  showErrors?: boolean
 }) {
+  const invalid = Boolean(showErrors && !draft.consentAccepted)
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Consentimiento</h2>
+        <h2 className="text-lg font-semibold">
+          Consentimiento <RequiredMark />
+        </h2>
       </div>
       <Accordion type="single" collapsible className="rounded-lg border bg-card px-4">
         <AccordionItem value="rgpd">
@@ -576,7 +621,10 @@ export function ConsentStep({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <label className="flex items-start gap-3 rounded-lg border bg-card p-4 text-sm">
+      <label
+        className="flex items-start gap-3 rounded-lg border bg-card p-4 text-sm"
+        data-invalid={invalid || undefined}
+      >
         <Checkbox
           checked={draft.consentAccepted}
           onCheckedChange={(value) => onAccept(value === true)}
@@ -588,6 +636,7 @@ export function ConsentStep({
               Registrado el {new Date(draft.consentAt).toLocaleString('es-ES')} por {draft.consentBy || 'usuario actual'}
             </span>
           ) : null}
+          {invalid ? <FieldError>{FIELD_ERROR}</FieldError> : null}
         </span>
       </label>
     </div>
@@ -599,17 +648,22 @@ export function PaymentStep({
   onDiscount,
   onMethod,
   onPlan,
+  showErrors,
 }: {
   draft: EnrollmentDraft
   onDiscount: (value: number) => void
   onMethod: (value: PaymentMethod) => void
   onPlan: (value: 'unico' | 'fraccionado') => void
+  showErrors?: boolean
 }) {
   const total = payableAmount(draft)
+  const methodInvalid = Boolean(showErrors && !draft.paymentMethod)
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Matrícula y cobro</h2>
+        <h2 className="text-lg font-semibold">
+          Matrícula y cobro <RequiredMark />
+        </h2>
       </div>
       <Card>
         <CardContent className="space-y-3 p-4 text-sm">
@@ -657,7 +711,7 @@ export function PaymentStep({
           </CardContent>
         </Card>
       ) : null}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2" data-invalid={methodInvalid || undefined}>
         {PAYMENT_OPTIONS.map((option) => {
           const Icon = option.icon
           const selected = draft.paymentMethod === option.value
@@ -679,6 +733,7 @@ export function PaymentStep({
           )
         })}
       </div>
+      {methodInvalid ? <FieldError>{FIELD_ERROR}</FieldError> : null}
     </div>
   )
 }
@@ -776,6 +831,7 @@ export function AccessStep({
 export function PagoRgpdStep({
   draft,
   cameraError,
+  showErrors,
   onAccept,
   onDiscount,
   onMethod,
@@ -787,6 +843,7 @@ export function PagoRgpdStep({
 }: {
   draft: EnrollmentDraft
   cameraError: string | null
+  showErrors?: boolean
   onAccept: (accepted: boolean) => void
   onDiscount: (value: number) => void
   onMethod: (value: PaymentMethod) => void
@@ -801,8 +858,14 @@ export function PagoRgpdStep({
       <div>
         <h2 className="text-lg font-semibold">Pago y RGPD</h2>
       </div>
-      <ConsentStep draft={draft} onAccept={onAccept} />
-      <PaymentStep draft={draft} onDiscount={onDiscount} onMethod={onMethod} onPlan={onPlan} />
+      <ConsentStep draft={draft} onAccept={onAccept} showErrors={showErrors} />
+      <PaymentStep
+        draft={draft}
+        onDiscount={onDiscount}
+        onMethod={onMethod}
+        onPlan={onPlan}
+        showErrors={showErrors}
+      />
       <Accordion type="single" collapsible className="rounded-lg border bg-card px-4">
         <AccordionItem value="acceso">
           <AccordionTrigger>Acceso y credencial</AccordionTrigger>

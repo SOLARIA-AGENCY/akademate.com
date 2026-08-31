@@ -52,9 +52,24 @@ interface CourseRunWhereClause {
 interface PopulatedCourseRun {
   id: number | string;
   codigo?: string | null;
-  course: number | (Course & { id: number; name: string; course_type?: string | null; featured_image?: unknown });
+  cycle?: number | string | { id?: number | string } | null;
+  course: number | (Course & {
+    id: number;
+    name: string;
+    course_type?: string | null;
+    featured_image?: unknown;
+    area?: string | null;
+    area_formativa?: unknown;
+    cycle?: number | string | { id?: number | string } | null;
+  });
   campus?: number | null | (Campus & { id: number; name: string });
-  classroom?: number | null | { id: number; name?: string | null; code?: string | null; capacity?: number | null };
+  classroom?: number | null | {
+    id: number;
+    name?: string | null;
+    code?: string | null;
+    capacity?: number | null;
+    campus?: number | string | (Campus & { id: number; name: string }) | null;
+  };
   administrative_owner?: number | null | StaffLike;
   instructor?: number | null | StaffLike;
   modality?: string | null;
@@ -245,6 +260,54 @@ function getRelationId(value: unknown): string | null {
   if (typeof value === 'object' && 'id' in value) {
     const id = (value as { id?: number | string }).id;
     return id == null ? null : String(id);
+  }
+  return null;
+}
+
+function getRelationName(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || !('name' in value)) return null;
+  const name = (value as { name?: unknown }).name;
+  return typeof name === 'string' && name.trim() && !/^sin sede$/i.test(name.trim())
+    ? name.trim()
+    : null;
+}
+
+function resolveCampusRef(conv: PopulatedCourseRun): { id: string | null; name: string | null } {
+  const fromCampus = getRelationName(conv.campus);
+  if (fromCampus) {
+    return { id: getRelationId(conv.campus), name: fromCampus };
+  }
+  if (conv.classroom && typeof conv.classroom === 'object' && 'campus' in conv.classroom) {
+    const nested = conv.classroom.campus;
+    const nestedName = getRelationName(nested);
+    if (nestedName) {
+      return { id: getRelationId(nested), name: nestedName };
+    }
+    const nestedId = getRelationId(nested);
+    if (nestedId) return { id: nestedId, name: null };
+  }
+  return { id: getRelationId(conv.campus), name: null };
+}
+
+function resolveCourseArea(course: PopulatedCourseRun['course']): { label: string | null; color: string | null } {
+  if (!course || typeof course !== 'object') return { label: null, color: null };
+  const areaFormativa = course.area_formativa;
+  if (areaFormativa && typeof areaFormativa === 'object') {
+    const record = areaFormativa as { nombre?: string; name?: string; color?: string };
+    const label = record.nombre?.trim() || record.name?.trim() || null;
+    return { label, color: record.color?.trim() || null };
+  }
+  if (typeof course.area === 'string' && course.area.trim()) {
+    return { label: course.area.trim(), color: null };
+  }
+  return { label: null, color: null };
+}
+
+function resolveCycleId(conv: PopulatedCourseRun): string | null {
+  const direct = getRelationId(conv.cycle);
+  if (direct) return direct;
+  if (conv.course && typeof conv.course === 'object') {
+    return getRelationId(conv.course.cycle);
   }
   return null;
 }
@@ -491,6 +554,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const courseId = searchParams.get('courseId');
     const campusId = searchParams.get('campusId');
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') ?? '100', 10) || 100, 1), 500);
 
      
     const payload = await getPayload({ config: configPromise });
@@ -509,9 +573,9 @@ export async function GET(request: NextRequest) {
     const convocations = await payload.find({
       collection: 'course-runs',
       where: whereClause as unknown as Record<string, unknown>,
-      limit: 100,
+      limit,
       sort: '-start_date',
-      depth: 2, // Populate course and campus relationships
+      depth: 2, // Populate course, campus, classroom.campus, area_formativa
     });
 
     const courseIds = Array.from(
@@ -556,16 +620,21 @@ export async function GET(request: NextRequest) {
           ? resolveMediaUrl(conv.course.featured_image)
           : null;
         const dias = conv.schedule_days ?? [];
+        const campusRef = resolveCampusRef(conv);
+        const courseArea = resolveCourseArea(conv.course);
 
         return {
           id: conv.id,
           codigo: conv.codigo,
+          cycleId: resolveCycleId(conv),
           cursoId: typeof conv.course === 'object' ? conv.course.id : conv.course,
           cursoNombre: typeof conv.course === 'object' ? conv.course.name : 'Curso',
           cursoTipo: typeof conv.course === 'object' ? conv.course.course_type : undefined,
+          cursoArea: courseArea.label,
+          cursoAreaColor: courseArea.color,
           cursoImagen,
-          campusId: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.id : conv.campus,
-          campusNombre: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.name : 'Sin sede',
+          campusId: campusRef.id,
+          campusNombre: campusRef.name,
           aulaId: typeof conv.classroom === 'object' && conv.classroom !== null ? conv.classroom.id : conv.classroom,
           aulaNombre: typeof conv.classroom === 'object' && conv.classroom !== null ? (conv.classroom.name ?? conv.classroom.code ?? 'Aula') : 'Sin aula',
           aulaCapacidad: typeof conv.classroom === 'object' && conv.classroom !== null ? conv.classroom.capacity : undefined,

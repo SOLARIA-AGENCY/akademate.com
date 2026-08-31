@@ -188,7 +188,7 @@ export default function TarifasAccesoPage() {
         icon={Wallet}
         actions={
           <>
-            <Button variant="outline" onClick={() => router.push('/matriculas/portal')}>
+            <Button variant="outline" onClick={() => router.push('/matriculas')}>
               Volver
             </Button>
             <Button onClick={openCreate}>

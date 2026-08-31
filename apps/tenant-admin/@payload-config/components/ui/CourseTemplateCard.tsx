@@ -32,10 +32,10 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
       data-oid="w4mfu4l"
     >
       <CardContent className="flex min-w-0 items-start gap-4 p-4" data-oid="msupxrb">
-        <EntityThumb src={template.imagenPortada} alt={template.nombre} fallback="book" size="lg" />
+        <EntityThumb src={template.imagenPortada} alt={template.nombre} fallback="book" size="md" />
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2" data-oid="le_pykk">
+          <div className="flex min-w-0 flex-wrap items-center gap-2" data-oid="le_pykk">
             <CourseFundingBadge courseType={template.tipo} />
             <DirectoryAreaBadge label={template.area || 'Sin area'} color={areaColor} />
             <CourseModalityBadge courseType={template.tipo} modality={modality} />
@@ -58,14 +58,14 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
 
           <div className="grid grid-cols-2 gap-2 border-t pt-3 text-xs text-muted-foreground" data-oid="lqw1vn8">
             <div className="flex items-center gap-1.5" data-oid="mq_mh95">
-              <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground" data-oid="y_pgz5i" />
+            <Clock className="h-3 w-3 flex-shrink-0 text-muted-foreground" aria-hidden="true" data-oid="y_pgz5i" />
               <span className="font-semibold text-foreground" data-oid="ft5an15">
                 {template.duracionReferencia ? `${template.duracionReferencia} h` : 'Duracion pendiente'}
               </span>
             </div>
 
             <div className="flex items-center gap-1.5" data-oid="74qc2_7">
-              <CalendarDays className="h-4 w-4 flex-shrink-0 text-muted-foreground" data-oid="in3hcfx" />
+            <CalendarDays className="h-3 w-3 flex-shrink-0 text-muted-foreground" aria-hidden="true" data-oid="in3hcfx" />
               <span className="font-semibold text-foreground" data-oid="be2u8o2">
                 {template.totalConvocatorias} {template.totalConvocatorias === 1 ? 'convocatoria' : 'convocatorias'}
               </span>

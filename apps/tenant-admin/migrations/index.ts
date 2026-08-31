@@ -7,6 +7,7 @@ import * as migration_20260428_students_tenant from './20260428_students_tenant'
 import * as migration_20260507_course_landing_design from './20260507_course_landing_design';
 import * as migration_20260513_lead_appointments from './20260513_lead_appointments';
 import * as migration_20260831_operating_model from './20260831_operating_model';
+import * as migration_20260901_default_classrooms from './20260901_default_classrooms';
 
 export const migrations = [
   {
@@ -53,5 +54,10 @@ export const migrations = [
     up: migration_20260831_operating_model.up,
     down: migration_20260831_operating_model.down,
     name: '20260831_operating_model'
+  },
+  {
+    up: migration_20260901_default_classrooms.up,
+    down: migration_20260901_default_classrooms.down,
+    name: '20260901_default_classrooms'
   },
 ];

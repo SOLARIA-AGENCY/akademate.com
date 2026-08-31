@@ -2,7 +2,11 @@ export function canonicalizePayloadMediaUrl(src?: string | null): string | null 
   if (typeof src !== 'string') return null
   const trimmed = src.trim()
   if (!trimmed) return null
-  if (trimmed.includes('placeholder')) return null
+  const lower = trimmed.toLowerCase()
+  if (lower.includes('placeholder')) return null
+  if (lower.includes('/website/cep/')) return null
+  if (lower.includes('/website/akademate/')) return null
+  if (lower.includes('unsplash.com') || lower.includes('images.unsplash')) return null
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
   if (trimmed.startsWith('/api/media/file/')) return trimmed
   if (trimmed.startsWith('/media/')) {
