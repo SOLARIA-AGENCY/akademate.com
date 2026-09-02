@@ -147,7 +147,7 @@ describe('chrome UI contract', () => {
     expect(hook).toContain("operation !== 'create'")
     expect(hook).toContain("collection: 'classrooms'")
     expect(migration).toContain('WHERE NOT EXISTS')
-    expect(migration).toContain('Aula principal')
+    expect(migration).toContain('Aula 1')
   })
 
   it('course and cycle listings use the requested labels and right-side metrics', () => {

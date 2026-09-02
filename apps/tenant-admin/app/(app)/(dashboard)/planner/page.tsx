@@ -10,6 +10,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { convocatoriaNuevaHref } from '@/app/lib/form-return-to'
+import Link from 'next/link'
 import {
   LayoutGrid,
   Plus,
@@ -21,7 +22,16 @@ import {
   GripVertical,
   Loader2,
   AlertTriangle,
+  DoorOpen,
 } from 'lucide-react'
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@payload-config/components/ui/empty'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
@@ -275,7 +285,31 @@ function OccupancyMatrix({
   const aulaCount = visibleAulas.length
   const aulaCol = aulaCount <= 1 ? 'minmax(12rem, 22rem)' : 'minmax(10rem, 1fr)'
 
-  if (visibleAulas.length === 0) return null
+  if (visibleAulas.length === 0) {
+    return (
+      <div
+        data-testid="planner-empty-aulas"
+        className="flex min-h-[16rem] flex-1 items-center justify-center rounded-xl border border-dashed border-border bg-surface px-6 py-10"
+      >
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <DoorOpen />
+            </EmptyMedia>
+            <EmptyTitle>Esta sede no tiene aulas.</EmptyTitle>
+            <EmptyDescription>Añade al menos un aula para ver el planner.</EmptyDescription>
+          </EmptyHeader>
+          {sedeFilter ? (
+            <EmptyContent>
+              <Button asChild size="sm">
+                <Link href={`/dashboard/sedes/${sedeFilter}`}>Crear aula</Link>
+              </Button>
+            </EmptyContent>
+          ) : null}
+        </Empty>
+      </div>
+    )
+  }
 
   return (
     <Card>

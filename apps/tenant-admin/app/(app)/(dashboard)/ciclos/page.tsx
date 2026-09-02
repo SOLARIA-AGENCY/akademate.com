@@ -193,6 +193,7 @@ export default function TodosLosCiclosPage() {
           if (crRes.ok) {
             const crPayload = await crRes.json() as {
               data?: Array<{
+                cicloId?: string | number | null
                 cycleId?: string | number | null
                 campusNombre?: string | null
                 estado?: string | null
@@ -205,7 +206,7 @@ export default function TodosLosCiclosPage() {
             const nextStartDateMap: Record<string, string> = {}
             const nextSedeMap: Record<string, string[]> = {}
             for (const cr of crDocs) {
-              const cycleId = cr.cycleId
+              const cycleId = cr.cicloId ?? cr.cycleId
               if (cycleId) {
                 const key = String(cycleId)
                 countMap[key] = (countMap[key] || 0) + 1

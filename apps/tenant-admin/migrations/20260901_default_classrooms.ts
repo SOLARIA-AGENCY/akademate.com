@@ -17,7 +17,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     )
     SELECT
       CONCAT('SEDE-', c.id, '-A1'),
-      'Aula principal',
+      'Aula 1',
       30,
       c.id,
       c.tenant_id,

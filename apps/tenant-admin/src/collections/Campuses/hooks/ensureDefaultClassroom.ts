@@ -49,7 +49,7 @@ export const ensureDefaultClassroom: CollectionAfterChangeHook = async ({
     overrideAccess: true,
     data: {
       code: `${campusCode}-${campusId}-A1`,
-      name: 'Aula principal',
+      name: 'Aula 1',
       capacity: 30,
       campus: campusId,
       usage_policy: 'mixed',
