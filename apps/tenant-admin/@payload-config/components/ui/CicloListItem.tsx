@@ -56,16 +56,18 @@ export function CicloListItem({
           </DirectoryNeutralBadge>
         </div>
 
-        <div className="hidden w-20 shrink-0 items-center gap-1 text-xs md:flex">
-          <span className="font-medium">{duracionLabel || `${ciclo.duracion_total_horas}h`}</span>
-          <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+        <div className="hidden w-28 shrink-0 items-center gap-1 text-xs md:flex">
+          <span className="font-medium tabular-nums" title={duracionLabel || `${ciclo.duracion_total_horas} horas`}>
+            {duracionLabel || `${ciclo.duracion_total_horas} horas`}
+          </span>
+          <Clock className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden="true" />
         </div>
 
         <div className="hidden w-28 shrink-0 text-center text-xs font-medium tabular-nums lg:block" title={`${convocatoriasActivas} ${convocatoriasActivas === 1 ? 'convocatoria' : 'convocatorias'}`}>
           {convocatoriasActivas}
         </div>
 
-        <div className="hidden min-w-0 max-w-[12rem] shrink-0 items-center xl:flex">
+        <div className="hidden min-w-0 w-24 shrink-0 items-center xl:flex">
           {sedes[0] ? (
             <DirectoryNeutralBadge className="max-w-full truncate">
               {sedes[0]}

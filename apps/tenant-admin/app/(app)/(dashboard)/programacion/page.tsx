@@ -3,7 +3,9 @@
 import * as React from 'react'
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@payload-config/components/ui/tooltip'
+import { cn } from '@payload-config/lib/utils'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -183,114 +185,123 @@ function convocatoriaOnDate(conv: Convocatoria, dateKey: string): boolean {
 // Annual Gantt View
 // ---------------------------------------------------------------------------
 
-function AnnualGantt({ convocatorias, year, onConvClick }: {
+function AnnualGantt({ convocatorias, year, campusImages, onConvClick }: {
   convocatorias: Convocatoria[]
   year: number
+  campusImages?: Record<string, string>
   onConvClick: (id: string) => void
 }) {
-  const yearStart = new Date(year, 0, 1).getTime()
-  const yearEnd = new Date(year, 11, 31).getTime()
-  const yearDays = (yearEnd - yearStart) / (1000 * 60 * 60 * 24)
+  const spanStart = new Date(year, 0, 1).getTime()
+  const spanEnd = new Date(year + 1, 11, 31).getTime()
+  const spanDays = (spanEnd - spanStart) / (1000 * 60 * 60 * 24)
+  const today = new Date()
+  const inSpan = today.getFullYear() === year || today.getFullYear() === year + 1
+  const todayPct = inSpan
+    ? ((today.getTime() - spanStart) / (1000 * 60 * 60 * 24) / spanDays) * 100
+    : null
 
   return (
-    <Card>
-      <CardContent className="p-4 overflow-x-auto">
-        {/* Month headers */}
-        <div className="flex border-b pb-2 mb-3 min-w-[900px]">
-          <div className="w-48 shrink-0 text-xs font-medium text-muted-foreground">Convocatoria</div>
-          <div className="flex-1 flex">
-            {MONTHS.map((m, i) => (
-              <div key={m} className="flex-1 text-center text-[10px] font-medium text-muted-foreground border-l border-border/30 first:border-l-0">
-                {m}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Convocatoria bars */}
+    <Card className="flex h-full min-h-[32rem] min-h-0 flex-col overflow-hidden" data-slot="annual-gantt">
+      <CardHeader className="shrink-0 p-4 pb-3">
+        <CardTitle className="text-base">Cronograma {year}–{year + 1}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
         {convocatorias.length === 0 ? (
-          <div className="text-center py-8 text-sm text-muted-foreground">
+          <div className="py-8 text-center text-sm text-muted-foreground">
             No hay convocatorias para {year}
           </div>
         ) : (
-          <div className="space-y-2 min-w-[900px]">
-            {convocatorias.map((conv) => {
-              const start = new Date(conv.fechaInicio)
-              const end = new Date(conv.fechaFin)
-              const barStart = Math.max(0, (start.getTime() - yearStart) / (1000 * 60 * 60 * 24))
-              const barEnd = Math.min(yearDays, (end.getTime() - yearStart) / (1000 * 60 * 60 * 24))
-              const leftPct = (barStart / yearDays) * 100
-              const widthPct = ((barEnd - barStart) / yearDays) * 100
-
-              const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
-
-              return (
-                <div key={conv.id} className="flex items-center group">
-                  <div
-                    className="w-48 shrink-0 pr-3 cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => onConvClick(conv.id)}
-                  >
-                    <p className="text-xs font-medium truncate leading-tight">{conv.curso}</p>
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-2.5 w-2.5" />{conv.sede}
-                    </p>
-                  </div>
-                  <div className="flex-1 relative h-8 bg-muted/30 rounded">
-                    {/* Month grid lines */}
-                    {MONTHS.map((_, i) => {
-                      const monthStart = new Date(year, i, 1)
-                      const pct = ((monthStart.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) * 100
-                      return <div key={i} className="absolute top-0 bottom-0 border-l border-border/20" style={{ left: `${pct}%` }} />
+          <div data-slot="annual-gantt-scroll" className="min-h-0 flex-1 overflow-auto overscroll-contain">
+            <div className="min-w-[110rem]">
+              <div className="sticky top-0 z-40 flex border-b border-border bg-muted">
+                <div className="sticky left-0 z-30 w-[14rem] shrink-0 bg-muted px-4 py-2 text-xs font-semibold">Convocatoria</div>
+                <div className="sticky left-[14rem] z-30 w-[10rem] shrink-0 border-r border-border bg-muted px-3 py-2 text-xs font-semibold">Sede</div>
+                <div className="relative min-h-10 min-w-0 flex-1">
+                  <div className="flex h-full">
+                    {Array.from({ length: 24 }, (_, index) => {
+                      const monthYear = year + Math.floor(index / 12)
+                      const month = index % 12
+                      return (
+                        <div
+                          key={`${monthYear}-${month}`}
+                          className="relative min-w-[4.5rem] flex-1 border-l border-border/60 py-2 text-center text-[10px] font-medium text-muted-foreground"
+                        >
+                          <span className="block">{MONTHS[month]}</span>
+                          {month === 0 ? <span className="block text-[9px] tabular-nums">{monthYear}</span> : null}
+                        </div>
+                      )
                     })}
-                    {/* Bar */}
-                    <div
-                      className={`absolute top-1 bottom-1 rounded cursor-pointer transition-opacity group-hover:opacity-90 ${STATUS_COLORS[conv.estado] || 'bg-primary'}`}
-                      style={{ left: `${leftPct}%`, width: `${Math.max(widthPct, 0.5)}%` }}
-                      onClick={() => onConvClick(conv.id)}
-                      title={`${conv.curso}\n${conv.sede}\n${new Date(conv.fechaInicio).toLocaleDateString('es-ES')} — ${new Date(conv.fechaFin).toLocaleDateString('es-ES')}\n${conv.inscritos}/${conv.plazas} plazas (${ocupacion}%)`}
-                    >
-                      <span className="absolute inset-0 flex items-center px-2 text-[10px] text-white font-medium truncate">
-                        {conv.curso}
-                      </span>
-                    </div>
-                    {/* Today marker */}
-                    {(() => {
-                      const today = new Date()
-                      if (today.getFullYear() === year) {
-                        const todayPct = ((today.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) * 100
-                        return <div className="absolute top-0 bottom-0 w-px bg-red-500 z-10" style={{ left: `${todayPct}%` }} />
-                      }
-                      return null
-                    })()}
                   </div>
+                  {todayPct != null ? (
+                    <div className="pointer-events-none absolute top-0 bottom-0 z-30 w-px bg-primary" style={{ left: `${todayPct}%` }} />
+                  ) : null}
                 </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Holiday markers */}
-        <div className="mt-4 pt-3 border-t min-w-[900px]">
-          <div className="flex items-center">
-            <div className="w-48 shrink-0 text-[10px] text-muted-foreground">Festivos</div>
-            <div className="flex-1 relative h-4">
-              {Object.entries(HOLIDAYS_2026).map(([date, name]) => {
-                const d = new Date(date)
-                if (d.getFullYear() !== year) return null
-                const pct = ((d.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) * 100
+              </div>
+              {convocatorias.map((conv) => {
+                const start = new Date(conv.fechaInicio)
+                const end = new Date(conv.fechaFin)
+                const leftPct = Math.max(0, ((start.getTime() - spanStart) / (1000 * 60 * 60 * 24) / spanDays) * 100)
+                const rightPct = Math.min(100, ((end.getTime() - spanStart) / (1000 * 60 * 60 * 24) / spanDays) * 100)
+                const widthPct = Math.max(rightPct - leftPct, 0.5)
                 return (
-                  <div
-                    key={date}
-                    className="absolute top-0 bottom-0 w-1 bg-red-300 rounded-full"
-                    style={{ left: `${pct}%` }}
-                    title={`${name} — ${d.toLocaleDateString('es-ES')}`}
-                  />
+                  <div key={conv.id} className="flex border-b border-border/70">
+                    <button
+                      type="button"
+                      className="sticky left-0 z-20 flex w-[14rem] shrink-0 items-center bg-card px-4 py-2.5 text-left text-xs font-medium"
+                      onClick={() => onConvClick(conv.id)}
+                    >
+                      <span className="truncate">{conv.curso}</span>
+                    </button>
+                    <div className="sticky left-[14rem] z-20 flex w-[10rem] shrink-0 items-center border-r border-border bg-card px-3 py-2.5">
+                      {conv.sede ? (
+                        <DirectoryCampusIdentity
+                          name={conv.sede}
+                          imageUrl={campusImages?.[conv.sede]}
+                          href={conv.sedeId ? `/dashboard/sedes/${conv.sedeId}` : undefined}
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </div>
+                    <div className="relative h-12 min-w-0 flex-1">
+                      {Array.from({ length: 24 }, (_, index) => (
+                        <div
+                          key={index}
+                          className="absolute top-0 bottom-0 border-l border-border/20"
+                          style={{ left: `${(index / 24) * 100}%` }}
+                        />
+                      ))}
+                      {todayPct != null ? (
+                        <div className="pointer-events-none absolute top-0 bottom-0 z-10 w-px bg-primary" style={{ left: `${todayPct}%` }} />
+                      ) : null}
+                      <button
+                        type="button"
+                        className={cn(
+                          'absolute top-2 bottom-2 z-10 truncate rounded-md px-2 text-left text-[10px] font-medium text-white',
+                          STATUS_COLORS[conv.estado] || 'bg-primary',
+                        )}
+                        style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+                        onClick={() => onConvClick(conv.id)}
+                        title={`${conv.curso} · ${conv.sede}`}
+                      >
+                        {conv.curso}
+                      </button>
+                    </div>
+                  </div>
                 )
               })}
             </div>
           </div>
-        </div>
+        )}
       </CardContent>
+      <CardFooter className="shrink-0 border-t bg-card px-4 py-2.5" data-slot="annual-gantt-legend">
+        <ul className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
+          <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-green-500" />Inscripción abierta</li>
+          <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-blue-500" />En curso</li>
+          <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-gray-400" />Borrador</li>
+          <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-red-400" />Cancelada</li>
+        </ul>
+      </CardFooter>
     </Card>
   )
 }
@@ -834,7 +845,14 @@ export default function ProgramacionPage() {
 
       {/* Calendar views */}
       {!isLoading && view === 'anual' && (
-        <AnnualGantt convocatorias={filtered} year={year} onConvClick={handleConvClick} />
+        <div className="min-h-[32rem] flex-1 overflow-hidden">
+          <AnnualGantt
+            convocatorias={filtered}
+            year={year}
+            campusImages={campusImages}
+            onConvClick={handleConvClick}
+          />
+        </div>
       )}
 
       {!isLoading && view === 'mes' && (
@@ -893,14 +911,14 @@ export default function ProgramacionPage() {
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <SortableTableHead className="w-[30%]" label="Curso / ciclo" column="curso" sort={sortState} onToggle={toggleSort} />
-                  <SortableTableHead className="hidden min-w-0 w-[12%] md:table-cell" label="Tipo" column="tipo" sort={sortState} onToggle={toggleSort} />
-                  <SortableTableHead className="hidden min-w-0 w-[18%] sm:table-cell" label="Sede" column="sede" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="w-[26%]" label="Curso / ciclo" column="curso" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden min-w-0 w-[14%] md:table-cell" label="Tipo" column="tipo" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden min-w-0 w-[12%] sm:table-cell" label="Sede" column="sede" sort={sortState} onToggle={toggleSort} />
                   <SortableTableHead className="hidden w-[12%] lg:table-cell" label="Docente" column="docente" sort={sortState} onToggle={toggleSort} />
-                  <SortableTableHead className="hidden w-[8%] xl:table-cell" label="Aula" column="aula" sort={sortState} onToggle={toggleSort} />
+                  <SortableTableHead className="hidden w-[7%] xl:table-cell" label="Aula" column="aula" sort={sortState} onToggle={toggleSort} />
                   <SortableTableHead className="hidden w-[8%] xl:table-cell" label="Fechas" column="fechas" sort={sortState} onToggle={toggleSort} />
-                  <SortableTableHead className="w-[10%] text-center" label="Plazas" column="plazas" sort={sortState} onToggle={toggleSort} align="center" />
-                  <SortableTableHead className="w-[10%] text-center" label="Estado" column="estado" sort={sortState} onToggle={toggleSort} align="center" />
+                  <SortableTableHead className="w-[8%] text-center" label="Plazas" column="plazas" sort={sortState} onToggle={toggleSort} align="center" />
+                  <SortableTableHead className="w-[13%] text-center" label="Estado" column="estado" sort={sortState} onToggle={toggleSort} align="center" />
                 </TableRow>
               </TableHeader>
               <TableBody>

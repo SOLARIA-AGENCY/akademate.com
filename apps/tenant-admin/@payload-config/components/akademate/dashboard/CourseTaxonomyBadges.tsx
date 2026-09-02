@@ -18,7 +18,7 @@ export function CourseFundingBadge({
       variant="static"
       data-slot="course-funding-badge"
       title={config.label}
-      className={cn(config.pillClass, 'max-w-full truncate', className)}
+      className={cn('min-w-0 max-w-full shrink overflow-hidden text-ellipsis', config.pillClass, className)}
     >
       {config.label}
     </Badge>
@@ -42,7 +42,7 @@ export function CourseModalityBadge({
       variant="static"
       data-slot="course-modality-badge"
       title={config.label}
-      className={cn(config.pillClass, 'max-w-full truncate', className)}
+      className={cn('min-w-0 max-w-full shrink overflow-hidden text-ellipsis', config.pillClass, className)}
     >
       {config.label}
     </Badge>

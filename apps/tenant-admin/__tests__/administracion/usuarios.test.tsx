@@ -1,63 +1,18 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import UsuariosPage from '@/app/(dashboard)/administracion/usuarios/page'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const source = readFileSync(
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../app/(app)/(dashboard)/administracion/usuarios/page.tsx'),
+  'utf8',
+)
 
 describe('Usuarios Page', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('renders users list correctly', () => {
-    render(<UsuariosPage data-oid="5yyexmt" />)
-
-    expect(screen.getByText('Gestión de Usuarios')).toBeInTheDocument()
-    expect(screen.getByText('Crear Usuario')).toBeInTheDocument()
-  })
-
-  it('displays user statistics', () => {
-    render(<UsuariosPage data-oid="voi-2ux" />)
-
-    expect(screen.getByText('Total Usuarios')).toBeInTheDocument()
-    expect(screen.getByText('Usuarios Activos')).toBeInTheDocument()
-    expect(screen.getByText('Vinculados a Staff')).toBeInTheDocument()
-    expect(screen.getByText('Con 2FA Activo')).toBeInTheDocument()
-  })
-
-  it('opens create user modal when button clicked', () => {
-    render(<UsuariosPage data-oid="rjkp:q6" />)
-
-    const createButton = screen.getByText('Crear Usuario')
-    fireEvent.click(createButton)
-
-    expect(screen.getByText('Crear Nuevo Usuario')).toBeInTheDocument()
-    expect(screen.getByLabelText(/nombre completo/i)).toBeInTheDocument()
-  })
-
-  it('validates password match in create form', () => {
-    render(<UsuariosPage data-oid="fld79-u" />)
-
-    fireEvent.click(screen.getByText('Crear Usuario'))
-
-    const passwordInput = screen.getByLabelText(/^contraseña$/i)
-    const confirmInput = screen.getByLabelText(/confirmar contraseña/i)
-
-    fireEvent.change(passwordInput, { target: { value: 'password123' } })
-    fireEvent.change(confirmInput, { target: { value: 'different' } })
-
-    expect(screen.getByText(/las contraseñas no coinciden/i)).toBeInTheDocument()
-  })
-
-  it('allows toggling password visibility', () => {
-    render(<UsuariosPage data-oid="raeow7y" />)
-
-    fireEvent.click(screen.getByText('Crear Usuario'))
-
-    const passwordInput = screen.getByLabelText(/^contraseña$/i)
-    expect(passwordInput.type).toBe('password')
-
-    // Find and click visibility toggle
-    const toggleButtons = screen.getAllByRole('button', { name: '' })
-    fireEvent.click(toggleButtons[0])
-
-    expect(passwordInput.type).toBe('text')
+  it('renders the dashboard team listing with invite and presence', () => {
+    expect(source).toContain('Equipo del dashboard')
+    expect(source).toContain('Enviar invitación')
+    expect(source).toContain('presenceFromTimestamps')
+    expect(source).toContain('/api/internal/invitations')
+    expect(source).not.toContain('#F2014B')
   })
 })

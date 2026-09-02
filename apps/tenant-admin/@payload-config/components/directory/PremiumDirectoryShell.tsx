@@ -270,18 +270,34 @@ export function DirectoryStaffIcons({
 }) {
   const items = staff.filter((item) => (item.name ?? '').trim().length > 0)
   if (items.length === 0) return null
+  const visible = items.slice(0, 2)
+  const extra = items.length - visible.length
+  const overflowNames = items.slice(2).map((item) => item.name).join(', ')
 
   return (
     <div
       data-slot="directory-staff-icons"
-      className={cn('flex min-w-0 items-center -space-x-1.5', className)}
+      className={cn('flex min-w-0 flex-nowrap items-center -space-x-1.5 overflow-hidden', className)}
     >
-      {items.map((item, index) => (
+      {visible.map((item, index) => (
         <DirectoryStaffIcon
           key={`${item.id ?? 'no-id'}-${item.name}-${index}`}
           staff={item}
         />
       ))}
+      {extra > 0 ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              className="relative z-10 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-background bg-muted text-xs font-medium tabular-nums"
+              aria-label={`${extra} docentes más`}
+            >
+              +{extra}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>{overflowNames}</TooltipContent>
+        </Tooltip>
+      ) : null}
     </div>
   )
 }

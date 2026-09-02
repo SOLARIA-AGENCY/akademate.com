@@ -410,6 +410,15 @@ export const Users: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'last_seen_at',
+      type: 'date',
+      admin: {
+        description: 'Last dashboard heartbeat',
+        readOnly: true,
+        position: 'sidebar',
+      },
+    },
 
     /**
      * Login Count - Total number of logins

@@ -31,6 +31,7 @@ import { Toaster } from '@payload-config/components/ui/sonner'
 import { RealtimeProvider } from '@payload-config/components/providers'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { NotificationProvider } from '@/app/providers/notifications'
+import { PresenceBeacon } from '@payload-config/components/layout/PresenceBeacon'
 
 interface SessionUser {
   id: string | number
@@ -93,6 +94,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <NotificationProvider>
+      <PresenceBeacon />
       <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
         <SidebarProvider
           className={DASHBOARD_SHELL_LOCKED_CLASS}

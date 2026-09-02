@@ -99,6 +99,9 @@ describe('chrome UI contract', () => {
     const home = read('app/(app)/(dashboard)/_components/DashboardHome.tsx')
     expect(home).toContain('data-testid="dashboard-home-range-bar"')
     expect(home).toContain('sticky top-0 z-20 isolate')
+    expect(home).toContain('bg-[hsl(var(--dashboard-canvas))]')
+    expect(home).toContain('after:from-[hsl(var(--dashboard-canvas))]')
+    expect(home).toContain('overflow-x-clip')
     expect(home).toContain('flex h-12 items-center')
     expect(home).toContain('flex flex-col gap-6 pt-6')
     expect(home).toContain("fetch('/api/leads?limit=50&sort=-createdAt'")
@@ -119,6 +122,11 @@ describe('chrome UI contract', () => {
     const course = read('app/(app)/(dashboard)/cursos/[id]/page.tsx')
     expect(home).toContain('overflow-x-auto')
     expect(home).toContain('min-w-[720px]')
+    expect(home).toContain('table-auto')
+    expect(home).toContain('whitespace-nowrap pr-6')
+    expect(home).toContain('dashboard-activity-scroll')
+    expect(home).toContain('from-[hsl(var(--card))]')
+    expect(home).not.toContain('#f2014b')
     expect(table).toContain('overflow-x-auto')
     expect(course).toContain('min-w-[720px]')
   })
@@ -148,9 +156,7 @@ describe('chrome UI contract', () => {
     const cycleItem = read('@payload-config/components/ui/CicloListItem.tsx')
     expect(courses).toContain("label: 'Horas'")
     expect(courseItem.indexOf('{hoursLabel}')).toBeLessThan(courseItem.indexOf('<Clock'))
-    expect(cycleItem).toContain(
-      '<span className="font-medium">{duracionLabel || `${ciclo.duracion_total_horas}h`}</span>',
-    )
+    expect(cycleItem).toContain('{duracionLabel || `${ciclo.duracion_total_horas} horas`}')
     expect(cycleItem).toContain('DirectoryNeutralBadge')
   })
 
