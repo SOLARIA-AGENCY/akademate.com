@@ -25,6 +25,7 @@ import {
   List,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import { TimePlanner, type PlannerBlock } from './TimePlanner'
 import {
   Select,
   SelectContent,
@@ -89,7 +90,7 @@ interface Campus {
   name: string
 }
 
-type ViewMode = 'anual' | 'mes' | 'semana' | 'dia' | 'lista'
+type ViewMode = 'anual' | 'mes' | 'semana' | 'dia' | 'lista' | 'planificador'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -698,7 +699,7 @@ export default function ProgramacionPage() {
     else if (view === 'mes') {
       if (month === 0) { setMonth(11); setYear((y) => y - 1) }
       else setMonth((m) => m - 1)
-    } else if (view === 'semana') setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 7); return n })
+    } else if (view === 'semana' || view === 'planificador') setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 7); return n })
     else setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 1); return n })
   }
 
@@ -707,14 +708,14 @@ export default function ProgramacionPage() {
     else if (view === 'mes') {
       if (month === 11) { setMonth(0); setYear((y) => y + 1) }
       else setMonth((m) => m + 1)
-    } else if (view === 'semana') setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 7); return n })
+    } else if (view === 'semana' || view === 'planificador') setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 7); return n })
     else setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 1); return n })
   }
 
   const navLabel = () => {
     if (view === 'anual') return String(year)
     if (view === 'mes') return `${MONTHS_FULL[month]} ${year}`
-    if (view === 'semana') {
+    if (view === 'semana' || view === 'planificador') {
       const end = new Date(selectedDate)
       end.setDate(end.getDate() + 6)
       return `${selectedDate.getDate()} ${MONTHS[selectedDate.getMonth()]} — ${end.getDate()} ${MONTHS[end.getMonth()]} ${year}`
@@ -751,6 +752,7 @@ export default function ProgramacionPage() {
     { key: 'semana', label: 'Semana', icon: Calendar },
     { key: 'dia', label: 'Dia', icon: Clock },
     { key: 'lista', label: 'Lista', icon: List },
+    { key: 'planificador', label: 'Planificador', icon: Clock },
   ]
 
   return (
@@ -841,6 +843,43 @@ export default function ProgramacionPage() {
 
       {!isLoading && view === 'semana' && (
         <WeekView convocatorias={filtered} weekStart={weekStart} holidays={HOLIDAYS_2026} onConvClick={handleConvClick} />
+      )}
+
+      {!isLoading && view === 'planificador' && (
+        <TimePlanner
+          blocks={filtered.flatMap((conv) => {
+            const days = Array.from({ length: 7 }, (_, index) => {
+              const date = new Date(weekStart)
+              date.setDate(weekStart.getDate() + index)
+              return date
+            })
+            const blocks: PlannerBlock[] = []
+            for (const date of days) {
+              const dayKey = formatDateKey(date)
+              if (!convocatoriaOnDate(conv, dayKey)) continue
+              const startHour = Number.parseInt(String(conv.horaInicio ?? '0').split(':')[0] || '0', 10)
+              const endHour = Number.parseInt(String(conv.horaFin ?? '0').split(':')[0] || '0', 10)
+              blocks.push({
+                id: `${conv.id}-${dayKey}`,
+                sourceId: conv.id,
+                title: conv.curso,
+                dayKey,
+                startHour,
+                endHour: endHour > startHour ? endHour : startHour + 1,
+                timeLabel: `${conv.horaInicio}-${conv.horaFin}`,
+                campus: conv.sede,
+                classroom: conv.aula,
+                teacher: conv.profesor,
+                fundingType: conv.tipo,
+                source: 'convocatoria',
+              })
+            }
+            return blocks
+          })}
+          weekStart={weekStart}
+          holidays={HOLIDAYS_2026}
+          onOpen={(block) => handleConvClick(block.sourceId)}
+        />
       )}
 
       {!isLoading && view === 'dia' && (

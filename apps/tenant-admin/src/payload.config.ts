@@ -23,6 +23,7 @@ import { Users } from './collections/Users/Users';
 import { AreasFormativas } from './collections/AreasFormativas/AreasFormativas';
 import { EntidadesFinanciadoras } from './collections/EntidadesFinanciadoras/EntidadesFinanciadoras';
 import { Courses } from './collections/Courses/Courses';
+import { ContinuousTrainings } from './collections/ContinuousTrainings/ContinuousTrainings';
 import { CourseRuns } from './collections/CourseRuns/CourseRuns';
 import { PlanningConflicts } from './collections/PlanningConflicts/PlanningConflicts';
 import { Classrooms } from './collections/Classrooms/Classrooms';
@@ -91,6 +92,7 @@ export const getPayloadConfig = () => buildConfig({
 
     // Courses
     Courses,
+    ContinuousTrainings,
     CourseRuns, // ✅ Scheduled course instances
     PlanningConflicts, // ✅ Operational planning conflict tracking
     Students, // ✅ Learner profiles with PII protection

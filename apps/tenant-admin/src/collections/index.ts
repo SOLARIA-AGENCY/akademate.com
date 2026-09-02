@@ -28,6 +28,7 @@ export { Users } from './Users';
 export { Cycles } from './Cycles';
 export { Campuses } from './Campuses';
 export { Courses } from './Courses';
+export { ContinuousTrainings } from './ContinuousTrainings/ContinuousTrainings';
 export { CourseRuns } from './CourseRuns/CourseRuns';
 export { PlanningConflicts } from './PlanningConflicts/PlanningConflicts';
 export { Leads } from './Leads';

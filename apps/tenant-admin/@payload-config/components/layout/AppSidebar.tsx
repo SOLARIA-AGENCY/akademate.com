@@ -40,6 +40,7 @@ import {
   ClipboardList,
   ScanLine,
   IdCard,
+  Infinity,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -122,6 +123,11 @@ const menuItems: MenuItemWithSection[] = [
     title: 'Ciclos',
     icon: GraduationCap,
     url: '/dashboard/ciclos',
+  },
+  {
+    title: 'Formación continua',
+    icon: Infinity,
+    url: '/dashboard/formacion-continua',
   },
   {
     title: 'Sedes',
