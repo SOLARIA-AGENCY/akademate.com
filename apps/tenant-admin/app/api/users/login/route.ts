@@ -10,6 +10,7 @@ import {
 } from '../../../../lib/rateLimit'
 import { queryRows } from '@/@payload-config/lib/db'
 import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
+import { parseRememberFlag, sessionTtlSeconds } from '@/app/lib/auth-session-ttl'
 
 /**
  * Custom Login API Route
@@ -45,8 +46,9 @@ export async function POST(request: Request) {
   try {
     // Use text() then JSON.parse to avoid Next.js 16 body parsing issues with special chars
     const text = await request.text()
-    const body = JSON.parse(text) as { email?: string; password?: string }
+    const body = JSON.parse(text) as { email?: string; password?: string; remember?: unknown }
     const { email, password } = body
+    const remember = parseRememberFlag(body.remember)
 
     // Validate required fields
     if (!email || !password) {
@@ -134,7 +136,7 @@ export async function POST(request: Request) {
       secure: isSecure,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: sessionTtlSeconds(remember),
       ...(cookieDomain ? { domain: cookieDomain } : {}),
     })
 

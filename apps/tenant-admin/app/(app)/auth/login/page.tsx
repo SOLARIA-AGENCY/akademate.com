@@ -72,6 +72,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           email: credentials.email,
           password: credentials.password,
+          remember: credentials.remember,
         }),
       })
 
@@ -90,6 +91,7 @@ export default function LoginPage() {
               role: data.user.role ?? 'admin',
             },
             token: data.token ?? '',
+            remember: credentials.remember,
           }),
         })
 

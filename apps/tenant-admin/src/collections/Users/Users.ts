@@ -100,9 +100,10 @@ export const Users: CollectionConfig = {
 
     /**
      * Token expiration
-     * Default is 7200 seconds (2 hours)
+     * 30 days so "Recordar mi sesión" can keep a valid JWT.
+     * Cookie maxAge still shortens the browser session when remember is off.
      */
-    tokenExpiration: 7200,
+    tokenExpiration: 60 * 60 * 24 * 30,
 
     /**
      * Enable API Key authentication

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
+import { parseRememberFlag, sessionTtlSeconds } from '@/app/lib/auth-session-ttl'
 
 export const dynamic = 'force-dynamic'
 const SESSION_COOKIE = 'akademate_session'
@@ -45,7 +46,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { user?: SessionUser; token?: string }
+    const body = (await request.json()) as { user?: SessionUser; token?: string; remember?: unknown }
+    const remember = parseRememberFlag(body.remember)
     if (!body.user?.email) {
       return NextResponse.json({ error: 'Invalid session payload' }, { status: 400 })
     }
@@ -63,7 +65,7 @@ export async function POST(request: Request) {
       secure: process.env.ENFORCE_HTTPS === 'true',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 12,
+      maxAge: sessionTtlSeconds(remember),
       ...(cookieDomain ? { domain: cookieDomain } : {}),
     } as const
 

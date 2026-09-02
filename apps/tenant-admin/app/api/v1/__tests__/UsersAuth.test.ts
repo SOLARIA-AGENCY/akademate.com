@@ -42,10 +42,10 @@ describe('Users Collection — Auth Config', () => {
     expect(auth.lockTime).toBe(900000)
   })
 
-  it('tiene tokenExpiration configurado a 7200s (2 horas)', () => {
+  it('tiene tokenExpiration configurado a 30 días para recordar sesión', () => {
     const auth = Users.auth as any
 
-    expect(auth.tokenExpiration).toBe(7200)
+    expect(auth.tokenExpiration).toBe(60 * 60 * 24 * 30)
   })
 
   // --------------------------------------------------------------------------
