@@ -1,5 +1,7 @@
 # Mapping master. 2026-08-28
 
+Prefab SaaS doctrine (Motor/Kit/Ensamble): see [../AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md](../AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md).
+
 Fase 0 del spec `AKADEMATE-MASTER-ARCHITECTURE-2026-08-28.md` seccion 27.1 y 30. Inventario del monorepo real frente al modelo objetivo. Metodo. AUDITAR, mapear KEEP/EVOLVE/SPLIT/DEPRECATE/NEW, migrar por capability. Sin big-bang. Sin tablas paralelas cuando el existente puede evolucionar.
 
 Leyenda

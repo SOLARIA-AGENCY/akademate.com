@@ -4,6 +4,8 @@
 **Last Updated:** March 2026
 **Status:** Production — Hetzner Docker Stack
 
+**Related doctrine:** [Prefab SaaS Doctrine](./AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md) · [Prefab SaaS Prompt](./PREFAB-SAAS-PROMPT.md) (Motor → Kit → Ensamble). Production topology below remains **Hetzner**; do not treat Cloudflare serverless as current prod.
+
 ---
 
 ## Diagrama de Infraestructura (Mermaid)
@@ -267,17 +269,6 @@ Akademate is a multi-tenant SaaS platform for training institutions. The archite
 | Unit Tests | 641 |
 | E2E Tests | 44 |
 | Quality Score | 7.0/10 |
-
----
-
-## Prefab SaaS (doctrina comercial)
-
-Canon de producto prefabricado (Motor → Kit → Ensamble). Complementa este documento; no sustituye el stack de producción descrito arriba (Hetzner vigente).
-
-- [AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md](./AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md) — doctrina canónica
-- [PREFAB-SAAS-PROMPT.md](./PREFAB-SAAS-PROMPT.md) — prompt forget-proof para agentes
-
-Orden cash: Motor → Kit → un vertical S (p.ej. Yoga) → módulos. No afirmar Cloudflare serverless como producción aquí.
 
 ---
 
