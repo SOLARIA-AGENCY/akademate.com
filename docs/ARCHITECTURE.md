@@ -4,6 +4,8 @@
 **Last Updated:** March 2026
 **Status:** Production — Hetzner Docker Stack
 
+**Related doctrine:** [Prefab SaaS Doctrine](./AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md) · [Prefab SaaS Prompt](./PREFAB-SAAS-PROMPT.md) (Motor → Kit → Ensamble). Production topology below remains **Hetzner**; do not treat Cloudflare serverless as current prod.
+
 ---
 
 ## Diagrama de Infraestructura (Mermaid)
