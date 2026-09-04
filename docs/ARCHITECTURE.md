@@ -270,6 +270,17 @@ Akademate is a multi-tenant SaaS platform for training institutions. The archite
 
 ---
 
+## Prefab SaaS (doctrina comercial)
+
+Canon de producto prefabricado (Motor → Kit → Ensamble). Complementa este documento; no sustituye el stack de producción descrito arriba (Hetzner vigente).
+
+- [AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md](./AKADEMATE-PREFAB-SAAS-DOCTRINE-2026-09-04.md) — doctrina canónica
+- [PREFAB-SAAS-PROMPT.md](./PREFAB-SAAS-PROMPT.md) — prompt forget-proof para agentes
+
+Orden cash: Motor → Kit → un vertical S (p.ej. Yoga) → módulos. No afirmar Cloudflare serverless como producción aquí.
+
+---
+
 ## System Architecture
 
 ```
