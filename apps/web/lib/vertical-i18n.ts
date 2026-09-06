@@ -2,6 +2,17 @@ import type { Locale } from '@/lib/i18n/routing'
 import { solutionDetails, verticals } from '@/lib/marketing-content'
 import { spanishVerticalProductStories } from '@/lib/vertical-product-stories.es'
 import { verticalProductStories } from '@/lib/vertical-product-stories'
+import {
+  type VerticalLandingCopy,
+  type VerticalProofQuote,
+  type VerticalSlug,
+  verticalLandingContent,
+  verticalProofQuotes,
+} from '@/lib/vertical-landing-content'
+import {
+  spanishVerticalLandingContent,
+  spanishVerticalProofQuotes,
+} from '@/lib/vertical-landing-content.es'
 
 export type LocalizedVertical = {
   slug: string
@@ -23,15 +34,33 @@ export type LocalizedVerticalProductStory = (typeof verticalProductStories)[stri
 export const verticalPageChrome = {
   en: {
     heroPrefix: 'Akademate for',
-    heroCta: 'Start free trial',
+    heroCta: 'Book a demo',
+    heroSecondaryCta: 'Start free trial',
+    heroTrust: 'GDPR-compliant · Stripe, PayPal & SEPA',
     outcomesTitle: 'A smoother journey for everyone.',
     experienceEyebrow: 'A product experience shaped around your model',
     experienceTitle: 'See the workflow come together.',
     experienceDescription: 'Explore a workflow shaped around this academy model.',
     poweredBy: 'Powered by',
+    proofEyebrow: 'A real academy, live today',
+    proofTitle: 'Rated by the learners of our live academy.',
+    proofLink: 'See the live academy',
+    integrationsEyebrow: 'Ecosystem',
+    integrationsTitle: 'Connect your academy ecosystem.',
+    integrationsDescription:
+      'Stripe, PayPal and SEPA for payments; Meta Ads and CAPI for demand; email, webhooks and messaging for operations.',
+    exploreModules: 'Explore every module',
+    pricingEyebrow: 'Plans',
+    pricingTitle: 'Plans that match your scale.',
+    pricingDescription:
+      'Launch one programme, run the complete academy, or scale a group on dedicated infrastructure.',
+    comparePlans: 'Compare plans',
+    bridgeTitle: 'Built for every academy model.',
+    bridgeDescription: 'One platform, one operating model, shaped for each academy.',
+    faqEyebrow: 'FAQ',
     closingTitle: 'Build a better academy.',
     closingDescription: 'Map your programmes, people and locations.',
-    closingCta: 'Start free trial',
+    closingCta: 'Book a demo',
     designedFor: 'Designed for your',
     operatingContext: 'Example operating context',
     illustrativeExample: 'Illustrative product example',
@@ -39,15 +68,33 @@ export const verticalPageChrome = {
   },
   es: {
     heroPrefix: 'Akademate para',
-    heroCta: 'Empieza la prueba gratis',
+    heroCta: 'Reservar una demo',
+    heroSecondaryCta: 'Empieza la prueba gratis',
+    heroTrust: 'Cumple el RGPD · Stripe, PayPal y SEPA',
     outcomesTitle: 'Un recorrido más ágil para todos.',
     experienceEyebrow: 'Una experiencia de producto adaptada a tu modelo',
     experienceTitle: 'Descubre cómo se conecta el flujo de trabajo.',
     experienceDescription: 'Explora un flujo de trabajo diseñado para este modelo de academia.',
     poweredBy: 'Con la tecnología de',
+    proofEyebrow: 'Una academia real, en producción hoy',
+    proofTitle: 'Con las reseñas del alumnado de nuestra academia en vivo.',
+    proofLink: 'Ver la academia en vivo',
+    integrationsEyebrow: 'Ecosistema',
+    integrationsTitle: 'Conecta el ecosistema de tu academia.',
+    integrationsDescription:
+      'Stripe, PayPal y SEPA para pagos; Meta Ads y CAPI para demanda; email, webhooks y mensajería para operaciones.',
+    exploreModules: 'Explora cada módulo',
+    pricingEyebrow: 'Planes',
+    pricingTitle: 'Planes que se ajustan a tu escala.',
+    pricingDescription:
+      'Lanza un programa, gestiona la academia completa o escala un grupo con infraestructura dedicada.',
+    comparePlans: 'Comparar planes',
+    bridgeTitle: 'Diseñado para cada modelo de academia.',
+    bridgeDescription: 'Una plataforma, un modelo operativo, adaptado a cada academia.',
+    faqEyebrow: 'Preguntas frecuentes',
     closingTitle: 'Construye una academia mejor.',
     closingDescription: 'Conecta tus programas, personas y sedes.',
-    closingCta: 'Empieza la prueba gratis',
+    closingCta: 'Reservar una demo',
     designedFor: 'Diseñado para tu',
     operatingContext: 'Ejemplo de contexto operativo',
     illustrativeExample: 'Ejemplo ilustrativo de producto',
@@ -125,7 +172,7 @@ const spanishVerticalMeta: Record<
 
 const spanishDetails: Record<string, LocalizedSolutionDetail> = {
   'professional-training': {
-    headline: 'Llena cohortes. Imparte con confianza.',
+    headline: 'Software para centros de formación que llena cada cohorte',
     promise: 'Conecta admisiones, impartición y progreso para cada cohorte.',
     outcomes: [
       'Convierte más consultas en solicitudes cualificadas',
@@ -142,7 +189,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     modules: ['CRM de admisiones', 'Cohortes y horarios', 'Campus del alumno', 'Pagos e informes'],
   },
   languages: {
-    headline: 'Llena clases. Simplifica horarios.',
+    headline: 'Software para academias de idiomas que llena cada nivel',
     promise: 'Conecta nivelación, grupos, facturación y aprendizaje híbrido.',
     outcomes: [
       'Orienta al alumnado al nivel adecuado',
@@ -154,7 +201,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     modules: ['Nivelación y CRM', 'Niveles y grupos', 'Facturación recurrente', 'Campus híbrido'],
   },
   wellness: {
-    headline: 'Crea un estudio al que los socios vuelvan.',
+    headline: 'Software para estudios de yoga que llena cada clase',
     promise: 'Haz que cada clase sea fácil de descubrir, reservar y renovar.',
     outcomes: [
       'Facilita la reserva recurrente',
@@ -166,7 +213,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     modules: ['Reserva de clases', 'Membresías', 'Horarios de instructores', 'Datos de retención'],
   },
   sports: {
-    headline: 'Gestiona la temporada. Haz crecer a cada deportista.',
+    headline: 'Software para academias deportivas que coordina cada temporada',
     promise: 'Coordina pruebas, equipos, tutores y progreso deportivo.',
     outcomes: [
       'Convierte pruebas en plazas confirmadas',
@@ -183,7 +230,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     ],
   },
   seasonal: {
-    headline: 'Lanza tu próximo campamento en días.',
+    headline: 'Software para campamentos que lanza y llena tu temporada',
     promise: 'Publica, llena y gestiona cada programa de temporada.',
     outcomes: [
       'Publica rápidamente un programa reservable',
@@ -200,7 +247,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     ],
   },
   'performing-arts': {
-    headline: 'Mantén las actuaciones a ritmo.',
+    headline: 'Software para academias de música que mantiene el ritmo de cada clase',
     promise: 'Mantén a ritmo las clases, los estudios, las familias y las actuaciones.',
     outcomes: [
       'Simplifica la matrícula recurrente',
@@ -217,7 +264,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     ],
   },
   'online-cohorts': {
-    headline: 'Convierte cada cohorte en una comunidad.',
+    headline: 'Software de cursos por cohortes que convierte cada cohorte en comunidad',
     promise: 'Une matrícula, aprendizaje en directo, comunidad y progreso.',
     outcomes: [
       'Crea un recorrido de matrícula premium',
@@ -234,7 +281,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     ],
   },
   'driving-schools': {
-    headline: 'Llena la agenda. Aprueba más exámenes.',
+    headline: 'Software para autoescuelas que llena la agenda',
     promise: 'Conecta clases, vehículos, exámenes y cobros en un solo expediente.',
     outcomes: [
       'Convierte consultas en clases confirmadas',
@@ -251,7 +298,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     ],
   },
   'coding-academies': {
-    headline: 'Entrega proyectos. Coloca egresados.',
+    headline: 'Software para academias de programación que convierte cohortes en carreras',
     promise: 'Conecta cohortes, trabajo de proyecto, mentores y resultados de empleo.',
     outcomes: [
       'Llena la siguiente cohorte sin perder solicitudes',
@@ -268,7 +315,7 @@ const spanishDetails: Record<string, LocalizedSolutionDetail> = {
     ],
   },
   networks: {
-    headline: 'Una marca. Cada sede bajo control.',
+    headline: 'Software multisede para grupos y franquicias de academias',
     promise: 'Escala estándares compartidos mientras cada sede mantiene el control.',
     outcomes: [
       'Abre sedes con estándares compartidos',
@@ -307,4 +354,22 @@ export function getLocalizedVerticalProductStory(
   locale: Locale
 ): LocalizedVerticalProductStory | undefined {
   return locale === 'es' ? spanishVerticalProductStories[slug] : verticalProductStories[slug]
+}
+
+export function getVerticalLandingCopy(
+  slug: string,
+  locale: Locale
+): VerticalLandingCopy | undefined {
+  const copy = verticalLandingContent[slug as VerticalSlug]
+  if (!copy) return undefined
+  if (locale === 'en') return copy
+  const localized = spanishVerticalLandingContent[slug as VerticalSlug]
+  if (!localized) throw new Error(`Missing Spanish vertical landing copy: ${slug}`)
+  return localized
+}
+
+export function getVerticalProofQuotes(slug: string, locale: Locale): readonly VerticalProofQuote[] {
+  return locale === 'es'
+    ? (spanishVerticalProofQuotes[slug as VerticalSlug] ?? [])
+    : (verticalProofQuotes[slug as VerticalSlug] ?? [])
 }

@@ -324,7 +324,7 @@ export const verticals = [
 
 export const solutionDetails = {
   'professional-training': {
-    headline: 'Fill cohorts. Deliver with confidence.',
+    headline: 'Training center software that fills every cohort',
     promise: 'Connect admissions, delivery and progress for every cohort.',
     outcomes: [
       'Convert more enquiries into qualified applications',
@@ -346,7 +346,7 @@ export const solutionDetails = {
     ],
   },
   languages: {
-    headline: 'Fill classes. Simplify schedules.',
+    headline: 'Language academy software that fills every level',
     promise: 'Connect placement, groups, billing and hybrid learning.',
     outcomes: [
       'Route learners to the right level',
@@ -358,7 +358,7 @@ export const solutionDetails = {
     modules: ['Placement and CRM', 'Levels and groups', 'Recurring billing', 'Hybrid campus'],
   },
   wellness: {
-    headline: 'Build a studio members return to.',
+    headline: 'Yoga studio software that fills every class',
     promise: 'Make every class easy to discover, book and renew.',
     outcomes: [
       'Make repeat booking effortless',
@@ -370,7 +370,7 @@ export const solutionDetails = {
     modules: ['Class booking', 'Memberships', 'Instructor schedules', 'Retention insight'],
   },
   sports: {
-    headline: 'Run the season. Grow every athlete.',
+    headline: 'Sports academy software that runs every season',
     promise: 'Coordinate trials, teams, guardians and athlete progress.',
     outcomes: [
       'Turn trials into confirmed places',
@@ -387,7 +387,7 @@ export const solutionDetails = {
     ],
   },
   seasonal: {
-    headline: 'Launch your next camp in days.',
+    headline: 'Camp software that launches and fills your season',
     promise: 'Publish, fill and run every seasonal programme.',
     outcomes: [
       'Publish a bookable programme quickly',
@@ -404,7 +404,7 @@ export const solutionDetails = {
     ],
   },
   'performing-arts': {
-    headline: 'Keep performances in rhythm.',
+    headline: 'Music school software that keeps every lesson on tempo',
     promise: 'Keep lessons, studios, families and performances in rhythm.',
     outcomes: [
       'Simplify recurring enrolment',
@@ -416,7 +416,7 @@ export const solutionDetails = {
     modules: ['Recurring lessons', 'Studio scheduling', 'Family accounts', 'Events and progress'],
   },
   'online-cohorts': {
-    headline: 'Build every cohort into a community.',
+    headline: 'Cohort course software that turns cohorts into community',
     promise: 'Unite enrolment, live learning, community and progress.',
     outcomes: [
       'Create a premium enrolment journey',
@@ -433,7 +433,7 @@ export const solutionDetails = {
     ],
   },
   'driving-schools': {
-    headline: 'Fill the diary. Pass more exams.',
+    headline: 'Driving school software that fills the diary',
     promise: 'Connect lessons, vehicles, exams and payments in one school record.',
     outcomes: [
       'Turn enquiries into confirmed driving lessons',
@@ -450,7 +450,7 @@ export const solutionDetails = {
     ],
   },
   'coding-academies': {
-    headline: 'Ship projects. Place graduates.',
+    headline: 'Coding academy software that turns cohorts into careers',
     promise: 'Connect cohorts, project work, mentors and hiring outcomes.',
     outcomes: [
       'Fill the next cohort without losing applicants',
@@ -462,7 +462,7 @@ export const solutionDetails = {
     modules: ['Cohort admissions', 'Project campus', 'Mentor workspace', 'Portfolio and placement'],
   },
   networks: {
-    headline: 'One brand. Every location in control.',
+    headline: 'Multi-site academy software for groups and franchises',
     promise: 'Scale shared standards while every location stays in control.',
     outcomes: [
       'Launch new locations with shared standards',
