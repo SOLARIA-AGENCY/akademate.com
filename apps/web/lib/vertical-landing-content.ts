@@ -375,3 +375,18 @@ export const verticalProofQuotes: Partial<Record<VerticalSlug, readonly Vertical
     { quote: 'The best academy on the island.', author: 'Mr. Avocato' },
   ],
 }
+
+// Add-on chips shown on each vertical landing (ids reference paidExtensions
+// in lib/pricing-content.ts; ids are locale-neutral so no ES mirror is needed).
+export const verticalAddonChips: Record<VerticalSlug, readonly string[]> = {
+  'professional-training': ['access', 'agentic'],
+  wellness: ['signage', 'agentic'],
+  sports: ['access', 'signage'],
+  languages: ['growth', 'agentic'],
+  'driving-schools': ['access', 'growth'],
+  seasonal: ['access', 'signage'],
+  'coding-academies': ['growth', 'agentic'],
+  'performing-arts': ['growth', 'signage'],
+  'online-cohorts': ['agentic', 'growth'],
+  networks: ['access', 'finance'],
+}

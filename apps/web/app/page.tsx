@@ -365,8 +365,13 @@ export default async function HomePage() {
                 </article>
               ))}
             </div>
+            <p className="mt-8 max-w-3xl text-sm leading-6 text-slate-600">
+              {tx(
+                'Every plan can add specialist modules: access control, digital signage, AI and growth landings. Your own domain works on any plan.'
+              )}
+            </p>
             <Link
-              href={href('/pricing')}
+              href={href('/pricing#paid-extensions')}
               className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
               {tx('Compare plans')} <ArrowRight className="h-4 w-4" aria-hidden="true" />

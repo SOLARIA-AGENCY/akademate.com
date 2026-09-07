@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { solutionDetails, verticals } from '@/lib/marketing-content'
+import { paidExtensions } from '@/lib/pricing-content'
 import {
   getVerticalLandingCopy,
   getVerticalProofQuotes,
   verticalPageChrome,
 } from '@/lib/vertical-i18n'
 import {
+  verticalAddonChips,
   verticalLandingContent,
   verticalProofQuotes,
 } from '@/lib/vertical-landing-content'
@@ -74,6 +76,19 @@ describe('vertical landing content', () => {
   it('keeps every localized headline present for the 10 landings', () => {
     for (const { slug } of verticals) {
       expect(solutionDetails[slug].headline.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('keeps add-on chips valid for every vertical', () => {
+    const extensionIds = paidExtensions.map((extension) => extension.id) as string[]
+    for (const { slug } of verticals) {
+      const chips = verticalAddonChips[slug]
+      expect(chips).toBeDefined()
+      expect(chips.length).toBeGreaterThan(0)
+      expect(new Set(chips).size).toBe(chips.length)
+      for (const id of chips) {
+        expect(extensionIds).toContain(id)
+      }
     }
   })
 })

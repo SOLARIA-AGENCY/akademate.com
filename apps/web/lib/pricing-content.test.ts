@@ -44,7 +44,18 @@ describe('public pricing entitlements', () => {
 
   it('separates Akademate extensions from hardware and provider costs', () => {
     expect(paidExtensions).toHaveLength(8)
-    expect(paidExtensions.every((extension) => extension.includes.length === 3)).toBe(true)
+    expect(paidExtensions.every((extension) => extension.includes.length >= 3)).toBe(true)
+    expect(
+      paidExtensions.every(
+        (extension) => extension.status === 'live' || extension.status === 'coming-soon'
+      )
+    ).toBe(true)
+    expect(paidExtensions.filter((extension) => extension.status === 'coming-soon').map((extension) => extension.id)).toEqual([
+      'access',
+      'signage',
+      'resources',
+    ])
+    expect(paidExtensions.every((extension) => extension.metering.length > 10)).toBe(true)
     expect(paidExtensions.every((extension) => extension.separateCosts.length > 20)).toBe(true)
     expect(JSON.stringify(separatelyBilledItems)).toMatch(/hardware|readers|sensors/i)
     expect(JSON.stringify(separatelyBilledItems)).toMatch(/screens|players|installation/i)

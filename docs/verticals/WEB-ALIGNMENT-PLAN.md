@@ -1,5 +1,7 @@
 # WEB-ALIGNMENT-PLAN: llevar el plan de negocio a la web pública (sin precios)
 
+**ESTADO: IMPLEMENTADO (2026-09-07) sobre `feat/vertical-landings`.** Cambios de código: W1-W5 completos (marketplace add-ons con estados/metering/imágenes, línea DFY en growth, bloque Deployment, FAQs +4, copy /features multi-proveedor + imagen NFC, línea home, chips por vertical). Verificación: 112/112 tests, tsc limpio, next build OK. Las 8 imágenes llegaron por handoff y están en disco (driving v2 con QA visual aprobado). No implementado por decisión: card Solo en web, FAQPage JSON-LD.
+
 Plan de implementación PROPUESTO (nada ejecutado aún). Consume BUSINESS-PLAN.md + ADD-ONS.md. Fecha: 2026-09-07. Rama de trabajo: `feat/vertical-landings` (worktree `akademate-public-expansion`).
 
 ---

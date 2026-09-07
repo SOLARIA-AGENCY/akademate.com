@@ -62,6 +62,39 @@ const extensionIcons = [
   Cable,
 ] as const
 
+const extensionImages: Partial<
+  Record<string, { src: string; alt: { en: string; es: string } }>
+> = {
+  access: {
+    src: '/images/marketing/akademate-access-nfc-tap-v1.jpg',
+    alt: {
+      en: 'Close-up of a phone tapping a wall access reader with a green ring at an academy entrance',
+      es: 'Primer plano de un móvil pasando por un lector de acceso con anillo verde en la entrada de una academia',
+    },
+  },
+  signage: {
+    src: '/images/marketing/akademate-signage-reception-v1.jpg',
+    alt: {
+      en: 'Reception screen showing today’s class schedule with a QR code',
+      es: 'Pantalla de recepción con el horario de clases del día y un código QR',
+    },
+  },
+  growth: {
+    src: '/images/marketing/akademate-growth-landing-v1.png',
+    alt: {
+      en: 'Akademate campaign landing page builder with a UTM attribution panel (illustrative)',
+      es: 'Creador de landings de campaña de Akademate con panel de atribución UTM (ilustrativo)',
+    },
+  },
+  agentic: {
+    src: '/images/marketing/akademate-ai-sidebar-agent-v1.png',
+    alt: {
+      en: 'Akademate AI assistant answering in the side panel (illustrative product example)',
+      es: 'Asistente de IA de Akademate respondiendo en el panel lateral (ejemplo ilustrativo de producto)',
+    },
+  },
+}
+
 export default async function PricingPage() {
   const locale = await getRequestLocale()
   const dictionary = getDictionary(locale)
@@ -186,22 +219,44 @@ export default async function PricingPage() {
             <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/15 bg-white/15 md:grid-cols-2 lg:grid-cols-4">
               {pricing.extensions.map((extension, index) => {
                 const Icon = extensionIcons[index] ?? Cable
+                const image = extensionImages[extension.id]
+                const comingSoon = extension.status === 'coming-soon'
                 return (
                   <article key={extension.id} className="bg-[#0a1b3b] p-6 sm:p-7">
+                    {image && (
+                      <div className="relative mb-6 aspect-[3/2] overflow-hidden rounded-xl border border-white/10">
+                        <Image
+                          src={image.src}
+                          alt={locale === 'es' ? image.alt.es : image.alt.en}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 25vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                     <div className="flex items-center justify-between gap-4">
                       <Icon
                         className="h-6 w-6 text-blue-300"
                         strokeWidth={1.75}
                         aria-hidden="true"
                       />
-                      <span className="rounded-full bg-blue-400/15 px-3 py-1 text-xs font-semibold text-blue-200">
-                        {page.extensionLabel}
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          comingSoon
+                            ? 'bg-white/10 text-blue-100'
+                            : 'bg-blue-400/15 text-blue-200'
+                        }`}
+                      >
+                        {comingSoon ? page.comingSoonLabel : page.extensionLabel}
                       </span>
                     </div>
                     <h3 className="mt-7 text-2xl font-semibold tracking-tight">
                       {extension.title}
                     </h3>
                     <p className="mt-3 text-sm leading-6 text-blue-100/65">{extension.summary}</p>
+                    <p className="mt-3 text-xs font-semibold text-blue-300">
+                      {extension.metering}
+                    </p>
                     <ul className="mt-6 space-y-3 text-sm text-blue-50">
                       {extension.includes.map((item) => (
                         <li key={item} className="flex items-start gap-2">
@@ -213,12 +268,46 @@ export default async function PricingPage() {
                         </li>
                       ))}
                     </ul>
+                    {'service' in extension && extension.service ? (
+                      <p className="mt-5 rounded-xl bg-blue-400/10 px-4 py-3 text-xs leading-5 text-blue-100">
+                        {extension.service}
+                      </p>
+                    ) : null}
                     <p className="mt-6 border-t border-white/10 pt-5 text-xs leading-5 text-blue-100/55">
                       {page.extraCosts} {extension.separateCosts}
                     </p>
                   </article>
                 )
               })}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="deployment"
+          data-testid="pricing-deployment"
+          className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
+        >
+          <div className="mx-auto max-w-7xl">
+            <p className="text-sm font-semibold text-blue-700">{page.deploymentEyebrow}</p>
+            <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+              {page.deploymentTitle}
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+              {page.deploymentDescription}
+            </p>
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {page.deploymentOptions.map((option) => (
+                <article key={option.name} className="rounded-2xl border border-slate-200 p-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold">{option.name}</h3>
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800">
+                      {option.tag}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{option.text}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>

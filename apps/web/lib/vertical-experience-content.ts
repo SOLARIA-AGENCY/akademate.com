@@ -271,7 +271,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       title: 'Fill the diary and keep every learner moving.',
       description:
         'Reception, instructors and learners share the same view of slots, vehicles and exam dates.',
-      image: '/images/marketing/akademate-driving-school.jpg',
+      image: '/images/marketing/akademate-driving-school-v2.jpg',
       imageAlt: 'Driving instructor with a learner in a dual-control car during a lesson',
       roles: [
         { title: 'School owners', text: 'Shape packs, cars and instructor load.' },
@@ -285,7 +285,7 @@ const content: Record<string, Record<Locale, VerticalExperienceContent>> = {
       title: 'Llena la agenda y avanza a cada alumno.',
       description:
         'Recepción, instructores y alumnado comparten huecos, vehículos y fechas de examen.',
-      image: '/images/marketing/akademate-driving-school.jpg',
+      image: '/images/marketing/akademate-driving-school-v2.jpg',
       imageAlt: 'Instructor de autoescuela con un alumno en un coche de doble mando',
       roles: [
         { title: 'Dirección', text: 'Configura bonos, coches y carga de instructores.' },

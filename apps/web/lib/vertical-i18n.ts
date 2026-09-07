@@ -50,6 +50,7 @@ export const verticalPageChrome = {
     integrationsDescription:
       'Stripe, PayPal and SEPA for payments; Meta Ads and CAPI for demand; email, webhooks and messaging for operations.',
     exploreModules: 'Explore every module',
+    comingSoonLabel: 'Coming soon',
     pricingEyebrow: 'Plans',
     pricingTitle: 'Plans that match your scale.',
     pricingDescription:
@@ -84,6 +85,7 @@ export const verticalPageChrome = {
     integrationsDescription:
       'Stripe, PayPal y SEPA para pagos; Meta Ads y CAPI para demanda; email, webhooks y mensajería para operaciones.',
     exploreModules: 'Explora cada módulo',
+    comingSoonLabel: 'Próximamente',
     pricingEyebrow: 'Planes',
     pricingTitle: 'Planes que se ajustan a tu escala.',
     pricingDescription:

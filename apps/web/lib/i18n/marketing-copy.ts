@@ -56,6 +56,8 @@ export const spanishMarketingCopy = {
   'Choose the operating scope you need.': 'Elige el alcance operativo que necesitas.',
   'Launch one programme, grow an academy or run a network.':
     'Lanza un programa, haz crecer una academia o gestiona una red.',
+  'Every plan can add specialist modules: access control, digital signage, AI and growth landings. Your own domain works on any plan.':
+    'Cada plan puede añadir módulos especializados: control de accesos, señalización digital, IA y landings de crecimiento. Tu propio dominio funciona en cualquier plan.',
   'Compare plans': 'Comparar planes',
   'Insights and product news.': 'Ideas y novedades de producto.',
   'Latest insight': 'Última guía',
@@ -207,14 +209,20 @@ export const spanishMarketingCopy = {
   'Optional capability': 'Capacidad opcional',
   'Permission-aware assistance with human review.':
     'Asistencia según permisos con revisión humana.',
+  'Bring your own AI via free MCP, or use the built-in assistant, permission-aware and with human review.':
+    'Trae tu propia IA vía MCP gratuito, o usa el asistente integrado, según permisos y con revisión humana.',
   'Attendance and physical access': 'Asistencia y acceso físico',
   'Campus operations roadmap': 'Hoja de ruta de operación del campus',
   'QR check-in, NFC and RFID cards, readers and attendance sync.':
     'Check-in QR, tarjetas NFC/RFID, lectores y sincronización de asistencia.',
+  'QR check-in, NFC and RFID identities, multi-provider reader adapters and attendance sync.':
+    'Check-in QR, identidades NFC/RFID, adaptadores multi-proveedor de lectores y sincronización de asistencia.',
   'Digital signage': 'Señalización digital',
   'Campus communications roadmap': 'Hoja de ruta de comunicación del campus',
   'Multi-site screens, scheduled playlists, announcements and device status.':
     'Pantallas multisedes, listas programadas, anuncios y estado de dispositivos.',
+  'Multi-site screens, scheduled playlists, announcements and device status, with your choice of screen provider.':
+    'Pantallas multisedes, listas programadas, anuncios y estado de dispositivos, con el proveedor de pantallas que elijas.',
   'Built around every academy model': 'Diseñado para cada modelo de academia',
   'Akademate trust signals': 'Señales de confianza de Akademate',
   'Learner-rated experience': 'Experiencia valorada por alumnos',

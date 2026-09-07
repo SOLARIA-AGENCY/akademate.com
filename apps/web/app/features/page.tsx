@@ -88,6 +88,7 @@ export default async function FeaturesPage() {
   }))
   const roadmap = roadmapModules.map((module) => ({
     ...module,
+    sourceTitle: module.title,
     title: tx(module.title),
     phase: tx(module.phase),
     text: tx(module.text),
@@ -251,15 +252,30 @@ export default async function FeaturesPage() {
               {roadmap.map((module, index) => {
                 const Icon = roadmapIcons[index] ?? Code2
                 return (
-                  <article
-                    key={module.title}
-                    className="border-b border-slate-200 p-7 md:border-r lg:min-h-[280px] lg:p-9"
-                  >
-                    <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
-                    <p className="mt-8 text-sm font-semibold text-blue-700">{module.phase}</p>
-                    <h3 className="mt-3 text-2xl font-semibold tracking-tight">{module.title}</h3>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">{module.text}</p>
-                  </article>
+                <article
+                  key={module.title}
+                  className="border-b border-slate-200 p-7 md:border-r lg:min-h-[280px] lg:p-9"
+                >
+                  <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
+                  <p className="mt-8 text-sm font-semibold text-blue-700">{module.phase}</p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight">{module.title}</h3>
+                  <p className="mt-4 text-sm leading-6 text-slate-600">{module.text}</p>
+                  {module.sourceTitle === 'Attendance and physical access' && (
+                    <div className="relative mt-6 aspect-[3/2] overflow-hidden rounded-xl border border-slate-200">
+                      <Image
+                        src="/images/marketing/akademate-access-nfc-tap-v1.jpg"
+                        alt={
+                          locale === 'es'
+                            ? 'Primer plano de un móvil pasando por un lector de acceso con anillo verde en la entrada de una academia'
+                            : 'Close-up of a phone tapping a wall access reader with a green ring at an academy entrance'
+                        }
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </article>
                 )
               })}
             </div>

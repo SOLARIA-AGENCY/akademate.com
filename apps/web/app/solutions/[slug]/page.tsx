@@ -11,6 +11,7 @@ import { localizedHref } from '@/lib/i18n/routing'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { integrationPillars, verticals } from '@/lib/marketing-content'
 import { getPricingContent } from '@/lib/pricing-i18n'
+import { verticalAddonChips, type VerticalSlug } from '@/lib/vertical-landing-content'
 import { getVerticalExperienceContent } from '@/lib/vertical-experience-content'
 import {
   getLocalizedSolutionDetail,
@@ -75,6 +76,9 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
     .filter((item) => item.slug !== slug)
     .map((item) => getLocalizedVertical(item.slug, locale))
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
+  const addonChips = (verticalAddonChips[slug as VerticalSlug] ?? [])
+    .map((id) => pricing.extensions.find((extension) => extension.id === id))
+    .filter((extension): extension is (typeof pricing.extensions)[number] => Boolean(extension))
   const href = (path: string) => localizedHref(path, locale)
   const demoHref = href(`/contacto?asunto=demo&vertical=${slug}`)
   const trialHref = href(`/registro?asunto=trial&vertical=${slug}`)
@@ -276,6 +280,24 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             <p className="mt-6 max-w-2xl text-sm leading-6 text-slate-600">
               {landing.integrationNote}
             </p>
+            {addonChips.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {addonChips.map((addon) => (
+                  <Link
+                    key={addon.id}
+                    href={href('/pricing#paid-extensions')}
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                      addon.status === 'coming-soon'
+                        ? 'border-slate-200 text-slate-500 hover:border-slate-300'
+                        : 'border-blue-200 bg-blue-50 text-blue-800 hover:border-blue-300'
+                    }`}
+                  >
+                    {addon.title}
+                    {addon.status === 'coming-soon' ? ` · ${chrome.comingSoonLabel}` : ''}
+                  </Link>
+                ))}
+              </div>
+            )}
             <Link
               href={href('/features')}
               className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 underline-offset-4 hover:underline"

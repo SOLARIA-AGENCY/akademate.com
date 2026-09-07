@@ -225,17 +225,17 @@ export const roadmapModules = [
   {
     title: 'AI-assisted operations',
     phase: 'Optional capability',
-    text: 'Permission-aware assistance with human review.',
+    text: 'Bring your own AI via free MCP, or use the built-in assistant, permission-aware and with human review.',
   },
   {
     title: 'Attendance and physical access',
     phase: 'Campus operations roadmap',
-    text: 'QR check-in, NFC and RFID cards, readers and attendance sync.',
+    text: 'QR check-in, NFC and RFID identities, multi-provider reader adapters and attendance sync.',
   },
   {
     title: 'Digital signage',
     phase: 'Campus communications roadmap',
-    text: 'Multi-site screens, scheduled playlists, announcements and device status.',
+    text: 'Multi-site screens, scheduled playlists, announcements and device status, with your choice of screen provider.',
   },
 ] as const
 
@@ -276,7 +276,7 @@ export const verticals = [
     slug: 'driving-schools',
     title: 'Driving schools',
     description: 'Lessons, vehicles, exams and learner progress.',
-    image: '/images/marketing/akademate-driving-school.jpg',
+    image: '/images/marketing/akademate-driving-school-v2.jpg',
     imageAlt: 'Driving instructor with a learner in a dual-control car during a lesson',
     capabilities: ['Lessons', 'Vehicles', 'Exam tracking'],
   },

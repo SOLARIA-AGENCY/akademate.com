@@ -27,7 +27,12 @@ type PricingPageCopy = {
   extensionsTitle: string
   extensionsDescription: string
   extensionLabel: string
+  comingSoonLabel: string
   extraCosts: string
+  deploymentEyebrow: string
+  deploymentTitle: string
+  deploymentDescription: string
+  deploymentOptions: readonly { name: string; text: string; tag: string }[]
   comparisonTitle: string
   comparisonDescription: string
   comparisonLegend: string
@@ -51,11 +56,33 @@ const englishPageCopy: PricingPageCopy = {
   includedHeading: 'WHAT’S INCLUDED',
   comparisonLink: 'View complete inclusion list',
   proposalNote: 'Every proposal reflects your scale, integrations and operating model.',
-  extensionsEyebrow: 'Optional paid modules',
+  extensionsEyebrow: 'Add-ons',
   extensionsTitle: 'Add the modules you need.',
   extensionsDescription: 'Add specialist modules through a separately scoped commercial extension.',
   extensionLabel: 'Paid extension',
+  comingSoonLabel: 'Coming soon',
   extraCosts: 'Extra costs:',
+  deploymentEyebrow: 'Deployment',
+  deploymentTitle: 'Our cloud, a dedicated cloud, or your own servers.',
+  deploymentDescription:
+    'Managed cloud by default. Enterprise adds a dedicated private cloud or an on-premise installation on your own servers, with versioned update channels and contracted support.',
+  deploymentOptions: [
+    {
+      name: 'Managed cloud',
+      text: 'The standard Akademate cloud: updates, backups and monitoring handled for you.',
+      tag: 'All plans',
+    },
+    {
+      name: 'Dedicated private cloud',
+      text: 'Isolated infrastructure for your organisation, still operated by Akademate.',
+      tag: 'Enterprise',
+    },
+    {
+      name: 'On-premise',
+      text: 'Akademate installed on your own servers, with versioned update channels and contracted support.',
+      tag: 'Enterprise',
+    },
+  ],
   comparisonTitle: 'Compare every plan.',
   comparisonDescription:
     'Every capability is labelled as included, a paid extension or Enterprise scope.',
@@ -101,7 +128,7 @@ const englishPageCopy: PricingPageCopy = {
     {
       name: 'Enterprise',
       label: 'Dedicated or on-premise',
-      description: 'Scale complex organisations on dedicated infrastructure.',
+      description: 'Scale complex organisations on dedicated infrastructure or your own servers.',
       features: [
         'Multi-brand and multi-location model',
         'Custom domains and payment responsibility',
@@ -151,11 +178,31 @@ const englishPageCopy: PricingPageCopy = {
     {
       question: 'How does AI fit into a plan?',
       answer:
-        'AI workspace and MCP are optional paid extensions to the academy operating platform.',
+        'The MCP connection for your own AI client is free on every plan. The built-in Akademate assistant ships with a starter token quota and expands with additional token packs.',
     },
     {
       question: 'Are QR, NFC and Digital Signage included?',
       answer: 'Each is a paid extension. Hardware and licences are separate.',
+    },
+    {
+      question: 'How do we buy an add-on?',
+      answer:
+        'Add-ons are scoped into your proposal. Once active, they appear in your navigation; nothing else changes in your data or workflows.',
+    },
+    {
+      question: 'Who buys the hardware for access control or signage?',
+      answer:
+        'You do. Akademate provides the software layer and connects to your readers, cards and screens; hardware, installation and provider licences are billed separately.',
+    },
+    {
+      question: 'Can we connect our own ChatGPT or Claude?',
+      answer:
+        'Yes. The MCP connection is free on every plan: connect your own AI client to permission-aware academy tools, and your existing AI subscription applies.',
+    },
+    {
+      question: 'What is the Akademate AI assistant?',
+      answer:
+        'An assistant embedded in the side panel of your workspace. It includes a starter token quota, and you can expand it with additional token packs.',
     },
   ],
 }
@@ -166,12 +213,34 @@ const spanishPageCopy: PricingPageCopy = {
   includedHeading: 'QUÉ INCLUYE',
   comparisonLink: 'Ver lista completa de inclusiones',
   proposalNote: 'Cada propuesta refleja tu escala, integraciones y modelo operativo.',
-  extensionsEyebrow: 'Módulos de pago opcionales',
+  extensionsEyebrow: 'Add-ons',
   extensionsTitle: 'Añade los módulos que necesitas.',
   extensionsDescription:
     'Añade módulos especializados mediante una extensión comercial con alcance independiente.',
   extensionLabel: 'Extensión de pago',
+  comingSoonLabel: 'Próximamente',
   extraCosts: 'Costes adicionales:',
+  deploymentEyebrow: 'Despliegue',
+  deploymentTitle: 'Nuestra nube, una nube dedicada o tus propios servidores.',
+  deploymentDescription:
+    'Nube gestionada por defecto. Enterprise añade una nube privada dedicada o una instalación on-premise en tus propios servidores, con canales de actualización versionados y soporte contratado.',
+  deploymentOptions: [
+    {
+      name: 'Nube gestionada',
+      text: 'La nube estándar de Akademate: actualizaciones, copias de seguridad y monitorización gestionadas por nosotros.',
+      tag: 'Todos los planes',
+    },
+    {
+      name: 'Nube privada dedicada',
+      text: 'Infraestructura aislada para tu organización, operada por Akademate.',
+      tag: 'Enterprise',
+    },
+    {
+      name: 'On-premise',
+      text: 'Akademate instalado en tus propios servidores, con canales de actualización versionados y soporte contratado.',
+      tag: 'Enterprise',
+    },
+  ],
   comparisonTitle: 'Compara todos los planes.',
   comparisonDescription:
     'Cada capacidad se indica como incluida, extensión de pago o alcance Enterprise.',
@@ -217,7 +286,7 @@ const spanishPageCopy: PricingPageCopy = {
     {
       name: 'Enterprise',
       label: 'Dedicado o local',
-      description: 'Escala organizaciones complejas sobre infraestructura dedicada.',
+      description: 'Escala organizaciones complejas sobre infraestructura dedicada o en tus propios servidores.',
       features: [
         'Modelo multimarca y multisede',
         'Dominios propios y responsabilidad de pagos',
@@ -268,12 +337,32 @@ const spanishPageCopy: PricingPageCopy = {
     {
       question: '¿Cómo encaja la IA en un plan?',
       answer:
-        'El espacio de trabajo de IA y MCP son extensiones de pago opcionales de la plataforma operativa.',
+        'La conexión MCP para tu propio cliente de IA es gratuita en todos los planes. El asistente integrado de Akademate incluye una cuota inicial de tokens ampliable con packs adicionales.',
     },
     {
       question: '¿Se incluyen QR, NFC y Digital Signage?',
       answer:
         'Cada uno es una extensión de pago. El hardware y las licencias se presupuestan por separado.',
+    },
+    {
+      question: '¿Cómo se contrata un add-on?',
+      answer:
+        'Los add-ons se incluyen en tu propuesta. Una vez activos, aparecen en tu navegación; tus datos y flujos no cambian.',
+    },
+    {
+      question: '¿Quién compra el hardware de control de accesos o signage?',
+      answer:
+        'Tú. Akademate aporta la capa de software y se conecta a tus lectores, tarjetas y pantallas; el hardware, la instalación y las licencias del proveedor se presupuestan aparte.',
+    },
+    {
+      question: '¿Podemos conectar nuestro propio ChatGPT o Claude?',
+      answer:
+        'Sí. La conexión MCP es gratuita en todos los planes: conecta tu cliente de IA a las herramientas de la academia con permisos, y se aplica tu suscripción de IA existente.',
+    },
+    {
+      question: '¿Qué es el asistente de IA de Akademate?',
+      answer:
+        'Un asistente integrado en el panel lateral de tu espacio de trabajo. Incluye una cuota inicial de tokens, ampliable con packs adicionales.',
     },
   ],
 }
@@ -331,6 +420,9 @@ const spanishCapabilities: Record<string, string> = {
   'Workflow automation': 'Automatización de flujos',
   'Campaign attribution and growth dashboard': 'Atribución de campañas y panel de crecimiento',
   'Meta Ads and Google Ads connectors': 'Conectores de Meta Ads y Google Ads',
+  'Campaign landing pages': 'Landings de campaña',
+  'Bring-your-own AI via MCP': 'Tu propia IA vía MCP',
+  'AI assistant and automation': 'Asistente de IA y automatización',
   'Courses, cohorts and schedules': 'Cursos, cohortes y horarios',
   'Participant and learner records': 'Fichas de participantes y alumnos',
   'Teacher and staff workspaces': 'Espacios de trabajo docente y de personal',
@@ -381,6 +473,10 @@ const spanishNotes: Record<string, string> = {
     'El onboarding del procesador y las comisiones por transacción son independientes.',
   'Holded, Xero and QuickBooks are coming soon; provider subscriptions, transaction fees and bespoke mapping are separate.':
     'Holded, Xero y QuickBooks llegarán próximamente; las suscripciones, comisiones por transacción y mapeos a medida del proveedor son independientes.',
+  'Connect your own ChatGPT or Claude; your AI provider subscription applies.':
+    'Conecta tu propio ChatGPT o Claude; se aplica tu suscripción de proveedor de IA.',
+  'Includes a starter token quota; expansion packs are quoted separately.':
+    'Incluye una cuota inicial de tokens; los packs de ampliación se presupuestan por separado.',
   'Hardware, installation and provider licences are separate.':
     'El hardware, la instalación y las licencias de proveedor son independientes.',
   'Screens, players, installation and external licences are separate.':
@@ -391,17 +487,26 @@ const spanishNotes: Record<string, string> = {
 
 const spanishExtensions: Record<
   string,
-  { title: string; summary: string; includes: readonly string[]; separateCosts: string }
+  {
+    title: string
+    summary: string
+    metering: string
+    includes: readonly string[]
+    service?: string
+    separateCosts: string
+  }
 > = {
   access: {
     title: 'Asistencia y acceso físico',
     summary: 'Conecta las llegadas con los registros de alumnos, clases y centros.',
+    metering: 'Por puerta o lector conectado, mensual',
     includes: ['Check-in móvil QR', 'Identidades NFC y RFID', 'Adaptadores de lectores y sensores'],
     separateCosts: 'Hardware y licencias.',
   },
   signage: {
     title: 'Digital Signage',
     summary: 'Programa comunicaciones de la academia en cada centro.',
+    metering: 'Por pantalla conectada, mensual',
     includes: [
       'Calendarios y horarios de salas',
       'Avisos y promociones',
@@ -412,12 +517,20 @@ const spanishExtensions: Record<
   growth: {
     title: 'Crecimiento y anuncios',
     summary: 'Conecta señales de campaña con leads, solicitudes y matrículas.',
-    includes: ['Conectores de Meta y Google', 'Panel de atribución', 'Flujos de campaña'],
+    metering: 'Por sede, mensual',
+    includes: [
+      'Conectores de Meta y Google',
+      'Landings de campaña con atribución UTM',
+      'Panel de atribución',
+      'Flujos de campaña',
+    ],
+    service: '¿Quieres que te construyamos las landings de campaña? Pide presupuesto.',
     separateCosts: 'Inversión en medios y tarifas de plataforma.',
   },
   finance: {
     title: 'Finanzas y contabilidad avanzadas',
     summary: 'Amplía la facturación de la academia hacia contabilidad y conciliación.',
+    metering: 'Por sede, mensual',
     includes: [
       'Libro mayor y centros de coste',
       'Conciliación bancaria',
@@ -428,12 +541,14 @@ const spanishExtensions: Record<
   workforce: {
     title: 'RR. HH. y personal',
     summary: 'Coordina contratos, disponibilidad, carga de trabajo e inputs de nómina.',
+    metering: 'Por asiento de personal, mensual',
     includes: ['Fichas de personal', 'Carga de trabajo y sustituciones', 'Preparación de nómina'],
     separateCosts: 'Servicios e integraciones de nómina.',
   },
   resources: {
     title: 'Biblioteca, inventario e instalaciones',
     summary: 'Gestiona recursos de aprendizaje, equipos y espacios compartidos.',
+    metering: 'Por sede, mensual',
     includes: [
       'Biblioteca y préstamos',
       'Inventario y equipamiento',
@@ -444,13 +559,19 @@ const spanishExtensions: Record<
   agentic: {
     title: 'Espacio de trabajo de IA y MCP',
     summary:
-      'Conecta clientes de IA aprobados con herramientas de academia conscientes de permisos.',
-    includes: ['Conexión MCP', 'Herramientas de lectura y borrador', 'Acciones con aprobación'],
-    separateCosts: 'Tarifas de uso del proveedor de IA.',
+      'Conecta tu propia IA mediante una conexión MCP gratuita, o usa el asistente integrado con una cuota inicial incluida.',
+    metering: 'Cuota de IA inicial incluida; ampliable con packs de tokens',
+    includes: [
+      'Conexión MCP gratuita para tu cliente de IA',
+      'Asistente de Akademate en el panel lateral',
+      'Acciones con aprobación',
+    ],
+    separateCosts: 'Packs de ampliación de tokens de IA opcionales.',
   },
   implementation: {
     title: 'Migración e integraciones personalizadas',
     summary: 'Mueve datos y conecta sistemas especializados mediante un programa acotado.',
+    metering: 'Presupuestado por programa',
     includes: [
       'Mapeo de datos',
       'Ensayos de migración conciliados',
