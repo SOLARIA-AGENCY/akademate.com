@@ -2,6 +2,13 @@
 
 Input for the plan/pricing decision. Grounded in two research passes (2026-09-07): SaaS pricing benchmarks across academy-software competitors, and the invoicing/accounting landscape (US + Spain). Tag legend: [O] observed with source, [H] hypothesis, [G] product gap, [TV] to validate.
 
+## Decisions locked (commander, 2026-09-07)
+
+1. **No public prices yet.** Keep "Tailored proposal" across ALL tiers (including Solo) on /pricing, landings and proposals. The anchors below are internal guidance for quotes. Revisit trigger: self-serve funnel validated or pilot cohort data.
+2. **Solo band approved:** 1 location, 1-3 staff seats, ≤100 active members.
+3. **Locations model:** Solo = 1 sede. Business = **2 sedes incluidas**. From the 3rd onwards: **per-location add-on**. Enterprise = unlimited.
+4. **Accounting connector priority:** **Holded** (ES anchor) → **QuickBooks** (US) → **Xero** (UK/EU).
+
 ## 0. Model correction (supersedes part of WIZARD-BRIEF.md)
 
 The wizard does NOT offer free reconfiguration. It is a **preset chooser**:
@@ -37,9 +44,9 @@ Custom domain → automations/SMS → branded white-label app → multi-location
 | | **Solo** (new tier) | **Business** (existing) | **Enterprise / Group** (existing) |
 |---|---|---|---|
 | Target | Autónomo / owner-operator: 1 location, 1-3 staff, ≤100 active members [TV band] | Growing academy: 2-3 locations or >100 members | Groups & franchises: 3+ locations, multi-brand |
-| Anchor price | **$49/mo** public (annual -17%, i.e. 2 months free) [TV] | **$149-199/mo** public [TV] | Custom; internal floor €500+/mo; CEP dedicated precedent €1,200/mo (OVH line, reference only) |
+| Anchor price | **$49/mo** internal anchor (annual -17%, i.e. 2 months free) [TV] | **$149-199/mo** internal anchor [TV] | Custom; internal floor €500+/mo; CEP dedicated precedent €1,200/mo (OVH line, reference only) |
 | Preset | Full core of the chosen vertical preset | Full core + upgraded versions | Full core + network versions |
-| Locations | 1 | 2-3 | Unlimited |
+| Locations | 1 | **2 included; 3rd+ per-location add-on** | Unlimited |
 | Web | Subdomain, offer pages, bookings | Custom domain + CMS + blog/SEO | Custom domains per brand |
 | Growth | Lead capture, reminders | + CRM pipeline, workflow automations, ads connectors | + network attribution |
 | Finance | **Built-in invoicing + receivables** (see §3) | + accounting connectors (QBO/Xero/Holded) | + finance APIs, scoped per-location billing |
@@ -49,7 +56,7 @@ Custom domain → automations/SMS → branded white-label app → multi-location
 - Why meter on **locations + active-member band**: mirrors TeamUp's predictability without penalizing low-ARPU verticals (camps/driving) the way pure per-student would; locations is the industry's cleanest upsell trigger. [O patterns]
 - Why a **new Solo tier**: the market shows an explicit solo anchor band ($0-49) we currently cannot enter ("Tailored proposal" only); WellnessLiving and Arketa both convert solos with a named tier. [O]
 - Anti-churn guardrails (copy + policy): no setup fee at Solo/Business, monthly option, downgrade without traps, published limits. [O churn evidence]
-- 2nd location path: at Business (2-3 included) rather than a per-location multiplier — it is the cleanest "your academy grew" upsell moment, and no competitor offers it as a friendly mid-step. [H, differentiation bet]
+- 2nd location path (locked): Business includes the 2nd sede; from the 3rd onwards each location is a per-location add-on; franchise-scale governance stays Enterprise. This is the cleanest "your academy grew" upsell moment, and no competitor offers it as a friendly mid-step. [H, differentiation bet]
 
 ## 3. The accounting play: replace invoicing, connect accounting
 
@@ -60,7 +67,7 @@ Evidence:
 
 Strategy (tiered, matches the plan ladder):
 1. **Solo: replace invoicing, never the ledger.** Built-in compliant invoicing + receivables included ("deja de pagar un segundo software"; gestoría receives ordered exports). This is the strongest sales argument for the 1-room yoga autónoma: *bookings, students, payments AND legal invoices in one place, for less than invoicing tool + booking tool combined.* [O evidence / H bet]
-2. **Business: connect.** Native sync of payments/invoices/credit notes + GL mapping into QuickBooks, Xero, Holded (payload pattern proven by Arlo/Teachworks; WellnessLiving even white-labels middleware, so build-or-buy is open). [O]
+2. **Business: connect.** Native sync of payments/invoices/credit notes + GL mapping into the accounting stack, in locked priority order: **1) Holded** (Spain anchor market), **2) QuickBooks** (US), **3) Xero** (UK/EU). Payload pattern proven by Arlo/Teachworks; WellnessLiving even white-labels middleware, so build-or-buy is open. [O]
 3. **Enterprise: finance APIs + per-location scoped billing.** Already the canon ("Accounting, banking and ERP connectors" is enterprise-scope/paid-extension in the repo pricing matrix). [O internal]
 
 Product gap flags: native invoicing beyond receipts is [G/TV] (canon has "Invoices" under Finance integrations); accounting connectors are [G] (none built); Veri*factu SIF certification is [G, build decision with deadlines 2027/28]; "Advanced finance and accounting" paid extension already exists in the repo comparison table as the parking spot. [O internal]
@@ -80,20 +87,24 @@ Nothing is "removed" between plans inside a preset; the plan upgrades **versions
 - **Same academy opens room 2:** Business $149-199/mo. Upsell moment triggered by the 2nd-location cap; optionally adds growth extension later.
 - **3 academies + franchise interest:** Enterprise custom, network reporting, per-brand domains. CEP-style dedicated infra stays on the separate dedicated line. [O precedent]
 
-## 6. Display decision impact
+## 6. Display decision impact (decided: keep prices private for now)
 
-Today every price is "Tailored proposal" [O]. Recommendation: publish Solo + Business anchors for SMB verticals (wellness/driving buyers see $16-320/mo competitor pricing — hiding ours kills self-serve), keep Enterprise custom. Unblocks: the vertical landings' "Start free trial" secondary, the pricing FAQ ("Why are prices not listed?") and add-on checkout. [TV]
+Decision 2026-09-07: do NOT publish prices yet; "Tailored proposal" stays everywhere, including the new Solo tier. Implications:
+- /pricing and the vertical landings' pricing teaser remain anchor-free (already true; no change needed).
+- Sales proposals use the internal anchors (Solo $49, Business $149-199, Enterprise floor €500+) for consistency across quotes. [TV consistency]
+- Self-serve motion (trial → Solo) stays gated until prices go public or a founder-led pilot cohort validates willingness to pay.
+- The pricing FAQ "Why are prices not listed?" remains correct as-is.
 
-## 7. Open questions for the Commander (decisions)
+## 7. Open questions (post-decision)
 
-1. Publish Solo/Business public prices now or after pilot data? (Gates the whole self-serve motion.)
-2. Solo band: ≤100 active members + 1-3 staff — right thresholds? [TV]
-3. 2nd location: included in Business (2-3) or per-location add-on price?
-4. Invoicing scope: build ES-first Veri*factu invoicing for Solo, or start with exports-to-gestoría and build SIF certification later (deadline 2027/28 gives room)?
-5. Connector priority: Holded (ES) vs QuickBooks (US) vs Xero (UK/EU) — which first?
-6. Annual discount: -17% (2 months free) or -10% (WellnessLiving style)?
-7. Metering: locations + member band confirmed as the two axes (staff seats as soft cap)?
-8. Does Solo get the trial funnel, or is Solo itself the "trial" (cheap monthly, no credit card)?
+Resolved 2026-09-07: no public prices yet (#1); Solo band approved (#2); 2nd sede included, 3rd+ add-on (#3); connector priority Holded → QuickBooks → Xero (#5).
+
+Still open:
+1. **Invoicing scope:** build ES-first Veri*factu invoicing for Solo, or start with exports-to-gestoría and build SIF certification later (deadlines 2027/28 give room)?
+2. **Annual discount:** -17% (2 months free) or -10% (WellnessLiving style) — applies to proposals now, public later.
+3. **Staff seats as soft cap** on Solo (1-3): hard limit, soft warning, or unmetered?
+4. **Trial role:** is the self-serve trial the entry to Solo, or does Solo start founder-led until prices go public?
+5. **Per-location add-on price:** flat per extra sede, or banded (3-5, 6-10)?
 
 ## Sources
 
