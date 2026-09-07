@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  ArrowRight,
   Bot,
   BriefcaseBusiness,
   Building2,
@@ -117,7 +116,6 @@ export default async function FeaturesPage() {
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link href={href('/contacto?asunto=demo')} className="button-primary-light">
                   {dictionary.features.primaryCta}{' '}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link href={href('/pricing')} className="button-ghost-light">
                   {dictionary.features.secondaryCta}
@@ -324,8 +322,7 @@ export default async function FeaturesPage() {
               {tx('Map your academy into one connected operating model.')}
             </p>
             <Link href={href('/contacto?asunto=demo')} className="button-primary-dark mt-9">
-              {tx('Book a demo')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Book a demo')}            </Link>
           </div>
         </section>
       </main>

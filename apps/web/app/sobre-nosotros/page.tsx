@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Compass, Layers3, Sparkles } from 'lucide-react'
+import {Compass, Layers3, Sparkles } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
@@ -41,8 +41,7 @@ export default async function AboutPage() {
               <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em]">{content.title}</h1>
               <p className="mt-7 text-lg leading-8 text-blue-100/75">{content.description}</p>
               <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
-                {content.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
+                {content.cta}              </Link>
             </div>
           </div>
           <div className="scroll-depth relative min-h-[480px] overflow-hidden">

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  ArrowRight,
   Bot,
   Calculator,
   Cable,
@@ -118,7 +117,6 @@ export default async function PricingPage() {
               </p>
               <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
                 {dictionary.pricing.primaryCta}{' '}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
             <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">
@@ -182,8 +180,7 @@ export default async function PricingPage() {
                       index === 1 ? 'button-primary-light mt-10' : 'button-primary-dark mt-10'
                     }
                   >
-                    {plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
+                    {plan.cta}                  </Link>
                   <a
                     href="#plan-comparison"
                     className={`mt-4 inline-flex min-h-11 items-center text-sm font-semibold ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}

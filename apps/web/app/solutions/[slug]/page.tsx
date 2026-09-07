@@ -129,11 +129,10 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">{detail.promise}</p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link href={demoHref} className="button-primary-light">
-                {chrome.heroCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
+                {chrome.heroCta}              </Link>
               <span
                 aria-disabled="true"
-                className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/60"
+                className="inline-flex min-h-12 whitespace-nowrap rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/60"
               >
                 {chrome.heroSecondaryCta}
               </span>
@@ -154,8 +153,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 underline-offset-4 hover:underline"
               >
-                {chrome.proofLink} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </a>
+                {chrome.proofLink}              </a>
             </div>
             {quotes.length > 0 && (
               <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -304,8 +302,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               href={href('/features')}
               className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 underline-offset-4 hover:underline"
             >
-              {chrome.exploreModules} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
+              {chrome.exploreModules}            </Link>
           </div>
         </section>
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
@@ -333,8 +330,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             </div>
             <div className="mt-8">
               <Link href={href('/pricing')} className="button-primary-dark">
-                {chrome.comparePlans} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
+                {chrome.comparePlans}              </Link>
             </div>
           </div>
         </section>
@@ -387,10 +383,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
                   <p className="mt-2 text-sm leading-6 text-slate-600">{sibling.description}</p>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700">
                     {chrome.exploreSolution}
-                    <ArrowRight
-                      className="h-3.5 w-3.5 transition group-hover:translate-x-0.5"
-                      aria-hidden="true"
-                    />
+
                   </span>
                 </Link>
               ))}
@@ -406,8 +399,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               {chrome.closingDescription}
             </p>
             <Link href={demoHref} className="button-primary-light mt-8">
-              {chrome.closingCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {chrome.closingCta}            </Link>
           </div>
         </section>
       </main>

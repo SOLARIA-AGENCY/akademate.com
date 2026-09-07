@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Check, Globe2 } from 'lucide-react'
+import {Check, Globe2 } from 'lucide-react'
 import { AcademyOperationsStory } from '@/components/marketing/AcademyOperationsStory'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
@@ -94,10 +94,7 @@ export default async function HomePage() {
               <div className="hero-item mt-8 flex flex-wrap gap-3">
                 <Link href={href('/contacto?asunto=demo')} className="button-primary-light group">
                   {dictionary.home.primaryCta}{' '}
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
-                    aria-hidden="true"
-                  />
+
                 </Link>
                 <Link href={href('/features')} className="button-ghost-light">
                   {dictionary.home.secondaryCta}
@@ -193,8 +190,7 @@ export default async function HomePage() {
               href={href('/features')}
               className="mt-9 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
-              {tx('Explore every module')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Explore every module')}            </Link>
           </div>
         </section>
 
@@ -290,7 +286,6 @@ export default async function HomePage() {
                 className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
               >
                 {tx('Explore integrations by module')}{' '}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
@@ -360,8 +355,7 @@ export default async function HomePage() {
                       index === 1 ? 'button-primary-light mt-9' : 'button-primary-dark mt-9'
                     }
                   >
-                    {plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
+                    {plan.cta}                  </Link>
                 </article>
               ))}
             </div>
@@ -374,8 +368,7 @@ export default async function HomePage() {
               href={href('/pricing#paid-extensions')}
               className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
-              {tx('Compare plans')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Compare plans')}            </Link>
           </div>
         </section>
 
@@ -389,11 +382,9 @@ export default async function HomePage() {
               </h2>
               <div className="flex gap-5 text-sm font-semibold text-blue-700">
                 <Link href={href('/blog')} className="inline-flex min-h-11 items-center gap-2">
-                  {tx('Explore insights')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                  {tx('Explore insights')}                </Link>
                 <Link href={href('/news')} className="inline-flex min-h-11 items-center gap-2">
-                  {tx('Read news')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                  {tx('Read news')}                </Link>
               </div>
             </div>
             <div className="mt-10 grid gap-8 lg:grid-cols-2">
@@ -446,8 +437,7 @@ export default async function HomePage() {
               {tx('Connect your public experience, operation and learning journey.')}
             </p>
             <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
-              {tx('Book a demo')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Book a demo')}            </Link>
           </div>
         </section>
       </main>

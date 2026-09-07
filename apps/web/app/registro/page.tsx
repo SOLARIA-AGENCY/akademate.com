@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { localizedHref } from '@/lib/i18n/routing'
@@ -77,8 +76,7 @@ export default async function RegistrationPage() {
               <p className="mt-3 text-sm leading-6 text-slate-600">{copy.panelText}</p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link href={href('/contacto?asunto=demo')} className="button-primary-dark">
-                  {copy.demoCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                  {copy.demoCta}                </Link>
                 <Link
                   href={href('/pricing')}
                   className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"

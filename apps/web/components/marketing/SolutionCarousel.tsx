@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 import { useMarketingText } from '@/components/i18n/use-marketing-text'
 import { useLocale } from '@/components/i18n/locale-provider'
 import { localizedHref } from '@/lib/i18n/routing'
@@ -37,8 +36,7 @@ export function SolutionCarousel() {
               <h3 className="text-lg font-semibold tracking-tight text-[#071633]">{vertical.title}</h3>
               <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{vertical.description}</p>
               <span className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#071633] px-4 text-sm font-semibold text-white transition group-hover:bg-blue-700">
-                {t('See this academy model')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </span>
+                {t('Know more')}              </span>
             </div>
           </Link>
         )

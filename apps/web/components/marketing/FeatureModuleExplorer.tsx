@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import {CheckCircle2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useLocale } from '@/components/i18n/locale-provider'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
@@ -183,7 +183,6 @@ export function FeatureModuleExplorer() {
                     <p className="mt-1 text-sm text-blue-100/60">{signalLabel}</p>
                   </div>
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/15">
-                    <ArrowRight className="h-5 w-5 text-blue-300" aria-hidden="true" />
                   </span>
                 </div>
                 {spanishModule && (

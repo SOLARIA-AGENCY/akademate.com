@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import {
-  ArrowRight,
   BadgeCheck,
   CalendarDays,
   CreditCard,
@@ -106,8 +105,7 @@ export function PhysicalCampusStory() {
           href={localizedHref('/features', locale)}
           className="mt-6 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-200 hover:text-white"
         >
-          {t('Explore campus operations')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
+          {t('Explore campus operations')}        </Link>
       </div>
     </section>
   )

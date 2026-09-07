@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Check } from 'lucide-react'
+import {Check } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
@@ -114,10 +114,7 @@ export default async function SolutionsPage() {
                     </ul>
                     <span className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#071633] px-5 text-sm font-semibold text-white">
                       {verticalPageChrome[locale].exploreSolution}{' '}
-                      <ArrowRight
-                        className="h-4 w-4 transition group-hover:translate-x-1"
-                        aria-hidden="true"
-                      />
+
                     </span>
                   </div>
                 </Link>

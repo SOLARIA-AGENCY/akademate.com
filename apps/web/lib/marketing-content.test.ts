@@ -298,7 +298,7 @@ describe('public marketing architecture', () => {
       'utf8'
     )
     expect(carousel).toContain('lg:grid-cols-5')
-    expect(carousel).toContain('See this academy model')
+    expect(carousel).toContain('Know more')
     expect(carousel).toContain("localizedHref(`/solutions/${vertical.slug}`, locale)")
     expect(carousel).not.toContain('aria-roledescription="carousel"')
     expect(carousel).not.toContain('requestAnimationFrame')

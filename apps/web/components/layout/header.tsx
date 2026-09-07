@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react'
+import {ChevronDown, Menu, X } from 'lucide-react'
 import { useLocale } from '@/components/i18n/locale-provider'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref, stripLocalePrefix } from '@/lib/i18n/routing'
@@ -83,7 +83,6 @@ export function Header() {
                       className="mt-2 flex min-h-11 items-center justify-between rounded-xl bg-[#071633] px-4 text-sm font-semibold text-white"
                     >
                       {dictionary.header.exploreCustomers}{' '}
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </div>
                 </details>
@@ -106,8 +105,7 @@ export function Header() {
             href={href('/contacto?asunto=demo')}
             className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#071633] px-5 text-sm font-semibold text-white hover:bg-blue-800"
           >
-            {dictionary.header.bookDemo} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+            {dictionary.header.bookDemo}          </Link>
         </div>
 
         <button

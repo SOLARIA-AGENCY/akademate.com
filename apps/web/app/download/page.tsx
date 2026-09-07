@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Laptop, Smartphone, Tablet } from 'lucide-react'
+import {Laptop, Smartphone, Tablet } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
@@ -76,8 +76,7 @@ export default async function DownloadPage() {
               {content.roadmapDescription}
             </p>
             <Link href={href('/contacto?asunto=apps')} className="button-primary-light mt-8">
-              {content.roadmapCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {content.roadmapCta}            </Link>
           </div>
         </section>
       </main>

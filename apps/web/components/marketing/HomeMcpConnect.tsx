@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, MessageSquareText, PlugZap } from 'lucide-react'
+import {CheckCircle2, MessageSquareText, PlugZap } from 'lucide-react'
 import { agenticProviders } from '@/lib/agentic-growth-content'
 import { useMarketingText } from '@/components/i18n/use-marketing-text'
 import { useLocale } from '@/components/i18n/locale-provider'
@@ -35,8 +35,7 @@ export function HomeMcpConnect() {
             href={localizedHref('/features#mcp-agentic-operations', locale)}
             className="mt-7 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
           >
-            {t('Explore the MCP roadmap')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+            {t('Explore the MCP roadmap')}          </Link>
         </div>
 
         <div>
