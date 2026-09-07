@@ -137,3 +137,5 @@ Every claim in the fichas is tagged [O]/[H]/[G]/[TV] with sources inline. No mod
 - [PLANS-STUDY.md](PLANS-STUDY.md): plan ladder study (Solo/Business/Enterprise), pricing benchmarks, accounting replace-vs-connect strategy, preset x plan model.
 
 - [BUSINESS-PLAN.md](BUSINESS-PLAN.md): final business-plan definition, Bayesian audit of all decisions (priors/posteriors), closed open questions, KPIs and revision triggers. Prevails over PLANS-STUDY and WIZARD-BRIEF where they overlap.
+
+- [ADD-ONS.md](ADD-ONS.md): add-on catalog (8 canon extensions + landings inside growth), market-anchored pricing, AI in two modes (BYO via MCP $19 / own lateral agent $49 + token packs), attach KPIs and integration rules.

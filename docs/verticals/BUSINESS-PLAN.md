@@ -77,7 +77,7 @@ Posterior: **60**.
 | Multi-sede | — | vista consolidada 2 sedes | gobernanza franquicia, reporte de red |
 | Precio | $49/mo interno (anual -17% opcional) | $149-199/mo interno (anual-first) | custom, floor €500+ |
 | Venta | Asistida (proposal) | Asistida | Enterprise deal |
-| Todas | Marketplace de add-ons visible (access, signage, growth, finance, workforce, resources, agentic); roadmap = "próximamente" no comprable |||
+| Todas | Marketplace de add-ons visible (catálogo y pricing en [ADD-ONS.md](ADD-ONS.md): access, signage, growth+landings, finance, workforce, resources, agentic con IA en dos modos BYO-MCP/agente-propio); roadmap = "próximamente" no comprable |||
 
 ### Reglas transversales
 1. Ocultar módulo nunca destruye datos; cambiar de preset/plan reconfigura menú sin migraciones.
