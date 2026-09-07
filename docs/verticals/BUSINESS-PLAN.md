@@ -75,9 +75,19 @@ Posterior: **60**.
 | Growth | Captura leads, recordatorios | + CRM pipeline, automatizaciones, conectores ads | + atribución de red |
 | Finance | Facturación ES conforme + cobros + receivables + exports gestoría | + conectores: **Holded → QuickBooks → Xero** | + APIs, facturación por sede |
 | Multi-sede | — | vista consolidada 2 sedes | gobernanza franquicia, reporte de red |
+| Deployment | Nube gestionada (SaaS) | Nube gestionada · nube privada dedicada | Nube gestionada · dedicada · **On-Premise: instalación en sus servidores** |
 | Precio | $49/mo interno (anual -17% opcional) | $149-199/mo interno (anual-first) | custom, floor €500+ |
 | Venta | Asistida (proposal) | Asistida | Enterprise deal |
 | Todas | Marketplace de add-ons visible (catálogo y pricing en [ADD-ONS.md](ADD-ONS.md): access, signage, growth+landings, finance, workforce, resources, agentic con IA en dos modos BYO-MCP/agente-propio); roadmap = "próximamente" no comprable |||
+
+### Enterprise On-Premise (variante de deployment, no un 5º tier)
+
+- **Qué es:** Akademate instalado en los servidores del cliente (self-hosted), empaquetado sobre la misma base de deployment dedicado (docker) que ya operamos. El dato jamás sale de su infraestructura.
+- **Quién lo compra:** grupos regulados con IT propio, centros con financiación pública (soberanía de datos), organizaciones con políticas de seguridad que prohíben SaaS multi-tenant.
+- **Qué incluye:** instalación y puesta a punto en sus servidores · canal de actualizaciones versionado (they control upgrade windows) · programa de migración e integraciones · soporte contratado con SLA · los mismos presets y add-ons software (los add-ons de hardware —access, signage— conectan igual contra su red).
+- **Modelo comercial:** presupuesto custom (sin precio público, como todo el ladder). Anclas internas [H]: cuota inicial 2-3× el floor de Enterprise cloud + mantenimiento anual 20-25% de la licencia (convención sector software instalado). 📌 [TV: licencia perpetua+mantenimiento vs suscripción anual — decidir en la primera oportunidad real]
+- **Límites honestos:** features que requieren nuestra nube (MCP gestionado, agentes AI con nuestra cuota de tokens) se declaran no disponibles o exigen connectivity bridge; no se prometen en copy [G/TV].
+- **Precedente interno:** el packaging/ops de la instancia dedicada (docker-cep-dedicated) reutiliza aprendizajes, pero NO es on-premise (nuestro Hetzner ≠ sus servidores) ni mezcla líneas: CEP OVH sigue siendo caso ancla, no producto.
 
 ### Reglas transversales
 1. Ocultar módulo nunca destruye datos; cambiar de preset/plan reconfigura menú sin migraciones.

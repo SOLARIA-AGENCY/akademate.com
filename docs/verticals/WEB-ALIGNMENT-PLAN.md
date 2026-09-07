@@ -28,13 +28,14 @@ Plan de implementación PROPUESTO (nada ejecutado aún). Consume BUSINESS-PLAN.m
 2. `agentic` card: bullets 2 modos — "Connect your own ChatGPT or Claude via MCP" + "Akademate assistant in the side panel with a monthly AI quota".
 3. `growth` card: bullet "Campaign landing pages with UTM attribution".
 4. Nuevas filas comparador: "Campaign landing pages" (paid-extension×3), "Bring-your-own AI via MCP" y "Akademate AI assistant (quota)" — respetando el lock de QR/NFC/signage como paid-extension.
-5. FAQs +3 (EN/ES): compra de add-ons vía propuesta; hardware siempre aparte (instalador/proveedor del cliente); diferencia BYO-MCP vs agente con cuota.
+5. FAQs +4 (EN/ES): compra de add-ons vía propuesta; hardware siempre aparte (instalador/proveedor del cliente); diferencia BYO-MCP vs agente con cuota; **"¿Puede Akademate instalarse en nuestros propios servidores?" → sí, variante On-Premise de Enterprise** (canon ya la declara: "Dedicated private cloud or on-premise" enterprise-scope).
 6. Si §6.1 aprueba Solo: `plans` + card (label "Coming soon", features: 1 sede · miembros sin límite · facturación conforme incluida · dominio propio como add-on).
 
 ### B. Página /pricing (`app/pricing/page.tsx`)
 1. Grid de cards: 4 columnas o 2×2 con Solo primero y chip "Próximamente" (mismo estilo que connectors).
 2. Sección extensiones → renombrar visualmente "Add-ons" (anchor `id="addons"`): pill por estado ("Add-on" azul / "Coming soon" gris), iconos ya existentes (QrCode, Monitor, Bot...), metering bajo el título.
 3. FAQPage JSON-LD (nuevo en pricing, igual que landings) — pricing quote-only rankea igual (Kisi/Salesforce lo demuestran).
+4. **Nuevo bloque "Deployment"** (bajo las cards o junto a Add-ons): tres opciones con chip — *Managed cloud* (por defecto, todos los planes) · *Dedicated private cloud* (Enterprise) · **On-Premise: "Akademate installed on your own servers" / "instalado en tus propios servidores"** (Enterprise, CTA "Talk to Enterprise"). Sin precios. Keyword SEO propia: "on-premise academy software" / "software para academias on-premise". La card Enterprise gana subtítulo "Cloud, dedicated or on-premise". Limitación honesta en el copy: features que requieren nuestra nube (agente AI con cuota) no disponibles on-premise sin bridge — no se promete.
 
 ### C. /features
 1. `roadmapModules` copy: Attendance and physical access → "QR check-in, NFC/RFID identities and multi-provider reader adapters."; Digital signage → "…across every site, with your choice of screen provider."; AI-assisted operations → mencionar 2 modos.
