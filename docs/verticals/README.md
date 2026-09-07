@@ -133,3 +133,5 @@ Every claim in the fichas is tagged [O]/[H]/[G]/[TV] with sources inline. No mod
 ## Related
 
 - [WIZARD-BRIEF.md](WIZARD-BRIEF.md): optimized prompt for the Vertical Configuration Engine + onboarding wizard (3-set entitlement model, per-vertical menus, acceptance scenarios).
+
+- [PLANS-STUDY.md](PLANS-STUDY.md): plan ladder study (Solo/Business/Enterprise), pricing benchmarks, accounting replace-vs-connect strategy, preset x plan model.

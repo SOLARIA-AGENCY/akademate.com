@@ -2,6 +2,8 @@
 
 Prompt optimizado a partir de la Fase 0 (docs/verticals/) y de las 10 landings (rama `feat/vertical-landings`). Listo para pegar en una sesión de implementación.
 
+> **Update (2026-09-07):** el wizard NO ofrece reconfiguración libre: elige **presets** (1 por vertical) y el **plan** añade capacidad/versiones. La escalera de planes (Solo/Business/Enterprise), la estrategia de facturación/contabilidad y la interacción preset×plan están en [PLANS-STUDY.md](PLANS-STUDY.md), que prevalece sobre la sección "MODELO CRÍTICO" de este brief donde coincidan.
+
 ---
 
 ## ROL
