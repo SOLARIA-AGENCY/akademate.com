@@ -129,3 +129,7 @@ Site-wide observed convention: "Book a demo" is the universal primary; the live 
 ## Method note
 
 Every claim in the fichas is tagged [O]/[H]/[G]/[TV] with sources inline. No module is asserted as Core unless it exists in the live 8-pillar canon or is explicitly flagged as a gap. Unstudied verticals are PENDING by design: no AI-generic filling.
+
+## Related
+
+- [WIZARD-BRIEF.md](WIZARD-BRIEF.md): optimized prompt for the Vertical Configuration Engine + onboarding wizard (3-set entitlement model, per-vertical menus, acceptance scenarios).
