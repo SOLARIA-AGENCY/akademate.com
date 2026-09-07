@@ -139,3 +139,5 @@ Every claim in the fichas is tagged [O]/[H]/[G]/[TV] with sources inline. No mod
 - [BUSINESS-PLAN.md](BUSINESS-PLAN.md): final business-plan definition, Bayesian audit of all decisions (priors/posteriors), closed open questions, KPIs and revision triggers. Prevails over PLANS-STUDY and WIZARD-BRIEF where they overlap.
 
 - [ADD-ONS.md](ADD-ONS.md): add-on catalog (8 canon extensions + landings inside growth), market-anchored pricing, AI in two modes (BYO via MCP $19 / own lateral agent $49 + token packs), attach KPIs and integration rules.
+
+- [WEB-ALIGNMENT-PLAN.md](WEB-ALIGNMENT-PLAN.md): proposed plan to carry the business plan into the public web (pricing add-ons marketplace, Solo soon card, features/home/landings alignment, 7 new images) without publishing prices. Awaiting commander approval.
