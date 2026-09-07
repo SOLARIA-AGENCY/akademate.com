@@ -21,7 +21,7 @@ Cerrado: 8 add-ons del canon + landings (dentro de growth) + IA en dos modos (BY
 
 | Add-on (id) | Qué es | Estado | Pricing (ancla interna) | Gate |
 |---|---|---|---|---|
-| **agentic** — IA (2 modos) | ver §3 | Canon: "AI workspace and MCP" + "AI-assisted operations (Optional capability)" | BYO vía MCP $19/mo · Agente propio $49/mo + packs | Todos |
+| **agentic** — IA (2 modos) | ver §3 | Canon: "AI workspace and MCP" + "AI-assisted operations (Optional capability)" | Conector MCP **gratis** · Agente propio con cuota inicial limitada + packs | Todos |
 | **access** — Control de accesos QR/NFC | Identidades, check-in QR móvil, lectores NFC/RFID **multi-proveedor** (capa software sobre lectores existentes) | Roadmap (Campus operations roadmap) → "próximamente" | $9/puerta-lector/mo (Kisi cobra $50-80/puerta; somos la capa ligera) | Todos, cuando esté |
 | **signage** — Digital signage | Playlists programadas, anuncios, estado de dispositivos, multi-sede | Roadmap (Campus communications roadmap) → "próximamente" | $9-15/pantalla/mo (mercado $8-30; Yodeck $12, ScreenCloud $20) | Todos, cuando esté |
 | **growth** — Growth pack (incluye **landings de campaña**) | Atribución UTM, dashboard de growth, conectores Meta/Google Ads, **landing pages de campaña** para ads | Canon paid-extension (live) | $39/sede/mo flat; landings self-serve ilimitadas incluidas | Todos |
@@ -36,8 +36,8 @@ Cerrado: 8 add-ons del canon + landings (dentro de growth) + IA en dos modos (BY
 
 El cliente **no necesita contratar un agente nuevo**:
 
-- **Modo BYO (trae el suyo) — vía MCP:** conecta su ChatGPT/Claude/servicio existente al MCP server de Akademate y consulta su academia desde ahí. Canon ya lo declara ("MCP integration layer", "AI workspace and MCP"). Sin cuota de tokens nuestra (la paga en su suscripción); fee de conector $19/mo. 📌 [TV: ¿incluido en Business+ y de pago solo en Solo?]
-- **Modo agente propio — ventana lateral:** nuestro agente embebido en el panel lateral de la app (UI por definir 📌 [TV]). Viene con **cuota mensual de tokens** y **packs de ampliación**, exactamente como ClickUp Brain ($9/usuario + créditos, top-ups $10/10K) o Notion AI (metered $10/1.000). Ancla: **$49/mo por academia con cuota base** + packs $10/10K créditos; sin límite de asientos (los 3 admin + instructores comparten la cuota).
+- **Modo BYO (trae el suyo) — vía MCP: GRATIS.** El cliente conecta su ChatGPT/Claude/servicio existente al MCP server de Akademate y consulta su academia desde ahí, sin coste de conector en ningún plan (decisión comandante 2026-09-07; sustituye al fee de $19 anterior). Canon ya lo declara ("MCP integration layer", "AI workspace and MCP").
+- **Modo agente propio — ventana lateral:** nuestro agente embebido en el panel lateral de la app (UI por definir 📌 [TV]). **Incluye una cuota inicial limitada de tokens gratis**; lo de pago son los packs de ampliación, exactamente como ClickUp Brain (créditos + top-ups $10/10K) o Notion AI (metered). Ancla de pack: **$10/10K créditos**; la cuota la comparten admin + instructores. Sin límite de asientos.
 - Por qué flat-por-academia y no por asiento: el comprador SMB tiene pocos asientos y rechaza AI-per-seat (Copilot $30/usuario es enterprise-think); cuota + packs es el patrón emergente en vertical SaaS. [H consistente con ClickUp/Notion]
 
 ## 4. Anclas de mercado usadas [O]

@@ -12,8 +12,8 @@ Plan de implementación PROPUESTO (nada ejecutado aún). Consume BUSINESS-PLAN.m
 
 | Superficie | Hoy | Objetivo |
 |---|---|---|
-| /pricing cards | 3 (Launch/Business/Enterprise) | + **Solo** con chip "Próximamente" (o decisión alternativa, §6.1) |
-| /pricing extensiones | 8 tarjetas planas "Paid extension" | Marketplace real: estados live/soon, metering por unidad, growth incluye landings, IA en 2 modos |
+| /pricing cards | 3 (Launch/Business/Enterprise) | **Sin cambios de cards** (Solo decidido interno); Enterprise gana subtítulo deployment |
+| /pricing extensiones | 8 tarjetas planas "Paid extension" | Marketplace real: estados live/soon, metering por unidad, growth incluye landings + línea DFY, IA 2 modos (MCP gratis / agente con cuota) |
 | Comparador | ~50 filas, QR/NFC/signage = paid-extension (testeado) | + filas "Campaign landing pages" y modos IA; añade estado soon |
 | FAQ pricing | 6 preguntas | +3 (cómo se compran add-ons; quién compra el hardware; IA BYO vs agente) |
 | /features | roadmapModules genéricos | copy actualizado (multi-proveedor, 2 modos IA, landings) + imagen de acceso |
@@ -80,11 +80,14 @@ Nota de política: los jpgs actuales parecen generados por IA (metadatos); la p�
 | W6 | Generar 6-7 imágenes y integrarlas con alt EN/ES | test de assets existentes en disco |
 | W7 | tsc + suite completa + revisión visual EN/ES | verde |
 
-## 6. Decisiones que necesito del Comandante
+## 6. Decisiones del Comandante — RESUELTAS (2026-09-07, 2 rondas)
 
-1. **Card Solo pública con chip "Próximamente"**: ¿añadirla como 4ª card (recomendado, Launch se mantiene para estacionales) o fusionar Launch→Solo? ¿Nombre público "Solo"?
-2. **Imágenes generadas por IA** siguiendo la convención actual del repo: ¿ok con etiquetado "Illustrative" en mocks y sin cambios en /legal/ia?
-3. **FAQPage JSON-LD en /pricing**: ¿sí? (recomendado).
-4. **Chips de add-ons por vertical en landings**: ¿v2 lo dejamos fuera de v1? (recomendado).
-5. **Metering visible sin divisa** ("per screen", "per door"): ¿sí? (recomendado, patrón Kisi/kitcast).
-6. **Orden**: ¿ejecutar W1-W7 de una vez o parar tras W2 para revisión visual del pricing?
+1. **Solo: NO en la web.** El grid de /pricing queda en 3 tiers; Solo vive solo en propuestas internas. Fuera de este plan la card Solo (se elimina del alcance W1; el bloque Home tampoco la menciona).
+2. **Imágenes: SÍ**, las 7 (prompts exactos en [IMAGE-PROMPTS.md](IMAGE-PROMPTS.md)); etiquetado "Illustrative" en mocks; sin cambios en /legal/ia. Prioridad 1: redo de la imagen de autoescuela (defectuosa).
+3. **FAQPage JSON-LD en /pricing: NO por ahora** (solo <details> HTML).
+4. **Chips de add-ons por vertical: SÍ en v1** (alcance completo W1-W7).
+5. **Metering sin divisa: SÍ** ("per screen", "per door").
+6. **Ejecución: de una vez** (sin parada en W2).
+7. **Landings done-for-you: SÍ como servicio visible** — línea de servicios con CTA de presupuesto en la card growth de /pricing (copy EN/ES), sin página propia.
+8. **IA: conector MCP GRATIS en todos los planes; el agente propio incluye cuota inicial limitada y lo de pago son los packs de ampliación** (sustituye al fee $19 de ADD-ONS.md v1). Copy de la card agentic: "Connect your own ChatGPT or Claude via MCP — free" + "Akademate assistant in the side panel with an included starter AI quota, expandable".
+9. **On-Premise: bloque Deployment en /pricing** (3 modos) + FAQ (ya definido en §B.4).
