@@ -35,7 +35,7 @@ export const verticalPageChrome = {
   en: {
     heroPrefix: 'Akademate for',
     heroCta: 'Book a demo',
-    heroSecondaryCta: 'Start free trial',
+    heroSecondaryCta: 'Free trial: coming soon',
     heroTrust: 'GDPR-compliant · Stripe, PayPal & SEPA',
     outcomesTitle: 'A smoother journey for everyone.',
     experienceEyebrow: 'A product experience shaped around your model',
@@ -70,7 +70,7 @@ export const verticalPageChrome = {
   es: {
     heroPrefix: 'Akademate para',
     heroCta: 'Reservar una demo',
-    heroSecondaryCta: 'Empieza la prueba gratis',
+    heroSecondaryCta: 'Prueba gratis: próximamente',
     heroTrust: 'Cumple el RGPD · Stripe, PayPal y SEPA',
     outcomesTitle: 'Un recorrido más ágil para todos.',
     experienceEyebrow: 'Una experiencia de producto adaptada a tu modelo',

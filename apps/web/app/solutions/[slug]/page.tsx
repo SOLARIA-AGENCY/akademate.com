@@ -81,7 +81,6 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
     .filter((extension): extension is (typeof pricing.extensions)[number] => Boolean(extension))
   const href = (path: string) => localizedHref(path, locale)
   const demoHref = href(`/contacto?asunto=demo&vertical=${slug}`)
-  const trialHref = href(`/registro?asunto=trial&vertical=${slug}`)
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
@@ -132,9 +131,12 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               <Link href={demoHref} className="button-primary-light">
                 {chrome.heroCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link href={trialHref} className="button-ghost-light">
+              <span
+                aria-disabled="true"
+                className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white/60"
+              >
                 {chrome.heroSecondaryCta}
-              </Link>
+              </span>
             </div>
             <p className="mt-4 text-sm text-blue-200">{chrome.heroTrust}</p>
           </div>
