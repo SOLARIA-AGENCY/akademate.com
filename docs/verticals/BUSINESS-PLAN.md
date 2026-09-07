@@ -71,7 +71,7 @@ Posterior: **60**.
 |---|---|---|---|
 | Límites | 1 sede · 3 asientos completos + 10 instructor (solo agenda/asistencia) · miembros sin límite | 2 sedes incluidas · asientos completos ampliados | 3+ sedes · multi-marca |
 | Sedes extra | — | 3ª+ add-on flat ≈40% del delta Solo→Business | ilimitadas |
-| Web | Subdominio, offer pages, reservas | Dominio propio + CMS + blog/SEO | Dominios por marca |
+| Web | Subdominio + offer pages + reservas · **dominio propio como add-on** (sin subir de plan) | Dominio propio + CMS + blog/SEO incluidos | Dominios por marca |
 | Growth | Captura leads, recordatorios | + CRM pipeline, automatizaciones, conectores ads | + atribución de red |
 | Finance | Facturación ES conforme + cobros + receivables + exports gestoría | + conectores: **Holded → QuickBooks → Xero** | + APIs, facturación por sede |
 | Multi-sede | — | vista consolidada 2 sedes | gobernanza franquicia, reporte de red |
@@ -81,9 +81,10 @@ Posterior: **60**.
 
 ### Reglas transversales
 1. Ocultar módulo nunca destruye datos; cambiar de preset/plan reconfigura menú sin migraciones.
-2. Upsell triggers ordenados: 2ª sede · 4º admin/11º instructor · facturación multi-país · marca propia.
+2. Upsell triggers ordenados: dominio propio (micro-upsell, disponible desde Solo) · 2ª sede · 4º admin/11º instructor · facturación multi-país · marca propia.
 3. Anti-churn: sin setup fee en Solo/Business, mensual disponible, downgrade sin trampas, límites publicados en proposal.
 4. Veri*factu: facturas conformes día 1; certificación SIF antes de 1-ene-2027; el foso se comunica cuando esté.
+5. **Dominio propio = add-on en TODOS los planes**, sin necesidad de subir de plan. Canon ya existente: en `apps/web/lib/pricing-content.ts` figura como *paid-extension* en Launch e *included* en Business+. Receta: Prior 60 (lo había restringido a Business en v1 de este doc) → Evidencia: canon interno del repo [HIGH] + argumento SEO/brand de la academia (su autoridad de dominio, crítica en verticales de SEO local como autoescuelas/FP) [HIGH] + costes de registro/DNS de terceros siempre facturados aparte (`separatelyBilledItems`) [O] → Posterior **90**. Riesgo de canibalizar Business asumido y acotado: lo que sigue exclusivo de Business es el bundle web completo (CMS + blog/SEO), no el dominio.
 
 ### KPIs y triggers de revisión (qué mueve cada cubo)
 | Métrica | Umbral de revisión | Decisión en riesgo |

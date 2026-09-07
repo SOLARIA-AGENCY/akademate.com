@@ -47,7 +47,7 @@ Custom domain → automations/SMS → branded white-label app → multi-location
 | Anchor price | **$49/mo** internal anchor (annual -17%, i.e. 2 months free) [TV] | **$149-199/mo** internal anchor [TV] | Custom; internal floor €500+/mo; CEP dedicated precedent €1,200/mo (OVH line, reference only) |
 | Preset | Full core of the chosen vertical preset | Full core + upgraded versions | Full core + network versions |
 | Locations | 1 | **2 included; 3rd+ per-location add-on** | Unlimited |
-| Web | Subdomain, offer pages, bookings | Custom domain + CMS + blog/SEO | Custom domains per brand |
+| Web | Subdomain, offer pages, bookings + **custom domain as add-on** (no plan upgrade needed) | Custom domain + CMS + blog/SEO included | Custom domains per brand |
 | Growth | Lead capture, reminders | + CRM pipeline, workflow automations, ads connectors | + network attribution |
 | Finance | **Built-in invoicing + receivables** (see §3) | + accounting connectors (QBO/Xero/Holded) | + finance APIs, scoped per-location billing |
 | Multi-site | - | Consolidated 2-3 site view | Franchise governance, per-location domains/billing |
