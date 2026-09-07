@@ -5,7 +5,7 @@ Input for the plan/pricing decision. Grounded in two research passes (2026-09-07
 ## Decisions locked (commander, 2026-09-07)
 
 1. **No public prices yet.** Keep "Tailored proposal" across ALL tiers (including Solo) on /pricing, landings and proposals. The anchors below are internal guidance for quotes. Revisit trigger: self-serve funnel validated or pilot cohort data.
-2. **Solo band approved:** 1 location, 1-3 staff seats, ≤100 active members.
+2. **Solo band approved, then amended (commander, 2026-09-07):** 1 location, 1-3 staff seats, **members UNMETERED**. The ≤100 member cap was removed: a small studio can run 20 clients per class × 7 classes a day and NEEDS that volume to survive — the limiter is the team and the location, never the client count.
 3. **Locations model:** Solo = 1 sede. Business = **2 sedes incluidas**. From the 3rd onwards: **per-location add-on**. Enterprise = unlimited.
 4. **Accounting connector priority:** **Holded** (ES anchor) → **QuickBooks** (US) → **Xero** (UK/EU).
 
@@ -43,7 +43,7 @@ Custom domain → automations/SMS → branded white-label app → multi-location
 
 | | **Solo** (new tier) | **Business** (existing) | **Enterprise / Group** (existing) |
 |---|---|---|---|
-| Target | Autónomo / owner-operator: 1 location, 1-3 staff, ≤100 active members [TV band] | Growing academy: 2-3 locations or >100 members | Groups & franchises: 3+ locations, multi-brand |
+| Target | Autónomo / owner-operator: 1 location, 1-3 staff, **members unmetered** | Growing academy: 2nd location or >3 staff | Groups & franchises: 3+ locations, multi-brand |
 | Anchor price | **$49/mo** internal anchor (annual -17%, i.e. 2 months free) [TV] | **$149-199/mo** internal anchor [TV] | Custom; internal floor €500+/mo; CEP dedicated precedent €1,200/mo (OVH line, reference only) |
 | Preset | Full core of the chosen vertical preset | Full core + upgraded versions | Full core + network versions |
 | Locations | 1 | **2 included; 3rd+ per-location add-on** | Unlimited |
@@ -53,7 +53,7 @@ Custom domain → automations/SMS → branded white-label app → multi-location
 | Multi-site | - | Consolidated 2-3 site view | Franchise governance, per-location domains/billing |
 | Add-ons | Marketplace visible, purchase enabled | Marketplace + ads/growth extensions | Implementation programme |
 
-- Why meter on **locations + active-member band**: mirrors TeamUp's predictability without penalizing low-ARPU verticals (camps/driving) the way pure per-student would; locations is the industry's cleanest upsell trigger. [O patterns]
+- Why meter on **locations + staff seats (NOT members)**: a single room physically caps volume (20/class × 7 classes/day ≈ 150-400 realistic active members), so the location already proxies load — metering members would punish exactly the high-volume small studios that need volume to survive, and would read as "we tax your growth". TeamUp's member-banded model is the cautionary example, not the template. Locations remains the industry's cleanest upsell trigger (Mindbody/Walla pattern). This also makes Solo automatically fair for volume-heavy verticals (camps, driving). [O patterns + commander decision]
 - Why a **new Solo tier**: the market shows an explicit solo anchor band ($0-49) we currently cannot enter ("Tailored proposal" only); WellnessLiving and Arketa both convert solos with a named tier. [O]
 - Anti-churn guardrails (copy + policy): no setup fee at Solo/Business, monthly option, downgrade without traps, published limits. [O churn evidence]
 - 2nd location path (locked): Business includes the 2nd sede; from the 3rd onwards each location is a per-location add-on; franchise-scale governance stays Enterprise. This is the cleanest "your academy grew" upsell moment, and no competitor offers it as a friendly mid-step. [H, differentiation bet]
@@ -83,7 +83,7 @@ Nothing is "removed" between plans inside a preset; the plan upgrades **versions
 
 ## 5. Worked cases
 
-- **Yoga 1-room autónoma (Madrid):** Solo $49/mo (annual $490). Replaces Contasimple (€12) + a booking tool ($69-119) → argument: "one tool, legal invoices included, your gestoría gets clean exports." [O anchors]
+- **Yoga 1-room autónoma (Madrid), e.g. 20 clients × 7 classes/day:** Solo $49/mo (annual $490), members unmetered. Replaces Contasimple (€12) + a booking tool ($69-119) → argument: "one tool, legal invoices included, your gestoría gets clean exports — and we never charge you more for growing your client list." [O anchors]
 - **Same academy opens room 2:** Business $149-199/mo. Upsell moment triggered by the 2nd-location cap; optionally adds growth extension later.
 - **3 academies + franchise interest:** Enterprise custom, network reporting, per-brand domains. CEP-style dedicated infra stays on the separate dedicated line. [O precedent]
 
