@@ -97,14 +97,9 @@ Decision 2026-09-07: do NOT publish prices yet; "Tailored proposal" stays everyw
 
 ## 7. Open questions (post-decision)
 
-Resolved 2026-09-07: no public prices yet (#1); Solo band approved (#2); 2nd sede included, 3rd+ add-on (#3); connector priority Holded → QuickBooks → Xero (#5).
+Resolved 2026-09-07: no public prices yet (#1); Solo band approved (1 sede, 1-3 staff, members unmetered); 2nd sede included, 3rd+ add-on (#3); connector priority Holded → QuickBooks → Xero (#5).
 
-Still open:
-1. **Invoicing scope:** build ES-first Veri*factu invoicing for Solo, or start with exports-to-gestoría and build SIF certification later (deadlines 2027/28 give room)?
-2. **Annual discount:** -17% (2 months free) or -10% (WellnessLiving style) — applies to proposals now, public later.
-3. **Staff seats as soft cap** on Solo (1-3): hard limit, soft warning, or unmetered?
-4. **Trial role:** is the self-serve trial the entry to Solo, or does Solo start founder-led until prices go public?
-5. **Per-location add-on price:** flat per extra sede, or banded (3-5, 6-10)?
+**All remaining questions closed by the Bayesian audit in [BUSINESS-PLAN.md](BUSINESS-PLAN.md)** (posterior recipes + final rules): Veri*factu phasing (facturas conformes day 1, SIF certification before 1-Jan-2027), annual discount (-17% optional, monthly default at Solo), staff seats (3 full + 10 instructor-limited free), trial vs Solo entry (founder-led until prices go public), per-location add-on (flat ≈40% of the Solo→Business delta). BUSINESS-PLAN.md prevails where they overlap.
 
 ## Sources
 
