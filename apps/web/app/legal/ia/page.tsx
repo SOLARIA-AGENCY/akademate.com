@@ -12,7 +12,7 @@ const documents = {
       {
         title: 'AI-assisted operations',
         content:
-          'Akademate can connect AI-assisted tools to operational workflows through governed interfaces, including MCP. Available tools, providers, credentials and accessible data are determined by the organisation’s deployment and authorisation model.',
+          'Brik64 LLC publishes Akademate. Akademate can connect AI-assisted tools to operational workflows through governed interfaces, including MCP. Available tools, providers, credentials and accessible data are determined by the organisation’s deployment and authorisation model.',
       },
       {
         title: 'Human oversight',
@@ -39,7 +39,7 @@ const documents = {
       {
         title: 'Operaciones asistidas por IA',
         content:
-          'Akademate puede conectar herramientas asistidas por IA con flujos de trabajo operativos mediante interfaces gobernadas, incluido MCP. Las herramientas, proveedores, credenciales y datos accesibles disponibles dependen del modelo de despliegue y autorización de la organización.',
+          'Brik64 LLC publica Akademate. Akademate puede conectar herramientas asistidas por IA con flujos de trabajo operativos mediante interfaces gobernadas, incluido MCP. Las herramientas, proveedores, credenciales y datos accesibles disponibles dependen del modelo de despliegue y autorización de la organización.',
       },
       {
         title: 'Supervisión humana',
@@ -59,6 +59,8 @@ const documents = {
     ],
   },
 } as const
+
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()

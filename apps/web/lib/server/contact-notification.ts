@@ -4,7 +4,7 @@ type ContactLead = {
   lastName: string
   email: string
   phone: string
-  subject: 'demo' | 'pricing' | 'support' | 'partnership' | 'privacy' | 'other'
+  subject: 'demo' | 'pricing' | 'support' | 'partnership' | 'privacy' | 'trial' | 'other'
   message: string
   utm?: {
     source?: string
@@ -28,6 +28,7 @@ const subjectLabels: Record<ContactLead['subject'], string> = {
   support: 'Customer support',
   partnership: 'Enterprise or partnership',
   privacy: 'Privacy enquiry',
+  trial: 'Free trial request',
   other: 'General enquiry',
 }
 

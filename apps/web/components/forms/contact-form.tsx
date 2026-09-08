@@ -3,17 +3,26 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useLocale } from '@/components/i18n/locale-provider'
+import { trackAnalyticsEvent } from '@/lib/tracking'
 
-const validSubjects = ['demo', 'pricing', 'support', 'partnership', 'privacy', 'other'] as const
+const validSubjects = ['demo', 'pricing', 'support', 'partnership', 'privacy', 'trial', 'other'] as const
 
 export function ContactForm() {
+  const locale = useLocale()
   const searchParams = useSearchParams()
   const requestedSubject = searchParams.get('asunto')
+  const vertical = searchParams.get('vertical') ?? ''
   const initialSubject = validSubjects.includes(requestedSubject as (typeof validSubjects)[number])
     ? requestedSubject ?? ''
+    : vertical
+      ? 'trial'
+      : ''
+  const initialMessage = vertical
+    ? `I want to start a free trial for ${vertical.replace(/-/g, ' ')}.`
     : ''
   const [form, setForm] = useState({
-    name: '', email: '', phone: '', subject: initialSubject, message: '', website: '', privacyAccepted: false,
+    name: '', email: '', phone: '', subject: initialSubject, message: initialMessage, website: '', privacyAccepted: false,
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [feedback, setFeedback] = useState('')
@@ -55,6 +64,12 @@ export function ContactForm() {
       })
       const data = await response.json().catch(() => ({})) as { error?: string }
       if (!response.ok) throw new Error(data.error ?? 'We could not send your request')
+      trackAnalyticsEvent({
+        event: 'generate_lead',
+        locale,
+        ...(vertical ? { vertical } : {}),
+        ...(form.subject === 'pricing' ? { plan: 'pricing' } : {}),
+      })
       setStatus('success')
       setFeedback('Thanks. Your request has been received.')
       setForm({ name: '', email: '', phone: '', subject: '', message: '', website: '', privacyAccepted: false })
@@ -80,7 +95,7 @@ export function ContactForm() {
       <Field label="Phone (optional)" id="phone"><input id="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
       <Field label="What would you like to discuss?" id="subject" required>
         <select id="subject" required className={fieldClass} value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })}>
-          <option value="">Select a topic</option><option value="demo">Product demo</option><option value="pricing">Plans and commercial scope</option><option value="support">Customer support</option><option value="partnership">Enterprise or partnership</option><option value="privacy">Privacy</option><option value="other">Other</option>
+          <option value="">Select a topic</option><option value="trial">Free trial</option><option value="demo">Product demo</option><option value="pricing">Plans and commercial scope</option><option value="support">Customer support</option><option value="partnership">Enterprise or partnership</option><option value="privacy">Privacy</option><option value="other">Other</option>
         </select>
       </Field>
       <Field label="Tell us about your academy" id="message" required><textarea id="message" required minLength={10} maxLength={4000} rows={6} className={fieldClass} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} /></Field>

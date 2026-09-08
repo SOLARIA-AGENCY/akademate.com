@@ -32,9 +32,43 @@ describe('public access and claim surface', () => {
     expect(source).not.toContain('Alicia Romero')
   })
 
-  it('does not execute known non-essential tracker signatures', () => {
-    expect(source).not.toMatch(/gtag\s*\(/)
+  it('does not execute advertising pixels or ungated analytics signatures', () => {
     expect(source).not.toMatch(/fbq\s*\(/)
-    expect(source).not.toMatch(/googletagmanager\.com|google-analytics\.com|connect\.facebook\.net|static\.hotjar\.com/)
+    expect(source).not.toMatch(/gtag\s*\(/)
+    expect(source).not.toMatch(/connect\.facebook\.net|static\.hotjar\.com/)
+  })
+
+  it('loads Google Tag Manager only from the consent-gated module', () => {
+    const tracker = readFileSync(join(webRoot.pathname, 'components/tracking/ConsentAwareAnalytics.tsx'), 'utf8')
+    const config = readFileSync(join(webRoot.pathname, 'lib/tracking.ts'), 'utf8')
+    const otherSource = sourceFiles(webRoot.pathname)
+      .filter((file) => !file.endsWith('ConsentAwareAnalytics.tsx') && !file.endsWith('tracking.ts'))
+      .map((file) => readFileSync(file, 'utf8'))
+      .join('\n')
+
+    expect(config).toContain('GTM-TKSVM638')
+    expect(tracker).toContain('googletagmanager.com/gtm.js')
+    expect(tracker).toMatch(/hasAnalyticsConsent/)
+    expect(otherSource).not.toMatch(/googletagmanager\.com|google-analytics\.com/)
+  })
+
+  it('keeps dataLayer writes inside consent-aware tracking helpers', () => {
+    const tracking = readFileSync(join(webRoot.pathname, 'lib/tracking.ts'), 'utf8')
+    const contactForm = readFileSync(join(webRoot.pathname, 'components/forms/contact-form.tsx'), 'utf8')
+    const otherSource = sourceFiles(webRoot.pathname)
+      .filter(
+        (file) =>
+          !file.endsWith('ConsentAwareAnalytics.tsx') &&
+          !file.endsWith('tracking.ts') &&
+          !file.endsWith('AnalyticsClickCapture.tsx') &&
+          !file.endsWith('contact-form.tsx')
+      )
+      .map((file) => readFileSync(file, 'utf8'))
+      .join('\n')
+
+    expect(tracking).toMatch(/hasAnalyticsConsent\(readStoredCookieConsent\(\)\)/)
+    expect(contactForm).toContain("event: 'generate_lead'")
+    expect(contactForm).toContain('trackAnalyticsEvent')
+    expect(otherSource).not.toMatch(/dataLayer\.push/)
   })
 })

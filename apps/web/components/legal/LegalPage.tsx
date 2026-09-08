@@ -69,6 +69,9 @@ export function LegalPage({
             <p className="mt-3">
               {legal.labels.provider} {legal.company.name}.
             </p>
+            <p>
+              {legal.labels.tradeName} {legal.company.tradeName}.
+            </p>
             <dl className="mt-3 space-y-3">
               {[
                 legal.company.registryCode,

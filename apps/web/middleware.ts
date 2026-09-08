@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getLocaleRoutingPlan, localePreferenceCookie } from '@/lib/i18n/routing'
+import { apexHostRedirect, getLocaleRoutingPlan, localePreferenceCookie } from '@/lib/i18n/routing'
 
 /**
  * Next.js 15 entry point. Routing decisions are framework-neutral in
@@ -7,6 +7,9 @@ import { getLocaleRoutingPlan, localePreferenceCookie } from '@/lib/i18n/routing
  * this application adopts the Next.js 16 filename convention.
  */
 export function middleware(request: NextRequest) {
+  const apexRedirect = apexHostRedirect(request.headers.get('host'), request.nextUrl)
+  if (apexRedirect) return NextResponse.redirect(apexRedirect, 301)
+
   const plan = getLocaleRoutingPlan({
     pathname: request.nextUrl.pathname,
     cookieLocale: request.cookies.get(localePreferenceCookie)?.value,
@@ -14,6 +17,7 @@ export function middleware(request: NextRequest) {
   })
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-akademate-locale', plan.locale)
+  requestHeaders.set('x-akademate-pathname', request.nextUrl.pathname)
 
   const response =
     plan.type === 'rewrite'
@@ -24,7 +28,7 @@ export function middleware(request: NextRequest) {
         })()
       : NextResponse.next({ request: { headers: requestHeaders } })
 
-  if (plan.persistLocale) {
+  if (plan.persistLocale && request.cookies.get(localePreferenceCookie)?.value !== plan.locale) {
     response.cookies.set(localePreferenceCookie, plan.locale, {
       httpOnly: true,
       maxAge: 60 * 60 * 24 * 365,

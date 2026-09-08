@@ -1,6 +1,13 @@
 // @vitest-environment node
 
 import { describe, expect, it } from 'vitest'
+import {
+  distributionModes,
+  integrationPillars,
+  operatingJourney,
+  platformPillars,
+  roadmapModules,
+} from '@/lib/marketing-content'
 import { marketingText, spanishMarketingCopy } from './marketing-copy'
 
 describe('marketing copy registry', () => {
@@ -16,5 +23,20 @@ describe('marketing copy registry', () => {
     const values = Object.values(spanishMarketingCopy)
     expect(values.every((value) => value.trim().length > 0)).toBe(true)
     expect(new Set(values).size).toBe(values.length)
+  })
+
+  it('covers every home and features string that is translated at request time', () => {
+    const sources = [
+      ...operatingJourney.flatMap((item) => [item.title, item.text]),
+      ...distributionModes.flatMap((mode) => [mode.title, mode.text]),
+      ...platformPillars.flatMap((pillar) => [pillar.title, pillar.text, ...pillar.capabilities]),
+      ...roadmapModules.flatMap((module) => [module.title, module.phase, module.text]),
+      ...integrationPillars.flatMap((pillar) => [pillar.title, pillar.text]),
+    ]
+
+    for (const source of sources) {
+      expect(spanishMarketingCopy, source).toHaveProperty(source)
+      expect(marketingText('es', source).length).toBeGreaterThan(0)
+    }
   })
 })

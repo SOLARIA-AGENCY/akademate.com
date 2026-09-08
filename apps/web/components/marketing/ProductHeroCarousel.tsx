@@ -1,8 +1,8 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { CheckCircle2, Globe2, GraduationCap, LayoutDashboard } from 'lucide-react'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 
 const slides = [
   {
@@ -50,17 +50,22 @@ export function ProductHeroCarousel() {
   return (
     <div className="product-hero-visual" aria-roledescription="carousel" aria-label="Akademate product surfaces">
       <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#071633] shadow-[0_34px_100px_rgba(2,12,34,.45)]">
-        {slides.map((slide, index) => (
-          <Image
-            key={slide.id}
-            src={slide.image}
-            alt={slide.alt}
-            fill
-            priority={index === 0}
-            sizes="(max-width: 1024px) 100vw, 58vw"
-            className={`object-cover transition duration-700 ease-out motion-reduce:transition-none ${index === activeIndex ? 'scale-100 opacity-100' : 'pointer-events-none scale-[1.015] opacity-0'}`}
-          />
-        ))}
+        {slides.map((slide, index) => {
+          if (index !== 0 && index !== activeIndex) return null
+          return (
+            <OptimizedImage
+              key={slide.id}
+              src={slide.image}
+              alt={slide.alt}
+              fill
+              priority={index === 0}
+              fetchPriority={index === 0 ? 'high' : 'low'}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              sizes="(max-width: 1024px) 100vw, 58vw"
+              className={`object-cover transition duration-700 ease-out motion-reduce:transition-none ${index === activeIndex ? 'scale-100 opacity-100' : 'pointer-events-none scale-[1.015] opacity-0'}`}
+            />
+          )
+        })}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#031027]/95 via-[#031027]/45 to-transparent px-5 pb-5 pt-20 text-white sm:px-7 sm:pb-7">
           <div className="flex max-w-xl items-start gap-3">
             <ActiveIcon className="mt-1 h-5 w-5 shrink-0 text-blue-300" strokeWidth={1.8} aria-hidden="true" />

@@ -12,7 +12,7 @@ export function publicPageMetadata({
   locale,
   pathname,
   copy,
-  image = '/images/marketing/akademate-hero-operations.jpg',
+  image = '/images/marketing/akademate-hero-operations-og.webp',
 }: {
   locale: Locale
   pathname: string
@@ -31,6 +31,7 @@ export function publicPageMetadata({
       description: current.description,
       type: 'website',
       locale: locale === 'es' ? 'es_ES' : 'en_GB',
+      alternateLocale: locale === 'es' ? ['en_GB'] : ['es_ES'],
       url: localizedPathname,
       siteName: 'Akademate',
       images: [{ url: image, alt: current.title }],
@@ -50,14 +51,14 @@ export function publicRootMetadata(locale: Locale): Metadata {
     pathname: '/',
     copy: {
       en: {
-        title: 'Akademate | Run your academy and grow',
+        title: 'Academy management software',
         description:
-          'Connect enrolment, operations, learning, payments and performance in one academy platform.',
+          'Academy management software for enrolment, timetables, virtual campus, payments and operations. In-person, online and hybrid academies in one platform.',
       },
       es: {
-        title: 'Akademate | Gestiona y haz crecer tu academia',
+        title: 'Software de gestión de academias',
         description:
-          'Conecta matrículas, operaciones, aprendizaje, pagos y rendimiento en una plataforma para academias.',
+          'Software de gestión de academias para matrículas, horarios, campus virtual, pagos y operaciones. Presencial, online e híbrido en una sola plataforma.',
       },
     },
   })
@@ -66,26 +67,32 @@ export function publicRootMetadata(locale: Locale): Metadata {
     ...metadata,
     metadataBase: new URL(siteUrl),
     title: {
-      default: String(metadata.title),
+      default:
+        locale === 'es'
+          ? 'Software de gestión de academias | Akademate'
+          : 'Academy management software | Akademate',
       template: '%s | Akademate',
     },
     keywords:
       locale === 'es'
         ? [
             'software de gestión de academias',
-            'operaciones educativas',
-            'reservas de cursos',
-            'campus virtual',
-            'pagos para academias',
+            'software para academias',
+            'plataforma para academias',
+            'software centros de formación',
+            'gestión de matrículas academias',
+            'campus virtual para academias',
+            'software academias de idiomas',
           ]
         : [
-            'academy management',
-            'education operations',
-            'booking software',
-            'learning management',
-            'academy payments',
+            'academy management software',
+            'academy operating system',
+            'course booking software',
+            'enrolment software for academies',
+            'LMS for academies',
+            'academy payments software',
           ],
-    authors: [{ name: 'SOLARIA Agency' }],
+    authors: [{ name: 'Brik64 LLC' }],
     icons: {
       icon: '/favicon.png',
       apple: '/apple-touch-icon.png',

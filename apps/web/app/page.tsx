@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { ArrowRight, Check, Globe2 } from 'lucide-react'
 import { AcademyOperationsStory } from '@/components/marketing/AcademyOperationsStory'
@@ -32,24 +32,36 @@ import {
   platformPillars,
 } from '@/lib/marketing-content'
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  return publicPageMetadata({
+  const metadata = publicPageMetadata({
     locale,
     pathname: '/',
     copy: {
       en: {
-        title: 'The operating system for academies',
+        title: 'Academy management software',
         description:
-          'Publish, enrol, teach, collect and grow across in-person, online and hybrid academy operations.',
+          'Academy management software for enrolment, timetables, virtual campus, payments and operations. In-person, online and hybrid academies in one platform.',
       },
       es: {
-        title: 'El sistema operativo para academias',
+        title: 'Software de gestión de academias',
         description:
-          'Publica, matricula, enseña, cobra y crece en academias presenciales, online e híbridas.',
+          'Software de gestión de academias para matrículas, horarios, campus virtual, pagos y operaciones. Presencial, online e híbrido en una sola plataforma.',
       },
     },
   })
+
+  return {
+    ...metadata,
+    title: {
+      absolute:
+        locale === 'es'
+          ? 'Software de gestión de academias | Akademate'
+          : 'Academy management software | Akademate',
+    },
+  }
 }
 
 export default async function HomePage() {
@@ -85,14 +97,21 @@ export default async function HomePage() {
               <p className="hero-item text-sm font-semibold text-blue-200">
                 {dictionary.home.eyebrow}
               </p>
-              <h1 className="hero-item mt-5 text-[2.8rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.15rem]">
+              <h1 className="hero-item mt-5 text-[1.85rem] font-semibold leading-[1.08] tracking-[-0.04em] sm:text-4xl lg:text-5xl">
                 {dictionary.home.title}
               </h1>
+              <h2 className="hero-item mt-4 text-[2.4rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-5xl lg:text-[4.15rem]">
+                {dictionary.home.claim}
+              </h2>
               <p className="hero-item mt-6 max-w-xl text-lg leading-8 text-blue-100/80">
                 {dictionary.home.description}
               </p>
               <div className="hero-item mt-8 flex flex-wrap gap-3">
-                <Link href={href('/contacto?asunto=demo')} className="button-primary-light group">
+                <Link
+                  href={href('/contacto?asunto=demo')}
+                  data-analytics-event="cta_demo"
+                  className="button-primary-light group"
+                >
                   {dictionary.home.primaryCta}{' '}
                   <ArrowRight
                     className="h-4 w-4 transition-transform group-hover:translate-x-1"
@@ -163,10 +182,11 @@ export default async function HomePage() {
                   className="group overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_14px_40px_rgba(7,22,51,.06)]"
                 >
                   <div className="relative aspect-[3/2] overflow-hidden">
-                    <Image
+                    <OptimizedImage
                       src={pillar.image}
                       alt={pillar.imageAlt}
                       fill
+                      loading="lazy"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
                     />
@@ -401,10 +421,11 @@ export default async function HomePage() {
                     className="group block rounded-2xl border border-slate-200 bg-white p-3"
                   >
                     <div className="media-reveal relative aspect-[16/9] overflow-hidden rounded-xl">
-                      <Image
+                      <OptimizedImage
                         src={post.image}
                         alt={post.imageAlt}
                         fill
+                        loading="lazy"
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         className="object-cover"
                       />

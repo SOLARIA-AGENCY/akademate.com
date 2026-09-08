@@ -16,7 +16,7 @@ const documents = {
       {
         title: 'Provider categories',
         content:
-          'Depending on the contracted configuration, providers may support hosting, network security, storage, email, support, observability, payments or artificial intelligence.',
+          'Brik64 LLC currently uses Cloudflare to host and deliver the public website. After analytics consent, the public website may load Google Tag Manager and Google Analytics 4; they are not advertising tags. Depending on the contracted product configuration, other providers may support hosting, network security, storage, email, support, observability, payments or artificial intelligence. A dependency in source code does not by itself establish that a provider processes customer data.',
       },
       {
         title: 'Changes and safeguards',
@@ -43,7 +43,7 @@ const documents = {
       {
         title: 'Categorías de proveedores',
         content:
-          'Según la configuración contratada, los proveedores pueden respaldar alojamiento, seguridad de red, almacenamiento, correo electrónico, soporte, observabilidad, pagos o inteligencia artificial.',
+          'Brik64 LLC usa Cloudflare para alojar y entregar el sitio público. Tras el consentimiento de analítica, el sitio puede cargar Google Tag Manager y Google Analytics 4; no son etiquetas publicitarias. Según la configuración contratada del producto, otros proveedores pueden respaldar alojamiento, seguridad de red, almacenamiento, correo electrónico, soporte, observabilidad, pagos o inteligencia artificial. Una dependencia en el código no establece por sí misma que un proveedor trate datos de clientes.',
       },
       {
         title: 'Cambios y salvaguardas',
@@ -58,6 +58,8 @@ const documents = {
     ],
   },
 } as const
+
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()

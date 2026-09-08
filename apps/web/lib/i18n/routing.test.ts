@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  apexHostRedirect,
   getLocaleRoutingPlan,
   localizedAlternates,
   localizedHref,
@@ -56,7 +57,7 @@ describe('public locale routing', () => {
       type: 'rewrite',
       locale: 'es',
       pathname: '/contacto',
-      persistLocale: true,
+      persistLocale: false,
     })
     expect(getLocaleRoutingPlan({ pathname: '/pricing', cookieLocale: 'es' })).toEqual({
       type: 'next',
@@ -70,7 +71,15 @@ describe('public locale routing', () => {
     expect(shouldHandleLocalePath('/_next/static/chunks/app.js')).toBe(false)
     expect(shouldHandleLocalePath('/images/marketing/hero.png')).toBe(false)
     expect(shouldHandleLocalePath('/favicon.ico')).toBe(false)
+    expect(shouldHandleLocalePath('/llms.txt')).toBe(false)
     expect(shouldHandleLocalePath('/es/features')).toBe(true)
+  })
+
+  it('canonicalizes www onto the apex host', () => {
+    const redirected = apexHostRedirect('www.akademate.com', new URL('https://www.akademate.com/es/pricing?ref=nav'))
+    expect(redirected?.toString()).toBe('https://akademate.com/es/pricing?ref=nav')
+    expect(apexHostRedirect('akademate.com', new URL('https://akademate.com/en'))).toBeNull()
+    expect(apexHostRedirect('localhost:3006', new URL('http://localhost:3006/en'))).toBeNull()
   })
 
   it('never turns an unsafe path-like value into an external redirect target', () => {

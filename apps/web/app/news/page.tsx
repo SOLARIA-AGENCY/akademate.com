@@ -4,6 +4,8 @@ import { getNewsPosts } from '@/lib/blog-posts'
 import { getEditorialMetadataAlternates, getEditorialUi } from '@/lib/editorial-i18n'
 import { getRequestLocale } from '@/lib/i18n/server'
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   const content = getEditorialUi(locale).index.news

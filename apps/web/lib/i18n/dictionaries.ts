@@ -34,10 +34,12 @@ type Dictionary = {
     detail: string
     rights: string
     governance: string
+    providerAttribution: string
   }
   home: {
     eyebrow: string
     title: string
+    claim: string
     description: string
     primaryCta: string
     secondaryCta: string
@@ -58,6 +60,13 @@ type Dictionary = {
     formTitle: string
     formDescription: string
     loadingForm: string
+  }
+  trial: {
+    eyebrow: string
+    title: string
+    description: string
+    formTitle: string
+    formDescription: string
   }
 }
 
@@ -98,10 +107,12 @@ export const dictionaries: Record<Locale, Dictionary> = {
         'Akademate brings growth, operations, learning and finance into one connected rhythm.',
       rights: 'All rights reserved.',
       governance: 'Legal information is maintained as part of our product governance programme.',
+      providerAttribution: 'Akademate is a product of Brik64 LLC, doing business as Brik64 Inc.',
     },
     home: {
       eyebrow: 'One connected platform for every academy team',
-      title: 'Run your academy. Grow.',
+      title: 'Academy management software',
+      claim: 'Run your academy. Grow.',
       description: 'Bring enrolment, teaching, payments and performance into one operating system.',
       primaryCta: 'Book a demo',
       secondaryCta: 'Explore the platform',
@@ -131,6 +142,13 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formTitle: 'Book your walkthrough',
       formDescription: 'Share a little context and we’ll make the conversation immediately useful.',
       loadingForm: 'Loading form…',
+    },
+    trial: {
+      eyebrow: 'Free trial',
+      title: 'Start your academy on Akademate.',
+      description: 'Open a trial for your academy model. We will set the walkthrough around your programmes, people and sites.',
+      formTitle: 'Create your free trial',
+      formDescription: 'Share a little context. We will open the trial around your vertical.',
     },
   },
   es: {
@@ -170,10 +188,12 @@ export const dictionaries: Record<Locale, Dictionary> = {
       rights: 'Todos los derechos reservados.',
       governance:
         'La información legal se mantiene dentro de nuestro programa de gobierno de producto.',
+      providerAttribution: 'Akademate es un producto de Brik64 LLC, que opera como Brik64 Inc.',
     },
     home: {
       eyebrow: 'Una plataforma conectada para todo el equipo',
-      title: 'Gestiona tu academia. Crece.',
+      title: 'Software de gestión de academias',
+      claim: 'Gestiona tu academia. Crece.',
       description:
         'Conecta matrículas, enseñanza, pagos y rendimiento en un único sistema operativo.',
       primaryCta: 'Reservar una demo',
@@ -205,6 +225,13 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formDescription:
         'Comparte un poco de contexto y haremos que la conversación sea útil desde el inicio.',
       loadingForm: 'Cargando formulario…',
+    },
+    trial: {
+      eyebrow: 'Prueba gratis',
+      title: 'Empieza tu academia en Akademate.',
+      description: 'Abre una prueba para tu modelo de academia. Prepararemos el recorrido alrededor de tus programas, personas y sedes.',
+      formTitle: 'Crea tu prueba gratis',
+      formDescription: 'Comparte un poco de contexto. Abriremos la prueba alrededor de tu vertical.',
     },
   },
 }

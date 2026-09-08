@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
@@ -11,6 +11,8 @@ import { localizedHref } from '@/lib/i18n/routing'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { verticals } from '@/lib/marketing-content'
 import { getLocalizedSolutionDetail, getLocalizedVertical, verticalPageChrome } from '@/lib/vertical-i18n'
+
+export const revalidate = 3600
 
 export function generateStaticParams() {
   return verticals.map(({ slug }) => ({ slug }))
@@ -39,11 +41,11 @@ export async function generateMetadata({
     image: vertical.image,
     copy: {
       en: {
-        title: `${englishVertical.title} software`,
+        title: `${englishVertical.title} management software`,
         description: englishDetail.promise,
       },
       es: {
-        title: `Software para ${spanishVertical.title}`,
+        title: `Software de gestión para ${spanishVertical.title.toLowerCase()}`,
         description: spanishDetail.promise,
       },
     },
@@ -64,7 +66,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
       <Header />
       <main id="content">
         <section className="relative flex min-h-[calc(100dvh-73px)] items-end overflow-hidden bg-[#071633] text-white">
-          <Image
+          <OptimizedImage
             src={vertical.image}
             alt={vertical.imageAlt}
             fill
@@ -79,9 +81,17 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               {detail.headline}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">{detail.promise}</p>
-            <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-8">
+            <Link href={href(`/registro?vertical=${slug}`)} className="button-primary-light mt-8">
               {chrome.heroCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href={href('/features')} className="button-ghost-light">
+                {chrome.featuresLink}
+              </Link>
+              <Link href={href('/contacto')} className="button-ghost-light">
+                {chrome.contactLink}
+              </Link>
+            </div>
           </div>
         </section>
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
@@ -134,7 +144,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-blue-100/70">
               {chrome.closingDescription}
             </p>
-            <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-8">
+            <Link href={href(`/registro?vertical=${slug}`)} className="button-primary-light mt-8">
               {chrome.closingCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>

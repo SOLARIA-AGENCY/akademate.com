@@ -14,6 +14,8 @@ const pending = (label: string, publicNote: string): LegalField => ({
 
 type LegalCompany = {
   name: string
+  tradeName: string
+  jurisdiction: string
   registryCode: LegalField
   vatId: LegalField
   registeredOffice: LegalField
@@ -34,6 +36,7 @@ type LegalContent = {
     lastUpdated: string
     companyInformation: string
     provider: string
+    tradeName: string
     relatedDocuments: string
     legalDocuments: string
   }
@@ -47,7 +50,7 @@ type LegalContent = {
     euAiActAlt: string
   }
   trackingPolicy: {
-    currentStatus: 'no-non-essential-trackers'
+    currentStatus: 'consent-gated-analytics'
     statement: string
     activationGate: string
   }
@@ -56,28 +59,33 @@ type LegalContent = {
 const legalContent: Record<Locale, LegalContent> = {
   en: {
     company: {
-      name: 'SOLARIA AGENCY OÜ',
+      name: 'Brik64 LLC',
+      tradeName: 'Brik64 Inc.',
+      jurisdiction: 'Delaware, United States',
       registryCode: pending(
-        'Estonian registry code',
+        'Delaware file number',
         'Pending documentary validation before final publication.'
       ),
-      vatId: pending('Tax / VAT identifier', 'Pending tax validation before final publication.'),
+      vatId: pending(
+        'EIN / tax identifier',
+        'Pending tax validation before final publication.'
+      ),
       registeredOffice: pending(
-        'Registered office in Estonia',
-        'Pending registry validation before final publication.'
+        'Delaware registered office',
+        'Pending registry validation before final publication. No street address is published until that validation is complete.'
       ),
       operatingAddress: pending(
-        'Operating address in Malmö',
-        'Pending internal validation before final publication.'
+        'Operating address',
+        'Pending. No operating address is published until internal validation is complete.'
       ),
       privacyContact: pending(
         'Privacy contact',
         'Dedicated channel pending validation. In the meantime, enquiries may be sent to info@akademate.com.'
       ),
     },
-    lastUpdated: '29 July 2026',
+    lastUpdated: '8 September 2026',
     draftNotice:
-      'Working legal information under professional review. Final registry, tax, address and privacy contact details will be published after documentary validation.',
+      'Working legal information under professional review. Akademate is a product of Brik64 LLC, a Delaware limited liability company doing business as Brik64 Inc. Final registry, tax, address, EU representative and privacy-contact details will be published after documentary validation.',
     links: [
       { title: 'Privacy', href: '/legal/privacidad' },
       { title: 'Terms', href: '/legal/terminos' },
@@ -91,6 +99,7 @@ const legalContent: Record<Locale, LegalContent> = {
       lastUpdated: 'Last updated:',
       companyInformation: 'Company information',
       provider: 'Provider:',
+      tradeName: 'Doing business as:',
       relatedDocuments: 'Related documents',
       legalDocuments: 'Legal documents',
     },
@@ -104,40 +113,42 @@ const legalContent: Record<Locale, LegalContent> = {
       euAiActAlt: 'EU Artificial Intelligence Act',
     },
     trackingPolicy: {
-      currentStatus: 'no-non-essential-trackers',
+      currentStatus: 'consent-gated-analytics',
       statement:
-        'The public website does not currently load third-party analytics or marketing. No consent manager is installed because there are no non-essential purposes to authorise.',
+        'The public website uses strictly necessary cookies for locale and theme. Google Tag Manager and Google Analytics 4 load only after you accept analytics. Advertising cookies and Meta Pixel are not used.',
       activationGate:
-        'Before GA4, GTM, Meta Pixel or equivalent technology is introduced, granular fail-closed consent must be added, the cookie inventory updated and the absence of pre-consent tracking demonstrated.',
+        'Analytics is fail-closed. The GTM container does not load until granular analytics consent is stored locally. Withdrawing consent stops new analytics loads. No advertising or remarketing tags are authorised.',
     },
   },
   es: {
     company: {
-      name: 'SOLARIA AGENCY OÜ',
+      name: 'Brik64 LLC',
+      tradeName: 'Brik64 Inc.',
+      jurisdiction: 'Delaware, Estados Unidos',
       registryCode: pending(
-        'Código registral estonio',
+        'Número de archivo de Delaware',
         'Pendiente de validación documental antes de la publicación final.'
       ),
       vatId: pending(
-        'Identificador fiscal / IVA',
+        'EIN / identificador fiscal',
         'Pendiente de validación fiscal antes de la publicación final.'
       ),
       registeredOffice: pending(
-        'Domicilio social en Estonia',
-        'Pendiente de validación registral antes de la publicación final.'
+        'Domicilio registrado en Delaware',
+        'Pendiente de validación registral antes de la publicación final. No se publica dirección postal hasta completar esa validación.'
       ),
       operatingAddress: pending(
-        'Dirección operativa en Malmö',
-        'Pendiente de validación interna antes de la publicación final.'
+        'Dirección operativa',
+        'Pendiente. No se publica dirección operativa hasta completar la validación interna.'
       ),
       privacyContact: pending(
         'Contacto de privacidad',
         'Canal específico pendiente de validación. Mientras tanto, las consultas pueden enviarse a info@akademate.com.'
       ),
     },
-    lastUpdated: '29 de julio de 2026',
+    lastUpdated: '8 de septiembre de 2026',
     draftNotice:
-      'Información legal de trabajo sometida a revisión profesional. Los datos finales de registro, fiscalidad, dirección y contacto de privacidad se publicarán tras la validación documental.',
+      'Información legal de trabajo sometida a revisión profesional. Akademate es un producto de Brik64 LLC, una limited liability company de Delaware que opera como Brik64 Inc. Los datos finales de registro, fiscalidad, dirección, representante en la UE y contacto de privacidad se publicarán tras la validación documental.',
     links: [
       { title: 'Privacidad', href: '/legal/privacidad' },
       { title: 'Términos', href: '/legal/terminos' },
@@ -151,6 +162,7 @@ const legalContent: Record<Locale, LegalContent> = {
       lastUpdated: 'Última actualización:',
       companyInformation: 'Información de la empresa',
       provider: 'Proveedor:',
+      tradeName: 'Nombre comercial:',
       relatedDocuments: 'Documentos relacionados',
       legalDocuments: 'Documentos legales',
     },
@@ -164,11 +176,11 @@ const legalContent: Record<Locale, LegalContent> = {
       euAiActAlt: 'Reglamento de Inteligencia Artificial de la Unión Europea',
     },
     trackingPolicy: {
-      currentStatus: 'no-non-essential-trackers',
+      currentStatus: 'consent-gated-analytics',
       statement:
-        'El sitio web público no carga actualmente analítica ni marketing de terceros. No hay un gestor de consentimiento porque no existen finalidades no esenciales que autorizar.',
+        'El sitio web público usa cookies estrictamente necesarias para idioma y tema. Google Tag Manager y Google Analytics 4 se cargan solo si aceptas la analítica. No se usan cookies publicitarias ni Meta Pixel.',
       activationGate:
-        'Antes de introducir GA4, GTM, Meta Pixel o tecnología equivalente, debe añadirse un consentimiento granular que bloquee por defecto, actualizarse el inventario de cookies y demostrarse la ausencia de rastreo antes del consentimiento.',
+        'La analítica está bloqueada por defecto. El contenedor de GTM no se carga hasta que el consentimiento granular de analítica se guarda en local. Retirar el consentimiento detiene nuevas cargas de analítica. No hay etiquetas de publicidad ni remarketing autorizadas.',
     },
   },
 }
@@ -190,4 +202,11 @@ export function getLegalLinks(locale: Locale): readonly LegalLink[] {
 
 export function formatLegalField(field: LegalField) {
   return field.value ?? field.publicNote
+}
+
+export function formatProviderLine(locale: Locale) {
+  const company = legalContent[locale].company
+  return locale === 'es'
+    ? `Akademate es un producto de ${company.name}, que opera como ${company.tradeName}.`
+    : `Akademate is a product of ${company.name}, doing business as ${company.tradeName}.`
 }

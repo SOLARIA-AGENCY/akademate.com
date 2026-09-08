@@ -1,5 +1,6 @@
 import type { BlogPost } from '@/lib/blog-posts'
 import { localizedAlternates, localizedHref, type Locale } from '@/lib/i18n/routing'
+import { getLocalizedVertical } from '@/lib/vertical-i18n'
 
 type EditorialUiCopy = {
   index: Record<
@@ -16,6 +17,7 @@ type EditorialUiCopy = {
     ctaDescription: string
     ctaLabel: string
     relatedTitle: string
+    relatedVertical: string
   }
 }
 
@@ -46,6 +48,7 @@ const copy: Record<Locale, EditorialUiCopy> = {
         'Explore how Akademate can connect your public experience, daily operation and learning journey.',
       ctaLabel: 'See Akademate in action',
       relatedTitle: 'Continue reading',
+      relatedVertical: 'See this academy model in Akademate',
     },
   },
   es: {
@@ -74,12 +77,29 @@ const copy: Record<Locale, EditorialUiCopy> = {
         'Descubre cómo Akademate puede conectar tu experiencia pública, operación diaria y recorrido de aprendizaje.',
       ctaLabel: 'Ve Akademate en acción',
       relatedTitle: 'Sigue leyendo',
+      relatedVertical: 'Ver este modelo de academia en Akademate',
     },
   },
 }
 
 export function getEditorialUi(locale: Locale): EditorialUiCopy {
   return copy[locale]
+}
+
+export const editorialRelatedVertical: Record<string, string> = {
+  'campaign-click-to-confirmed-place': 'professional-training',
+  'akademate-expands-sport-wellness-seasonal': 'sports',
+  'ai-assisted-academy-operations': 'networks',
+  'one-operation-in-person-online-academies': 'online-cohorts',
+  'academy-setup-blueprint-to-live': 'professional-training',
+}
+
+export function getEditorialRelatedVertical(slug: string, locale: Locale) {
+  const verticalSlug = editorialRelatedVertical[slug]
+  if (!verticalSlug) return null
+  const vertical = getLocalizedVertical(verticalSlug, locale)
+  if (!vertical) return null
+  return { href: localizedHref(`/solutions/${verticalSlug}`, locale), title: vertical.title }
 }
 
 export function getEditorialPath(post: Pick<BlogPost, 'kind' | 'slug'>): string {

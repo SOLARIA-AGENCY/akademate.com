@@ -93,6 +93,7 @@ export async function Footer() {
             <p>
               © {new Date().getFullYear()} Akademate. {dictionary.footer.rights}
             </p>
+            <p>{dictionary.footer.providerAttribution}</p>
             <p>{dictionary.footer.governance}</p>
           </div>
         </div>

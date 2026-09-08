@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import { Check, Sparkles } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { academySetupStages } from '@akademate/ui/academy-setup'
@@ -94,7 +94,7 @@ export function AcademySetupJourney() {
           <div className="order-1 min-w-0 lg:order-2">
             <div className="relative h-[300px] overflow-hidden bg-[#030d20] sm:h-auto sm:aspect-[16/10] sm:min-h-[340px]">
               <div key={active.id} className="academy-stage-image absolute inset-0">
-                <Image
+                <OptimizedImage
                   src={active.image}
                   alt={active.imageAlt}
                   fill

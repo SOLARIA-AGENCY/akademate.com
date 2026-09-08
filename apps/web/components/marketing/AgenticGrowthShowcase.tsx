@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import {
   BarChart3,
   ChevronRight,
@@ -289,11 +290,12 @@ function GrowthPanel({ hidden }: { hidden: boolean }) {
     >
       <div className="flex flex-col">
         <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-          <Image
+          <OptimizedImage
             src="/images/marketing/akademate-growth-ads-mobile-v1.jpg"
             alt="Academy operator viewing a social course promotion and campaign dashboard"
             width={1200}
             height={1499}
+            loading="lazy"
             sizes="(max-width: 1024px) 100vw, 36vw"
             className="h-auto w-full object-cover"
           />

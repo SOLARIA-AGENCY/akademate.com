@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import { BarChart3, CalendarDays, CheckCircle2, MapPin, UsersRound } from 'lucide-react'
 
 const metrics = [
@@ -35,7 +35,7 @@ export function AcademyOperationsStory() {
         <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-[#071633] shadow-[0_28px_80px_rgba(7,22,51,.16)]">
           <div className="grid lg:grid-cols-[.38fr_.62fr]">
             <div className="relative min-h-[320px] lg:min-h-[620px]">
-              <Image
+              <OptimizedImage
                 src="/images/marketing/home-modules/growth-admissions.jpg"
                 alt="Academy management team coordinating admissions and daily operations"
                 fill

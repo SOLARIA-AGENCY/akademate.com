@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { ArrowRight, Compass, Layers3, Sparkles } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
@@ -43,7 +43,7 @@ export default async function AboutPage() {
             </div>
           </div>
           <div className="scroll-depth relative min-h-[480px] overflow-hidden">
-            <Image
+            <OptimizedImage
               src="/images/marketing/akademate-company-blueprint-v2.png"
               alt={content.imageAlt}
               fill

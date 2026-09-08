@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import { useState } from 'react'
 import {
   Apple,
@@ -86,7 +86,7 @@ export function CourseRegistrationPreview() {
       <div className="relative grid lg:grid-cols-[1.15fr_.85fr]">
         <div className="bg-[#071633] text-white">
           <div className="relative aspect-[16/8] overflow-hidden">
-            <Image
+            <OptimizedImage
               src="/images/marketing/course-creative-leadership-v1.jpg"
               alt="Creative leadership workshop participants collaborating with a facilitator"
               fill
@@ -125,11 +125,11 @@ export function CourseRegistrationPreview() {
                       className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-[3px] border-[#071633] bg-blue-100 shadow-sm ring-1 ring-white/30 sm:h-14 sm:w-14"
                       style={{ zIndex: attendees.length - index }}
                     >
-                      <Image
+                      <OptimizedImage
                         src={attendee.image}
                         alt={`Example attendee ${attendee.name}`}
                         fill
-                        loading="eager"
+                        loading="lazy"
                         sizes="(max-width: 639px) 48px, 56px"
                         className="object-cover object-[center_32%]"
                       />

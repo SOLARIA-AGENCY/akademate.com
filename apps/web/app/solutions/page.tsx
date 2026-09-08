@@ -1,14 +1,18 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { marketingText } from '@/lib/i18n/marketing-copy'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
-import { solutionDetails, verticals } from '@/lib/marketing-content'
+import { verticals } from '@/lib/marketing-content'
+import { getLocalizedSolutionDetail, getLocalizedVertical } from '@/lib/vertical-i18n'
+
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
@@ -18,14 +22,14 @@ export async function generateMetadata(): Promise<Metadata> {
     image: '/images/marketing/akademate-multisite-network.jpg',
     copy: {
       en: {
-        title: 'Academy software for every learning model',
+        title: 'Academy management software for every learning model',
         description:
-          'Explore Akademate for professional training, languages, wellness, sport, camps, performing arts, online education and multi-site groups.',
+          'Academy management software for professional training, languages, wellness, sport, driving schools, camps, coding academies, performing arts, online education and multi-site groups.',
       },
       es: {
-        title: 'Software para cada modelo de academia',
+        title: 'Software de gestión de academias para cada modelo',
         description:
-          'Descubre Akademate para formación profesional, idiomas, bienestar, deporte, campamentos, artes, educación online y redes multisedes.',
+          'Software de gestión de academias para formación profesional, idiomas, bienestar, deporte, autoescuelas, campamentos, programación, artes, educación online y redes multisedes.',
       },
     },
   })
@@ -35,6 +39,7 @@ export default async function SolutionsPage() {
   const locale = await getRequestLocale()
   const dictionary = getDictionary(locale)
   const href = (path: string) => localizedHref(path, locale)
+  const openLabel = marketingText(locale, 'See this academy model')
 
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -52,7 +57,7 @@ export default async function SolutionsPage() {
               </p>
             </div>
             <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">
-              <Image
+              <OptimizedImage
                 src="/images/marketing/akademate-multisite-network.jpg"
                 alt="Academy teams coordinating courses across in-person, online and multi-site learning models"
                 fill
@@ -65,8 +70,10 @@ export default async function SolutionsPage() {
         </section>
         <section className="px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
           <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2">
-            {verticals.map((vertical, index) => {
-              const detail = solutionDetails[vertical.slug]
+            {verticals.map((item, index) => {
+              const vertical = getLocalizedVertical(item.slug, locale)
+              const detail = getLocalizedSolutionDetail(item.slug, locale)
+              if (!vertical || !detail) return null
               return (
                 <Link
                   key={vertical.slug}
@@ -74,7 +81,7 @@ export default async function SolutionsPage() {
                   className={`group overflow-hidden rounded-2xl bg-white shadow-sm ${index % 3 === 0 ? 'md:col-span-2 md:grid md:grid-cols-2' : ''}`}
                 >
                   <div className="relative min-h-[300px] overflow-hidden">
-                    <Image
+                    <OptimizedImage
                       src={vertical.image}
                       alt={vertical.imageAlt}
                       fill
@@ -90,18 +97,18 @@ export default async function SolutionsPage() {
                     <h2 className="text-3xl font-semibold tracking-tight">{vertical.title}</h2>
                     <p className="mt-4 text-lg leading-7 text-slate-600">{detail.headline}</p>
                     <ul className="mt-7 grid gap-3 sm:grid-cols-2">
-                      {detail.outcomes.slice(0, 4).map((item) => (
-                        <li key={item} className="flex gap-2 text-sm text-slate-600">
+                      {detail.outcomes.slice(0, 4).map((outcome) => (
+                        <li key={outcome} className="flex gap-2 text-sm text-slate-600">
                           <Check
                             className="mt-0.5 h-4 w-4 shrink-0 text-blue-700"
                             aria-hidden="true"
                           />
-                          {item}
+                          {outcome}
                         </li>
                       ))}
                     </ul>
-                    <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
-                      Explore this solution{' '}
+                    <span className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#071633] px-5 text-sm font-semibold text-white">
+                      {openLabel}{' '}
                       <ArrowRight
                         className="h-4 w-4 transition group-hover:translate-x-1"
                         aria-hidden="true"

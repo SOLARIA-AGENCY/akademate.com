@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import { Suspense } from 'react'
 import { Mail, Route, UsersRound } from 'lucide-react'
 import { ContactForm } from '@/components/forms/contact-form'
@@ -27,7 +27,7 @@ export default async function ContactPage() {
           <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-2 lg:gap-20">
             <div>
               <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">
-                <Image
+                <OptimizedImage
                   src="/images/marketing/akademate-implementation-planner-v2.png"
                   alt="Akademate implementation planner for academy setup, locations, payments, learner experience and domain launch"
                   fill

@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "akademate-web",
+  "main": ".open-next/worker.js",
+  "account_id": "522997f4f57193b06db3286d8d6f2778",
+  "compatibility_date": "2026-08-21",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "vars": {
+    "NEXT_PRIVATE_MINIMAL_MODE": "1"
+  },
+  // Workers Cache (not zone Cache Rules) is what emits cf-cache-status for this Worker.
+  // HTML is cacheable only when middleware does not Set-Cookie on /en|/es.
+  "cache": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "akademate-web"
+    }
+  ]
+}

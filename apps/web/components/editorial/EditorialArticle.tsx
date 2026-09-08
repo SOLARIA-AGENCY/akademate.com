@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, CalendarDays, Clock3, UserRound } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog-posts'
@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import {
   getEditorialArticleSchema,
+  getEditorialRelatedVertical,
   getEditorialUi,
   getLocalizedEditorialPath,
 } from '@/lib/editorial-i18n'
@@ -24,6 +25,7 @@ export function EditorialArticle({
   const indexHref = localizedHref(isNews ? '/news' : '/blog', locale)
   const content = getEditorialUi(locale).article
   const schema = getEditorialArticleSchema(post, locale)
+  const relatedVertical = getEditorialRelatedVertical(post.slug, locale)
 
   return (
     <div className="min-h-screen bg-white text-[#071633]">
@@ -80,7 +82,7 @@ export function EditorialArticle({
           <div
             className={`relative mx-auto aspect-[16/8] max-w-[1500px] overflow-hidden ${isNews ? '' : 'sm:rounded-2xl'}`}
           >
-            <Image
+            <OptimizedImage
               src={post.image}
               alt={post.imageAlt}
               fill
@@ -161,7 +163,7 @@ export function EditorialArticle({
           </div>
         </article>
 
-        {related.length ? (
+        {related.length || relatedVertical ? (
           <section className="border-t border-slate-200 bg-[#f7f9fc] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
             <div className="mx-auto max-w-6xl">
               <h2 className="text-3xl font-semibold">{content.relatedTitle}</h2>
@@ -177,6 +179,15 @@ export function EditorialArticle({
                     <p className="mt-3 text-sm leading-6 text-slate-600">{item.excerpt}</p>
                   </Link>
                 ))}
+                {relatedVertical ? (
+                  <Link
+                    href={relatedVertical.href}
+                    className="rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-blue-300"
+                  >
+                    <p className="text-sm font-semibold text-blue-700">{content.relatedVertical}</p>
+                    <h3 className="mt-3 text-2xl font-semibold">{relatedVertical.title}</h3>
+                  </Link>
+                ) : null}
               </div>
             </div>
           </section>

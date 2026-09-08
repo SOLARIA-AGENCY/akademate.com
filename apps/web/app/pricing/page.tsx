@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -35,22 +35,24 @@ import {
   type PlanEntitlement,
 } from '@/lib/pricing-content'
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   return publicPageMetadata({
     locale,
     pathname: '/pricing',
-    image: '/images/marketing/akademate-finance-accounting-v2.png',
+    image: '/images/marketing/akademate-finance-accounting-v2-og.webp',
     copy: {
       en: {
-        title: 'Akademate pricing and plans',
+        title: 'Academy software pricing',
         description:
-          'Compare Launch, Business and Enterprise operating scopes for programmes, academies and multi-site organisations.',
+          'Compare Launch, Business and Enterprise plans for academy management software covering programmes, academies and multi-site organisations.',
       },
       es: {
-        title: 'Planes y precios de Akademate',
+        title: 'Precios del software para academias',
         description:
-          'Compara los alcances Launch, Business y Enterprise para programas, academias y organizaciones multisedes.',
+          'Compara los planes Launch, Business y Enterprise del software de gestión de academias para programas, centros y organizaciones multisedes.',
       },
     },
   })
@@ -87,13 +89,17 @@ export default async function PricingPage() {
               <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100/75">
                 {dictionary.pricing.description}
               </p>
-              <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
+              <Link
+                href={href('/contacto?asunto=demo')}
+                data-analytics-event="cta_demo"
+                className="button-primary-light mt-9"
+              >
                 {dictionary.pricing.primaryCta}{' '}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
             <div className="scroll-depth relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#071633]">
-              <Image
+              <OptimizedImage
                 src="/images/marketing/akademate-finance-accounting-v2.png"
                 alt="Akademate finance and accounting workspace across desktop and tablet"
                 fill

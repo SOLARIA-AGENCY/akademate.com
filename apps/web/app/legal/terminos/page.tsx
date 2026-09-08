@@ -10,6 +10,11 @@ const documents = {
       'Information governing access to this website and the relationship between public product information and a service agreement.',
     sections: [
       {
+        title: 'Provider',
+        content:
+          'This website is published by Brik64 LLC, a Delaware limited liability company doing business as Brik64 Inc. Akademate is the product name. These website terms are not a substitute for a signed service agreement.',
+      },
+      {
         title: 'Website and service agreements',
         content:
           'akademate.com describes Akademate and its Business and Enterprise plans. Modules, deployment, support, availability, price, limits, integrations and responsibilities become binding only through the applicable proposal or contract.',
@@ -29,6 +34,11 @@ const documents = {
         content:
           'Akademate and its components are subject to applicable intellectual-property rights. Each customer retains its rights and responsibilities concerning its data. Contractual liability terms require legal review and agreement.',
       },
+      {
+        title: 'Governing law',
+        content:
+          'These website terms are governed by the laws of the State of Delaware, United States, excluding conflict-of-law rules. This choice of law does not limit mandatory consumer or data-protection rights that apply in the European Economic Area, the United Kingdom or other jurisdictions where they cannot be waived.',
+      },
     ],
   },
   es: {
@@ -36,6 +46,11 @@ const documents = {
     description:
       'Información que regula el acceso a este sitio web y la relación entre la información pública de producto y un contrato de servicio.',
     sections: [
+      {
+        title: 'Prestador',
+        content:
+          'Este sitio lo publica Brik64 LLC, una limited liability company de Delaware que opera como Brik64 Inc. Akademate es el nombre del producto. Estos términos del sitio no sustituyen un contrato de servicio firmado.',
+      },
       {
         title: 'Sitio web y contratos de servicio',
         content:
@@ -56,9 +71,16 @@ const documents = {
         content:
           'Akademate y sus componentes están sujetos a los derechos de propiedad intelectual aplicables. Cada cliente conserva sus derechos y responsabilidades respecto a sus datos. Los términos de responsabilidad contractual requieren revisión y acuerdo legal.',
       },
+      {
+        title: 'Ley aplicable',
+        content:
+          'Estos términos del sitio se rigen por las leyes del Estado de Delaware, Estados Unidos, con exclusión de las normas de conflicto de leyes. Esta elección no limita los derechos imperativos de consumidores o de protección de datos que correspondan en el Espacio Económico Europeo, el Reino Unido u otras jurisdicciones cuando no puedan renunciarse.',
+      },
     ],
   },
 } as const
+
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()

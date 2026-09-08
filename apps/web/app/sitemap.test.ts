@@ -14,6 +14,8 @@ describe('localized public sitemap', () => {
     expect(urls).toContain('/es')
     expect(urls).toContain('/en/features')
     expect(urls).toContain('/es/features')
+    expect(urls).toContain('/en/download')
+    expect(urls).toContain('/es/download')
     expect(urls).not.toContain('/')
 
     for (const url of urls.filter((pathname) => pathname.startsWith('/en'))) {
@@ -27,7 +29,9 @@ describe('localized public sitemap', () => {
       expect(entry.alternates?.languages).toMatchObject({
         en: expect.stringMatching(/^https?:\/\/[^/]+\/en(?:\/|$)/),
         es: expect.stringMatching(/^https?:\/\/[^/]+\/es(?:\/|$)/),
+        'x-default': expect.stringMatching(/^https?:\/\/[^/]+\/en(?:\/|$)/),
       })
+      expect(entry.lastModified).toBeInstanceOf(Date)
     }
   })
 })

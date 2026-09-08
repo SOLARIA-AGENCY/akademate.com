@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -33,22 +33,24 @@ import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistri
 import { integrationPillarBrands } from '@/lib/integration-brands'
 import { integrationPillars, platformPillars, roadmapModules } from '@/lib/marketing-content'
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
   return publicPageMetadata({
     locale,
     pathname: '/features',
-    image: '/images/marketing/akademate-product-ecosystem-v2.png',
+    image: '/images/marketing/akademate-product-ecosystem-v2-og.webp',
     copy: {
       en: {
         title: 'Academy management features',
         description:
-          'Explore websites, growth, admissions, academic operations, campus, people, finance, resources and integrations.',
+          'Academy management software features for websites, growth, admissions, timetables, campus, people, finance, resources and integrations.',
       },
       es: {
-        title: 'Funciones para gestionar academias',
+        title: 'Funciones de gestión de academias',
         description:
-          'Explora web, captación, admisiones, operación académica, campus, personas, finanzas, recursos e integraciones.',
+          'Funciones del software de gestión de academias: web, captación, admisiones, horarios, campus, personas, finanzas, recursos e integraciones.',
       },
     },
   })
@@ -113,7 +115,11 @@ export default async function FeaturesPage() {
                 {dictionary.features.description}
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
-                <Link href={href('/contacto?asunto=demo')} className="button-primary-light">
+                <Link
+                  href={href('/contacto?asunto=demo')}
+                  data-analytics-event="cta_demo"
+                  className="button-primary-light"
+                >
                   {dictionary.features.primaryCta}{' '}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
@@ -123,11 +129,12 @@ export default async function FeaturesPage() {
               </div>
             </div>
             <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">
-              <Image
+              <OptimizedImage
                 src="/images/marketing/akademate-product-ecosystem-v2.png"
                 alt="Akademate platform across academy operations, public course pages and learner campus"
                 fill
                 priority
+                fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 58vw"
                 className="object-cover"
               />

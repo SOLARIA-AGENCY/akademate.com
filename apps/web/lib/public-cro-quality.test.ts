@@ -12,6 +12,7 @@ const heroAuthorities = [
   '../app/pricing/page.tsx',
   '../app/solutions/page.tsx',
   '../app/contacto/page.tsx',
+  '../app/registro/page.tsx',
   '../app/sobre-nosotros/page.tsx',
   '../app/download/page.tsx',
   '../app/cursos/page.tsx',

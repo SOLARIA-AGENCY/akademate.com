@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { ArrowRight, Laptop, Smartphone, Tablet } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
@@ -47,7 +47,7 @@ export default async function DownloadPage() {
               </div>
             </div>
             <div className="relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_32px_100px_rgba(2,12,34,.45)]">
-              <Image
+              <OptimizedImage
                 src="/images/download/akademate-apps-device-family-v1.jpg"
                 alt={content.imageAlt}
                 fill

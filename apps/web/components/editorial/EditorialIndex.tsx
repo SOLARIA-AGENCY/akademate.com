@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { ArrowRight, CalendarDays, Newspaper } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog-posts'
@@ -48,7 +48,7 @@ function InsightIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: L
                 className="group grid lg:grid-cols-[1.15fr_.85fr] lg:items-stretch"
               >
                 <div className="relative min-h-[360px] overflow-hidden">
-                  <Image
+                  <OptimizedImage
                     src={featured.image}
                     alt={featured.imageAlt}
                     fill
@@ -82,7 +82,7 @@ function InsightIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: L
                 >
                   <Link href={getLocalizedEditorialPath(post, locale)} className="group block p-3">
                     <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
-                      <Image
+                      <OptimizedImage
                         src={post.image}
                         alt={post.imageAlt}
                         fill
@@ -140,7 +140,7 @@ function NewsIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: Loca
                   className="group grid lg:grid-cols-[.42fr_.58fr] lg:items-stretch"
                 >
                   <div className="relative min-h-[300px] overflow-hidden">
-                    <Image
+                    <OptimizedImage
                       src={post.image}
                       alt={post.imageAlt}
                       fill

@@ -15,13 +15,15 @@ import {
 } from '@/lib/legal-config'
 
 describe('central legal contract', () => {
-  it('keeps SOLARIA identity centralized and unresolved fields explicit', () => {
-    expect(legalCompany.name).toBe('SOLARIA AGENCY OÜ')
+  it('keeps Brik64 identity centralized and unresolved fields explicit', () => {
+    expect(legalCompany.name).toBe('Brik64 LLC')
+    expect(legalCompany.tradeName).toBe('Brik64 Inc.')
+    expect(legalCompany.jurisdiction).toMatch(/Delaware/)
     for (const field of [legalCompany.registryCode, legalCompany.vatId, legalCompany.registeredOffice, legalCompany.operatingAddress, legalCompany.privacyContact]) {
       expect(field.value).toBeNull()
       expect(formatLegalField(field)).toMatch(/pending/i)
     }
-    expect(JSON.stringify(legalCompany)).not.toMatch(/FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i)
+    expect(JSON.stringify(legalCompany)).not.toMatch(/SOLARIA|OÜ|Estonia|Malmö|FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i)
   })
 
   it('exposes all required legal routes without legacy paths', () => {
@@ -40,9 +42,11 @@ describe('central legal contract', () => {
     expect(legalDraftNotice).toContain('professional review')
   })
 
-  it('documents why no consent manager is installed', () => {
-    expect(trackingPolicy.currentStatus).toBe('no-non-essential-trackers')
-    expect(trackingPolicy.activationGate).toMatch(/granular fail-closed consent/i)
+  it('documents fail-closed analytics consent', () => {
+    expect(trackingPolicy.currentStatus).toBe('consent-gated-analytics')
+    expect(trackingPolicy.activationGate).toMatch(/fail-closed/i)
+    expect(trackingPolicy.statement).toMatch(/Google Tag Manager/i)
+    expect(trackingPolicy.statement).not.toMatch(/Meta Pixel is used/i)
   })
 
   it('keeps the Spanish trust contract aligned without resolving placeholder identity facts', () => {
@@ -65,7 +69,9 @@ describe('central legal contract', () => {
     }
 
     expect(JSON.stringify(spanish.company)).not.toMatch(
-      /FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i
+      /SOLARIA|OÜ|Estonia|Malmö|FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i
     )
+    expect(spanish.company.name).toBe('Brik64 LLC')
+    expect(spanish.company.tradeName).toBe('Brik64 Inc.')
   })
 })

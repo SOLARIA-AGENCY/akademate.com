@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import {
   ArrowRight,
   BadgeCheck,
@@ -61,7 +61,7 @@ export function PhysicalCampusStory() {
               className="overflow-hidden rounded-2xl border border-white/15 bg-white/[.06]"
             >
               <div className="relative aspect-[16/9] overflow-hidden">
-                <Image
+                <OptimizedImage
                   src={story.image}
                   alt={story.imageAlt}
                   fill

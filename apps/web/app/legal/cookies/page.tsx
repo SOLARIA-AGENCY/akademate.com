@@ -13,9 +13,9 @@ const documents = {
       {
         title: 'Necessary technologies',
         content:
-          'Authentication routes may use strictly necessary session cookies. The interface may also read a theme preference. These functions are not analytics or advertising.',
+          'Brik64 LLC, doing business as Brik64 Inc., publishes this site. Authentication routes may use strictly necessary session cookies. The interface may also read a locale preference. Theme preference, if used, is stored locally in the browser. These functions are not analytics or advertising.',
       },
-      { title: 'Gate for future measurement', content: 'activation-gate' },
+      { title: 'Analytics after consent', content: 'activation-gate' },
       {
         title: 'Browser controls',
         content:
@@ -32,9 +32,9 @@ const documents = {
       {
         title: 'Tecnologías necesarias',
         content:
-          'Las rutas de autenticación pueden utilizar cookies de sesión estrictamente necesarias. La interfaz también puede leer una preferencia de tema. Estas funciones no son analítica ni publicidad.',
+          'Brik64 LLC, que opera como Brik64 Inc., publica este sitio. Las rutas de autenticación pueden utilizar cookies de sesión estrictamente necesarias. La interfaz también puede leer una preferencia de idioma. La preferencia de tema, si se usa, se guarda en el navegador. Estas funciones no son analítica ni publicidad.',
       },
-      { title: 'Condición para la medición futura', content: 'activation-gate' },
+      { title: 'Analítica tras consentimiento', content: 'activation-gate' },
       {
         title: 'Controles del navegador',
         content:
@@ -43,6 +43,8 @@ const documents = {
     ],
   },
 } as const
+
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()

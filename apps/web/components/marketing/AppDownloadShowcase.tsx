@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { Check, Laptop, Smartphone, Tablet } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -150,7 +150,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
             </div>
 
             <div className="relative min-h-[360px] bg-slate-100 sm:min-h-[520px] lg:min-h-[620px]">
-              <Image
+              <OptimizedImage
                 key={active.image}
                 src={active.image}
                 alt={active.imageAlt}

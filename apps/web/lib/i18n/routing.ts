@@ -82,7 +82,8 @@ export function shouldHandleLocalePath(pathname: string): boolean {
   if (
     normalizedPathname === '/favicon.ico' ||
     normalizedPathname === '/robots.txt' ||
-    normalizedPathname === '/sitemap.xml'
+    normalizedPathname === '/sitemap.xml' ||
+    normalizedPathname === '/llms.txt'
   )
     return false
 
@@ -100,7 +101,7 @@ export function getLocaleRoutingPlan({
   acceptLanguage?: string | null
 }):
   | { type: 'next'; locale: Locale; persistLocale: false }
-  | { type: 'rewrite'; locale: Locale; pathname: string; persistLocale: true } {
+  | { type: 'rewrite'; locale: Locale; pathname: string; persistLocale: false } {
   const normalizedPathname = toSafePathname(pathname)
   const resolved = resolveLocale({ pathname: normalizedPathname, cookieLocale, acceptLanguage })
 
@@ -117,7 +118,9 @@ export function getLocaleRoutingPlan({
     type: 'rewrite',
     locale: withoutLocale.locale,
     pathname: withoutLocale.pathname,
-    persistLocale: true,
+    // Locale is already in the URL. Set-Cookie on every /en|/es GET blocks
+    // Cloudflare Workers Cache (and Googlebot never sends the cookie back).
+    persistLocale: false,
   }
 }
 
@@ -153,6 +156,17 @@ export function localizedAlternates(
       'x-default': localizePathname(canonicalPathname, defaultLocale),
     },
   }
+}
+
+export function apexHostRedirect(host: string | null | undefined, url: URL): URL | null {
+  const hostname = host?.split(':')[0]?.toLowerCase()
+  if (hostname !== 'www.akademate.com') return null
+
+  const next = new URL(url.toString())
+  next.protocol = 'https:'
+  next.hostname = 'akademate.com'
+  next.port = ''
+  return next
 }
 
 function toSafePathname(pathname: string): string {

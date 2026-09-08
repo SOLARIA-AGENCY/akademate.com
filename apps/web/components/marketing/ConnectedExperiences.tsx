@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/media/OptimizedImage'
 import { Check, GraduationCap, Presentation, UsersRound } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { academyExperiences } from '@/lib/marketing-content'
@@ -116,7 +116,7 @@ export function ConnectedExperiences() {
             </div>
 
             <div className="relative min-h-[360px] bg-slate-100 sm:min-h-[520px] lg:min-h-[640px]">
-              <Image
+              <OptimizedImage
                 key={active.image}
                 src={active.image}
                 alt={active.imageAlt}

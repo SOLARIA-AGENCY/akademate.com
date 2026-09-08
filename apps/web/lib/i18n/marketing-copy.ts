@@ -37,6 +37,7 @@ export const spanishMarketingCopy = {
   'Built around your academy model.': 'Adaptado al modelo de tu academia.',
   'Run every academy model on one connected foundation.':
     'Gestiona cualquier modelo de academia sobre una base conectada.',
+  'See this academy model': 'Ver este modelo',
   'Choose the operating scope you need.': 'Elige el alcance operativo que necesitas.',
   'Launch one programme, grow an academy or run a network.':
     'Lanza un programa, haz crecer una academia o gestiona una red.',
@@ -189,6 +190,17 @@ export const spanishMarketingCopy = {
   'Campus communications roadmap': 'Hoja de ruta de comunicación del campus',
   'Multi-site screens, scheduled playlists, announcements and device status.':
     'Pantallas multisedes, listas programadas, anuncios y estado de dispositivos.',
+  'Cards, wallets, direct debit and recurring collection.':
+    'Tarjetas, wallets, domiciliaciones y cobros recurrentes.',
+  Finance: 'Finanzas',
+  'Prepare every transaction for finance workflows.':
+    'Prepara cada transacción para los flujos financieros.',
+  Growth: 'Captación',
+  'Connect campaign source to confirmed participation.':
+    'Conecta el origen de la campaña con la participación confirmada.',
+  Communication: 'Comunicación',
+  'Trigger timely messages from operational events.':
+    'Dispara mensajes a tiempo desde eventos operativos.',
 } as const
 
 export type SpanishMarketingSource = keyof typeof spanishMarketingCopy
@@ -196,6 +208,7 @@ export type SpanishMarketingSource = keyof typeof spanishMarketingCopy
 export function marketingText(locale: Locale, source: string): string {
   if (locale !== 'es') return source
   const translated = spanishMarketingCopy[source as SpanishMarketingSource]
-  if (!translated) throw new Error(`Missing Spanish marketing copy: ${source}`)
-  return translated
+  if (translated) return translated
+  if (process.env.NODE_ENV === 'production') return source
+  throw new Error(`Missing Spanish marketing copy: ${source}`)
 }

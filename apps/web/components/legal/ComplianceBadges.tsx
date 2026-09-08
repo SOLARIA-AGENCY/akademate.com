@@ -51,7 +51,7 @@ export function ComplianceBadges() {
               alt={legal.compliance[mark.alt]}
               width={mark.width}
               height={mark.height}
-              loading="eager"
+              loading="lazy"
               className={`${mark.className} object-contain`}
             />
           </Link>

@@ -1,0 +1,31 @@
+# Akademate
+
+> Academy management software for enrolment, timetables, campus, payments and operations.
+
+Akademate is a product of Brik64 LLC, doing business as Brik64 Inc.
+Public contact: info@akademate.com
+
+Akademate is an operating system for academies: in-person, online and hybrid centres in one workspace.
+
+## Product
+- Home: https://akademate.com/en
+- Home (ES): https://akademate.com/es
+- Features: https://akademate.com/en/features
+- Pricing: https://akademate.com/en/pricing
+- Solutions: https://akademate.com/en/solutions
+
+## Verticals
+- Languages: https://akademate.com/en/solutions/languages
+- Professional training: https://akademate.com/en/solutions/professional-training
+- Wellness: https://akademate.com/en/solutions/wellness
+- Sports: https://akademate.com/en/solutions/sports
+- Driving schools: https://akademate.com/en/solutions/driving-schools
+- Coding academies: https://akademate.com/en/solutions/coding-academies
+- Performing arts: https://akademate.com/en/solutions/performing-arts
+- Online cohorts: https://akademate.com/en/solutions/online-cohorts
+- Seasonal: https://akademate.com/en/solutions/seasonal
+- Networks: https://akademate.com/en/solutions/networks
+
+## Contact
+- Contact: https://akademate.com/en/contacto
+- Email: info@akademate.com
