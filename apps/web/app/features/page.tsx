@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import {
-  ArrowRight,
   Bot,
   BriefcaseBusiness,
   Building2,
@@ -28,6 +27,7 @@ import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
 import { ConnectorLogos } from '@/components/marketing/ConnectorLogos'
 import { FeatureModuleExplorer } from '@/components/marketing/FeatureModuleExplorer'
+import { FinanceConnectorShowcase } from '@/components/marketing/FinanceConnectorShowcase'
 import { ProductMoments } from '@/components/marketing/ProductMoments'
 import { WebsiteDistributionPreview } from '@/components/marketing/WebsiteDistributionPreview'
 import { integrationPillarBrands } from '@/lib/integration-brands'
@@ -89,6 +89,7 @@ export default async function FeaturesPage() {
   }))
   const roadmap = roadmapModules.map((module) => ({
     ...module,
+    sourceTitle: module.title,
     title: tx(module.title),
     phase: tx(module.phase),
     text: tx(module.text),
@@ -121,7 +122,6 @@ export default async function FeaturesPage() {
                   className="button-primary-light"
                 >
                   {dictionary.features.primaryCta}{' '}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link href={href('/pricing')} className="button-ghost-light">
                   {dictionary.features.secondaryCta}
@@ -131,7 +131,9 @@ export default async function FeaturesPage() {
             <div className="scroll-depth relative aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_34px_100px_rgba(2,12,34,.46)]">
               <OptimizedImage
                 src="/images/marketing/akademate-product-ecosystem-v2.png"
-                alt="Akademate platform across academy operations, public course pages and learner campus"
+                alt={tx(
+                  'Akademate platform across academy operations, public course pages and learner campus'
+                )}
                 fill
                 priority
                 fetchPriority="high"
@@ -143,7 +145,7 @@ export default async function FeaturesPage() {
         </section>
 
         <nav
-          aria-label="Platform categories"
+          aria-label={tx('Platform categories')}
           className="sticky top-[72px] z-30 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8"
         >
           <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto py-4">
@@ -255,15 +257,30 @@ export default async function FeaturesPage() {
               {roadmap.map((module, index) => {
                 const Icon = roadmapIcons[index] ?? Code2
                 return (
-                  <article
-                    key={module.title}
-                    className="border-b border-slate-200 p-7 md:border-r lg:min-h-[280px] lg:p-9"
-                  >
-                    <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
-                    <p className="mt-8 text-sm font-semibold text-blue-700">{module.phase}</p>
-                    <h3 className="mt-3 text-2xl font-semibold tracking-tight">{module.title}</h3>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">{module.text}</p>
-                  </article>
+                <article
+                  key={module.title}
+                  className="border-b border-slate-200 p-7 md:border-r lg:min-h-[280px] lg:p-9"
+                >
+                  <Icon className="h-6 w-6 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
+                  <p className="mt-8 text-sm font-semibold text-blue-700">{module.phase}</p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight">{module.title}</h3>
+                  <p className="mt-4 text-sm leading-6 text-slate-600">{module.text}</p>
+                  {module.sourceTitle === 'Attendance and physical access' && (
+                    <div className="relative mt-6 aspect-[3/2] overflow-hidden rounded-xl border border-slate-200">
+                      <OptimizedImage
+                        src="/images/marketing/akademate-access-nfc-tap-v1.jpg"
+                        alt={
+                          locale === 'es'
+                            ? 'Primer plano de un móvil pasando por un lector de acceso con anillo verde en la entrada de una academia'
+                            : 'Close-up of a phone tapping a wall access reader with a green ring at an academy entrance'
+                        }
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </article>
                 )
               })}
             </div>
@@ -301,6 +318,8 @@ export default async function FeaturesPage() {
           </div>
         </section>
 
+        <FinanceConnectorShowcase locale={locale} imageSrc="/images/marketing/akademate-finance-connection-flow-v1.png" imageAlt={locale === 'es' ? 'Flujo ilustrativo para conectar un proveedor financiero' : 'Illustrative finance provider connection flow'} />
+
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-5xl text-center">
             <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
@@ -310,8 +329,7 @@ export default async function FeaturesPage() {
               {tx('Map your academy into one connected operating model.')}
             </p>
             <Link href={href('/contacto?asunto=demo')} className="button-primary-dark mt-9">
-              {tx('Book a demo')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Book a demo')}            </Link>
           </div>
         </section>
       </main>

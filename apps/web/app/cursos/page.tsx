@@ -2,14 +2,21 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { metadata } = getSecondaryPublicContent(locale).courses
-  return { ...metadata, alternates: localizedAlternates('/cursos') }
+  return publicPageMetadata({
+    locale,
+    pathname: '/cursos',
+    copy: {
+      en: getSecondaryPublicContent('en').courses.metadata,
+      es: getSecondaryPublicContent('es').courses.metadata,
+    },
+  })
 }
 
 export default async function CoursesPage() {
@@ -22,12 +29,8 @@ export default async function CoursesPage() {
       <main id="content" className="flex flex-1 items-center px-4 py-20 sm:px-6">
         <section className="mx-auto max-w-3xl">
           <p className="text-sm font-semibold text-primary">{content.kicker}</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight">
-            {content.title}
-          </h1>
-          <p className="mt-5 text-lg leading-8 text-muted-foreground">
-            {content.description}
-          </p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight">{content.title}</h1>
+          <p className="mt-5 text-lg leading-8 text-muted-foreground">{content.description}</p>
           <div className="mt-8 rounded-2xl border bg-muted/30 p-6 text-sm leading-7 text-muted-foreground">
             {content.detail}
           </div>

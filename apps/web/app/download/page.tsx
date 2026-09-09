@@ -1,18 +1,25 @@
 import type { Metadata } from 'next'
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
-import { ArrowRight, Laptop, Smartphone, Tablet } from 'lucide-react'
+import {Laptop, Smartphone, Tablet } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { metadata } = getSecondaryPublicContent(locale).download
-  return { ...metadata, alternates: localizedAlternates('/download') }
+  return publicPageMetadata({
+    locale,
+    pathname: '/download',
+    copy: {
+      en: getSecondaryPublicContent('en').download.metadata,
+      es: getSecondaryPublicContent('es').download.metadata,
+    },
+  })
 }
 
 export default async function DownloadPage() {
@@ -31,9 +38,7 @@ export default async function DownloadPage() {
               <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl">
                 {content.title}
               </h1>
-              <p className="mt-6 text-lg leading-8 text-blue-100/75">
-                {content.description}
-              </p>
+              <p className="mt-6 text-lg leading-8 text-blue-100/75">{content.description}</p>
               <div className="mt-8 flex flex-wrap gap-2 text-sm font-semibold text-blue-100/80">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2">
                   <Laptop className="h-4 w-4" aria-hidden="true" /> Mac
@@ -71,8 +76,7 @@ export default async function DownloadPage() {
               {content.roadmapDescription}
             </p>
             <Link href={href('/contacto?asunto=apps')} className="button-primary-light mt-8">
-              {content.roadmapCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {content.roadmapCta}            </Link>
           </div>
         </section>
       </main>

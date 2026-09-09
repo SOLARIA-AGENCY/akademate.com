@@ -47,9 +47,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
             </h2>
           </div>
           <div className="lg:justify-self-end">
-            <p className="max-w-xl text-lg leading-8 text-slate-600">
-              {content.description}
-            </p>
+            <p className="max-w-xl text-lg leading-8 text-slate-600">{content.description}</p>
             {compact ? (
               <Link
                 href={localizedHref('/download', locale)}
@@ -85,6 +83,8 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
                       aria-controls="download-panel"
                       tabIndex={selected ? 0 : -1}
                       onClick={() => selectApp(option.id)}
+                      onMouseEnter={() => selectApp(option.id)}
+                      onFocus={() => selectApp(option.id)}
                       onKeyDown={(event) => {
                         if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
                           event.preventDefault()
@@ -143,9 +143,7 @@ export function AppDownloadShowcase({ compact = false }: { compact?: boolean }) 
                     </li>
                   ))}
                 </ul>
-                <p className="mt-8 text-xs leading-5 text-blue-100/50">
-                  {content.previewOnly}
-                </p>
+                <p className="mt-8 text-xs leading-5 text-blue-100/50">{content.previewOnly}</p>
               </div>
             </div>
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { VerticalProductExperience } from '@/components/marketing/VerticalProductExperience'
@@ -82,7 +82,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">{detail.promise}</p>
             <Link href={href(`/registro?vertical=${slug}`)} className="button-primary-light mt-8">
-              {chrome.heroCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {chrome.heroCta}
             </Link>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href={href('/features')} className="button-ghost-light">
@@ -145,7 +145,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               {chrome.closingDescription}
             </p>
             <Link href={href(`/registro?vertical=${slug}`)} className="button-primary-light mt-8">
-              {chrome.closingCta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {chrome.closingCta}
             </Link>
           </div>
         </section>

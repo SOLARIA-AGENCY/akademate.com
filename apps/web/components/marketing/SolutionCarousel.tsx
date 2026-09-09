@@ -1,6 +1,5 @@
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 import { marketingText } from '@/lib/i18n/marketing-copy'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
@@ -10,7 +9,7 @@ import { getLocalizedVertical } from '@/lib/vertical-i18n'
 export async function SolutionCarousel() {
   const locale = await getRequestLocale()
   const href = (path: string) => localizedHref(path, locale)
-  const openLabel = marketingText(locale, 'See this academy model')
+  const openLabel = marketingText(locale, 'Know more')
 
   return (
     <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -37,8 +36,8 @@ export async function SolutionCarousel() {
                 {vertical.title}
               </h3>
               <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{vertical.description}</p>
-              <span className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#071633] px-4 text-sm font-semibold text-white transition group-hover:bg-blue-700">
-                {openLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <span className="mt-4 inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-full bg-[#071633] px-4 text-sm font-semibold text-white transition group-hover:bg-blue-700">
+                {openLabel}
               </span>
             </div>
           </Link>

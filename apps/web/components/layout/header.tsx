@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { HeaderMobileMenu } from '@/components/layout/header-mobile-menu'
 import { getNavigationLabel, LanguageSelector } from '@/components/layout/header-shared'
 import { getDictionary } from '@/lib/i18n/dictionaries'
@@ -77,8 +77,7 @@ export async function Header() {
                       href={href('/solutions')}
                       className="mt-2 flex min-h-11 items-center justify-between rounded-xl bg-[#071633] px-4 text-sm font-semibold text-white"
                     >
-                      {dictionary.header.exploreCustomers}{' '}
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      {dictionary.header.exploreCustomers}
                     </Link>
                   </div>
                 </details>
@@ -102,7 +101,7 @@ export async function Header() {
             data-analytics-event="cta_demo"
             className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#071633] px-5 text-sm font-semibold text-white hover:bg-blue-800"
           >
-            {dictionary.header.bookDemo} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            {dictionary.header.bookDemo}
           </Link>
         </div>
 

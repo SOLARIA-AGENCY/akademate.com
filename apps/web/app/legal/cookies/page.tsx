@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { LegalPage } from '@/components/legal/LegalPage'
 import { getLegalContent } from '@/lib/legal-config'
-import { localizedAlternates } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 
 const documents = {
@@ -48,8 +48,11 @@ export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { title, description } = documents[locale]
-  return { title, description, alternates: localizedAlternates('/legal/cookies') }
+  return publicPageMetadata({
+    locale,
+    pathname: '/legal/cookies',
+    copy: { en: documents.en, es: documents.es },
+  })
 }
 
 export default async function CookiesPage() {

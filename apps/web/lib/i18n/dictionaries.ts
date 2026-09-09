@@ -19,6 +19,7 @@ type Dictionary = {
     closeMenu: string
     chooseLanguage: string
     exploreCustomers: string
+    primaryNavigation: string
   }
   footer: {
     product: string
@@ -60,6 +61,34 @@ type Dictionary = {
     formTitle: string
     formDescription: string
     loadingForm: string
+    imageAlt: string
+    goalsTitle: string
+    goalsText: string
+    peopleTitle: string
+    peopleText: string
+    emailTitle: string
+    emailText: string
+    name: string
+    email: string
+    phone: string
+    phoneOptional: string
+    subject: string
+    message: string
+    subjectPlaceholder: string
+    subjects: Record<
+      'demo' | 'pricing' | 'support' | 'partnership' | 'privacy' | 'trial' | 'other',
+      string
+    >
+    privacyPrefix: string
+    privacyLink: string
+    privacySuffix: string
+    marketingNotice: string
+    submit: string
+    sending: string
+    privacyRequired: string
+    success: string
+    requestFailed: string
+    website: string
   }
   trial: {
     eyebrow: string
@@ -90,6 +119,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       closeMenu: 'Close menu',
       chooseLanguage: 'Choose language',
       exploreCustomers: 'Explore every customer type',
+      primaryNavigation: 'Primary navigation',
     },
     footer: {
       product: 'Product',
@@ -142,11 +172,46 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formTitle: 'Book your walkthrough',
       formDescription: 'Share a little context and we’ll make the conversation immediately useful.',
       loadingForm: 'Loading form…',
+      imageAlt:
+        'Akademate implementation planner for academy setup, locations, payments, learner experience and domain launch',
+      goalsTitle: 'Start with your goals',
+      goalsText: 'Grow enrolment, delivery, retention or multi-site operations.',
+      peopleTitle: 'Bring the people who matter',
+      peopleText: 'Invite leaders from operations, education, finance, technology or growth.',
+      emailTitle: 'Prefer email?',
+      emailText: 'Write to info@akademate.com',
+      name: 'Full name',
+      email: 'Email',
+      phone: 'Phone',
+      phoneOptional: 'optional',
+      subject: 'What would you like to discuss?',
+      message: 'Tell us about your academy',
+      subjectPlaceholder: 'Select a topic',
+      subjects: {
+        demo: 'Product demo',
+        pricing: 'Plans and commercial scope',
+        support: 'Customer support',
+        partnership: 'Enterprise or partnership',
+        privacy: 'Privacy',
+        trial: 'Free trial',
+        other: 'Other',
+      },
+      privacyPrefix: 'I accept the',
+      privacyLink: 'privacy policy',
+      privacySuffix: 'so Akademate can respond to this request.',
+      marketingNotice: 'Marketing consent is not selected.',
+      submit: 'Send request',
+      sending: 'Sending…',
+      privacyRequired: 'Please accept the privacy policy before sending your request.',
+      success: 'Thanks. Your request has been received.',
+      requestFailed: 'We could not send your request.',
+      website: 'Website',
     },
     trial: {
       eyebrow: 'Free trial',
       title: 'Start your academy on Akademate.',
-      description: 'Open a trial for your academy model. We will set the walkthrough around your programmes, people and sites.',
+      description:
+        'Open a trial for your academy model. We will set the walkthrough around your programmes, people and sites.',
       formTitle: 'Create your free trial',
       formDescription: 'Share a little context. We will open the trial around your vertical.',
     },
@@ -170,6 +235,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       closeMenu: 'Cerrar menú',
       chooseLanguage: 'Elegir idioma',
       exploreCustomers: 'Explora cada tipo de centro',
+      primaryNavigation: 'Navegación principal',
     },
     footer: {
       product: 'Producto',
@@ -225,11 +291,47 @@ export const dictionaries: Record<Locale, Dictionary> = {
       formDescription:
         'Comparte un poco de contexto y haremos que la conversación sea útil desde el inicio.',
       loadingForm: 'Cargando formulario…',
+      imageAlt:
+        'Planificador de implantación de Akademate para configurar la academia, sedes, pagos, experiencia del alumnado y dominio',
+      goalsTitle: 'Empieza por tus objetivos',
+      goalsText: 'Impulsa matrículas, enseñanza, retención u operaciones multisede.',
+      peopleTitle: 'Reúne a las personas clave',
+      peopleText:
+        'Invita a responsables de operaciones, educación, finanzas, tecnología o crecimiento.',
+      emailTitle: '¿Prefieres escribirnos?',
+      emailText: 'Escribe a info@akademate.com',
+      name: 'Nombre completo',
+      email: 'Correo electrónico',
+      phone: 'Teléfono',
+      phoneOptional: 'opcional',
+      subject: '¿Sobre qué te gustaría hablar?',
+      message: 'Cuéntanos sobre tu academia',
+      subjectPlaceholder: 'Selecciona un tema',
+      subjects: {
+        demo: 'Demo de producto',
+        pricing: 'Planes y alcance comercial',
+        support: 'Atención al cliente',
+        partnership: 'Enterprise o colaboración',
+        privacy: 'Privacidad',
+        trial: 'Prueba gratis',
+        other: 'Otro',
+      },
+      privacyPrefix: 'Acepto la',
+      privacyLink: 'política de privacidad',
+      privacySuffix: 'para que Akademate pueda responder a esta solicitud.',
+      marketingNotice: 'No se ha seleccionado consentimiento de marketing.',
+      submit: 'Enviar solicitud',
+      sending: 'Enviando…',
+      privacyRequired: 'Acepta la política de privacidad antes de enviar tu solicitud.',
+      success: 'Gracias. Hemos recibido tu solicitud.',
+      requestFailed: 'No hemos podido enviar tu solicitud.',
+      website: 'Sitio web',
     },
     trial: {
       eyebrow: 'Prueba gratis',
       title: 'Empieza tu academia en Akademate.',
-      description: 'Abre una prueba para tu modelo de academia. Prepararemos el recorrido alrededor de tus programas, personas y sedes.',
+      description:
+        'Abre una prueba para tu modelo de academia. Prepararemos el recorrido alrededor de tus programas, personas y sedes.',
       formTitle: 'Crea tu prueba gratis',
       formDescription: 'Comparte un poco de contexto. Abriremos la prueba alrededor de tu vertical.',
     },

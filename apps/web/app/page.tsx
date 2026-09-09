@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
-import { ArrowRight, Check, Globe2 } from 'lucide-react'
+import {Check, Globe2 } from 'lucide-react'
 import { AcademyOperationsStory } from '@/components/marketing/AcademyOperationsStory'
 import { AppDownloadShowcase } from '@/components/marketing/AppDownloadShowcase'
 import { ConnectedExperiences } from '@/components/marketing/ConnectedExperiences'
@@ -10,6 +10,7 @@ import { ClientMarquee } from '@/components/marketing/ClientMarquee'
 import { CourseRegistrationPreview } from '@/components/marketing/CourseRegistrationPreview'
 import { CustomerVoices } from '@/components/marketing/CustomerVoices'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
+import { FinanceConnectorShowcase } from '@/components/marketing/FinanceConnectorShowcase'
 import { HomeMcpConnect } from '@/components/marketing/HomeMcpConnect'
 import { PhysicalCampusStory } from '@/components/marketing/PhysicalCampusStory'
 import { ProductHeroCarousel } from '@/components/marketing/ProductHeroCarousel'
@@ -23,14 +24,10 @@ import { marketingText } from '@/lib/i18n/marketing-copy'
 import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
-import { insightPosts, newsPosts } from '@/lib/blog-posts'
+import { getInsightPosts, getNewsPosts } from '@/lib/blog-posts'
 import { homeIntegrationBrands } from '@/lib/integration-brands'
-import {
-  distributionModes,
-  operatingJourney,
-  plans,
-  platformPillars,
-} from '@/lib/marketing-content'
+import { distributionModes, operatingJourney, platformPillars } from '@/lib/marketing-content'
+import { getPricingContent } from '@/lib/pricing-i18n'
 
 export const revalidate = 3600
 
@@ -86,6 +83,9 @@ export default async function HomePage() {
     text: tx(pillar.text),
     capabilities: pillar.capabilities.map(tx),
   }))
+  const homePlans = getPricingContent(locale).page.cards
+  const insightPosts = getInsightPosts(locale)
+  const newsPosts = getNewsPosts(locale)
 
   return (
     <div className="marketing-page min-h-screen bg-[#f7f9fc] text-[#071633]">
@@ -113,10 +113,7 @@ export default async function HomePage() {
                   className="button-primary-light group"
                 >
                   {dictionary.home.primaryCta}{' '}
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
-                    aria-hidden="true"
-                  />
+
                 </Link>
                 <Link href={href('/features')} className="button-ghost-light">
                   {dictionary.home.secondaryCta}
@@ -184,7 +181,7 @@ export default async function HomePage() {
                   <div className="relative aspect-[3/2] overflow-hidden">
                     <OptimizedImage
                       src={pillar.image}
-                      alt={pillar.imageAlt}
+                      alt={tx(pillar.imageAlt)}
                       fill
                       loading="lazy"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -213,8 +210,7 @@ export default async function HomePage() {
               href={href('/features')}
               className="mt-9 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
-              {tx('Explore every module')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Explore every module')}            </Link>
           </div>
         </section>
 
@@ -310,11 +306,12 @@ export default async function HomePage() {
                 className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-700"
               >
                 {tx('Explore integrations by module')}{' '}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
         </section>
+
+        <FinanceConnectorShowcase locale={locale} imageSrc="/images/marketing/akademate-finance-workspace-v1.png" imageAlt={locale === 'es' ? 'Panel financiero ilustrativo para una academia' : 'Illustrative academy finance workspace'} />
 
         <CustomerVoices />
 
@@ -345,10 +342,10 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="mt-10 grid overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-3">
-              {plans.map((plan, index) => (
+              {homePlans.map((plan, index) => (
                 <article
                   key={plan.name}
-                  className={`p-8 sm:p-10 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'} ${index < plans.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}
+                  className={`p-8 sm:p-10 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'} ${index < homePlans.length - 1 ? 'border-b border-slate-200 lg:border-b-0 lg:border-r' : ''}`}
                 >
                   <p
                     className={`text-sm font-semibold ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}
@@ -378,17 +375,20 @@ export default async function HomePage() {
                       index === 1 ? 'button-primary-light mt-9' : 'button-primary-dark mt-9'
                     }
                   >
-                    {plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
+                    {plan.cta}                  </Link>
                 </article>
               ))}
             </div>
+            <p className="mt-8 max-w-3xl text-sm leading-6 text-slate-600">
+              {tx(
+                'Every plan can add specialist modules: access control, digital signage, AI and growth landings. Your own domain works on any plan.'
+              )}
+            </p>
             <Link
-              href={href('/pricing')}
+              href={href('/pricing#paid-extensions')}
               className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900"
             >
-              {tx('Compare plans')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Compare plans')}            </Link>
           </div>
         </section>
 
@@ -402,11 +402,9 @@ export default async function HomePage() {
               </h2>
               <div className="flex gap-5 text-sm font-semibold text-blue-700">
                 <Link href={href('/blog')} className="inline-flex min-h-11 items-center gap-2">
-                  {tx('Explore insights')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                  {tx('Explore insights')}                </Link>
                 <Link href={href('/news')} className="inline-flex min-h-11 items-center gap-2">
-                  {tx('Read news')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                  {tx('Read news')}                </Link>
               </div>
             </div>
             <div className="mt-10 grid gap-8 lg:grid-cols-2">
@@ -460,8 +458,7 @@ export default async function HomePage() {
               {tx('Connect your public experience, operation and learning journey.')}
             </p>
             <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
-              {tx('Book a demo')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+              {tx('Book a demo')}            </Link>
           </div>
         </section>
       </main>

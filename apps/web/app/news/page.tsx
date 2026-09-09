@@ -1,17 +1,24 @@
 import type { Metadata } from 'next'
 import { EditorialIndex } from '@/components/editorial/EditorialIndex'
 import { getNewsPosts } from '@/lib/blog-posts'
-import { getEditorialMetadataAlternates, getEditorialUi } from '@/lib/editorial-i18n'
+import { getEditorialUi } from '@/lib/editorial-i18n'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 
 export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const content = getEditorialUi(locale).index.news
+  const metadata = publicPageMetadata({
+    locale,
+    pathname: '/news',
+    copy: {
+      en: getEditorialUi('en').index.news,
+      es: getEditorialUi('es').index.news,
+    },
+  })
   return {
-    title: content.title,
-    description: content.description,
+    ...metadata,
     keywords:
       locale === 'es'
         ? [
@@ -20,7 +27,6 @@ export async function generateMetadata(): Promise<Metadata> {
             'producto SaaS educativo',
           ]
         : ['Akademate news', 'academy software updates', 'education SaaS product news'],
-    alternates: getEditorialMetadataAlternates('/news', locale),
   }
 }
 

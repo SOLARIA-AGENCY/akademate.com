@@ -306,7 +306,7 @@ test.describe('Akademate public commercial surface', () => {
     const modelLinks = page.locator('#solutions a[href*="/solutions/"]')
     await expect(modelLinks).toHaveCount(10)
     const solutions = page.locator('#solutions')
-    await expect(solutions.getByRole('link', { name: /See this academy model/i })).toHaveCount(10)
+    await expect(solutions.getByRole('link', { name: /Know more/i })).toHaveCount(10)
     await expect(solutions.getByRole('link', { name: /Driving schools/i })).toBeVisible()
     await expect(solutions.getByRole('link', { name: /Coding academies/i })).toBeVisible()
 

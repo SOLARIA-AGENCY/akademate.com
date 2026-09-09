@@ -1,6 +1,5 @@
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import {
-  ArrowRight,
   BadgeCheck,
   CalendarDays,
   CreditCard,
@@ -15,8 +14,8 @@ const stories = [
     eyebrow: 'Attendance and access',
     title: 'Welcome every learner. Record every arrival.',
     text: 'Sync QR, NFC and RFID arrivals to learner records.',
-    image: '/images/marketing/home-modules/attendance-access.jpg',
-    imageAlt: 'Learners checking into an academy with QR and NFC access readers',
+    image: '/images/marketing/akademate-access-qr-checkin-v1.jpg',
+    imageAlt: 'Student scanning a QR code at a wall tablet with access granted confirmation',
     items: [
       { icon: QrCode, label: 'QR check-in' },
       { icon: CreditCard, label: 'NFC and RFID cards' },
@@ -27,8 +26,8 @@ const stories = [
     eyebrow: 'Digital signage',
     title: 'Turn every academy screen into a live channel.',
     text: 'Schedule calendars, announcements and promotions by site.',
-    image: '/images/marketing/home-modules/digital-signage.jpg',
-    imageAlt: 'Digital signage screens showing academy schedules and announcements across a campus',
+    image: '/images/marketing/akademate-signage-reception-v1.jpg',
+    imageAlt: 'Reception screen showing today’s class schedule with a QR code',
     items: [
       { icon: CalendarDays, label: 'Scheduled content' },
       { icon: MonitorCheck, label: 'Display status 24/7' },
@@ -94,7 +93,7 @@ export function PhysicalCampusStory() {
           href="/features"
           className="mt-6 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-200 hover:text-white"
         >
-          Explore campus operations <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          Explore campus operations
         </Link>
       </div>
     </section>

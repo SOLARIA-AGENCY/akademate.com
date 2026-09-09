@@ -116,7 +116,7 @@ export function getLocalizedEditorialPath(
 export function getEditorialMetadataAlternates(pathname: string, locale: Locale) {
   return {
     canonical: localizedHref(pathname, locale),
-    languages: localizedAlternates(pathname).languages,
+    languages: localizedAlternates(pathname, locale).languages,
   }
 }
 

@@ -1,17 +1,24 @@
 import type { Metadata } from 'next'
 import { EditorialIndex } from '@/components/editorial/EditorialIndex'
 import { getInsightPosts } from '@/lib/blog-posts'
-import { getEditorialMetadataAlternates, getEditorialUi } from '@/lib/editorial-i18n'
+import { getEditorialUi } from '@/lib/editorial-i18n'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 
 export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const content = getEditorialUi(locale).index.insight
+  const metadata = publicPageMetadata({
+    locale,
+    pathname: '/blog',
+    copy: {
+      en: getEditorialUi('en').index.insight,
+      es: getEditorialUi('es').index.insight,
+    },
+  })
   return {
-    title: content.title,
-    description: content.description,
+    ...metadata,
     keywords:
       locale === 'es'
         ? [
@@ -21,7 +28,6 @@ export async function generateMetadata(): Promise<Metadata> {
             'campus virtual',
           ]
         : ['academy management', 'academy operations', 'course enrolment', 'virtual campus'],
-    alternates: getEditorialMetadataAlternates('/blog', locale),
   }
 }
 

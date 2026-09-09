@@ -1,6 +1,6 @@
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, CalendarDays, Clock3, UserRound } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Clock3, UserRound } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog-posts'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
@@ -156,8 +156,7 @@ export function EditorialArticle({
                   href={localizedHref('/contacto?asunto=demo', locale)}
                   className="button-primary-dark mt-7"
                 >
-                  {content.ctaLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                  {content.ctaLabel}                </Link>
               </div>
             </div>
           </div>

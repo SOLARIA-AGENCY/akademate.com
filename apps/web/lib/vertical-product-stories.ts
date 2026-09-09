@@ -1,7 +1,7 @@
 import type { IntegrationBrandId } from '@/lib/integration-brands'
 
-type StoryField = { label: string; options: string[] }
-type StoryMoment = {
+export type StoryField = { label: string; options: string[] }
+export type StoryMoment = {
   id: string
   label: string
   title: string
@@ -12,7 +12,7 @@ type StoryMoment = {
   activity: string[]
   connectors?: IntegrationBrandId[]
 }
-type VerticalProductStory = { noun: string; moments: StoryMoment[] }
+export type VerticalProductStory = { noun: string; moments: StoryMoment[] }
 
 export const verticalProductStories: Record<string, VerticalProductStory> = {
   'professional-training': {

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { LegalPage } from '@/components/legal/LegalPage'
-import { localizedAlternates } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
 import { getRequestLocale } from '@/lib/i18n/server'
 
 const documents = {
@@ -63,8 +63,11 @@ export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { title, description } = documents[locale]
-  return { title, description, alternates: localizedAlternates('/legal/subencargados') }
+  return publicPageMetadata({
+    locale,
+    pathname: '/legal/subencargados',
+    copy: { en: documents.en, es: documents.es },
+  })
 }
 
 export default async function SubprocessorsPage() {
@@ -75,7 +78,10 @@ export default async function SubprocessorsPage() {
       locale={locale}
       title={document.title}
       description={document.description}
-      sections={document.sections.map((section) => ({ ...section, content: <p>{section.content}</p> }))}
+      sections={document.sections.map((section) => ({
+        ...section,
+        content: <p>{section.content}</p>,
+      }))}
     />
   )
 }

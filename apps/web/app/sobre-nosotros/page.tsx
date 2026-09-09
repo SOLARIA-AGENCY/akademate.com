@@ -1,17 +1,24 @@
 import type { Metadata } from 'next'
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
-import { ArrowRight, Compass, Layers3, Sparkles } from 'lucide-react'
+import {Compass, Layers3, Sparkles } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { localizedAlternates, localizedHref } from '@/lib/i18n/routing'
+import { publicPageMetadata } from '@/lib/i18n/metadata'
+import { localizedHref } from '@/lib/i18n/routing'
 import { getRequestLocale } from '@/lib/i18n/server'
 import { getSecondaryPublicContent } from '@/lib/secondary-public-content'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { metadata } = getSecondaryPublicContent(locale).company
-  return { ...metadata, alternates: localizedAlternates('/sobre-nosotros') }
+  return publicPageMetadata({
+    locale,
+    pathname: '/sobre-nosotros',
+    copy: {
+      en: getSecondaryPublicContent('en').company.metadata,
+      es: getSecondaryPublicContent('es').company.metadata,
+    },
+  })
 }
 
 export default async function AboutPage() {
@@ -31,15 +38,10 @@ export default async function AboutPage() {
           <div className="flex items-center px-4 py-20 sm:px-8 lg:px-[max(2rem,calc((100vw-80rem)/2))]">
             <div className="max-w-xl">
               <p className="section-kicker">{content.kicker}</p>
-              <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em]">
-                {content.title}
-              </h1>
-              <p className="mt-7 text-lg leading-8 text-blue-100/75">
-                {content.description}
-              </p>
+              <h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em]">{content.title}</h1>
+              <p className="mt-7 text-lg leading-8 text-blue-100/75">{content.description}</p>
               <Link href={href('/contacto?asunto=demo')} className="button-primary-light mt-9">
-                {content.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
+                {content.cta}              </Link>
             </div>
           </div>
           <div className="scroll-depth relative min-h-[480px] overflow-hidden">

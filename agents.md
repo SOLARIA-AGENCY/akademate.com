@@ -11,6 +11,15 @@ Guía rápida para agentes (Claude/Codex/Copilot) sobre el trabajo en este repo.
 - UI kit: `https://github.com/SOLARIA-AGENCY/Academate-ui`.
 - Referencia visual/funcional CEP: `https://github.com/SOLARIA-AGENCY/www.cepcomunicacion.com`.
 
+## Origen de la web pública (crítico, 2026-08-29)
+
+`akademate.com` y `www.akademate.com` se sirven en Cloudflare Workers (`akademate-web`, OpenNext). No es el contenedor Docker `akademate-web` de Hetzner.
+
+- Publicar: `cd apps/web && OPEN_NEXT=1 pnpm cf:deploy` (`wrangler.jsonc`, worker `akademate-web`).
+- Verificar: `https://akademate.com` (coincide con `https://akademate-web.nazcamedia.workers.dev`).
+- Hetzner (`46.62.222.138`) es `cepformacion.akademate.com` / `app.akademate.com` (`akademate-tenant`) y `admin.akademate.com` (`akademate-ops`).
+- No usar `docker buildx` ni `compose up akademate-web` para publicar la landing.
+
 ## Stack objetivo
 - Frontends: Next.js 15 (app router), Tailwind v4 + shadcn/ui, TypeScript estricto.
 - Backend/API: Payload 3.67+ (Next), Postgres 16, Drizzle ORM.

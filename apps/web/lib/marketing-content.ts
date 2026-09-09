@@ -276,7 +276,7 @@ export const verticals = [
     slug: 'driving-schools',
     title: 'Driving schools',
     description: 'Lessons, vehicles, exams and learner progress.',
-    image: '/images/marketing/akademate-driving-school.jpg',
+    image: '/images/marketing/akademate-driving-school-v2.jpg',
     imageAlt: 'Driving instructor with a learner in a dual-control car during a lesson',
     capabilities: ['Lessons', 'Vehicles', 'Exam tracking'],
   },

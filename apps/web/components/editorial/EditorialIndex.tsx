@@ -1,6 +1,6 @@
 import { OptimizedImage } from '@/components/media/OptimizedImage'
 import Link from 'next/link'
-import { ArrowRight, CalendarDays, Newspaper } from 'lucide-react'
+import {CalendarDays, Newspaper } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog-posts'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
@@ -64,8 +64,7 @@ function InsightIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: L
                   </h2>
                   <p className="mt-5 text-lg leading-8 text-slate-600">{featured.excerpt}</p>
                   <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
-                    {content.readMore} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </span>
+                    {content.readMore}                  </span>
                 </div>
               </Link>
             </article>
@@ -160,8 +159,7 @@ function NewsIndex({ posts, locale }: { posts: readonly BlogPost[]; locale: Loca
                     </h2>
                     <p className="mt-5 text-lg leading-8 text-slate-600">{post.excerpt}</p>
                     <span className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-700">
-                      {content.readMore} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </span>
+                      {content.readMore}                    </span>
                   </div>
                 </Link>
               </article>

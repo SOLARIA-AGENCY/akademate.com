@@ -281,8 +281,8 @@ describe('public marketing architecture', () => {
     expect(JSON.stringify(featureGroups)).toMatch(/NFC and RFID/i)
     expect(JSON.stringify(featureGroups)).toMatch(/Digital signage/i)
     expect(JSON.stringify(featureGroups)).toMatch(/Display status/i)
-    expect(campus).toContain('/images/marketing/home-modules/attendance-access.jpg')
-    expect(campus).toContain('/images/marketing/home-modules/digital-signage.jpg')
+    expect(campus).toContain('/images/marketing/akademate-access-qr-checkin-v1.jpg')
+    expect(campus).toContain('/images/marketing/akademate-signage-reception-v1.jpg')
     expect(mcp).toContain('Connect your AI agent to Akademate.')
     expect(mcp).toContain('agenticProviders.map')
     expect(`${home}${campus}${mcp}`).not.toMatch(
@@ -296,7 +296,7 @@ describe('public marketing architecture', () => {
       'utf8'
     )
     expect(carousel).toContain('lg:grid-cols-5')
-    expect(carousel).toContain('See this academy model')
+    expect(carousel).toContain('Know more')
     expect(carousel).toContain('href(`/solutions/${vertical.slug}`)')
     expect(carousel).not.toContain('aria-roledescription="carousel"')
     expect(carousel).not.toContain('requestAnimationFrame')
@@ -533,9 +533,10 @@ describe('public marketing architecture', () => {
       new URL('../components/marketing/CourseRegistrationPreview.tsx', import.meta.url),
       'utf8'
     )
+    const courseCopy = readFileSync(new URL('../lib/i18n/preview-copy.ts', import.meta.url), 'utf8')
     expect(course).toContain('academy.akademate.com/creative-leadership')
-    expect(course).toContain('8 places available')
-    expect(course).toContain('16 of 24 confirmed')
+    expect(courseCopy).toContain('8 places available')
+    expect(courseCopy).toContain('16 of 24 confirmed')
     expect(course).toContain('ShareSheet')
     expect(
       existsSync(

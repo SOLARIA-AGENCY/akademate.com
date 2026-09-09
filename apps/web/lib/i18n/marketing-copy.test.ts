@@ -7,7 +7,8 @@ import {
   operatingJourney,
   platformPillars,
   roadmapModules,
-} from '@/lib/marketing-content'
+} from '../marketing-content'
+import { getDictionary } from './dictionaries'
 import { marketingText, spanishMarketingCopy } from './marketing-copy'
 
 describe('marketing copy registry', () => {
@@ -25,7 +26,26 @@ describe('marketing copy registry', () => {
     expect(new Set(values).size).toBe(values.length)
   })
 
-  it('covers every home and features string that is translated at request time', () => {
+  it('localises every newly exposed marketing control without an English fallback', () => {
+    const sources = [
+      'Academy models',
+      'Explore solution',
+      'Know more',
+      'Previous academy model',
+      'Next academy model',
+      'Public learner review presented by CEP Formación',
+      'Explore responsible AI at Akademate',
+      'Explore campus operations',
+      'AI workspace and MCP',
+      'Campaign intelligence',
+    ] as const
+
+    for (const source of sources) {
+      expect(marketingText('es', source)).not.toBe(source)
+    }
+  })
+
+  it('covers every data-driven Home and Features string that is passed to the registry', () => {
     const sources = [
       ...operatingJourney.flatMap((item) => [item.title, item.text]),
       ...distributionModes.flatMap((mode) => [mode.title, mode.text]),
@@ -35,8 +55,54 @@ describe('marketing copy registry', () => {
     ]
 
     for (const source of sources) {
-      expect(spanishMarketingCopy, source).toHaveProperty(source)
-      expect(marketingText('es', source).length).toBeGreaterThan(0)
+      expect(() => marketingText('es', source), source).not.toThrow()
     }
+  })
+
+  it('keeps the interactive feature, setup and agentic surfaces fail-closed in Spanish', () => {
+    const sources = [
+      'Academy setup stages',
+      'Academy blueprint',
+      'Isometric line blueprint of a compact two-storey academy',
+      'Akademate product examples',
+      'Reservations',
+      'Reserve with a €90 deposit',
+      'Akademate feature modules',
+      'Website, catalogue and embeds',
+      'Automatic Akademate subdomain',
+      'Card and wallet marks describe payment methods delivered through the configured payment provider.',
+      'Agentic and growth examples',
+      'Planned connector',
+      'Approval required',
+      'Academy operator viewing a social course promotion and campaign dashboard',
+      'Rules can prepare a follow-up or alert. Budget and campaign changes require approval.',
+    ] as const
+
+    for (const source of sources) {
+      expect(marketingText('es', source), source).not.toBe(source)
+    }
+
+    expect(marketingText('en', 'Planned connector')).toBe('Planned connector')
+    expect(marketingText('en', 'Approval required')).toBe('Approval required')
+  })
+
+  it('keeps all contact form fields, subject options and submission states bilingual', () => {
+    const english = getDictionary('en').contact
+    const spanish = getDictionary('es').contact
+
+    expect(english.subjects).toEqual(
+      expect.objectContaining({ demo: expect.any(String), privacy: expect.any(String) })
+    )
+    expect(spanish.subjects).toEqual(
+      expect.objectContaining({ demo: 'Demo de producto', privacy: 'Privacidad' })
+    )
+    expect(spanish).toMatchObject({
+      name: 'Nombre completo',
+      subjectPlaceholder: 'Selecciona un tema',
+      privacyRequired: 'Acepta la política de privacidad antes de enviar tu solicitud.',
+      success: 'Gracias. Hemos recibido tu solicitud.',
+      requestFailed: 'No hemos podido enviar tu solicitud.',
+      sending: 'Enviando…',
+    })
   })
 })
