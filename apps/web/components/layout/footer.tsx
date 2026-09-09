@@ -89,12 +89,10 @@ export async function Footer() {
           <ComplianceBadges />
         </div>
         <div>
-          <div className="mt-8 flex flex-col gap-2 text-center text-xs leading-5 text-blue-100/45 sm:flex-row sm:justify-between sm:text-left">
+          <div className="mt-8 text-center text-xs leading-5 text-blue-100/45 sm:text-left">
             <p>
               © {new Date().getFullYear()} Akademate. {dictionary.footer.rights}
             </p>
-            <p>{dictionary.footer.providerAttribution}</p>
-            <p>{dictionary.footer.governance}</p>
           </div>
         </div>
       </div>

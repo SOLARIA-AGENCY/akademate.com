@@ -57,7 +57,6 @@ export function ComplianceBadges() {
           </Link>
         ))}
       </div>
-      <p className="text-xs text-blue-100/45">{legal.compliance.detail}</p>
     </div>
   )
 }
