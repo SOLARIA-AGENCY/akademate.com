@@ -3,6 +3,13 @@ import { localizedAlternates, localizePathname, type Locale } from '@/lib/i18n/r
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'
 
+export const PUBLIC_OG_IMAGE = {
+  url: '/images/marketing/akademate-og-share-v1.jpg',
+  width: 1200,
+  height: 630,
+  type: 'image/jpeg',
+} as const
+
 type LocalizedMetadataCopy = {
   en: { title: string; description: string }
   es: { title: string; description: string }
@@ -12,7 +19,7 @@ export function publicPageMetadata({
   locale,
   pathname,
   copy,
-  image = '/images/marketing/akademate-hero-operations-og.webp',
+  image = PUBLIC_OG_IMAGE.url,
 }: {
   locale: Locale
   pathname: string
@@ -21,6 +28,13 @@ export function publicPageMetadata({
 }): Metadata {
   const current = copy[locale]
   const localizedPathname = localizePathname(pathname, locale)
+  const ogImage = {
+    url: image,
+    alt: current.title,
+    width: PUBLIC_OG_IMAGE.width,
+    height: PUBLIC_OG_IMAGE.height,
+    type: image.endsWith('.jpg') || image.endsWith('.jpeg') ? 'image/jpeg' : undefined,
+  }
 
   return {
     title: current.title,
@@ -34,7 +48,7 @@ export function publicPageMetadata({
       alternateLocale: locale === 'es' ? ['en_GB'] : ['es_ES'],
       url: localizedPathname,
       siteName: 'Akademate',
-      images: [{ url: image, alt: current.title }],
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',

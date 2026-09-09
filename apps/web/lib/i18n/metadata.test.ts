@@ -24,5 +24,18 @@ describe('localized public metadata', () => {
       },
     })
     expect(metadata.openGraph).toMatchObject({ locale: 'es_ES', url: '/es/features' })
+    expect(metadata.openGraph?.images).toEqual([
+      {
+        url: '/images/marketing/akademate-og-share-v1.jpg',
+        alt: 'Funciones',
+        width: 1200,
+        height: 630,
+        type: 'image/jpeg',
+      },
+    ])
+    expect(metadata.twitter).toMatchObject({
+      card: 'summary_large_image',
+      images: ['/images/marketing/akademate-og-share-v1.jpg'],
+    })
   })
 })

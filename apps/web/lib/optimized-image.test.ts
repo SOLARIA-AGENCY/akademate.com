@@ -46,4 +46,11 @@ describe('marketing image pipeline', () => {
     const referenced = carouselOriginals.filter((src) => home.includes(src))
     expect(referenced).toHaveLength(0)
   })
+
+  it('ships a 1200x630 JPEG Open Graph share card', () => {
+    const full = join(marketingDir, 'akademate-og-share-v1.jpg')
+    expect(existsSync(full)).toBe(true)
+    expect(statSync(full).size).toBeGreaterThan(20 * 1024)
+    expect(statSync(full).size).toBeLessThan(300 * 1024)
+  })
 })
