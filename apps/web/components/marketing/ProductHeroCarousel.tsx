@@ -66,12 +66,22 @@ export function ProductHeroCarousel() {
             />
           )
         })}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#031027]/95 via-[#031027]/45 to-transparent px-5 pb-5 pt-20 text-white sm:px-7 sm:pb-7">
-          <div className="flex max-w-xl items-start gap-3">
-            <ActiveIcon className="mt-1 h-5 w-5 shrink-0 text-blue-300" strokeWidth={1.8} aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold">{active.title}</p>
-              <p className="mt-1 text-sm leading-6 text-blue-100/75">{active.text}</p>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0">
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-[8.25rem] bg-gradient-to-t from-[#031027]/80 via-[#031027]/45 to-transparent"
+          />
+          <div className="relative px-5 pb-5 pt-3 text-white sm:px-7 sm:pb-6">
+            <div className="flex max-w-xl items-start gap-3">
+              <ActiveIcon className="mt-1 h-5 w-5 shrink-0 text-blue-300" strokeWidth={1.8} aria-hidden="true" />
+              <div>
+                <p className="text-sm font-semibold [text-shadow:0_1px_10px_rgba(3,16,39,.45)]">
+                  {active.title}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-blue-100/90 [text-shadow:0_1px_10px_rgba(3,16,39,.4)]">
+                  {active.text}
+                </p>
+              </div>
             </div>
           </div>
         </div>
