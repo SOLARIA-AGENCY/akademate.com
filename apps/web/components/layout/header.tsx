@@ -31,10 +31,10 @@ export async function Header() {
       >
         <Link
           href={href('/')}
-          className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+          className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
         >
-          <Image src="/logos/akademate-icon-48.png" alt="" width={34} height={34} priority />
-          <span className="text-sm font-extrabold tracking-[0.12em] text-[#071633]">AKADEMATE</span>
+          <Image src="/logos/akademate-icon-48.png" alt="" width={40} height={40} priority />
+          <span className="akademate-wordmark text-[#071633]">AKADEMATE</span>
         </Link>
 
         <div className="hidden items-center gap-7 lg:flex">

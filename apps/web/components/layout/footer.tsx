@@ -31,9 +31,9 @@ export async function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           <div>
-            <Link href={href('/')} className="flex items-center gap-2.5">
-              <Image src="/logos/akademate-icon-48.png" alt="" width={34} height={34} />
-              <span className="text-sm font-extrabold tracking-[0.12em]">AKADEMATE</span>
+            <Link href={href('/')} className="flex items-center gap-3">
+              <Image src="/logos/akademate-icon-48.png" alt="" width={40} height={40} />
+              <span className="akademate-wordmark text-white">AKADEMATE</span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">
               {dictionary.footer.description}

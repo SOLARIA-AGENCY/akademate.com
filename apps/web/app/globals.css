@@ -143,6 +143,10 @@ html {
   .button-ghost-light {
     @apply border border-white/35 bg-white/5 text-white backdrop-blur hover:bg-white/10;
   }
+
+  .akademate-wordmark {
+    @apply text-[1.375rem] font-extrabold leading-none tracking-[-0.04em] antialiased;
+  }
 }
 
 .product-texture {
