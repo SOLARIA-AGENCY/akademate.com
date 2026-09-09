@@ -41,8 +41,8 @@ export function HomeMcpConnect() {
         <div>
           <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
             <OptimizedImage
-              src="/images/marketing/akademate-ai-mcp-byo-v1.png"
-              alt={t('Client AI connected to Akademate modules through MCP')}
+              src="/images/marketing/akademate-ai-mcp-interaction-v1.jpg"
+              alt={t('Student using an AI assistant in Akademate on a laptop')}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"

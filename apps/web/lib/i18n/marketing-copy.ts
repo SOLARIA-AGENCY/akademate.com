@@ -267,6 +267,8 @@ export const spanishMarketingCopy = {
   'Planned AI client connections': 'Conexiones previstas con clientes de IA',
   'Client AI connected to Akademate modules through MCP':
     'IA del cliente conectada a los módulos de Akademate mediante MCP',
+  'Student using an AI assistant in Akademate on a laptop':
+    'Alumno usando un asistente de IA de Akademate en un portátil',
   Connect: 'Conectar',
   'Choose an approved AI client.': 'Elige un cliente de IA aprobado.',
   Ask: 'Pedir',
