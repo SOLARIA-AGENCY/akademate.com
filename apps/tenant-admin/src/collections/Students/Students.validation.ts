@@ -10,6 +10,7 @@ import { z } from 'zod';
  * - Spanish phone format: +34 XXX XXX XXX
  * - Email RFC 5322 compliance
  * - Spanish DNI format: 8 digits + checksum letter
+ * - Spanish NIE format: X/Y/Z + 7 digits + checksum letter
  * - GDPR consent MUST be true (not just truthy)
  * - Privacy policy acceptance MUST be true
  * - Age validation: Student must be >= 16 years old
@@ -119,6 +120,66 @@ export const dniSchema = z
   .regex(dniRegex, 'DNI must be 8 digits followed by a letter')
   .refine(validateDNIChecksum, {
     message: 'DNI checksum letter is invalid',
+  });
+
+// ============================================================================
+// NIE VALIDATION - Spanish Foreigner Identity Number
+// ============================================================================
+
+/**
+ * Spanish NIE format: X, Y or Z + 7 digits + 1 letter (checksum)
+ * The letter uses the DNI table after replacing the prefix: X→0, Y→1, Z→2
+ *
+ * Examples:
+ * - X1234567L ✅ (valid checksum)
+ * - Y1234567X ✅ (valid checksum)
+ * - X1234567A ❌ (invalid checksum)
+ * - A1234567L ❌ (prefix must be X, Y or Z)
+ */
+export const nieRegex = /^[XYZ]\d{7}[A-Z]$/;
+
+/**
+ * Validate Spanish NIE checksum
+ *
+ * @param nie - NIE string (X/Y/Z + 7 digits + 1 letter)
+ * @returns true if checksum is valid
+ */
+export const validateNIEChecksum = (nie: string): boolean => {
+  if (!nieRegex.test(nie)) {
+    return false;
+  }
+
+  const prefixDigit = 'XYZ'.indexOf(nie.charAt(0));
+  const number = parseInt(`${prefixDigit}${nie.slice(1, 8)}`, 10);
+  const letter = nie.charAt(8);
+  const expectedLetter = DNI_LETTERS[number % 23];
+
+  return letter === expectedLetter;
+};
+
+/**
+ * Spanish ID document accepted by the `dni` field: DNI or NIE
+ */
+export const spanishIdRegex = /^(?:\d{8}|[XYZ]\d{7})[A-Z]$/;
+
+/**
+ * Validate a DNI or NIE checksum
+ *
+ * @param id - DNI (8 digits + letter) or NIE (X/Y/Z + 7 digits + letter)
+ * @returns true if the document number and its checksum letter are valid
+ */
+export const validateSpanishIdChecksum = (id: string): boolean => {
+  return validateDNIChecksum(id) || validateNIEChecksum(id);
+};
+
+/**
+ * Zod schema for DNI or NIE validation with checksum
+ */
+export const spanishIdSchema = z
+  .string()
+  .regex(spanishIdRegex, 'DNI/NIE must be 8 digits + letter, or X/Y/Z + 7 digits + letter')
+  .refine(validateSpanishIdChecksum, {
+    message: 'DNI/NIE checksum letter is invalid',
   });
 
 // ============================================================================
@@ -303,7 +364,7 @@ export const StudentSchema = z.object({
   // OPTIONAL PERSONAL INFORMATION
   // ============================================================================
 
-  dni: dniSchema.optional(),
+  dni: spanishIdSchema.optional(),
 
   address: z.string().max(500, 'Address must be 500 characters or less').optional(),
 

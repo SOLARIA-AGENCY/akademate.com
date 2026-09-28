@@ -309,7 +309,7 @@ export const Students: CollectionConfig = {
       index: true,
       maxLength: 20,
       admin: {
-        description: 'Spanish DNI/NIE (8 digits + letter) - HIGHLY SENSITIVE PII',
+        description: 'Spanish DNI (8 digits + letter) or NIE (X/Y/Z + 7 digits + letter) - HIGHLY SENSITIVE PII',
       },
       // FIELD-LEVEL ACCESS: Only Asesor, Gestor, Admin can read
       // Marketing and Lectura CANNOT read DNI

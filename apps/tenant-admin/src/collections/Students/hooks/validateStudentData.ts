@@ -1,8 +1,8 @@
 import type { CollectionBeforeValidateHook } from 'payload';
 import {
   spanishPhoneRegex,
-  dniRegex,
-  validateDNIChecksum,
+  spanishIdRegex,
+  validateSpanishIdChecksum,
   emailSchema,
   dateOfBirthSchema,
 } from '../Students.validation';
@@ -26,7 +26,7 @@ interface ZodValidationError {
  * Validates student data before database insertion:
  * - Email format (RFC 5322)
  * - Phone format (Spanish: +34 XXX XXX XXX)
- * - DNI format and checksum (if provided)
+ * - DNI/NIE format and checksum (if provided)
  * - Date of birth (must be >= 16 years old)
  * - Emergency contact phone format (if provided)
  *
@@ -36,7 +36,8 @@ interface ZodValidationError {
  * VALIDATION RULES:
  * 1. Email: RFC 5322 compliant, max 255 characters
  * 2. Phone: Spanish format +34 XXX XXX XXX
- * 3. DNI: 8 digits + checksum letter (optional but validated if provided)
+ * 3. DNI/NIE: 8 digits + checksum letter, or X/Y/Z + 7 digits + checksum letter
+ *    (optional but validated if provided)
  * 4. Date of Birth: Past date, student >= 16 years old
  * 5. Emergency Contact Phone: Same as main phone format
  *
@@ -80,13 +81,15 @@ export const validateStudentData: CollectionBeforeValidateHook = ({ data, req, o
       }
     }
 
-    // 3. Validate DNI (optional, but must be valid if provided)
+    // 3. Validate DNI/NIE (optional, but must be valid if provided)
     if (data?.dni) {
       const dni = data.dni as string;
-      if (!dniRegex.test(dni)) {
-        validationErrors.push('DNI must be 8 digits followed by a letter (e.g., 12345678Z)');
-      } else if (!validateDNIChecksum(dni)) {
-        validationErrors.push('DNI checksum letter is invalid');
+      if (!spanishIdRegex.test(dni)) {
+        validationErrors.push(
+          'DNI/NIE must be 8 digits followed by a letter (e.g., 12345678Z) or X/Y/Z + 7 digits + letter (e.g., X1234567L)'
+        );
+      } else if (!validateSpanishIdChecksum(dni)) {
+        validationErrors.push('DNI/NIE checksum letter is invalid');
       }
     }
 
