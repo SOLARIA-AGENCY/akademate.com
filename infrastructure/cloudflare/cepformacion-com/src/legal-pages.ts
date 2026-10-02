@@ -195,6 +195,7 @@ const PAGES: Record<string, string> = {
 </ul>
 <h2>2. Estado</h2>
 <p>El estado de conformidad es parcialmente conforme respecto del nivel AA. La revisión automática no agota dicho nivel. La barrera que impida completar una gestión se corrige y se deja constancia en esta declaración.</p>
+<p>Esta página cubre cepformacion.com. La declaración formal en PDF y ODT de cada entidad se publicará en el apartado Otros de su portal, <a href="/transparencia/acaten">ACATEN</a> y <a href="/transparencia/aproem">APROEM</a>, cuando el texto revisado esté cerrado.</p>
 <h2>3. Distintivos publicados</h2>
 <p>Cada sede exhibe los distintivos de su propio sitio.</p>
 <ul>
@@ -223,14 +224,212 @@ export function isTransparencyHub(pathname: string): boolean {
   return path === '/transparencia'
 }
 
+export function markTransparencyPage(html: string): string {
+  if (html.includes('data-cep-transparency-page=')) return html
+  return html.replace(/<html\b/i, '<html data-cep-transparency-page="1"')
+}
+
 export function isTransparencyPortalPath(pathname: string): boolean {
   const path = pathname.replace(/\/+$/, '') || '/'
   return path === '/transparencia' || path.startsWith('/transparencia/')
 }
 
+export function isTransparencyFilePath(pathname: string): boolean {
+  return isTransparencyPortalPath(pathname) && /\.(pdf|odt|ods)$/i.test(pathname)
+}
+
+export function transparencyFileHeaders(pathname: string): Headers {
+  const name = decodeURIComponent(pathname.split('/').pop() || 'documento')
+  const ext = name.split('.').pop()?.toLowerCase()
+  const type =
+    ext === 'pdf'
+      ? 'application/pdf'
+      : ext === 'odt'
+        ? 'application/vnd.oasis.opendocument.text'
+        : 'application/vnd.oasis.opendocument.spreadsheet'
+  const headers = new Headers()
+  headers.set('content-type', type)
+  headers.set('content-disposition', `attachment; filename="${name.replace(/["\r\n]/g, '')}"`)
+  headers.set('x-content-type-options', 'nosniff')
+  headers.set('cache-control', 'public, max-age=86400')
+  return headers
+}
+
+const PUBLIC_NOT_FOUND = `<style data-cep-public-404>
+.cep-404{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4.5rem 1.25rem;color:#150702}
+.cep-404 h1{margin:.35rem 0 0;font-size:2rem;line-height:1.2;font-weight:650}
+.cep-404 p{margin:.75rem 0 0;max-width:26rem;font-size:1.05rem;line-height:1.5;color:#3f3f46}
+.cep-404 a{margin-top:1.25rem;color:#f2014b;font-weight:650;text-decoration:none}
+</style>
+<div class="cep-404" data-cep-public-404="1">
+<p>404</p>
+<h1>Página no encontrada</h1>
+<p>Esta dirección no existe en cepformacion.com.</p>
+<a href="/">Volver al inicio</a>
+</div>`
+
+export function paintPublicNotFound(shell: string): string {
+  let html = /<main\b/i.test(shell)
+    ? shell
+    : '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Página no encontrada</title></head><body><header>CEP Formación</header><main></main><footer>CEP Formación</footer></body></html>'
+  html = html.replace(/<title>[^<]*<\/title>/i, '<title>Página no encontrada | CEP Formación</title>')
+  html = html.replace(/<main\b([^>]*)>[\s\S]*?<\/main>/i, `<main$1>${PUBLIC_NOT_FOUND}</main>`)
+  return stripNextHydration(html)
+}
+
+const TRANSPARENCY_PUBLIC_HOSTS = [
+  'https://cepformacion-staging.akademate.com',
+  'https://origin.cepformacion.com',
+  'https://dashboard.cepformacion.com',
+  'https://cepformacion-app.akademate.com',
+  'https://cepformacion.akademate.com',
+]
+
 export function rewriteTransparencyAssets(html: string, origin: string): string {
-  const base = origin.replace(/\/$/, '')
-  return html.replace(/(["'(])\/_next\//g, `$1${base}/_next/`)
+  const hosts = [origin.replace(/\/$/, ''), ...TRANSPARENCY_PUBLIC_HOSTS]
+  let next = html
+  for (const host of hosts) {
+    next = next.replaceAll(`${host}/_next/`, '/_next/')
+    next = next.replaceAll(host, 'https://cepformacion.com')
+  }
+  return next
+}
+
+const PORTAL_TITLE = 'PORTAL DE TRANSPARENCIA (actualizado a 31 de Diciembre de 2025)'
+
+function accessibilityDownloadLinks(portal: 'aproem' | 'acaten'): string {
+  const pdf = `/transparencia/${portal}/10-otros/declaracion-de-accesibilidad.pdf`
+  const odt = `/transparencia/${portal}/10-otros/declaracion-de-accesibilidad.odt`
+  return `<a href="${pdf}" data-format="pdf" target="_blank" rel="noopener noreferrer">(PDF)</a> <a href="${odt}" data-format="odt" target="_blank" rel="noopener noreferrer">(ODT)</a>`
+}
+
+export function stampTransparencyUpdated(html: string): string {
+  let next = html
+    .replaceAll('Portal de transparencia de APROEM', PORTAL_TITLE)
+    .replaceAll('Portal de transparencia de ACATEN', PORTAL_TITLE)
+    .replaceAll('>9 de septiembre de 2026<', '>31 de Diciembre de 2025<')
+    .replaceAll('>29 de septiembre de 2026<', '>31 de Diciembre de 2025<')
+    .replaceAll('dateTime="2026-09-09"', 'dateTime="2025-12-31"')
+    .replaceAll('dateTime="2026-09-29"', 'dateTime="2025-12-31"')
+    .replaceAll('datetime="2026-09-09"', 'datetime="2025-12-31"')
+    .replaceAll('datetime="2026-09-29"', 'datetime="2025-12-31"')
+  next = next.replace(/<p class="mt-2 text-sm leading-normal text-muted-foreground">\s*Actualizado el\s*<time\b[^>]*>[\s\S]*?<\/time>\s*<\/p>/g, '')
+  next = next.replace(/<p class="text-sm leading-normal text-muted-foreground">\s*Datos a\s*<time\b[^>]*>[\s\S]*?<\/time>\s*<\/p>/g, '')
+  next = next.replace(/(<p\b[^>]*data-transparency-count\b[^>]*>)[\s\S]*?(<\/p>)/g, '$1$2')
+  next = next.replace(/<p class="text-sm leading-normal text-muted-foreground">\d+(?:<!-- -->\s*)*documentos?<\/p>/g, '')
+  next = next.replace(/<span class="text-muted-foreground">\s*\d[\d.,]*\s*(?:KB|MB)\s*<\/span>/g, '')
+  next = next.replaceAll('>PDF</a>', '>(PDF)</a>').replaceAll('>ODT</a>', '>(ODT)</a>').replaceAll('>ODS</a>', '>(ODS)</a>')
+  next = next.replace(/<li><a href="#apartado-normativa-aplicable"[\s\S]*?<\/a><\/li>/g, '')
+  next = next.replace(/<h2 class="text-base font-semibold leading-snug"><span>Normativa aplicable<\/span><\/h2>/g, '')
+  const portal = next.includes('data-transparency-portal="acaten"')
+    ? 'acaten'
+    : next.includes('data-transparency-portal="aproem"')
+      ? 'aproem'
+      : ''
+  if (portal) {
+    next = next.replace(
+      /<span data-portal-document="Declaración de Accesibilidad de la web" data-pending="true"><span data-slot="badge"[\s\S]*?PENDIENTE<\/span><\/span><\/span>/,
+      `<span data-portal-document="Declaración de Accesibilidad de la web">${accessibilityDownloadLinks(portal)}</span>`,
+    )
+  }
+  return next
+}
+
+export function applyHomeHeader(pageHtml: string, homeHtml: string): string {
+  const start = homeHtml.search(/<header\b/i)
+  const end = homeHtml.search(/<\/header>/i)
+  if (start < 0 || end < 0 || !/<header\b/i.test(pageHtml)) return pageHtml
+  let header = homeHtml.slice(start, end + '</header>'.length)
+  if (!/data-cep-home-header=/.test(header)) {
+    header = header.replace(/<header\b/i, '<header data-cep-home-header="1"')
+  }
+  let next = pageHtml.replace(/<header\b[\s\S]*?<\/header>/i, () => header)
+  if (next.includes('data-cep-home-header-pin')) return next
+  const payload = JSON.stringify(header).replace(/</g, '\\u003c')
+  const script = `<script data-cep-home-header-pin="1">(function(){var html=${payload};var timer=0;function pin(){var live=document.querySelector('header');if(!live||live.getAttribute('data-cep-home-header')==='1')return;var node=new DOMParser().parseFromString(html,'text/html').querySelector('header');if(!node||!live.parentNode)return;live.parentNode.replaceChild(document.importNode(node,true),live);}function schedule(){if(timer)return;timer=setTimeout(function(){timer=0;pin();},50);}pin();var obs=new MutationObserver(schedule);obs.observe(document.documentElement,{childList:true,subtree:true});setTimeout(function(){obs.disconnect();pin();},4000);})();</script>`
+  if (next.includes('</body>')) return next.replace('</body>', `${script}</body>`)
+  return `${next}${script}`
+}
+
+export function applyHomeFooter(pageHtml: string, homeHtml: string): string {
+  const start = homeHtml.search(/<footer\b/i)
+  const end = homeHtml.search(/<\/footer>/i)
+  if (start < 0 || end < 0 || !/<footer\b/i.test(pageHtml)) return pageHtml
+  let footer = homeHtml.slice(start, end + '</footer>'.length)
+  if (!/data-cep-home-footer=/.test(footer)) {
+    footer = footer.replace(/<footer\b/i, '<footer data-cep-home-footer="1"')
+  }
+  let next = pageHtml.replace(/<footer\b[\s\S]*?<\/footer>/i, () => footer)
+  const layout = homeHtml.match(/<style\b[^>]*data-cep-gbp-open="1"[^>]*>[\s\S]*?<\/style>/i)?.[0] || ''
+  if (layout && !next.includes('data-cep-gbp-open="1"') && next.includes('</head>')) {
+    next = next.replace('</head>', `${layout}</head>`)
+  }
+  if (next.includes('data-cep-home-footer-pin')) return next
+  const payload = JSON.stringify(footer).replace(/</g, '\\u003c')
+  const script = `<script data-cep-home-footer-pin="1">(function(){var html=${payload};var timer=0;function pin(){var live=document.querySelector('footer');if(!live||live.getAttribute('data-cep-home-footer')==='1')return;var node=new DOMParser().parseFromString(html,'text/html').querySelector('footer');if(!node||!live.parentNode)return;live.parentNode.replaceChild(document.importNode(node,true),live);}function schedule(){if(timer)return;timer=setTimeout(function(){timer=0;pin();},50);}pin();var obs=new MutationObserver(schedule);obs.observe(document.documentElement,{childList:true,subtree:true});setTimeout(function(){obs.disconnect();pin();},4000);})();</script>`
+  if (next.includes('</body>')) return next.replace('</body>', `${script}</body>`)
+  return `${next}${script}`
+}
+
+const HUB_PICKER = `<style data-cep-portal-picker-css>
+main:has([data-cep-portal-picker]){display:flex;flex-direction:column}
+main:has([data-cep-portal-picker]) > article{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:calc(100svh - 8rem);text-align:center;padding-top:2.5rem;padding-bottom:3.5rem}
+main:has([data-cep-portal-picker]) > article > *{width:min(100%,46rem)}
+main:has([data-cep-portal-picker]) h1{margin:.4rem 0 0;font-size:clamp(2rem,4.2vw,3rem);line-height:1.15}
+[data-cep-portal-picker]{margin-top:2.25rem}
+[data-cep-portal-picker] p{margin:0;font-size:1.05rem;line-height:1.5;color:#3f3f46}
+[data-cep-portal-picker] div{display:grid;grid-template-columns:1fr;gap:1.15rem;margin-top:1.75rem}
+@media (min-width:640px){[data-cep-portal-picker] div{grid-template-columns:1fr 1fr;gap:1.5rem}}
+[data-cep-portal-picker] a{display:flex;min-height:11rem;flex-direction:column;align-items:center;justify-content:center;padding:1.75rem 1.25rem;border:1px solid #e4e4e7;border-radius:1rem;background:#fff;color:#150702;text-decoration:none}
+[data-cep-portal-picker] a strong{font-size:clamp(1.6rem,3vw,2rem);font-weight:650;letter-spacing:0}
+[data-cep-portal-picker] a span{margin-top:.4rem;font-size:1rem;color:#3f3f46}
+[data-cep-portal-picker] a:hover{border-color:#f2014b}
+</style>
+<div data-cep-portal-picker="1">
+<p>Actualizado a 31 de Diciembre de 2025. Dos portales. Entra en el que corresponda.</p>
+<div>
+<a href="/transparencia/aproem"><strong>APROEM</strong><span>Portal de transparencia</span></a>
+<a href="/transparencia/acaten"><strong>ACATEN</strong><span>Portal de transparencia</span></a>
+</div>
+</div>`
+
+export function injectTransparencyHubPicker(html: string): string {
+  const dropdown = html.match(/<form\b[^>]*data-cep-portal-picker="1"[\s\S]*?<\/form>/i)
+  if (dropdown) return html.replace(dropdown[0], HUB_PICKER)
+  if (html.includes('data-cep-portal-picker')) return html
+  const start = html.indexOf('<p class="mt-3 max-w-2xl')
+  const list = html.indexOf('<ul class="mt-6 grid')
+  const end = list >= 0 ? html.indexOf('</ul>', list) : -1
+  if (start < 0 || list < 0 || end < 0) return html
+  return `${html.slice(0, start)}${HUB_PICKER}${html.slice(end + '</ul>'.length)}`
+}
+
+export function freezeTransparencyHub(html: string): string {
+  return stripNextHydration(injectTransparencyHubPicker(html))
+}
+
+const SECTION_GAP = `<style data-cep-transparency-gap>
+[data-transparency-tree] > ul:has(> li > [data-slot="card"]){display:flex;flex-direction:column;gap:1.75rem}
+[data-transparency-tree] > ul:has(> li > [data-slot="card"]) > li{border-top-width:0 !important}
+[data-transparency-tree] [data-slot="card"]{border:0 !important;box-shadow:none !important;background:transparent !important;border-radius:0 !important}
+[data-transparency-tree] .divide-y > :not([hidden]) ~ :not([hidden]){border-top-width:0 !important}
+[data-transparency-tree] h2,[data-transparency-tree] h3,[data-transparency-tree] p,[data-transparency-tree] li,[data-transparency-tree] a,[data-transparency-tree] span{font-size:1rem !important;font-weight:500;line-height:1.45}
+[data-transparency-portal] nav a{font-size:1rem !important}
+[data-transparency-tree]{gap:1.35rem}
+[data-transparency-tree] section>h2{display:block !important;list-style:none !important;margin:0;text-transform:uppercase}
+[data-transparency-tree] section{margin-bottom:1rem}
+[data-transparency-tree] ul{display:block !important;list-style:disc outside !important;margin:.15rem 0 0;padding-left:1.25rem !important}
+[data-transparency-tree] section>ul{padding-left:1.25rem !important}
+[data-transparency-tree] li{display:list-item !important}
+[data-transparency-tree] h3,[data-transparency-tree] li>p,[data-transparency-tree] li>div{padding-left:0 !important}
+[data-transparency-tree] a[href$=".pdf"],[data-transparency-tree] a[href$=".odt"],[data-transparency-tree] a[href$=".ods"],[data-transparency-tree] a[href*="transparenciacanarias.org"],.cep-download-link{color:#0000ee !important;text-decoration:underline}
+p:has([data-transparency-visits]){margin-top:2.5rem;text-align:right;font-size:1rem}
+</style>`
+
+export function separateTransparencySections(html: string): string {
+  if (html.includes('data-cep-transparency-gap')) return html
+  if (html.includes('</head>')) return html.replace('</head>', `${SECTION_GAP}</head>`)
+  return `${SECTION_GAP}${html}`
 }
 
 export function legalPageId(pathname: string): string | null {
@@ -247,6 +446,144 @@ function stripNextHydration(html: string): string {
     .replace(/<script\b([^>]*)>[\s\S]*?<\/script>/gi, (full, attrs: string) => (/data-cep-/i.test(attrs) ? full : ''))
     .replace(/<script\b(?![^>]*data-cep-)[^>]*\/>/gi, '')
     .replace(/<link\b[^>]*rel="(?:module)?preload"[^>]*>/gi, (full) => (/\/_next\//i.test(full) ? '' : full))
+}
+
+const PORTAL_RUNTIME = `<script data-cep-portal-runtime="1">
+(function () {
+  if (window.__cepPortalRuntime) return;
+  window.__cepPortalRuntime = 1;
+  function norm(value) {
+    return String(value || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
+  }
+  function rows() {
+    return document.querySelectorAll('[data-portal-document]');
+  }
+  function rowOf(node) {
+    return node.closest('li') || node.closest('[data-slot="item"]') || node;
+  }
+  function apply(raw) {
+    var query = norm(raw).trim();
+    var visible = 0;
+    Array.prototype.forEach.call(rows(), function (node) {
+      var row = rowOf(node);
+      var hay = norm(node.getAttribute('data-portal-document') || '');
+      var hide = Boolean(query) && hay.indexOf(query) === -1;
+      row.hidden = hide;
+      if (!hide) visible += 1;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-transparency-tree] > ul > li'), function (section) {
+      if (!query) {
+        section.hidden = false;
+        return;
+      }
+      var docs = section.querySelectorAll('[data-portal-document]');
+      if (!docs.length) return;
+      var any = false;
+      Array.prototype.forEach.call(docs, function (node) {
+        if (!rowOf(node).hidden) any = true;
+      });
+      section.hidden = !any;
+    });
+    var label = document.querySelector('[data-transparency-count]');
+    if (!label) return;
+    label.textContent = query ? (visible + (visible === 1 ? ' resultado' : ' resultados')) : '';
+  }
+  function bindSearch() {
+    var input = document.querySelector('[data-transparency-portal] input[name="q"], [data-transparency-tree] input[data-slot="input-group-control"]');
+    if (!input || input.getAttribute('data-cep-portal-search') === '1') return;
+    input.setAttribute('data-cep-portal-search', '1');
+    input.addEventListener('input', function () { apply(input.value); });
+    input.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      input.value = '';
+      apply('');
+    });
+    var form = input.closest('form');
+    if (form) form.addEventListener('submit', function (event) { event.preventDefault(); apply(input.value); });
+    if (input.value) apply(input.value);
+  }
+  function trackVisit() {
+    var root = document.querySelector('[data-transparency-portal]');
+    if (!root) return;
+    var portal = root.getAttribute('data-transparency-portal') || '';
+    if (portal !== 'aproem' && portal !== 'acaten') return;
+    var key = 'transparencia-visit:' + portal;
+    var eventId = '';
+    try { eventId = window.sessionStorage.getItem(key) || ''; } catch (error) { eventId = ''; }
+    if (!eventId) {
+      eventId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : String(Date.now());
+      try { window.sessionStorage.setItem(key, eventId); } catch (error) { eventId = eventId; }
+    }
+    fetch('/api/transparencia/visitas', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ portal: portal, eventId: eventId })
+    }).then(function (response) {
+      return response.ok ? response.json() : null;
+    }).then(function (body) {
+      var node = document.querySelector('[data-transparency-visits]');
+      if (!node || !body || typeof body.count !== 'number') return;
+      node.textContent = String(body.count);
+    }).catch(function () { return undefined; });
+  }
+  function sectionList() {
+    var lists = document.querySelectorAll('nav[aria-label="Apartados"] ul');
+    for (var i = 0; i < lists.length; i += 1) {
+      if (!lists[i].closest('[data-slot="collapsible"]')) return lists[i];
+    }
+    return null;
+  }
+  function bindSections() {
+    var button = document.querySelector('nav[aria-label="Apartados"] [data-slot="collapsible-trigger"]');
+    if (!button || button.getAttribute('data-cep-sections') === '1') return;
+    var root = button.closest('[data-slot="collapsible"]');
+    var panel = root && root.querySelector('[data-slot="collapsible-content"]');
+    var source = sectionList();
+    if (!panel || !source) return;
+    button.setAttribute('data-cep-sections', '1');
+    if (!panel.querySelector('a')) panel.appendChild(source.cloneNode(true));
+    function setOpen(open) {
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+      button.setAttribute('data-state', open ? 'open' : 'closed');
+      if (root) root.setAttribute('data-state', open ? 'open' : 'closed');
+      panel.setAttribute('data-state', open ? 'open' : 'closed');
+      var icon = button.querySelector('svg');
+      if (icon) icon.style.transform = open ? 'rotate(180deg)' : '';
+      if (open) {
+        panel.removeAttribute('hidden');
+        panel.style.display = 'block';
+        panel.style.marginTop = '0.5rem';
+      } else {
+        panel.setAttribute('hidden', '');
+        panel.style.display = '';
+        panel.style.marginTop = '';
+      }
+    }
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      setOpen(button.getAttribute('aria-expanded') !== 'true');
+    });
+    panel.addEventListener('click', function (event) {
+      var link = event.target && event.target.closest ? event.target.closest('a') : null;
+      if (link) setOpen(false);
+    });
+  }
+  function start() {
+    bindSearch();
+    bindSections();
+    trackVisit();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>`
+
+export function lightenTransparencyPortal(html: string): string {
+  const stripped = stripNextHydration(html)
+  if (!stripped.includes('data-transparency-portal=') && !stripped.includes('data-portal-document=')) return stripped
+  if (stripped.includes('data-cep-portal-runtime="1"')) return stripped
+  if (stripped.includes('</body>')) return stripped.replace('</body>', `${PORTAL_RUNTIME}</body>`)
+  return `${stripped}${PORTAL_RUNTIME}`
 }
 
 function stripDefensivePhrases(html: string): string {
