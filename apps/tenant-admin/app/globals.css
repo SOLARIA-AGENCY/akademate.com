@@ -120,7 +120,7 @@ body:not([data-payload-admin]) {
 @layer base {
   :root:not([data-payload-admin]) {
     /* CSS variables for runtime theming - AKADEMATE Design System v1.0 */
-    --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --radius: 0.5rem;
 
@@ -162,14 +162,14 @@ body:not([data-payload-admin]) {
     --ring: 224 71% 48%;
 
     /* Sidebar */
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 222 47% 20%;
-    --sidebar-primary: 224 71% 48%;
+    --sidebar: 222 64% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 93%;
-    --sidebar-accent-foreground: 222 47% 15%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 224 71% 48%;
+    --sidebar-accent: 218 47% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 219 35% 24%;
+    --sidebar-ring: 217 91% 60%;
 
     /* Charts */
     --chart-1: 224 71% 48%;
@@ -220,13 +220,13 @@ body:not([data-payload-admin]) {
     --ring: 221 83% 63%;
 
     /* Sidebar dark */
-    --sidebar: 222 47% 5%;
-    --sidebar-foreground: 210 40% 90%;
+    --sidebar: 222 64% 12%;
+    --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 221 83% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 30% 12%;
-    --sidebar-accent-foreground: 210 40% 90%;
-    --sidebar-border: 222 30% 16%;
+    --sidebar-accent: 218 47% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 219 35% 24%;
     --sidebar-ring: 221 83% 63%;
 
     /* Charts dark */
