@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { Plug, Zap, ShieldCheck } from 'lucide-react'
+import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
 
 export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
@@ -258,6 +259,9 @@ export default function ComingSoonPage() {
           <span>© {new Date().getFullYear()} Akademate. Todos los derechos reservados.</span>
           <span className="hidden sm:inline">·</span>
           <span>hola@akademate.com</span>
+        </div>
+        <div className="mt-3">
+          <ComplianceBadges />
         </div>
       </footer>
     </div>

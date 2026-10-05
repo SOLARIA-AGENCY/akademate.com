@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { GraduationCap } from 'lucide-react'
+import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
+import { legalLinks } from '@/lib/legal-config'
 
 const footerLinks = {
   platform: [
@@ -14,11 +16,7 @@ const footerLinks = {
     { name: 'Contacto', href: '/contacto' },
     { name: 'Empleo', href: '/empleo' },
   ],
-  legal: [
-    { name: 'Privacidad', href: '/privacidad' },
-    { name: 'Términos', href: '/terminos' },
-    { name: 'Cookies', href: '/cookies' },
-  ],
+  legal: legalLinks,
 }
 
 export function Footer() {
@@ -35,8 +33,8 @@ export function Footer() {
               <span className="footer-company-name font-bold text-xl">Akademate</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
-              Plataforma SaaS para academias y centros de formación.
-              Gestiona cursos, alumnos y matrículas en un solo lugar.
+              Plataforma SaaS para academias y centros de formación. Gestiona cursos, alumnos y
+              matrículas en un solo lugar.
             </p>
             <div className="mt-4 space-y-1 text-sm text-muted-foreground">
               <p className="footer-email">hola@akademate.com</p>
@@ -83,12 +81,12 @@ export function Footer() {
             <h3 className="text-sm font-semibold">Legal</h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.legal.map((link) => (
-                <li key={link.name}>
+                <li key={link.title}>
                   <Link
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >
-                    {link.name}
+                    {link.title}
                   </Link>
                 </li>
               ))}
@@ -98,9 +96,9 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 border-t pt-8">
+          <ComplianceBadges />
           <p className="text-center text-sm text-muted-foreground">
-            &copy; {currentYear} Akademate. Todos los derechos reservados.
-            Desarrollado por{' '}
+            &copy; {currentYear} Akademate. Todos los derechos reservados. Desarrollado por{' '}
             <a
               href="https://www.solaria.agency"
               target="_blank"
