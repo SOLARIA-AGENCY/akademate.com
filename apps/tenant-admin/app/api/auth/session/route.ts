@@ -59,21 +59,18 @@ export async function GET(request?: NextRequest) {
       return NextResponse.json({ user: null, authenticated: false })
     }
 
-    const user = await payload.findByID({
+    const user = (await payload.findByID({
       collection: 'users',
       id: authenticated.userId,
       depth: 0,
       overrideAccess: true,
-    }) as SessionUser | null
+    })) as SessionUser | null
 
     if (!user?.email) {
       return NextResponse.json({ user: null, authenticated: false })
     }
 
-    const token =
-      cookieStore.get('payload-token')?.value ??
-      parsedSession?.token ??
-      ''
+    const token = cookieStore.get('payload-token')?.value ?? parsedSession?.token ?? ''
 
     return NextResponse.json({
       authenticated: true,
@@ -82,10 +79,10 @@ export async function GET(request?: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        tenantId: user.tenantId ?? authenticated.tenantId ?? undefined,
       },
       socketToken: token,
     })
-
   } catch (error) {
     console.error('[/api/auth/session] Error:', error)
     return NextResponse.json({ user: null, authenticated: false })
@@ -112,12 +109,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid session token' }, { status: 401 })
     }
 
-    const verifiedUser = await payload.findByID({
+    const verifiedUser = (await payload.findByID({
       collection: 'users',
       id: authenticated.userId,
       depth: 0,
       overrideAccess: true,
-    }) as SessionUser | null
+    })) as SessionUser | null
 
     if (!verifiedUser?.email) {
       return NextResponse.json({ error: 'Invalid session user' }, { status: 401 })

@@ -19,14 +19,24 @@ interface AuthData {
 
 interface RealtimeProviderProps {
   children: ReactNode
-  /** Default tenant ID if not found in auth */
-  tenantId?: number
 }
 
-export function RealtimeProvider({
-  children,
-  tenantId: defaultTenantId = 1,
-}: RealtimeProviderProps) {
+function toPositiveTenantId(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) {
+    const parsed = Number.parseInt(value, 10)
+    return parsed > 0 ? parsed : null
+  }
+  return null
+}
+
+function toUserId(value: unknown): string | null {
+  if (typeof value === 'string' && value.trim()) return value.trim()
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return null
+}
+
+export function RealtimeProvider({ children }: RealtimeProviderProps) {
   const [authData, setAuthData] = useState<AuthData | null>(null)
   const [isReady, setIsReady] = useState(false)
   const [realtimeReady, setRealtimeReady] = useState(false)
@@ -41,12 +51,21 @@ export function RealtimeProvider({
         if (response.ok) {
           const data = await response.json()
           if (data.authenticated && data.socketToken) {
-            setAuthData({
-              token: data.socketToken,
-              userId: data.user?.id?.toString() || '1',
-              role: data.user?.role || 'admin',
-              tenantId: data.user?.tenantId || defaultTenantId,
-            })
+            const tenantId = toPositiveTenantId(data.user?.tenantId)
+            const userId = toUserId(data.user?.id)
+            const role = typeof data.user?.role === 'string' ? data.user.role.trim() : ''
+
+            // A realtime subscription without a verified tenant, user, and role
+            // is never safe to infer. The session route is the only source of
+            // tenant identity; do not fall back to a fixture tenant.
+            if (tenantId && userId && role) {
+              setAuthData({
+                token: data.socketToken,
+                userId,
+                role,
+                tenantId,
+              })
+            }
           }
         }
       } catch (error) {
@@ -57,7 +76,7 @@ export function RealtimeProvider({
     }
 
     getAuthData()
-  }, [defaultTenantId])
+  }, [])
 
   // Probe socket server availability to avoid endless client reconnect loops
   useEffect(() => {

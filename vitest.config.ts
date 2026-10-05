@@ -9,6 +9,7 @@ export default defineConfig({
       'apps/campus/vitest.config.ts',
       'apps/portal/vitest.config.ts',
       'apps/tenant-admin/vitest.config.ts',
+      'apps/web/vitest.config.ts',
 
       // Packages with node environment (backend/utilities)
       'packages/api/vitest.config.ts',

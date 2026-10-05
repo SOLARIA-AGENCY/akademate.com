@@ -1,50 +1,15 @@
 'use client'
 
 import * as React from 'react'
-import {
-  LayoutDashboard,
-  BookOpen,
-  Calendar,
-  CalendarDays,
-  Users,
-  Building2,
-  FileText,
-  UserPlus,
-  ListTodo,
-  Megaphone,
-  Sparkles,
-  FileEdit,
-  Newspaper,
-  HelpCircle,
-  MessageSquareQuote,
-  Image,
-  BarChart3,
-  Settings,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  GraduationCap,
-  Shield,
-  Globe,
-  FileInput,
-  Eye,
-  CreditCard,
-  Award,
-  School,
-  Briefcase,
-  Tag,
-  Wallet,
-  Receipt,
-  Landmark,
-  PiggyBank,
-  HandCoins,
-  ClipboardList,
-} from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
-import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '../akademate/dashboard/DashboardSidebar'
+import { visibleNavigationForRole, type DashboardNavigationItem } from '@/lib/navigation/dashboard'
+import {
+  DashboardSidebarGroup,
+  DashboardSidebarUpcomingBadge,
+} from '../akademate/dashboard/DashboardSidebar'
 import { Button } from '@payload-config/components/ui/button'
 import {
   DropdownMenu,
@@ -55,156 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
 
-// Menu structure with sections
-// Section: null = no separator, otherwise show separator before item.
-interface MenuItemWithSection extends MenuItem {
-  sectionBefore?: string
-}
-
-const menuItems: MenuItemWithSection[] = [
-  {
-    title: 'Dashboard',
-    icon: LayoutDashboard,
-    url: '/dashboard',
-  },
-  {
-    title: 'Programación',
-    icon: Calendar,
-    url: '/programacion',
-    sectionBefore: 'GESTIÓN ACADÉMICA',
-  },
-  {
-    title: 'Planner Visual',
-    icon: CalendarDays,
-    url: '/planner',
-  },
-  {
-    title: 'Cursos',
-    icon: BookOpen,
-    url: '/dashboard/cursos',
-  },
-  {
-    title: 'Ciclos',
-    icon: GraduationCap,
-    url: '/dashboard/ciclos',
-  },
-  {
-    title: 'Sedes',
-    icon: Building2,
-    url: '/dashboard/sedes',
-  },
-  {
-    title: 'Alumnos',
-    icon: School,
-    url: '/dashboard/alumnos',
-  },
-  {
-    title: 'Profesores',
-    icon: GraduationCap,
-    url: '/dashboard/profesores',
-  },
-  {
-    title: 'Administrativos',
-    icon: Briefcase,
-    url: '/dashboard/administrativo',
-  },
-  {
-    title: 'Matriculacion',
-    icon: UserPlus,
-    url: '/matriculas',
-  },
-  {
-    title: 'Marketing',
-    icon: Megaphone,
-    sectionBefore: 'GESTIÓN COMERCIAL',
-    items: [
-      { title: 'Campañas', icon: Megaphone, url: '/campanas' },
-      { title: 'Creatividades', icon: Sparkles, url: '/marketing/creatividades' },
-    ],
-  },
-  {
-    title: 'Captacion',
-    icon: FileText,
-    items: [
-      { title: 'Leads', icon: FileText, url: '/leads' },
-      { title: 'Inscripciones', icon: UserPlus, url: '/inscripciones' },
-      { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
-      { title: 'Calendario citas', icon: CalendarDays, url: '/calendario-citas' },
-    ],
-  },
-  {
-    title: 'Contenido Web',
-    icon: Globe,
-    items: [
-      { title: 'Cursos', icon: BookOpen, url: '/web/cursos' },
-      { title: 'Ciclos', icon: GraduationCap, url: '/web/ciclos' },
-      { title: 'Convocatorias', icon: Calendar, url: '/web/convocatorias' },
-      { title: 'Noticias/Blog', icon: Newspaper, url: '/contenido/blog' },
-      { title: 'Páginas', icon: FileEdit, url: '/contenido/paginas' },
-      { title: 'FAQs', icon: HelpCircle, url: '/contenido/faqs' },
-      {
-        title: 'Testimonios',
-        icon: MessageSquareQuote,
-        url: '/contenido/testimonios',
-      },
-      { title: 'Formularios', icon: FileInput, url: '/contenido/formularios' },
-      { title: 'Medios', icon: Image, url: '/contenido/medios' },
-      { title: 'Visitantes', icon: Eye, url: '/contenido/visitantes' },
-    ],
-  },
-  {
-    title: 'Analíticas',
-    icon: BarChart3,
-    url: '/analiticas',
-  },
-  {
-    title: 'Finanzas',
-    icon: Landmark,
-    sectionBefore: 'GESTIÓN FINANCIERA',
-    upcoming: true,
-    items: [
-      { title: 'Resumen Financiero', icon: Wallet, url: '/finanzas', upcoming: true },
-      { title: 'Cobros y Pagos', icon: HandCoins, url: '/finanzas/cobros-pagos', upcoming: true },
-      { title: 'Facturacion', icon: Receipt, url: '/finanzas/facturacion', upcoming: true },
-      { title: 'Nominas y Costes', icon: PiggyBank, url: '/finanzas/nominas', upcoming: true },
-      { title: 'Informes', icon: ClipboardList, url: '/finanzas/informes', upcoming: true },
-    ],
-  },
-  {
-    title: 'Campus Virtual',
-    icon: GraduationCap,
-    sectionBefore: 'CAMPUS VIRTUAL',
-    items: [
-      { title: 'Vista General Campus', icon: LayoutDashboard, url: '/campus-virtual' },
-      { title: 'Inscripciones LMS', icon: UserPlus, url: '/campus-virtual/inscripciones' },
-      { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
-      { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
-      { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
-    ],
-  },
-  {
-    title: 'Administración',
-    icon: Shield,
-    sectionBefore: 'ADMINISTRACIÓN',
-    items: [
-      { title: 'Usuarios', icon: Users, url: '/administracion/usuarios' },
-      { title: 'Roles y Permisos', icon: Shield, url: '/administracion/roles' },
-      { title: 'Areas de Estudio', icon: BookOpen, url: '/administracion/areas-estudio' },
-      { title: 'Tipos de Estudio', icon: Tag, url: '/administracion/tipos-estudio' },
-      { title: 'Historial', icon: FileText, url: '/administracion/historial' },
-      { title: 'Suscripción', icon: CreditCard, url: '/administracion/suscripcion' },
-      { title: 'Registro de Actividad', icon: FileText, url: '/administracion/actividad' },
-    ],
-  },
-  {
-    title: 'Configuración',
-    icon: Settings,
-    url: '/configuracion',
-  },
-]
-
 interface SubMenuItemProps {
-  subItem: MenuItem
+  subItem: DashboardNavigationItem
   pathname: string
   currentSearch: string
 }
@@ -241,6 +58,7 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
           type="button"
           variant="ghost"
           onClick={() => setNestedOpen(!nestedOpen)}
+          aria-expanded={nestedOpen || hasActiveNestedChild}
           className={`group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
             hasActiveNestedChild ? 'bg-sidebar-accent/50' : ''
           }`}
@@ -321,8 +139,16 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
         data-oid="c:6sgov"
       />
 
-      <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
-      <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
+      <SubIcon
+        className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`}
+        data-oid=":he6p21"
+      />
+      <span
+        className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''}
+        data-oid="-wiel.j"
+      >
+        {subItem.title}
+      </span>
       {subItem.upcoming ? <DashboardSidebarUpcomingBadge className="ml-auto" /> : null}
     </Link>
   )
@@ -331,9 +157,11 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
 interface AppSidebarProps {
   isCollapsed?: boolean
   onToggle?: () => void
+  /** Role projection for navigation only; server authorization remains authoritative. */
+  role: string | null
 }
 
-export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
+export function AppSidebar({ isCollapsed = false, onToggle, role }: AppSidebarProps) {
   const pathname = usePathname()
   // Usamos window.location.search en el cliente para evitar useSearchParams
   // (que requeriría <Suspense> en cada página del árbol)
@@ -341,8 +169,9 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const { branding } = useTenantBranding()
   const academyName = branding.academyName
-  // Menu items used directly (Sedes is a simple link to /sedes)
-  const dynamicMenuItems: MenuItemWithSection[] = menuItems
+  // Navigation is shared with the layout shortcuts and filtered by the
+  // authenticated role. This projection never replaces server authorization.
+  const dynamicMenuItems = React.useMemo(() => visibleNavigationForRole(role), [role])
 
   // Sincroniza el search string cuando cambia la ruta
   React.useEffect(() => {
@@ -396,7 +225,11 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const topLevelInteractionClass =
     'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
 
-  const renderCollapsedSubmenu = (item: MenuItemWithSection, Icon: React.ElementType, hasActiveChild: boolean) => (
+  const renderCollapsedSubmenu = (
+    item: DashboardNavigationItem,
+    Icon: React.ElementType,
+    hasActiveChild: boolean
+  ) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
@@ -486,13 +319,18 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Menu Content */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2" data-oid=".42vml6">
+      <nav
+        aria-label="Navegación principal"
+        className="flex-1 overflow-y-auto py-3 px-2"
+        data-oid=".42vml6"
+      >
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
             const isActive =
               typeof item.url === 'string' &&
-              (pathname === item.url || pathname.startsWith(`${item.url}/`))
+              (pathname === item.url ||
+                (item.title !== 'Dashboard' && pathname.startsWith(`${item.url}/`)))
             const hasSubItems = item.items && item.items.length > 0
             const isOpen = openSections.includes(item.title)
 
@@ -571,6 +409,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     type="button"
                     variant="ghost"
                     onClick={() => toggleSection(item.title)}
+                    aria-expanded={isOpen}
                     className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
                       hasActiveChild && !isCollapsed ? 'bg-sidebar-accent/60' : ''
                     } ${topLevelBaseClass}`}
@@ -654,6 +493,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={onToggle}
+              aria-label={isCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
               className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent transition-colors text-foreground/70"
               title={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
               data-oid=".6.qflx"

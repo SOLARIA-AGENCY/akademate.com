@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Plug, Zap, ShieldCheck } from 'lucide-react'
 
 export default function ComingSoonPage() {
@@ -35,7 +36,6 @@ export default function ComingSoonPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col bg-background overflow-hidden">
-
       {/* Background gradient blob */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-3xl opacity-20">
@@ -69,14 +69,21 @@ export default function ComingSoonPage() {
           <span className="font-bold text-lg tracking-tight">Akademate</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground hidden sm:inline">Lanzamiento próximo</span>
+          <span className="text-sm text-muted-foreground hidden sm:inline">
+            Lanzamiento próximo
+          </span>
+          <Link
+            href="/precios"
+            className="rounded-md border border-primary/30 bg-background/80 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+          >
+            Ver planes
+          </Link>
         </div>
       </header>
 
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="mx-auto max-w-2xl text-center">
-
           {/* Badge */}
           <div className="mb-8 inline-flex items-center rounded-full border bg-background px-4 py-1.5 text-sm shadow-sm">
             <span className="mr-2 inline-block h-2 w-2 rounded-full bg-primary animate-pulse" />
@@ -85,15 +92,15 @@ export default function ComingSoonPage() {
 
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
-            La plataforma para{' '}
-            <span className="text-primary">gestionar tu academia</span>{' '}
-            está llegando
+            La plataforma para <span className="text-primary">gestionar tu academia</span> está
+            llegando
           </h1>
 
           {/* Description */}
           <p className="text-lg text-muted-foreground leading-relaxed mb-6 max-w-xl mx-auto">
-            Akademate es la plataforma SaaS todo-en-uno diseñada para centros de formación y academias.
-            Gestión de cursos, matrículas, alumnos, comunicaciones y facturación en un único lugar.
+            Akademate es la plataforma SaaS todo-en-uno diseñada para centros de formación y
+            academias. Gestión de cursos, matrículas, alumnos, comunicaciones y facturación en un
+            único lugar.
           </p>
 
           {/* Features inline */}
@@ -112,9 +119,7 @@ export default function ComingSoonPage() {
 
           {/* Email capture */}
           <div className="bg-background/80 backdrop-blur-sm border rounded-xl p-6 sm:p-8 shadow-sm max-w-md mx-auto">
-            <p className="text-sm font-semibold text-foreground mb-1">
-              Sé el primero en conocerlo
-            </p>
+            <p className="text-sm font-semibold text-foreground mb-1">Sé el primero en conocerlo</p>
             <p className="text-xs text-muted-foreground mb-4">
               Regístrate y te avisamos cuando lancemos. Sin spam, solo lo importante.
             </p>
@@ -122,18 +127,29 @@ export default function ComingSoonPage() {
             {status === 'success' ? (
               <div className="flex flex-col items-center gap-2 py-2">
                 <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg
+                    className="h-5 w-5 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-green-700">¡Apuntado! Te avisaremos pronto.</p>
+                <p className="text-sm font-medium text-green-700">
+                  ¡Apuntado! Te avisaremos pronto.
+                </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setStatus('idle') }}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    setStatus('idle')
+                  }}
                   placeholder="tu@email.com"
                   required
                   className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 placeholder:text-muted-foreground"
@@ -145,17 +161,28 @@ export default function ComingSoonPage() {
                 >
                   {status === 'loading' ? (
                     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
                     </svg>
-                  ) : 'Notifícame'}
+                  ) : (
+                    'Notifícame'
+                  )}
                 </button>
               </form>
             )}
 
-            {status === 'error' && (
-              <p className="mt-2 text-xs text-destructive">{errorMsg}</p>
-            )}
+            {status === 'error' && <p className="mt-2 text-xs text-destructive">{errorMsg}</p>}
 
             <p className="mt-3 text-xs text-muted-foreground">
               Sin compromiso · Sin spam · Puedes cancelar en cualquier momento
@@ -185,11 +212,10 @@ export default function ComingSoonPage() {
       {/* AI Integration Section */}
       <section className="w-full px-4 py-16 border-t bg-muted/30">
         <div className="mx-auto max-w-3xl text-center">
-
           {/* Badge */}
           <div className="mb-6 inline-flex items-center rounded-full border bg-background px-4 py-1.5 text-sm shadow-sm gap-2">
             <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             <span className="text-muted-foreground font-medium">Compatible con IA</span>
           </div>
@@ -198,24 +224,59 @@ export default function ComingSoonPage() {
             Gestiona tu academia desde cualquier IA
           </h2>
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-xl mx-auto">
-            Akademate se conecta con los principales asistentes de inteligencia artificial mediante conectores MCP.
-            Crea cursos, matricula alumnos, consulta analíticas y mucho más — directamente desde la IA que ya usas.
+            Akademate se conecta con los principales asistentes de inteligencia artificial mediante
+            conectores MCP. Crea cursos, matricula alumnos, consulta analíticas y mucho más —
+            directamente desde la IA que ya usas.
           </p>
 
           {/* AI logos grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-lg mx-auto mb-10">
             {[
-              { name: 'Claude', logo: '/logos/ai/claude.svg', w: 120, h: 26, color: 'bg-orange-50 border-orange-100', desc: 'Anthropic' },
-              { name: 'ChatGPT', logo: '/logos/ai/openai.svg', w: 40, h: 40, color: 'bg-emerald-50 border-emerald-100', desc: 'OpenAI' },
-              { name: 'Grok', logo: '/logos/ai/grok.webp', w: 40, h: 40, color: 'bg-gray-50 border-gray-200', desc: 'xAI' },
-              { name: 'Gemini', logo: '/logos/ai/gemini.svg', w: 40, h: 40, color: 'bg-purple-50 border-purple-100', desc: 'Google' },
+              {
+                name: 'Claude',
+                logo: '/logos/ai/claude.svg',
+                w: 120,
+                h: 26,
+                color: 'bg-orange-50 border-orange-100',
+                desc: 'Anthropic',
+              },
+              {
+                name: 'ChatGPT',
+                logo: '/logos/ai/openai.svg',
+                w: 40,
+                h: 40,
+                color: 'bg-emerald-50 border-emerald-100',
+                desc: 'OpenAI',
+              },
+              {
+                name: 'Grok',
+                logo: '/logos/ai/grok.webp',
+                w: 40,
+                h: 40,
+                color: 'bg-gray-50 border-gray-200',
+                desc: 'xAI',
+              },
+              {
+                name: 'Gemini',
+                logo: '/logos/ai/gemini.svg',
+                w: 40,
+                h: 40,
+                color: 'bg-purple-50 border-purple-100',
+                desc: 'Google',
+              },
             ].map((ai) => (
               <div
                 key={ai.name}
                 className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${ai.color}`}
               >
                 <div className="h-10 w-full flex items-center justify-center">
-                  <Image src={ai.logo} alt={ai.name} width={ai.w} height={ai.h} className="object-contain max-h-10 max-w-full" />
+                  <Image
+                    src={ai.logo}
+                    alt={ai.name}
+                    width={ai.w}
+                    height={ai.h}
+                    className="object-contain max-h-10 max-w-full"
+                  />
                 </div>
                 <span className="text-sm font-semibold text-foreground">{ai.name}</span>
                 <span className="text-xs text-muted-foreground">{ai.desc}</span>

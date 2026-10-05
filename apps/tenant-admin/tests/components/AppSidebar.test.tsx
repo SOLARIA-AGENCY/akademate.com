@@ -36,6 +36,7 @@ describe('AppSidebar', () => {
   const defaultProps = {
     isCollapsed: false,
     onToggle: vi.fn(),
+    role: 'admin',
   }
 
   // ── Existing tests (preserved) ──────────────────────────────────────

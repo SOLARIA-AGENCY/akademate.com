@@ -9,6 +9,7 @@ const navigation = [
   { name: 'Accesos', href: '/accesos' },
   { name: 'Design System', href: '/design-system' },
   { name: 'Cursos', href: '/cursos' },
+  { name: 'Precios', href: '/precios' },
   { name: 'Sobre Nosotros', href: '/sobre-nosotros' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contacto', href: '/contacto' },
@@ -79,19 +80,16 @@ export function Header() {
       </nav>
 
       {/* Mobile menu */}
-      <div
-        className={cn(
-          'lg:hidden',
-          mobileMenuOpen ? 'block' : 'hidden'
-        )}
-      >
+      <div className={cn('lg:hidden', mobileMenuOpen ? 'block' : 'hidden')}>
         <div className="space-y-1 px-4 pb-4">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-              onClick={() => { setMobileMenuOpen(false) }}
+              onClick={() => {
+                setMobileMenuOpen(false)
+              }}
             >
               {item.name}
             </Link>
@@ -100,14 +98,18 @@ export function Header() {
             <Link
               href="/portal/login"
               className="block w-full rounded-md border px-4 py-2 text-center text-sm font-medium"
-              onClick={() => { setMobileMenuOpen(false) }}
+              onClick={() => {
+                setMobileMenuOpen(false)
+              }}
             >
               Iniciar sesión
             </Link>
             <Link
               href="/registro"
               className="block w-full rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground"
-              onClick={() => { setMobileMenuOpen(false) }}
+              onClick={() => {
+                setMobileMenuOpen(false)
+              }}
             >
               Registrarse
             </Link>

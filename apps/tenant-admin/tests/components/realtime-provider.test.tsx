@@ -119,4 +119,45 @@ describe('RealtimeProvider', () => {
     })
     expect(screen.getByText('child content')).toBeInTheDocument()
   })
+
+  it('fails closed when the authenticated session has no tenant identity', async () => {
+    vi.mocked(global.fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input.toString()
+
+      if (url.includes('/api/auth/session')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              authenticated: true,
+              socketToken: 'socket-token',
+              user: { id: '2', role: 'superadmin' },
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          )
+        )
+      }
+
+      if (url.includes('/socket.io/?EIO=4')) {
+        return Promise.resolve(new Response('0{"sid":"abc123"}', { status: 200 }))
+      }
+
+      return Promise.resolve(new Response('{}', { status: 404 }))
+    })
+
+    render(
+      <RealtimeProvider data-oid="missing-tenant">
+        <div data-oid="missing-tenant-child">child content</div>
+      </RealtimeProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('child content')).toBeInTheDocument()
+    })
+
+    await waitFor(() => {
+      expect(vi.mocked(global.fetch).mock.calls).toHaveLength(1)
+    })
+
+    expect(screen.queryByTestId('socket-provider')).not.toBeInTheDocument()
+  })
 })

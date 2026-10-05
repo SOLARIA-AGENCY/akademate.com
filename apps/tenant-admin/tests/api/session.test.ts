@@ -121,9 +121,11 @@ describe('Session API', () => {
     vi.mocked(cookies).mockResolvedValue(store as any)
     getAuthenticatedUserContextMock.mockResolvedValue(null)
 
-    const response = await GET(new NextRequest('http://localhost/api/auth/session', {
-      headers: { cookie: `akademate_session=${encodeURIComponent(sessionValue)}` },
-    }))
+    const response = await GET(
+      new NextRequest('http://localhost/api/auth/session', {
+        headers: { cookie: `akademate_session=${encodeURIComponent(sessionValue)}` },
+      })
+    )
 
     expect(await response.json()).toEqual({ user: null, authenticated: false })
   })
@@ -143,14 +145,21 @@ describe('Session API', () => {
     getPayloadMock.mockResolvedValue({ findByID })
     getAuthenticatedUserContextMock.mockResolvedValue({ userId: 7, tenantId: 1 })
 
-    const response = await GET(new NextRequest('http://localhost/api/auth/session', {
-      headers: { cookie: 'payload-token=fresh-token' },
-    }))
+    const response = await GET(
+      new NextRequest('http://localhost/api/auth/session', {
+        headers: { cookie: 'payload-token=fresh-token' },
+      })
+    )
     const payload = await response.json()
 
     expect(payload).toMatchObject({
       authenticated: true,
-      user: { id: 7, email: 'veronica.chacare@cursostenerife.es', role: 'gestor' },
+      user: {
+        id: 7,
+        email: 'veronica.chacare@cursostenerife.es',
+        role: 'gestor',
+        tenantId: 1,
+      },
       socketToken: 'fresh-token',
     })
     expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ id: 7, overrideAccess: true }))
