@@ -5,7 +5,6 @@ import {
   BookOpen, 
   Briefcase, 
   Target, 
-  Star, 
   Award, 
   ShieldCheck, 
   CheckCircle2, 
@@ -26,6 +25,7 @@ import {
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
 import { getPublicStudyTypeFallbackImage } from '@/app/lib/website/study-types'
+import { displayCourseTitle } from '../../_components/course-title'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -391,6 +391,7 @@ export default async function CursoLandingPage({ params }: Props) {
   const description = course.descripcion
   const isTeleformacion = course.studyType === 'teleformacion'
   const isSubsidized = course.studyType === 'ocupados' || course.studyType === 'desempleados'
+  const closed = course.enrollmentStatus === 'closed'
   const detailedDescription = course.descripcionDetallada
   const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
   const heroColor =
@@ -594,7 +595,7 @@ export default async function CursoLandingPage({ params }: Props) {
                 <span>Garantía de Calidad CEP Formación</span>
               </div>
               {isSubsidized ? (
-                <div className="mb-6 inline-flex rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-emerald-700 ring-1 ring-emerald-200">
+                <div className="mb-6 inline-flex rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700 ring-1 ring-emerald-200">
                   Formación gratuita subvencionada
                 </div>
               ) : null}
@@ -635,31 +636,14 @@ export default async function CursoLandingPage({ params }: Props) {
                       : undefined
                   }
                 />
-                <div className="flex items-center gap-4 text-white/90 bg-white/5 backdrop-blur-sm px-6 py-3 rounded-full border border-white/10">
-                  <div className="flex -space-x-3">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white/80 bg-white flex items-center justify-center overflow-hidden shadow-sm">
-                        <img
-                          src={`/website/cep/students/nutricosmetica-alumno-${i}.webp`}
-                          alt="Alumno de CEP Formación"
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold">+28 años</span>
-                    <span className="text-[10px] uppercase tracking-wider opacity-60">Líderes en Canarias</span>
-                  </div>
+                <div className="flex items-center gap-3 text-white/90">
+                  <span className="text-sm font-semibold">+28 años en Tenerife</span>
                 </div>
               </div>
 
               {/* Scroll Indicator */}
-              <a href="#presentacion" className="mt-16 hidden lg:flex items-center gap-4 text-white/40 animate-bounce cursor-pointer no-underline hover:text-white/60 transition-colors">
-                <div className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center p-1">
-                  <div className="w-1 h-2 bg-white/40 rounded-full" />
-                </div>
-                <span className="text-xs uppercase tracking-widest font-medium">Descubre el programa</span>
+              <a href="#presentacion" className="mt-16 hidden text-sm font-medium text-white/60 no-underline hover:text-white lg:inline-flex">
+                Ver el programa
               </a>
             </div>
 
@@ -690,23 +674,13 @@ export default async function CursoLandingPage({ params }: Props) {
                   <div className="mt-7 pt-6 border-t border-gray-900/10 relative z-10">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-2 font-bold">{formatLabel}</p>
+                        <p className="text-gray-500 text-[10px] mb-2 font-bold">{formatLabel}</p>
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-green-500" />
                           <p className="text-gray-900 font-bold text-xl tracking-tight">
                             {formatValue}
                           </p>
                         </div>
-                      </div>
-                      <div className="bg-white/70 rounded-xl px-3 py-2 border border-white/80">
-                         <div className="flex items-center gap-1 text-amber-500">
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                        </div>
-                        <p className="text-[10px] text-gray-600 text-center mt-1 font-medium">4.9/5 valoración</p>
                       </div>
                     </div>
                   </div>
@@ -716,12 +690,6 @@ export default async function CursoLandingPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Liquid Wave Divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
-            <path d="M0 120H1440V0C1440 0 1200 80 720 80C240 80 0 0 0 0V120Z" fill="white"/>
-          </svg>
-        </div>
       </section>
 
       {/* QUICK INFO BAR - DESKTOP ONLY */}
@@ -739,8 +707,8 @@ export default async function CursoLandingPage({ params }: Props) {
             </nav>
           </div>
           <div className="flex items-center gap-6">
-              <div className="hidden xl:flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
+              <div className={`hidden xl:flex items-center gap-2 text-xs font-bold px-3 py-1 rounded-full border ${closed ? 'text-slate-600 bg-slate-50 border-slate-200' : 'text-green-600 bg-green-50 border-green-100'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${closed ? 'bg-slate-500' : 'bg-green-600 animate-pulse'}`} />
                 {isSubsidized ? 'Formación gratuita subvencionada' : course.enrollmentLabel || 'Avisarme de próximas fechas'}
               </div>
             <a href="#registro" className="brand-btn px-6 py-2 rounded-full text-sm font-bold transition-all">
@@ -759,7 +727,7 @@ export default async function CursoLandingPage({ params }: Props) {
             
             {/* Introduction */}
             <section id="presentacion" className="scroll-mt-32">
-              <div className="inline-flex items-center gap-3 text-brand-600 font-bold tracking-[0.2em] uppercase text-xs mb-6">
+              <div className="inline-flex items-center gap-3 text-brand-600 font-bold text-xs mb-6">
                 <span className="w-12 h-0.5 bg-brand-600 rounded-full" />
                 Presentación del curso
               </div>
@@ -851,7 +819,7 @@ export default async function CursoLandingPage({ params }: Props) {
             {programSections.length > 0 && (
               <section id="programa" className="scroll-mt-32">
                 <div className="mb-12">
-                  <div className="inline-flex items-center gap-3 text-brand-600 font-bold tracking-[0.2em] uppercase text-xs mb-4">
+                  <div className="inline-flex items-center gap-3 text-brand-600 font-bold text-xs mb-4">
                     <BookOpen className="w-4 h-4" />
                     Plan formativo
                   </div>
@@ -930,42 +898,42 @@ export default async function CursoLandingPage({ params }: Props) {
                   <p className="text-gray-500 mt-2">Cursos complementarios que mejorarán tu competitividad laboral.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {relatedCourses.map((related) => (
+                  {relatedCourses.map((related) => {
+                    const relatedTitle = displayCourseTitle(related.nombre) || related.nombre
+                    return (
                     <a 
                       key={related.id}
                       href={`/p/cursos/${related.slug}`}
-                      className="group grid min-h-[180px] grid-cols-[132px_1fr] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-brand-500 hover:shadow-xl sm:grid-cols-[160px_1fr]"
+                      className="group grid min-h-[180px] grid-cols-[132px_1fr] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-[#f2014b] hover:shadow-xl sm:grid-cols-[160px_1fr]"
                     >
                       <div className="relative min-h-full overflow-hidden bg-gray-100">
                         <img
                           src={related.imagenPortada}
-                          alt={related.nombre}
+                          alt={relatedTitle}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                       <div className="flex min-w-0 flex-col justify-between p-5">
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="max-w-[220px] truncate rounded-full bg-brand-100/50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-600">
-                              {related.area || 'Formación'}
-                            </span>
-                            <ChevronRight className="h-5 w-5 shrink-0 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-brand-600" />
-                          </div>
-                          <h4 className="line-clamp-2 text-lg font-extrabold uppercase leading-tight tracking-wide text-gray-900 group-hover:text-brand-900">
-                            {related.nombre}
+                          <p className="text-xs font-semibold text-[#f2014b]">{related.area || 'Formación'}</p>
+                          <h4 className="line-clamp-2 text-lg font-semibold leading-tight tracking-tight text-gray-900 group-hover:text-[#3E091A]">
+                            {relatedTitle}
                           </h4>
                         </div>
-                        <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold text-gray-600">
-                          <span className="rounded-full bg-gray-100 px-3 py-1">
-                            {related.duracionReferencia ? `${related.duracionReferencia} h` : 'Duración pendiente'}
-                          </span>
-                          <span className="rounded-full bg-gray-100 px-3 py-1">
-                            {related.modality === 'online' ? 'Online' : 'Presencial'}
-                          </span>
-                        </div>
+                        <dl className="mt-5 grid gap-1 text-sm text-gray-700">
+                          <div>
+                            <dt className="inline font-semibold text-gray-950">Duración:</dt>{' '}
+                            <dd className="inline">{related.duracionReferencia ? `${related.duracionReferencia} h` : 'Consultar'}</dd>
+                          </div>
+                          <div>
+                            <dt className="inline font-semibold text-gray-950">Modalidad:</dt>{' '}
+                            <dd className="inline">{related.modality === 'online' ? 'Online' : 'Presencial'}</dd>
+                          </div>
+                        </dl>
                       </div>
                     </a>
-                  ))}
+                    )
+                  })}
                 </div>
               </section>
             )}
@@ -987,10 +955,10 @@ export default async function CursoLandingPage({ params }: Props) {
                   variant="card" 
                   cycleId={course.id} 
                   cycleName={title} 
-                  hasActiveConvocatorias={isTeleformacion || course.enrollmentStatus === 'open'}
+                  hasActiveConvocatorias={course.enrollmentStatus === 'open'}
                   labelClassName="text-gray-800"
                   inputClassName="rounded-lg border-gray-300 bg-white focus:border-transparent focus:ring-2 focus:ring-[var(--brand)]"
-                  buttonClassName="rounded-lg !bg-[#f2014b] hover:!bg-[#c9003f] !text-white shadow-none uppercase tracking-wide py-4 disabled:opacity-100 disabled:!bg-[#f2014b] disabled:!text-white"
+                  buttonClassName="rounded-lg !bg-[#f2014b] hover:!bg-[#c9003f] !text-white shadow-none py-4 disabled:opacity-100 disabled:!bg-[#f2014b] disabled:!text-white"
                   linkClassName="brand-text"
                   submitLabel={sidebarSubmitLabel}
                   sourceForm={isTeleformacion ? 'teleformacion_inicio_inmediato' : 'curso_publico_sidebar'}
@@ -1023,7 +991,7 @@ export default async function CursoLandingPage({ params }: Props) {
                 </div>
 
                 <div className="mt-8 text-center">
-                  <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-4">¿Prefieres llamarnos?</p>
+                  <p className="text-sm text-gray-400 font-semibold mb-4">¿Prefieres llamarnos?</p>
                   <a href="tel:922219257" className="text-2xl font-black brand-text transition-colors">922 219 257</a>
                 </div>
               </div>
@@ -1041,7 +1009,7 @@ export default async function CursoLandingPage({ params }: Props) {
             className="flex items-center justify-between bg-gray-900 text-white p-2 pl-6 rounded-full shadow-2xl border border-white/10 backdrop-blur-xl"
           >
             <span className="font-bold">{isTeleformacion ? '¿Empiezas online?' : '¿Buscas info?'}</span>
-            <div className="brand-btn px-6 py-3 rounded-full flex items-center gap-2 font-black text-sm uppercase tracking-wider">
+            <div className="brand-btn px-6 py-3 rounded-lg flex items-center gap-2 font-semibold text-sm">
               {isTeleformacion ? 'Empezar' : 'Solicitar'}
               <ArrowRight className="w-4 h-4" />
             </div>
@@ -1050,30 +1018,25 @@ export default async function CursoLandingPage({ params }: Props) {
       </div>
 
       {/* FINAL CALL TO ACTION */}
-      <section className="bg-gray-900 py-32 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-          <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-brand-600 rounded-full blur-[120px] -translate-y-1/2" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-indigo-600 rounded-full blur-[100px]" />
-        </div>
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-7xl font-black text-white mb-10 tracking-tight">
-            Únete a la academia líder en Canarias
+      <section className="bg-[#3E091A] py-20 px-4">
+        <div className="relative z-10 text-center max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-semibold text-white mb-6 tracking-tight">
+            Reserva plaza o pide el dossier
           </h2>
-          <p className="text-2xl text-gray-400 mb-12 leading-relaxed">
-            Más de 26 años formando a los mejores profesionales. ¿Hablamos de tu futuro?
+          <p className="text-lg text-white/70 mb-8 leading-relaxed">
+            Más de 25 años de formación presencial en Tenerife.
           </p>
-          <a 
+          <a
             href="#registro"
-            className="inline-flex items-center gap-4 bg-white text-gray-900 px-12 py-6 rounded-full font-black text-2xl shadow-2xl transition-all hover:bg-brand-50 hover:scale-105 active:scale-95"
+            className="inline-flex items-center gap-3 bg-white text-[#3E091A] px-8 py-4 rounded-lg font-semibold text-lg"
           >
-            ¡Empezar hoy mismo!
-            <ArrowRight className="w-8 h-8 text-brand-600" />
+            Solicitar información
+            <ArrowRight className="w-5 h-5 text-[#f2014b]" />
           </a>
-          <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-50 grayscale transition-all hover:grayscale-0">
-             <div className="text-white font-bold tracking-widest text-sm border border-white/20 px-4 py-2 rounded-lg">ISO 9001</div>
-             <div className="text-white font-bold tracking-widest text-sm border border-white/20 px-4 py-2 rounded-lg">EFQM 550</div>
-             <div className="text-white font-bold tracking-widest text-sm border border-white/20 px-4 py-2 rounded-lg">ISO 18000</div>
+          <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm font-semibold text-white/70">
+             <span>ISO 9001</span>
+             <span>EFQM 550</span>
+             <span>ISO 14001</span>
           </div>
         </div>
       </section>

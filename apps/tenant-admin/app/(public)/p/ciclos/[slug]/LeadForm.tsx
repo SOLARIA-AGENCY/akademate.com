@@ -162,11 +162,11 @@ export function LeadForm({
         </div>
 
         <div className="space-y-1.5">
-          <label className={labelClasses}>Email corporativo o personal</label>
+          <label className={labelClasses}>Email</label>
           <input
             type="email"
             required
-            placeholder="juan.perez@example.com"
+            placeholder="tu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={inputClasses}

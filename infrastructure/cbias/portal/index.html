@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CEP Formación · Operations</title>
+    <link rel="icon" href="logos/cep.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+        background: #111318;
+        color: #f4f5f7;
+      }
+      body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 82% 0%, #26352f 0, #111318 38%); }
+      main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 64px; }
+      header { display: flex; justify-content: space-between; gap: 24px; align-items: end; border-bottom: 1px solid #394047; padding-bottom: 28px; }
+      .brand { display: flex; gap: 16px; align-items: center; }
+      .brand img { width: 72px; height: 72px; object-fit: contain; }
+      a.tile.flagship img.logo { width: 64px; height: 64px; border-radius: 0; object-fit: contain; }
+      h1 { margin: 0; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -0.05em; line-height: .95; }
+      h2 { margin: 36px 0 12px; font-size: 0.9rem; font-weight: 600; color: #73e0a2; }
+      p { color: #aeb8b7; max-width: 560px; line-height: 1.6; }
+      .status { color: #73e0a2; font-size: .85rem; white-space: nowrap; }
+      .dashboards { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+      @media (max-width: 720px) { .dashboards { grid-template-columns: 1fr; } }
+      a.tile { display: flex; gap: 14px; align-items: flex-start; padding: 22px; color: inherit; text-decoration: none; background: #1a1f22; border: 1px solid #394047; border-radius: 14px; }
+      a.tile:hover, a.tile:focus-visible { background: #222a2a; border-color: #73e0a2; outline: none; }
+      a.tile.flagship { min-height: 148px; }
+      a.tile img.logo { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
+      a.tile.staging img.logo { opacity: 0.92; }
+      a.tile strong { display: block; font-size: 1.15rem; margin-bottom: 6px; }
+      a.tile small { color: #aeb8b7; line-height: 1.5; }
+      .public { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+      .public a { padding: 14px 16px; min-height: 0; flex: 1 1 180px; }
+      .public img.logo { width: 28px; height: 28px; border-radius: 50%; }
+      .obs { display: grid; grid-template-columns: minmax(280px, 1.3fr) 1fr 1fr; gap: 12px; }
+      @media (max-width: 900px) { .obs { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 560px) { .obs { grid-template-columns: 1fr; } }
+      article.svc { display: grid; grid-template-columns: 40px 1fr; gap: 10px 14px; padding: 18px; background: #1a1f22; border: 1px solid #394047; border-radius: 14px; }
+      article.svc.wide { grid-column: 1 / -1; grid-template-columns: 48px 1fr; }
+      @media (min-width: 901px) { article.svc.wide { grid-column: 1; grid-row: span 2; } }
+      article.svc img.logo { width: 40px; height: 40px; object-fit: contain; }
+      article.svc.wide img.logo { width: 48px; height: 48px; }
+      article.svc h3 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 650; }
+      article.svc .links { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+      article.svc a { color: #f4f5f7; text-decoration: none; font-size: 0.9rem; }
+      article.svc a:hover { color: #73e0a2; }
+      article.svc p { margin: 8px 0 0; font-size: 0.82rem; max-width: none; }
+      footer { margin-top: 34px; color: #7f8a8a; font-size: .85rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="brand">
+          <img src="logos/cep-logo.svg" alt="CEP Formación" width="72" height="72" />
+          <div>
+            <h1>CEP Formación</h1>
+            <p>Centro de operaciones privado. Los paneles de academia están en /dashboard. Las webs públicas van aparte.</p>
+          </div>
+        </div>
+        <div class="status">C-BIAS conectado</div>
+      </header>
+
+      <h2>Academia</h2>
+      <section class="dashboards" aria-label="Dashboards tenant">
+        <a class="tile flagship" href="https://cepformacion-app.akademate.com/dashboard" target="_blank" rel="noreferrer">
+          <img class="logo" src="logos/cep-logo.svg" alt="" width="64" height="64" />
+          <span>
+            <strong>Dashboard producción</strong>
+            <small>Panel interno CEP en cepformacion-app.akademate.com/dashboard. No es la web pública.</small>
+          </span>
+        </a>
+        <a class="tile flagship staging" href="https://cepformacion-staging.akademate.com/dashboard" target="_blank" rel="noreferrer">
+          <img class="logo" src="logos/cep-logo.svg" alt="" width="64" height="64" />
+          <span>
+            <strong>Dashboard staging</strong>
+            <small>Misma superficie autenticada en el entorno de pruebas.</small>
+          </span>
+        </a>
+      </section>
+      <section class="public" aria-label="Sitios públicos">
+        <a class="tile" href="https://cepformacion-app.akademate.com/" target="_blank" rel="noreferrer">
+          <img class="logo" src="logos/cep.svg" alt="" width="28" height="28" />
+          <span><strong>Web pública prod</strong><small>Landing y catálogo.</small></span>
+        </a>
+        <a class="tile" href="https://cepformacion-staging.akademate.com/" target="_blank" rel="noreferrer">
+          <img class="logo" src="logos/cep.svg" alt="" width="28" height="28" />
+          <span><strong>Web pública staging</strong><small>Landing de pruebas.</small></span>
+        </a>
+        <a class="tile" href="https://cepformacion-campus.akademate.com/" target="_blank" rel="noreferrer">
+          <img class="logo" src="logos/cep.svg" alt="" width="28" height="28" />
+          <span><strong>Campus virtual</strong><small>Aula para alumnado y docentes.</small></span>
+        </a>
+        <a class="tile" href="https://cepformacion-app.akademate.com/auth/login" target="_blank" rel="noreferrer">
+          <img class="logo" src="logos/cep.svg" alt="" width="28" height="28" />
+          <span><strong>Login academia</strong><small>Entrada a /auth/login.</small></span>
+        </a>
+      </section>
+
+      <h2>Observabilidad</h2>
+      <section class="obs" aria-label="Servicios de observabilidad">
+        <article class="svc wide">
+          <img class="logo" src="logos/grafana.svg" alt="" width="48" height="48" />
+          <div>
+            <h3>Grafana</h3>
+            <div class="links">
+              <a href="http://100.113.169.104:3000/dashboards/f/bfcugm5rz0j5sc/c-bias" target="_blank" rel="noreferrer">Carpeta C-BIAS</a>
+              <a href="http://100.113.169.104:3000/d/cep-ovh-overview" target="_blank" rel="noreferrer">OVH overview</a>
+              <a href="http://100.113.169.104:3000/d/cep-ovh-traffic" target="_blank" rel="noreferrer">Tráfico</a>
+              <a href="http://100.113.169.104:3000/d/cep-ovh-security" target="_blank" rel="noreferrer">Seguridad</a>
+              <a href="http://100.113.169.104:3000/d/cep-ovh-containers" target="_blank" rel="noreferrer">Contenedores</a>
+              <a href="http://100.113.169.104:3000/d/cep-ovh-errors" target="_blank" rel="noreferrer">Sentry/GlitchTip</a>
+              <a href="http://100.113.169.104:3000/d/cbias-capacity" target="_blank" rel="noreferrer">Capacidad</a>
+              <a href="http://100.113.169.104:3000/alerting/list" target="_blank" rel="noreferrer">Alertas</a>
+              <a href="http://100.113.169.104:3000/explore" target="_blank" rel="noreferrer">Explore / Loki</a>
+            </div>
+            <p>Métricas, logs y alertas. Solo dashboard, sin Telegram ni email.</p>
+          </div>
+        </article>
+        <article class="svc">
+          <img class="logo" src="logos/kuma.svg" alt="" width="40" height="40" />
+          <div>
+            <h3>Uptime Kuma</h3>
+            <div class="links">
+              <a href="http://100.113.169.104:3001/dashboard" target="_blank" rel="noreferrer">Monitores</a>
+              <a href="http://100.113.169.104:3001/status/cep-formacion" target="_blank" rel="noreferrer">Status interno</a>
+              <a href="http://100.113.169.104:3001/status/estado" target="_blank" rel="noreferrer">Estado público</a>
+              <a href="https://cepformacion-estado.akademate.com/" target="_blank" rel="noreferrer">Web pública</a>
+            </div>
+            <p>Página pública de estado (sitio, API, campus, área de gestión) e interno ops.</p>
+          </div>
+        </article>
+        <article class="svc">
+          <img class="logo" src="logos/prometheus.svg" alt="" width="40" height="40" />
+          <div>
+            <h3>Prometheus</h3>
+            <div class="links">
+              <a href="http://100.113.169.104:9090/graph" target="_blank" rel="noreferrer">Graph</a>
+              <a href="http://100.113.169.104:9090/targets" target="_blank" rel="noreferrer">Targets</a>
+              <a href="http://100.113.169.104:9090/alerts" target="_blank" rel="noreferrer">Alerts</a>
+              <a href="http://100.113.169.104:9090/rules" target="_blank" rel="noreferrer">Rules</a>
+              <a href="http://100.113.169.104:9090/config" target="_blank" rel="noreferrer">Config</a>
+            </div>
+            <p>14/14 targets OVH + C-BIAS.</p>
+          </div>
+        </article>
+        <article class="svc">
+          <img class="logo" src="logos/serverkit.svg" alt="" width="40" height="40" />
+          <div>
+            <h3>ServerKit</h3>
+            <div class="links">
+              <a href="http://100.113.169.104:5000/" target="_blank" rel="noreferrer">Home</a>
+              <a href="http://100.113.169.104:5000/fleet-monitor" target="_blank" rel="noreferrer">Fleet monitor</a>
+              <a href="http://100.113.169.104:5000/servers" target="_blank" rel="noreferrer">Servers</a>
+              <a href="http://100.113.169.104:5000/domains" target="_blank" rel="noreferrer">Services</a>
+            </div>
+            <p>Flota CEP OVH, métricas y Docker.</p>
+          </div>
+        </article>
+        <article class="svc">
+          <img class="logo" src="logos/sentry.svg" alt="" width="40" height="40" />
+          <div>
+            <h3>Sentry</h3>
+            <div class="links">
+              <a href="https://cepformacion-sentry.akademate.com/organizations/sentry/issues/" target="_blank" rel="noreferrer">Issues</a>
+              <a href="https://cepformacion-sentry.akademate.com/organizations/sentry/projects/" target="_blank" rel="noreferrer">Projects</a>
+              <a href="https://cepformacion-sentry.akademate.com/organizations/sentry/stats/" target="_blank" rel="noreferrer">Stats</a>
+            </div>
+            <p>Errores de producción (DSN actual).</p>
+          </div>
+        </article>
+        <article class="svc">
+          <img class="logo" src="logos/glitchtip.png" alt="" width="40" height="40" />
+          <div>
+            <h3>GlitchTip</h3>
+            <div class="links">
+              <a href="https://cepformacion-glitchtip.akademate.com/cep-formacion-wl/issues" target="_blank" rel="noreferrer">Issues</a>
+              <a href="https://cepformacion-glitchtip.akademate.com/" target="_blank" rel="noreferrer">Home</a>
+            </div>
+            <p>Ingesta de staging y comparación con Sentry.</p>
+          </div>
+        </article>
+        <article class="svc">
+          <img class="logo" src="logos/loki.svg" alt="" width="40" height="40" />
+          <div>
+            <h3>Loki</h3>
+            <div class="links">
+              <a href="http://100.113.169.104:3000/explore" target="_blank" rel="noreferrer">Grafana Explore</a>
+              <a href="http://100.113.169.104:3000/d/cbias-logs-visual" target="_blank" rel="noreferrer">Logs visuales</a>
+            </div>
+            <p>Sin UI propia. Ingest privado por :5000/loki.</p>
+          </div>
+        </article>
+      </section>
+      <footer>Accesible únicamente desde la red Tailscale de C-BIAS.</footer>
+    </main>
+  </body>
+</html>

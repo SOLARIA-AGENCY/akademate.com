@@ -30,10 +30,8 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           { label: 'Teleformación', href: '/p/cursos?tipo=teleformacion' },
         ],
       },
-      { kind: 'link', label: 'Nuevas formaciones', href: '/#nuevas-formaciones' },
       { kind: 'link', label: 'Convocatorias', href: '/convocatorias' },
       { kind: 'dropdown', source: 'campuses', label: 'Sedes', href: '/sedes' },
-      { kind: 'link', label: 'Blog', href: '/blog' },
       { kind: 'link', label: 'Empleo', href: '/empleo' },
       { kind: 'link', label: 'FAQ', href: '/faq' },
     ],
@@ -54,9 +52,10 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         ],
       },
       {
-        title: 'Información',
+        title: 'Participa',
         links: [
           { label: 'Blog', href: '/blog' },
+          { label: 'APROEM', href: '/aproem' },
           { label: 'FAQ', href: '/faq' },
           { label: 'Contacto', href: '/contacto' },
         ],
@@ -180,9 +179,9 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           kind: 'statsStrip',
           items: [
             { value: '+25', label: 'Años de experiencia' },
-            { value: '2', label: 'Sedes en Tenerife' },
+            { value: '3', label: 'Campus en Tenerife' },
             { value: '+50', label: 'Cursos y especialidades' },
-            { value: '98%', label: 'Inserción laboral' },
+            { value: 'Autorizada', label: 'Agencia de colocación' },
           ],
         },
         {
@@ -228,7 +227,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           kind: 'jobPlacement',
           title: 'Agencia de colocación oficial',
           subtitle: 'Acompañamos tu formación con orientación laboral, acceso a oportunidades y registro como candidato en nuestra bolsa de empleo autorizada.',
-          image: '/media/admin-1.jpg',
+          image: '/website/cep/empleo/bolsa-empleo-oficina.jpg',
           cta: { label: 'Conocer la bolsa de empleo', href: '/agencia-colocacion' },
           secondaryCta: { label: 'Registrarme como candidato', href: 'https://cursostenerife.agenciascolocacion.com/candidatos/registro' },
           externalRegistrationUrl: 'https://cursostenerife.agenciascolocacion.com/candidatos/registro',
@@ -280,7 +279,6 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'teamGrid',
           title: 'Equipo docente',
-          subtitle: 'Aprende con profesionales especializados que combinan experiencia docente y práctica real en su sector.',
           members: [
             { name: 'Alexis Galán', role: 'Farmacia', image: '/website/cep/team/alexis.jpg' },
             { name: 'Livia Bernardi', role: 'Adiestramiento Canino', image: '/website/cep/team/livia.jpg' },

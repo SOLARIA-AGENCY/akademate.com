@@ -16,6 +16,7 @@ import type { CollectionConfig } from 'payload'
  *   campuses:read, campuses:write
  *   staff:read, staff:write
  *   convocatorias:read, convocatorias:write
+ *   catalog:read
  */
 export const ApiKeys: CollectionConfig = {
   slug: 'api-keys',
@@ -107,6 +108,7 @@ export const ApiKeys: CollectionConfig = {
             { label: 'Personal — Escritura', value: 'staff:write' },
             { label: 'Convocatorias — Lectura', value: 'convocatorias:read' },
             { label: 'Convocatorias — Escritura', value: 'convocatorias:write' },
+            { label: 'Catálogo público — Lectura', value: 'catalog:read' },
           ],
         },
       ],

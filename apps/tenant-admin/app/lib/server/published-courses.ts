@@ -13,6 +13,7 @@ import {
   PUBLIC_STUDY_TYPE_COURSE_TYPE_VALUES,
   type PublicStudyType,
 } from '@/app/lib/website/study-types'
+import { displayCampusName } from '@/app/lib/public-campus-name'
 
 type CourseDoc = {
   id: number | string
@@ -61,6 +62,7 @@ type CourseRunDoc = {
   max_students?: number | null
   current_enrollments?: number | null
   campus?: { name?: string | null; city?: string | null } | number | null
+  course?: number | string | { id?: number | string } | null
 }
 
 type CourseTypeDoc = {
@@ -110,13 +112,14 @@ export type PublishedCourse = {
     question: string
     answer: string
   }[]
-  enrollmentStatus: 'open' | 'published' | 'none'
+  enrollmentStatus: 'open' | 'published' | 'closed' | 'none'
   enrollmentLabel: string
   nextRun: {
     id: string
     status: string
     startDate: string | null
     endDate: string | null
+    enrollmentDeadline: string | null
     scheduleLabel: string
     campusLabel: string
     availableSeats: number | null
@@ -129,9 +132,9 @@ export type PublishedCourse = {
 }
 
 export const DEFAULT_STUDY_TYPE_VISUALS: Record<PublicStudyType, StudyTypeVisualMeta> = {
-  privados: { code: PUBLIC_STUDY_TYPE_CODES.privados, label: 'Privados', color: '#E3003A' },
-  desempleados: { code: PUBLIC_STUDY_TYPE_CODES.desempleados, label: 'Desempleados', color: '#2563EB' },
-  ocupados: { code: PUBLIC_STUDY_TYPE_CODES.ocupados, label: 'Ocupados', color: '#22C55E' },
+  privados: { code: PUBLIC_STUDY_TYPE_CODES.privados, label: 'Privados', color: '#f2014b' },
+  desempleados: { code: PUBLIC_STUDY_TYPE_CODES.desempleados, label: 'Desempleados', color: '#1d4ed8' },
+  ocupados: { code: PUBLIC_STUDY_TYPE_CODES.ocupados, label: 'Ocupados', color: '#16a34a' },
   teleformacion: { code: PUBLIC_STUDY_TYPE_CODES.teleformacion, label: 'Teleformación', color: '#F97316' },
 }
 
@@ -205,55 +208,111 @@ function toScheduleLabel(run: CourseRunDoc | null): string {
 
 function toCampusLabel(campus: CourseRunDoc['campus']): string {
   if (!campus || typeof campus !== 'object') return ''
-  return [campus.name, campus.city].filter(Boolean).join(' · ')
+  return displayCampusName(campus.name) || ''
+}
+
+export type PublicEnrollmentStatus = 'open' | 'published' | 'closed' | 'none'
+
+const PUBLIC_RUN_STATUSES = ['enrollment_open', 'enrollment_closed', 'published', 'in_progress'] as const
+
+export function isEnrollmentDeadlinePassed(deadline: string | null | undefined, now = new Date()): boolean {
+  const raw = String(deadline || '').trim()
+  if (!raw) return false
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T23:59:59.999`) : new Date(raw)
+  if (Number.isNaN(date.getTime())) return false
+  return now.getTime() > date.getTime()
+}
+
+export function enrollmentFromRun(
+  run: { status?: string | null; enrollment_deadline?: string | null },
+  now = new Date(),
+): Exclude<PublicEnrollmentStatus, 'none'> | null {
+  const status = String(run.status || '').toLowerCase()
+  if (status === 'published') return 'published'
+  if (status === 'enrollment_closed' || status === 'in_progress' || status === 'completed') return 'closed'
+  if (status === 'enrollment_open') {
+    return isEnrollmentDeadlinePassed(run.enrollment_deadline, now) ? 'closed' : 'open'
+  }
+  return null
+}
+
+export function enrollmentLabelFor(status: PublicEnrollmentStatus, teleformacion = false): string {
+  if (status === 'open') return teleformacion ? 'Matrícula abierta permanente' : 'Matrícula abierta'
+  if (status === 'closed') return 'Matrícula cerrada'
+  if (status === 'published') return 'Próximas fechas'
+  return 'Próximamente'
+}
+
+function runCourseId(run: CourseRunDoc): string {
+  const course = run.course
+  if (!course) return ''
+  if (typeof course === 'object') return String(course.id || '')
+  return String(course)
 }
 
 function toEnrollmentStatus(
   runs: CourseRunDoc[],
-  studyType?: PublicStudyType | null
-): Pick<
-  PublishedCourse,
-  'enrollmentStatus' | 'enrollmentLabel' | 'nextRun' | 'totalConvocatorias'
-> {
-  if (studyType === 'teleformacion') {
-    return {
-      enrollmentStatus: 'open',
-      enrollmentLabel: 'Matrícula abierta permanente',
-      nextRun: null,
-      totalConvocatorias: 0,
-    }
-  }
+  studyType?: PublicStudyType | null,
+): Pick<PublishedCourse, 'enrollmentStatus' | 'enrollmentLabel' | 'nextRun' | 'totalConvocatorias'> {
+  const states = runs.map((run) => enrollmentFromRun(run))
+  const hasOpen = states.includes('open')
+  const hasUpcoming = states.includes('published')
+  const hasClosed = states.includes('closed')
+  const enrollmentStatus: PublicEnrollmentStatus = hasOpen
+    ? 'open'
+    : hasUpcoming
+      ? 'published'
+      : hasClosed
+        ? 'closed'
+        : studyType === 'teleformacion'
+          ? 'open'
+          : 'none'
 
-  const visibleRuns = runs.filter((run) => ['enrollment_open', 'published'].includes(String(run.status ?? '')))
-  const openRun = visibleRuns.find((run) => run.status === 'enrollment_open') ?? null
-  const nextRun = openRun ?? visibleRuns[0] ?? null
-  const enrollmentStatus = openRun ? 'open' : nextRun ? 'published' : 'none'
+  const featured =
+    runs.find((run) => enrollmentFromRun(run) === 'open') ??
+    runs.find((run) => enrollmentFromRun(run) === 'published') ??
+    runs.find((run) => enrollmentFromRun(run) === 'closed') ??
+    null
   const availableSeats =
-    nextRun && typeof nextRun.max_students === 'number'
-      ? Math.max(0, nextRun.max_students - Number(nextRun.current_enrollments ?? 0))
+    featured && typeof featured.max_students === 'number'
+      ? Math.max(0, featured.max_students - Number(featured.current_enrollments ?? 0))
       : null
 
   return {
     enrollmentStatus,
-    enrollmentLabel:
-      enrollmentStatus === 'open'
-        ? 'Matrícula abierta'
-        : enrollmentStatus === 'published'
-          ? 'Próximas fechas'
-          : 'Avisarme de próximas fechas',
-    nextRun: nextRun
+    enrollmentLabel: enrollmentLabelFor(enrollmentStatus, studyType === 'teleformacion'),
+    nextRun: featured
       ? {
-          id: String(nextRun.id),
-          status: String(nextRun.status ?? ''),
-          startDate: nextRun.start_date ?? null,
-          endDate: nextRun.end_date ?? null,
-          scheduleLabel: toScheduleLabel(nextRun),
-          campusLabel: toCampusLabel(nextRun.campus),
+          id: String(featured.id),
+          status: String(featured.status ?? ''),
+          startDate: featured.start_date ?? null,
+          endDate: featured.end_date ?? null,
+          enrollmentDeadline: featured.enrollment_deadline ?? null,
+          scheduleLabel: toScheduleLabel(featured),
+          campusLabel: toCampusLabel(featured.campus),
           availableSeats,
         }
       : null,
-    totalConvocatorias: visibleRuns.length,
+    totalConvocatorias: runs.length,
   }
+}
+
+function publicCardDescription(course: CourseDoc): string {
+  const candidates = [
+    String(course.short_description || '').trim(),
+    String(course.description || '').trim(),
+    extractTextFromRichText(course.long_description)[0] || '',
+    String(course.landing_target_audience || '').trim(),
+    String(course.landing_outcomes || '').trim(),
+  ]
+  for (const candidate of candidates) {
+    const text = candidate.replace(/\s+/g, ' ').trim()
+    if (!text) continue
+    if (/^curso de formaci[oó]n profesional$/i.test(text)) continue
+    if (text === 'Programa especializado con orientación práctica.') continue
+    return text
+  }
+  return ''
 }
 
 function extractTextFromRichText(value: unknown): string[] {
@@ -387,9 +446,7 @@ function mapCourseDocToPublishedCourse(
     studyType: normalizedStudyType,
     studyTypeLabel: visual?.label || 'Sin tipo',
     studyTypeColor: visual?.color || '#64748B',
-    descripcion:
-      String(course.short_description || course.description || '').trim() ||
-      'Curso de formación profesional',
+    descripcion: publicCardDescription(course),
     descripcionDetallada: extractTextFromRichText(course.long_description),
     area: toAreaName(course.area_formativa),
     areaColor: toAreaColor(course.area_formativa),
@@ -463,6 +520,39 @@ export async function getStudyTypeVisualMap(payloadClient?: Payload): Promise<Re
   return map
 }
 
+async function loadRunsByCourseId(
+  payload: Payload,
+  courseIds: Array<string | number>,
+  tenantId?: string | number | null,
+): Promise<Record<string, CourseRunDoc[]>> {
+  const ids = courseIds.filter((id) => id !== undefined && id !== null && String(id) !== '')
+  if (!ids.length) return {}
+  try {
+    const result = await payload.find({
+      collection: 'course-runs',
+      where: withTenantScope(
+        {
+          and: [{ course: { in: ids } }, { status: { in: [...PUBLIC_RUN_STATUSES] } }],
+        } as Record<string, unknown>,
+        tenantId,
+      ) as never,
+      limit: Math.min(1000, Math.max(50, ids.length * 8)),
+      depth: 1,
+      sort: 'start_date',
+      overrideAccess: true,
+    })
+    const map: Record<string, CourseRunDoc[]> = {}
+    for (const run of (result.docs ?? []) as CourseRunDoc[]) {
+      const courseId = runCourseId(run)
+      if (!courseId) continue
+      ;(map[courseId] ||= []).push(run)
+    }
+    return map
+  } catch {
+    return {}
+  }
+}
+
 export async function getPublishedCourses(options: GetPublishedCoursesOptions = {}): Promise<PublishedCourse[]> {
   try {
     const payload = options.payload ?? (await getPayload({ config: configPromise }))
@@ -486,11 +576,12 @@ export async function getPublishedCourses(options: GetPublishedCoursesOptions = 
     while (hasNextPage && docs.length < maxRecords && page < 50) {
       const result = await payload.find({
         collection: 'courses',
-        where: where as any,
+        where: where as never,
         page,
         limit: Math.min(pageSize, maxRecords - docs.length),
         depth: 1,
         sort,
+        overrideAccess: true,
       })
 
       docs.push(...((result.docs ?? []) as CourseDoc[]))
@@ -499,7 +590,14 @@ export async function getPublishedCourses(options: GetPublishedCoursesOptions = 
     }
 
     const studyTypeMap = await getStudyTypeVisualMap(payload)
-    return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap))
+    const runsByCourse = await loadRunsByCourseId(
+      payload,
+      docs.map((course) => course.id),
+      options.tenantId,
+    )
+    return docs.map((course) =>
+      mapCourseDocToPublishedCourse(course, studyTypeMap, runsByCourse[String(course.id)] || []),
+    )
   } catch (e) {
     console.error('Error fetching published courses:', e)
     if (options.throwOnError) throw e
@@ -556,7 +654,7 @@ export async function getPublishedCourseBySlug(
           {
             and: [
               { course: { equals: course.id } },
-              { status: { in: ['enrollment_open', 'published'] } },
+              { status: { in: [...PUBLIC_RUN_STATUSES] } },
             ],
           } as Record<string, unknown>,
           options.tenantId
@@ -564,6 +662,7 @@ export async function getPublishedCourseBySlug(
         limit: 10,
         depth: 1,
         sort: 'start_date',
+        overrideAccess: true,
       })
       runs = (runResult.docs ?? []) as CourseRunDoc[]
     } catch {

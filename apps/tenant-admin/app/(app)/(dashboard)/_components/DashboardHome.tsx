@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Card,
@@ -290,6 +290,8 @@ export default function DashboardPage() {
   })
   const [range, setRange] = useState<HomeRangeKey>('7d')
   const [isClient, setIsClient] = useState(false)
+  const activityScrollRef = useRef<HTMLDivElement>(null)
+  const [activityCanScrollRight, setActivityCanScrollRight] = useState(false)
 
   const [homeTeachers, setHomeTeachers] = useState<DirectoryStaffRef[]>([])
   const [homeCampuses, setHomeCampuses] = useState<
@@ -511,6 +513,34 @@ export default function DashboardPage() {
     )
   }, [homeLeads, recentActivities])
 
+  const updateActivityScrollOverflow = useCallback(() => {
+    const root = activityScrollRef.current
+    const el =
+      root?.querySelector<HTMLElement>('[data-slot="table-container"]') ?? root
+    if (!el) {
+      setActivityCanScrollRight(false)
+      return
+    }
+    setActivityCanScrollRight(el.scrollWidth - el.clientWidth - el.scrollLeft > 1)
+  }, [])
+
+  useLayoutEffect(() => {
+    const root = activityScrollRef.current
+    const el =
+      root?.querySelector<HTMLElement>('[data-slot="table-container"]') ?? root
+    updateActivityScrollOverflow()
+    if (!el) return
+    const onScroll = () => updateActivityScrollOverflow()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(onScroll)
+    observer?.observe(el)
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      observer?.disconnect()
+    }
+  }, [loading, updateActivityScrollOverflow, visibleActivities])
+
   const directoryBanner = [
     directoryError,
     error ? 'No se pudieron cargar las métricas del dashboard.' : null,
@@ -533,7 +563,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col" data-oid="re7drx3">
+    <div className="flex min-w-0 flex-col overflow-x-clip" data-oid="re7drx3">
       <PageHeader
         title="Dashboard"
         description={`Vista general de la operativa de ${branding.academyName}`}
@@ -550,7 +580,7 @@ export default function DashboardPage() {
       />
 
       <div
-        className="sticky top-0 z-20 isolate -mx-4 mt-0 border-y border-border/60 bg-[hsl(var(--dashboard-canvas))] px-4"
+        className="relative sticky top-0 z-20 isolate -mx-4 mt-0 border-y border-border/60 bg-[hsl(var(--dashboard-canvas))] px-4 shadow-[0_8px_12px_-6px_hsl(var(--foreground)/0.14)] after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-[hsl(var(--dashboard-canvas))] after:to-transparent"
         data-testid="dashboard-home-range-bar"
       >
         <div className="flex h-12 items-center">
@@ -582,7 +612,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 pt-6">
+      <div className="relative z-0 flex flex-col gap-6 pt-6">
       {directoryBanner ? (
         <div
           className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
@@ -593,7 +623,7 @@ export default function DashboardPage() {
       ) : null}
       {/* KPIs operativos */}
       <div
-        className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="relative z-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
         data-oid="gtfb5.8"
       >
         {primaryKpis.map((kpi) => {
@@ -947,81 +977,95 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="min-w-0 p-0" data-oid="ds2gh4z">
             {visibleActivities.length > 0 ? (
-              <div className="w-full min-w-0 overflow-x-auto" data-oid="4dur1yy">
-                <Table className="min-w-[720px] table-fixed">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[24%]">Persona</TableHead>
-                      <TableHead className="w-[17%]">Acción</TableHead>
-                      <TableHead className="w-[14%]">Lead</TableHead>
-                      <TableHead className="w-[18%]">Fecha de inscripción</TableHead>
-                      <TableHead className="w-[12%]">Origen</TableHead>
-                      <TableHead className="w-[15%]">Estado</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {visibleActivities.map((activity) => {
-                      const name = activity.entity_name || 'Lead'
-                      const status = activity.lead_status ?? ''
-                      const isLead = activity.type === 'lead' || Boolean(activity.lead_id)
-                      const rowClass = activity.href
-                        ? 'cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
-                        : ''
-                      return (
-                        <TableRow
-                          key={`${activity.type ?? 'activity'}-${activity.id}`}
-                          className={rowClass}
-                          tabIndex={activity.href ? 0 : undefined}
-                          onClick={activity.href ? () => router.push(activity.href!) : undefined}
-                          onKeyDown={activity.href ? (event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault()
-                              router.push(activity.href!)
-                            }
-                          } : undefined}
-                        >
-                          <TableCell className="max-w-0">
-                            <div className="flex min-w-0 items-center gap-2">
-                              <Avatar className="h-8 w-8 shrink-0">
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                  {isLead ? <UserRound className="h-4 w-4" aria-hidden="true" /> : leadInitials(name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="truncate text-xs font-medium" title={name}>{name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-0 truncate text-xs" title={activity.title}>
-                            {activity.title}
-                          </TableCell>
-                          <TableCell>
-                            {isLead ? (
-                              <DirectoryNeutralBadge className="max-w-full truncate text-[10px]">
-                                {activity.lead_type || 'Orgánico'}
-                              </DirectoryNeutralBadge>
-                            ) : '—'}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                            {new Date(activity.timestamp).toLocaleDateString('es-ES', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </TableCell>
-                          <TableCell className="truncate text-xs text-muted-foreground">
-                            {isLead ? activity.lead_source || 'Orgánico' : '—'}
-                          </TableCell>
-                          <TableCell>
-                            {isLead ? (
-                              <Badge variant={LEAD_STATUS_VARIANTS[status] ?? 'neutral'} className="max-w-full truncate text-[10px]">
-                                {LEAD_STATUS_LABELS[status] ?? status ?? 'Pendiente de contactar'}
-                              </Badge>
-                            ) : '—'}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
+              <div className="relative min-w-0 max-w-full">
+                <div
+                  ref={activityScrollRef}
+                  className="w-full min-w-0 overflow-x-auto overscroll-x-contain"
+                  data-oid="4dur1yy"
+                  data-testid="dashboard-activity-scroll"
+                >
+                  <Table className="w-max min-w-[720px] table-auto">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="whitespace-nowrap">Persona</TableHead>
+                        <TableHead className="whitespace-nowrap">Acción</TableHead>
+                        <TableHead className="whitespace-nowrap">Lead</TableHead>
+                        <TableHead className="whitespace-nowrap">Fecha de inscripción</TableHead>
+                        <TableHead className="whitespace-nowrap">Origen</TableHead>
+                        <TableHead className="whitespace-nowrap pr-6">Estado</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {visibleActivities.map((activity) => {
+                        const name = activity.entity_name || 'Lead'
+                        const status = activity.lead_status ?? ''
+                        const isLead = activity.type === 'lead' || Boolean(activity.lead_id)
+                        const rowClass = activity.href
+                          ? 'cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+                          : ''
+                        return (
+                          <TableRow
+                            key={`${activity.type ?? 'activity'}-${activity.id}`}
+                            className={rowClass}
+                            tabIndex={activity.href ? 0 : undefined}
+                            onClick={activity.href ? () => router.push(activity.href!) : undefined}
+                            onKeyDown={activity.href ? (event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                router.push(activity.href!)
+                              }
+                            } : undefined}
+                          >
+                            <TableCell className="whitespace-nowrap">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <Avatar className="h-8 w-8 shrink-0">
+                                  <AvatarFallback className="bg-primary/10 text-primary">
+                                    {isLead ? <UserRound className="h-4 w-4" aria-hidden="true" /> : leadInitials(name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs font-medium" title={name}>{name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-xs" title={activity.title}>
+                              {activity.title}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {isLead ? (
+                                <DirectoryNeutralBadge className="text-[10px]">
+                                  {activity.lead_type || 'Orgánico'}
+                                </DirectoryNeutralBadge>
+                              ) : '—'}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                              {new Date(activity.timestamp).toLocaleDateString('es-ES', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                              {isLead ? activity.lead_source || 'Orgánico' : '—'}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap pr-6">
+                              {isLead ? (
+                                <Badge variant={LEAD_STATUS_VARIANTS[status] ?? 'neutral'} className="text-[10px]">
+                                  {LEAD_STATUS_LABELS[status] ?? status ?? 'Pendiente de contactar'}
+                                </Badge>
+                              ) : '—'}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+                {activityCanScrollRight ? (
+                  <div
+                    aria-hidden
+                    data-testid="dashboard-activity-scroll-fade"
+                    className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[hsl(var(--card))] to-transparent shadow-[inset_-18px_0_14px_-10px_hsl(var(--foreground)/0.18)]"
+                  />
+                ) : null}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-8" data-oid="v:7wdlj">

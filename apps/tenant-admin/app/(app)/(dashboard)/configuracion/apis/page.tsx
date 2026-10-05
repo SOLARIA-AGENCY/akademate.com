@@ -56,6 +56,7 @@ type ApiScope =
   | 'staff:write'
   | 'analytics:read'
   | 'keys:manage'
+  | 'catalog:read'
 
 interface ApiKey {
   id: string
@@ -128,6 +129,10 @@ const SCOPE_GROUPS: { label: string; scopes: { value: ApiScope; label: string }[
   {
     label: 'Gestion de claves',
     scopes: [{ value: 'keys:manage', label: 'Gestionar API Keys' }],
+  },
+  {
+    label: 'Catalogo publico',
+    scopes: [{ value: 'catalog:read', label: 'Lectura para Worker Cloudflare' }],
   },
 ]
 

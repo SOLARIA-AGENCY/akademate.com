@@ -1,0 +1,529 @@
+# =============================================================================
+# Grafana - Alert Rules
+# C-BIAS ENTERPRISES - v3.0 (16 Mar 2026)
+# FIX: query A = métrica pura, query B = condición threshold
+# Así $values.A.Value contiene el valor real (ej: 83.2%), no 1/0
+# =============================================================================
+
+apiVersion: 1
+
+groups:
+  # ===========================================================================
+  # GRUPO 1: Infrastructure Critical
+  # ===========================================================================
+  - orgId: 1
+    name: Infrastructure Critical
+    folder: C-BIAS Alerts
+    interval: 1m
+    rules:
+      # -------------------------------------------------------------------------
+      # CPU Alta (Warning > 80%, Critical > 90%)
+      # -------------------------------------------------------------------------
+      - uid: cpu-high-warning
+        title: CPU Usage High (Warning)
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [80]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 5m
+        annotations:
+          description: "CPU al {{ $values.A.Value | printf \"%.1f\" }}% (umbral: 80%)"
+          summary: "Uso de CPU elevado en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: cpu
+        noDataState: OK
+        execErrState: Alerting
+
+      - uid: cpu-high-critical
+        title: CPU Usage Critical
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [90]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 3m
+        annotations:
+          description: "CPU al {{ $values.A.Value | printf \"%.1f\" }}% (umbral: 90%)"
+          summary: "CPU CRÍTICA en CBIAS-CENTRAL"
+        labels:
+          severity: critical
+          component: cpu
+        noDataState: OK
+        execErrState: Alerting
+
+      # -------------------------------------------------------------------------
+      # RAM Alta (Warning > 80%, Critical > 90%)
+      # -------------------------------------------------------------------------
+      - uid: memory-high-warning
+        title: Memory Usage High (Warning)
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: ((node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes) * 100
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [80]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 5m
+        annotations:
+          description: "RAM al {{ $values.A.Value | printf \"%.1f\" }}% (umbral: 80%)"
+          summary: "Memoria elevada en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: memory
+        noDataState: OK
+        execErrState: Alerting
+
+      - uid: memory-critical
+        title: Memory Usage Critical
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: ((node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes) * 100
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [90]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 3m
+        annotations:
+          description: "RAM al {{ $values.A.Value | printf \"%.1f\" }}% (umbral: 90%)"
+          summary: "RAM CRÍTICA en CBIAS-CENTRAL"
+        labels:
+          severity: critical
+          component: memory
+        noDataState: OK
+        execErrState: Alerting
+
+      # -------------------------------------------------------------------------
+      # Disco Lleno (Warning < 20% libre, Critical < 10% libre)
+      # -------------------------------------------------------------------------
+      - uid: disk-space-warning
+        title: Disk Space Low (Warning)
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [20]
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 10m
+        annotations:
+          description: "Disco libre: {{ $values.A.Value | printf \"%.1f\" }}% (umbral: <20%)"
+          summary: "Poco espacio en disco en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: disk
+        noDataState: OK
+        execErrState: Alerting
+
+      - uid: disk-space-critical
+        title: Disk Space Critical
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [10]
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 5m
+        annotations:
+          description: "Disco libre: {{ $values.A.Value | printf \"%.1f\" }}% (umbral: <10%)"
+          summary: "Disco CRÍTICO en CBIAS-CENTRAL"
+        labels:
+          severity: critical
+          component: disk
+        noDataState: OK
+        execErrState: Alerting
+
+      # -------------------------------------------------------------------------
+      # Swap Usage High (Warning > 50%, Critical > 80%)
+      # -------------------------------------------------------------------------
+      - uid: swap-high
+        title: Swap Usage High
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: ((node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes) * 100
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [80]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 10m
+        annotations:
+          description: "Swap al {{ $values.A.Value | printf \"%.1f\" }}% — presión de memoria"
+          summary: "Swap elevado en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: memory
+        noDataState: OK
+        execErrState: OK
+
+  # ===========================================================================
+  # GRUPO 2: Services
+  # ===========================================================================
+  - orgId: 1
+    name: Services Critical
+    folder: C-BIAS Alerts
+    interval: 1m
+    rules:
+      - uid: critical-service-down
+        title: Critical Service Down
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: count(up{job=~"node-exporter|cadvisor|postgres|grafana|loki|prometheus"} == 0)
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 2m
+        annotations:
+          description: "{{ $values.A.Value | printf \"%.0f\" }} servicio(s) crítico(s) sin respuesta"
+          summary: "Servicio crítico caído en CBIAS-CENTRAL"
+        labels:
+          severity: critical
+          component: service
+        noDataState: OK
+        execErrState: Alerting
+
+      - uid: n8n-no-logs
+        title: n8n Service Not Logging
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P8E80F9AEF21F6940
+            model:
+              expr: 'count_over_time({container="nazca-n8n-master"}[10m]) == 0'
+              refId: A
+        for: 10m
+        annotations:
+          description: "n8n sin logs en los últimos 10 minutos"
+          summary: "Posible problema con n8n en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: n8n
+        noDataState: OK
+        execErrState: OK
+
+      - uid: postgres-down
+        title: PostgreSQL Down
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: pg_up < 1
+              refId: A
+        for: 2m
+        annotations:
+          description: "PostgreSQL no responde (pg_up = 0)"
+          summary: "PostgreSQL caído en CBIAS-CENTRAL"
+        labels:
+          severity: critical
+          component: postgres
+        noDataState: OK
+        execErrState: Alerting
+
+      - uid: container-restarts
+        title: Container Restarting Frequently
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: changes(container_last_seen{name=~"cbias-.*|nazca-.*"}[1h])
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [3]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 5m
+        annotations:
+          description: "Contenedor reiniciando: {{ $values.A.Value | printf \"%.0f\" }} veces en la última hora"
+          summary: "Contenedor inestable en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: docker
+        noDataState: OK
+        execErrState: OK
+
+  # ===========================================================================
+  # GRUPO 3: Logs & Security
+  # ===========================================================================
+  - orgId: 1
+    name: Logs and Security
+    folder: C-BIAS Alerts
+    interval: 5m
+    rules:
+      - uid: high-error-rate
+        title: High Error Rate in Logs
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P8E80F9AEF21F6940
+            model:
+              expr: 'sum(count_over_time({container=~".+"} |~ "(?i)(error|err|fail|exception)" [10m]))'
+              refId: A
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [50]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: "-100"
+              expression: A
+              type: classic_conditions
+              refId: B
+        for: 10m
+        annotations:
+          description: "{{ $values.A.Value | printf \"%.0f\" }} errores en logs en los últimos 10 min"
+          summary: "Tasa alta de errores en CBIAS-CENTRAL"
+        labels:
+          severity: warning
+          component: logs
+        noDataState: OK
+        execErrState: OK

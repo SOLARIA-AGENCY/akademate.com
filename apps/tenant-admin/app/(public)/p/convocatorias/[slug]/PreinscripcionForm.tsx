@@ -155,7 +155,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
       {error && <p className="text-xs text-red-600">{error}</p>}
 
       <button type="submit" disabled={submitting || !email || !name || !phone || !privacy}
-        className="w-full px-4 py-3 brand-btn text-white rounded-lg text-base font-bold  disabled:opacity-50 transition-colors uppercase tracking-wide">
+        className="w-full px-4 py-3 brand-btn text-white rounded-lg text-base font-bold  disabled:opacity-50 transition-colors">
         {submitting ? 'Enviando...' : 'Reserva tu plaza'}
       </button>
 

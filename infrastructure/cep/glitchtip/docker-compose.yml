@@ -1,0 +1,120 @@
+# GlitchTip on CEP OVH. Join Traefik proxy. Retention 30 days. Staging/production projects via UI/API.
+# Secrets live in /opt/cep/glitchtip/.env only.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-glitchtip-env: &glitchtip-env
+  SECRET_KEY: ${GLITCHTIP_SECRET_KEY}
+  DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD}@glitchtip-postgres:5432/glitchtip
+  VALKEY_URL: redis://glitchtip-valkey:6379/0
+  GLITCHTIP_DOMAIN: https://cepformacion-glitchtip.akademate.com
+  DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL:-noreply@cepformacion.akademate.com}
+  EMAIL_URL: ${GLITCHTIP_EMAIL_URL:-consolemail://}
+  ALLOWED_HOSTS: ${GLITCHTIP_ALLOWED_HOSTS:-cepformacion-glitchtip.akademate.com,cep-glitchtip,127.0.0.1,localhost}
+  CSRF_TRUSTED_ORIGINS: https://cepformacion-glitchtip.akademate.com,http://127.0.0.1:8000,http://cep-glitchtip:8000
+  ENABLE_USER_REGISTRATION: "false"
+  ENABLE_ORGANIZATION_CREATION: "false"
+  GLITCHTIP_RETENTION_DAYS: "30"
+  GLITCHTIP_EVENT_RETENTION_DAYS: "30"
+  GLITCHTIP_EVENT_HOT_DAYS: "14"
+  PORT: "8000"
+  GLITCHTIP_EMBED_WORKER: "true"
+  SERVER_ROLE: all_in_one
+
+services:
+  glitchtip-postgres:
+    image: postgres:16-alpine
+    container_name: cep-glitchtip-postgres
+    environment:
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: ${GLITCHTIP_DB_PASSWORD}
+      POSTGRES_DB: glitchtip
+    volumes:
+      - glitchtip_pg:/var/lib/postgresql/data
+    networks:
+      - glitchtip
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glitchtip"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    restart: unless-stopped
+
+  glitchtip-valkey:
+    image: valkey/valkey:8-alpine
+    container_name: cep-glitchtip-valkey
+    networks:
+      - glitchtip
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    restart: unless-stopped
+
+  glitchtip-migrate:
+    image: glitchtip/glitchtip:6.2.6
+    container_name: cep-glitchtip-migrate
+    depends_on:
+      glitchtip-postgres:
+        condition: service_healthy
+      glitchtip-valkey:
+        condition: service_healthy
+    command: ./manage.py migrate
+    environment: *glitchtip-env
+    networks:
+      - glitchtip
+    logging: *default-logging
+    restart: "no"
+
+  glitchtip-web:
+    image: glitchtip/glitchtip:6.2.6
+    container_name: cep-glitchtip-web
+    hostname: cep-glitchtip
+    depends_on:
+      glitchtip-postgres:
+        condition: service_healthy
+      glitchtip-valkey:
+        condition: service_healthy
+      glitchtip-migrate:
+        condition: service_completed_successfully
+    environment: *glitchtip-env
+    volumes:
+      - glitchtip_uploads:/code/uploads
+    networks:
+      - glitchtip
+      - proxy
+    ports:
+      - "127.0.0.1:8000:8000"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=tenant-admin_proxy
+      - traefik.http.routers.cep-glitchtip.rule=Host(`cepformacion-glitchtip.akademate.com`)
+      - traefik.http.routers.cep-glitchtip.entrypoints=web
+      - traefik.http.routers.cep-glitchtip.service=cep-glitchtip
+      - traefik.http.services.cep-glitchtip.loadbalancer.server.port=8000
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /code/healthcheck.py || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    logging: *default-logging
+    restart: unless-stopped
+
+volumes:
+  glitchtip_pg:
+  glitchtip_uploads:
+
+networks:
+  glitchtip:
+    driver: bridge
+  proxy:
+    external: true
+    name: tenant-admin_proxy

@@ -3,6 +3,7 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { displayCampusName } from '@/app/lib/public-campus-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -117,7 +118,7 @@ export default async function ProfesorPublicPage({ params }: Props) {
             </div>
           )}
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-200">Profesorado CEP</p>
+            <p className="text-sm font-semibold text-red-200">Profesorado CEP</p>
             <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">{name}</h1>
             {professor.position ? <p className="mt-4 text-xl text-white/80">{professor.position}</p> : null}
             {professor.bio ? <p className="mt-6 max-w-3xl text-lg leading-8 text-white/75">{professor.bio}</p> : null}
@@ -191,7 +192,7 @@ export default async function ProfesorPublicPage({ params }: Props) {
                   href={`/p/sedes/${campus.slug || campus.id}`}
                   className="block rounded-xl border border-slate-200 bg-white p-4 transition hover:border-red-200 hover:shadow-sm"
                 >
-                  <p className="font-semibold text-slate-950">{campus.name}</p>
+                  <p className="font-semibold text-slate-950">{displayCampusName(campus.name)}</p>
                   {campus.city ? <p className="mt-1 text-sm text-slate-500">{campus.city}</p> : null}
                 </Link>
               )) : (

@@ -46,7 +46,7 @@ providers:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: hola@akademate.com
+      email: hello@akademate.com
       storage: /acme.json
       httpChallenge:
         entryPoint: web

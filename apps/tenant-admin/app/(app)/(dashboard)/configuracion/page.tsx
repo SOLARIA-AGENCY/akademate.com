@@ -33,6 +33,8 @@ import {
   EyeOff,
   AlertTriangle,
   Plug,
+  Share2,
+  Search,
 } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 
@@ -130,6 +132,7 @@ const ALL_SCOPES = [
   { value: 'enrollments:write', label: 'Matriculas (Escritura)' },
   { value: 'analytics:read', label: 'Analiticas (Lectura)' },
   { value: 'keys:manage', label: 'API Keys (Gestion)' },
+  { value: 'catalog:read', label: 'Catalogo publico (Lectura)' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -145,6 +148,8 @@ const SECTIONS = [
   { id: 'gdpr', label: 'GDPR', icon: ShieldCheck },
   { id: 'flags', label: 'Feature Flags', icon: ToggleLeft },
   { id: 'dominios', label: 'Dominios', icon: Globe },
+  { id: 'conectores', label: 'Conectores', icon: Share2 },
+  { id: 'seo-agentes', label: 'SEO y agentes', icon: Search },
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
@@ -1595,6 +1600,61 @@ export default function ConfiguracionUnifiedPage() {
                 <Plus className="mr-2 h-4 w-4" />
                 Anadir dominio
               </Button>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section id="conectores" ref={setRef('conectores')} className="scroll-mt-20">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Share2 className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>Conectores</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    IDs, consentimiento y secretos server-side. Pixel, GTM y GA4 no cargan sin consentimiento.
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <p>
+                Analytics Engine de Cloudflare es la fuente tecnica del Worker. Umami CEP es opcional y llega a OVH.
+              </p>
+              <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                <li>GA4 / GTM / Meta Pixel + CAPI: solo con consentimiento `all`</li>
+                <li>Tokens CAPI, Mailchimp y WhatsApp: solo server-side</li>
+                <li>Deduplicacion Pixel/CAPI con `event_id`</li>
+                <li>Medios previstos: Meta, Instagram, YouTube, LinkedIn, GBP, Mailchimp, WhatsApp, R2</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section id="seo-agentes" ref={setRef('seo-agentes')} className="scroll-mt-20">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Search className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>SEO y agentes</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Title, canonical, Open Graph, sitemap, robots, JSON-LD y llms.txt.
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <p>
+                El Worker sirve `robots.txt`, `sitemap.xml`, `llms.txt` y JSON-LD. El contenido esencial se lee sin JavaScript.
+              </p>
+              <p>
+                Canonical: `https://cepformacion.com`. Preview y `/internal` quedan en noindex.
+              </p>
             </CardContent>
           </Card>
         </section>

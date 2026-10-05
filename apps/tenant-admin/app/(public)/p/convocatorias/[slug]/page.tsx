@@ -22,6 +22,8 @@ import type React from 'react'
 import { PreinscripcionForm } from './PreinscripcionForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { campusPublicName } from '@/app/lib/public-campus-name'
+import { enrollmentFromRun, enrollmentLabelFor } from '@/app/lib/server/published-courses'
 
 export const dynamic = 'force-dynamic'
 
@@ -152,7 +154,7 @@ function SummaryCard({ icon, label, value, description }: SummaryCardData) {
       <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-[#f2014b]">
         {icon}
       </div>
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-gray-400">{label}</p>
+      <p className="text-xs font-black text-gray-400">{label}</p>
       <p className="mt-2 text-base font-black leading-snug text-gray-950">{value}</p>
       {description ? <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p> : null}
     </div>
@@ -178,7 +180,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const course = typeof conv.course === 'object' ? conv.course : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
   const displayName = cycle?.name || course?.title || course?.name || 'Convocatoria CEP'
-  const sedeName = campus?.name || ''
+  const sedeName = campusPublicName(campus)
   const mode = modalityLabel(cycle?.duration?.modality || course?.modality || conv.modality)
   const start = conv.start_date ? ` Inicio: ${formatDate(conv.start_date)}.` : ''
 
@@ -222,7 +224,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const isSubsidized = normalizedCourseType === 'ocupados' || normalizedCourseType === 'desempleados'
   const modality = isOnline ? 'online' : cycle?.duration?.modality || course?.modality || conv.modality
   const modalityText = modalityLabel(modality)
-  const sedeName = isOnline ? 'Online' : campus?.name || 'Sede a confirmar'
+  const sedeName = isOnline ? 'Online' : campusPublicName(campus) || 'Sede a confirmar'
   const startMonth = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatMonth(conv.start_date)
   const startDate = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatDate(conv.start_date)
   const endDate = conv.end_date ? formatDate(conv.end_date) : ''
@@ -270,7 +272,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
     if (sch?.type === 'financiacion') financingTypes.add('Pago financiado')
   })
   const financingTypesList = Array.from(financingTypes)
-  const statusLabel = conv.status === 'enrollment_open' ? 'Matricula abierta' : 'Inscripcion abierta'
+  const enrollment = enrollmentFromRun({
+    status: conv.status,
+    enrollment_deadline: conv.enrollment_deadline ?? null,
+  })
+  const statusLabel = enrollmentLabelFor(enrollment || (conv.status === 'enrollment_open' ? 'open' : 'published'))
 
   const summaryCards: SummaryCardData[] = [
     {
@@ -336,19 +342,19 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
               <div className="mb-8 flex flex-wrap gap-3">
-                <span className="inline-flex items-center rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-red-950/20">
+                <span className="inline-flex items-center rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black text-white shadow-lg shadow-red-950/20">
                   {statusLabel}
                 </span>
-                <span className="inline-flex items-center rounded-full bg-white/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white ring-1 ring-white/20 backdrop-blur">
+                <span className="inline-flex items-center rounded-full bg-white/12 px-4 py-2 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur">
                   Plazas limitadas
                 </span>
                 {isSubsidized ? (
-                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-emerald-700 ring-1 ring-emerald-200">
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700 ring-1 ring-emerald-200">
                     Formación gratuita subvencionada
                   </span>
                 ) : null}
               </div>
-              <p className="mb-5 text-sm font-black uppercase tracking-[0.22em] text-white/65">
+              <p className="mb-5 text-sm font-black text-white/65">
                 Convocatoria CEP Formacion
               </p>
               <h1 className="max-w-4xl text-balance text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -371,10 +377,10 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
               <div className="relative rounded-[2rem] border border-white/35 bg-white/82 p-7 shadow-2xl shadow-black/25 backdrop-blur-xl">
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Proxima convocatoria</p>
+                    <p className="text-xs font-black text-gray-500">Proxima convocatoria</p>
                     <p className="mt-2 text-2xl font-black text-gray-950">{startMonth}</p>
                   </div>
-                  <div className="rounded-full bg-green-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-green-700 ring-1 ring-green-100">
+                  <div className="rounded-full bg-green-50 px-3 py-1 text-xs font-black text-green-700 ring-1 ring-green-100">
                     Activa
                   </div>
                 </div>
@@ -385,7 +391,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                         {card.icon}
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">{card.label}</p>
+                        <p className="text-xs font-bold text-gray-400">{card.label}</p>
                         <p className="mt-1 text-sm font-black text-gray-950">{card.value}</p>
                       </div>
                     </div>
@@ -430,7 +436,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
         <div className="grid gap-14 lg:grid-cols-12 lg:gap-20">
           <div className="space-y-20 lg:col-span-8">
             <section id="presentacion" className="scroll-mt-32">
-              <div className="mb-6 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-[#f2014b]">
+              <div className="mb-6 inline-flex items-center gap-3 text-xs font-black text-[#f2014b]">
                 <span className="h-0.5 w-12 rounded-full bg-[#f2014b]" />
                 Presentacion
               </div>
@@ -459,7 +465,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
               <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
                 <h3 className="text-lg font-black text-gray-950">Horario y formato</h3>
                 {isSubsidized ? (
-                  <span className="mt-4 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+                  <span className="mt-4 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700 ring-1 ring-emerald-200">
                     Formación gratuita subvencionada
                   </span>
                 ) : null}
@@ -478,7 +484,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
             {(competencies.length > 0 || courseObjectives.length > 0 || courseProgramBlocks.length > 0 || courseOutcomes) && (
               <section className="scroll-mt-32">
                 <div className="mb-8">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-[#f2014b]">Programa</p>
+                  <p className="text-xs font-black text-[#f2014b]">Programa</p>
                   <h2 className="mt-3 text-3xl font-black tracking-tight text-gray-950">Que vas a trabajar</h2>
                 </div>
                 {competencies.length > 0 || courseObjectives.length > 0 ? (
@@ -580,7 +586,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                     </div>
                   )}
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Docente</p>
+                    <p className="text-xs font-black text-[#f2014b]">Docente</p>
                     <h3 className="mt-2 text-2xl font-black text-gray-950">{instructorName}</h3>
                     <p className="mt-2 text-sm leading-6 text-gray-600">Profesional asignado a esta convocatoria.</p>
                     <span className="mt-4 inline-flex text-sm font-black text-[#f2014b]">Ver perfil docente</span>
@@ -691,7 +697,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                   </div>
                 </div>
                 <div className="mt-8 text-center">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Tambien por telefono</p>
+                  <p className="text-[10px] font-black text-gray-400">Tambien por telefono</p>
                   <a href="tel:922219257" className="mt-2 inline-flex text-2xl font-black text-[#f2014b]">922 219 257</a>
                 </div>
               </div>
@@ -703,7 +709,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
       <div className="fixed bottom-20 left-0 right-0 z-40 px-4 lg:hidden">
         <a href="#registro" className="mx-auto flex max-w-md items-center justify-between rounded-full bg-gray-950 p-2 pl-6 text-white shadow-2xl ring-1 ring-white/10">
           <span className="text-sm font-black">Reserva tu plaza</span>
-          <span className="rounded-full bg-[#f2014b] px-5 py-3 text-xs font-black uppercase tracking-wide">Solicitar</span>
+          <span className="rounded-full bg-[#f2014b] px-5 py-3 text-xs font-black">Solicitar</span>
         </a>
       </div>
     </div>

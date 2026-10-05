@@ -2,15 +2,14 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-
-const CONSENT_KEY = 'cep_cookie_consent_v1'
+import { CONSENT_EVENT, CONSENT_STORAGE_KEY } from './ConsentAwareTrackers'
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     try {
-      const consent = window.localStorage.getItem(CONSENT_KEY)
+      const consent = window.localStorage.getItem(CONSENT_STORAGE_KEY)
       setVisible(!consent)
     } catch {
       setVisible(true)
@@ -19,10 +18,11 @@ export function CookieBanner() {
 
   const saveConsent = (mode: 'all' | 'essential') => {
     try {
-      window.localStorage.setItem(CONSENT_KEY, mode)
+      window.localStorage.setItem(CONSENT_STORAGE_KEY, mode)
     } catch {
       // Ignore storage errors and close the banner for this session.
     }
+    window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: { mode } }))
     setVisible(false)
   }
 

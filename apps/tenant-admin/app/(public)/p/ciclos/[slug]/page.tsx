@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { LeadForm } from './LeadForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { campusPublicName } from '@/app/lib/public-campus-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,7 +70,8 @@ function formatConvocatoriaDisplay(conv: any): string {
     parts.push(`${month.charAt(0).toUpperCase() + month.slice(1)} ${d.getFullYear()}`)
   }
   const campus = typeof conv.campus === 'object' ? conv.campus : null
-  if (campus?.name) parts.push(`Sede ${campus.name}`)
+  const campusName = campusPublicName(campus)
+  if (campusName) parts.push(campusName)
   return parts.join(' · ') || 'Convocatoria abierta'
 }
 
@@ -411,7 +413,7 @@ export default async function CicloLandingPage({ params }: Props) {
                         })}
                       </span>
                     )}
-                    {campus?.name && <span>Sede: {campus.name}</span>}
+                    {campusPublicName(campus) ? <span>Sede: {campusPublicName(campus)}</span> : null}
                   </div>
 
                   <a

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   canonicalizePayloadMediaUrl,
   resolvePayloadMediaSrc,
+  toRelativePublicMediaUrl,
 } from '../../app/lib/payload-media-url'
 
 describe('payload media url', () => {
@@ -20,5 +21,14 @@ describe('payload media url', () => {
     expect(canonicalizePayloadMediaUrl('/placeholder-avatar.svg')).toBeNull()
     expect(canonicalizePayloadMediaUrl('/website/cep/team/elena.jpg')).toBeNull()
     expect(canonicalizePayloadMediaUrl('/stock/cursos.jpg')).toBe('/stock/cursos.jpg')
+  })
+
+  it('strips broken absolute hosts down to /api/media/file', () => {
+    expect(
+      canonicalizePayloadMediaUrl('http://cepformacion.app.akademate.com/api/media/file/ciclo.webp'),
+    ).toBe('/api/media/file/ciclo.webp')
+    expect(
+      toRelativePublicMediaUrl('https://cepformacion-app.akademate.com/api/media/file/foto.jpg?w=800'),
+    ).toBe('/api/media/file/foto.jpg?w=800')
   })
 })

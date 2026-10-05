@@ -22,6 +22,7 @@ export type ApiScope =
   | 'staff:write'
   | 'convocatorias:read'
   | 'convocatorias:write'
+  | 'catalog:read'
 
 export interface ValidatedApiKey {
   valid: true

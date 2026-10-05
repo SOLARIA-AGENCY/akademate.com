@@ -66,6 +66,10 @@ const getTenantWebsiteByIdCached = cache(async (tenantId: string): Promise<Websi
   }
 })
 
+export async function getTenantWebsiteById(tenantId: string): Promise<WebsiteConfig> {
+  return getTenantWebsiteByIdCached(tenantId)
+}
+
 export async function getTenantWebsite(): Promise<WebsiteConfig> {
   const tenant = await getTenantHostBranding()
   return getTenantWebsiteByIdCached(tenant.tenantId)

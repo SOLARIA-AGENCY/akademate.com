@@ -39,7 +39,7 @@ export function Footer() {
               Gestiona cursos, alumnos y matrículas en un solo lugar.
             </p>
             <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <p className="footer-email">hola@akademate.com</p>
+              <p className="footer-email">hello@akademate.com</p>
               <p className="footer-phone">+34 912345678</p>
             </div>
           </div>

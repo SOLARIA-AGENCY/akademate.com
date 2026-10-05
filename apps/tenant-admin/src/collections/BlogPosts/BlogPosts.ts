@@ -14,6 +14,7 @@ import {
   calculateReadTime,
   validateBlogPostRelationships,
 } from './hooks';
+import { notifyPublicCatalog } from '../_hooks/notifyPublicCatalog';
 import {
   VALID_STATUSES,
   VALID_LANGUAGES,
@@ -617,6 +618,7 @@ export const BlogPosts: CollectionConfig = {
     beforeValidate: [
       validateBlogPostRelationships, // Validate related courses exist and max 5
     ],
+    afterChange: [notifyPublicCatalog],
   },
 
   /**

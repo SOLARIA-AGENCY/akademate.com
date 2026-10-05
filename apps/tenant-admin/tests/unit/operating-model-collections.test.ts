@@ -18,6 +18,10 @@ import { canManageStaff } from '../../src/collections/Staff/access'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+function read(relativePath: string): string {
+  return readFileSync(join(process.cwd(), relativePath), 'utf8')
+}
+
 function field(collection: { fields: Array<{ name?: string; relationTo?: string; hasMany?: boolean }> }, name: string) {
   return collection.fields.find((item) => item.name === name)
 }
@@ -86,6 +90,45 @@ describe('campus write permissions', () => {
 
   it('includes superadmin in canManageStaff', () => {
     expect(canManageStaff({ req: { user: { id: 1, role: 'superadmin' } } } as never)).toBe(true)
+  })
+})
+
+describe('rels_location_sync migration coverage', () => {
+  const migration = read('migrations/20260902_rels_location_sync.ts')
+
+  it('adds locations_id to campuses_rels for service_locations hasMany', () => {
+    expect(migration).toContain('"campuses_rels"')
+    expect(migration).toContain('"locations_id"')
+    expect(migration).toContain('campuses_rels_locations_fk')
+    expect(migration).toContain('campuses_rels_locations_id_idx')
+  })
+
+  it('adds FK and index for course_runs.location_id', () => {
+    expect(migration).toContain('course_runs_location_id_locations_id_fk')
+    expect(migration).toContain('course_runs_location_idx')
+  })
+
+  it('adds course_runs.cycle_id with FK and index', () => {
+    expect(migration).toContain('"cycle_id"')
+    expect(migration).toContain('course_runs_cycle_id_cycles_id_fk')
+    expect(migration).toContain('course_runs_cycle_idx')
+  })
+
+  it('registers locations and legal_entities in payload_locked_documents_rels', () => {
+    expect(migration).toContain('"payload_locked_documents_rels"')
+    expect(migration).toContain('payload_locked_documents_rels_locations_fk')
+    expect(migration).toContain('payload_locked_documents_rels_legal_entities_fk')
+  })
+
+  it('uses idempotent guards throughout', () => {
+    expect(migration).toContain('IF NOT EXISTS')
+    expect(migration).toContain('EXCEPTION WHEN duplicate_object THEN null')
+  })
+
+  it('is registered in migrations index', () => {
+    const index = read('migrations/index.ts')
+    expect(index).toContain('20260902_rels_location_sync')
+    expect(index).toContain("name: '20260902_rels_location_sync'")
   })
 })
 

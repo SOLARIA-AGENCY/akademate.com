@@ -1,0 +1,10 @@
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: Dashboard and logs only
+    receivers:
+      - uid: dashboard-local-sink
+        type: webhook
+        settings:
+          url: http://127.0.0.1:9/dashboard-alert-log
+        disableResolveMessage: false

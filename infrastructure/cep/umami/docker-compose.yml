@@ -1,0 +1,76 @@
+# Umami analytics for CEP Formación on OVH.
+# Keep this project and its PostgreSQL volume separate from the academic database.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  umami-db:
+    image: postgres:15-alpine
+    container_name: cep-umami-postgres
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD:?UMAMI_DB_PASSWORD is required}
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - umami_db:/var/lib/postgresql/data
+    networks:
+      - umami
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging: *default-logging
+    restart: unless-stopped
+
+  umami:
+    image: ghcr.io/umami-software/umami:3.2.0
+    container_name: cep-umami
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD}@umami-db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET:?UMAMI_APP_SECRET is required}
+      TZ: UTC
+    networks:
+      - umami
+      - proxy
+    ports:
+      - "127.0.0.1:3030:3000"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=tenant-admin_proxy
+      - traefik.http.routers.cep-umami.rule=Host(`cepformacion-umami.akademate.com`)
+      - traefik.http.routers.cep-umami.entrypoints=websecure
+      - traefik.http.routers.cep-umami.tls=true
+      - traefik.http.routers.cep-umami.tls.certresolver=letsencrypt
+      - traefik.http.routers.cep-umami.service=cep-umami
+      - traefik.http.routers.cep-umami-origin.rule=Host(`cepformacion-umami.akademate.com`)
+      - traefik.http.routers.cep-umami-origin.entrypoints=web
+      - traefik.http.routers.cep-umami-origin.service=cep-umami
+      - traefik.http.services.cep-umami.loadbalancer.server.port=3000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/heartbeat || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    logging: *default-logging
+    restart: unless-stopped
+
+volumes:
+  umami_db:
+
+networks:
+  umami:
+    driver: bridge
+  proxy:
+    external: true
+    name: tenant-admin_proxy

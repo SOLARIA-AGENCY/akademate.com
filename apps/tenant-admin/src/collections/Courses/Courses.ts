@@ -3,6 +3,7 @@ import { canManageCourses, canReadCourses, canUpdateCourse } from './access';
 import { validateCourseRelationships, generateSlug } from './hooks';
 import { formatValidationErrors, CourseUpdateSchema } from './Courses.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { notifyPublicCatalog } from '../_hooks/notifyPublicCatalog';
 
 /**
  * Courses Collection
@@ -687,6 +688,7 @@ export const Courses: CollectionConfig = {
         return data;
       },
     ],
+    afterChange: [notifyPublicCatalog],
   },
 
   /**

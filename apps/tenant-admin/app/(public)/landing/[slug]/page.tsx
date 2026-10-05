@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { campusPublicName } from '@/app/lib/public-campus-name'
 import { PageViewTracker } from './PageViewTracker'
 import { ContactForm } from './ContactForm'
 
@@ -230,7 +231,7 @@ function generateJsonLdScript(courseRun: any, courseName: string, description: s
         ? {
             location: {
               '@type': 'Place',
-              name: campus.name,
+              name: campusPublicName(campus),
               address: {
                 '@type': 'PostalAddress',
                 addressLocality: campus.city,
@@ -284,7 +285,7 @@ export default async function LandingPage({
     resolveImageUrl(course?.featured_image as MediaObject | number | null) ??
     resolveImageUrl(cycle?.image as MediaObject | number | null)
 
-  const campusName = campus?.name ?? null
+  const campusName = campusPublicName(campus) || null
   const campusCity = campus?.city ?? null
   const instructorName = resolveInstructorName(instructor)
   const instructorPhoto = resolveImageUrl(instructor?.photo)
@@ -502,7 +503,7 @@ export default async function LandingPage({
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Sede</h2>
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-5">
-                  <p className="font-semibold text-gray-900">{campus.name}</p>
+                  <p className="font-semibold text-gray-900">{campusPublicName(campus)}</p>
                   {campus.address && <p className="text-sm text-gray-600 mt-1">{campus.address}</p>}
                   {campus.city && <p className="text-sm text-gray-600">{campus.city}</p>}
                   {campus.phone && (
@@ -537,7 +538,7 @@ export default async function LandingPage({
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-medium uppercase tracking-wide text-gray-500">Docente</p>
+                    <p className="text-sm font-medium text-gray-500">Docente</p>
                     <h3 className="text-lg font-bold text-gray-900">{instructorName}</h3>
                     {instructorCertifications.length > 0 && (
                       <ul className="mt-2 space-y-1 text-sm text-gray-600">

@@ -36,7 +36,7 @@ describe('GET /api/v1/openapi', () => {
     expect(body.info.title).toBe('Akademate V1 API')
     expect(body.info.version).toBe('1.0.0')
     expect(body.info.contact).toBeDefined()
-    expect(body.info.contact.email).toBe('hola@akademate.com')
+    expect(body.info.contact.email).toBe('hello@akademate.com')
   })
 
   it('contiene los 12 tags esperados', async () => {

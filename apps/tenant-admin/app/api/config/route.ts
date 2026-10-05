@@ -105,7 +105,7 @@ const mockConfig: ConfigData = {
     provincia: '',
     telefono1: '',
     telefono2: '',
-    email1: 'hola@akademate.com',
+    email1: 'hello@akademate.com',
     email2: '',
     web: 'https://www.akademate.com',
     horario: 'Lunes a Viernes: 9:00 - 18:00',

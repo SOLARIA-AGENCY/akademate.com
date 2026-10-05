@@ -5,12 +5,16 @@ import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
+import { PartnerMarquee } from './PartnerMarquee'
 import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
-import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
-import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
-import { buildCourseGroups } from '../p/cursos/page'
-import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
+import { BriefcaseBusiness, ShieldCheck, Star } from 'lucide-react'
+import { enrollmentFromRun, enrollmentLabelFor, getPublishedCourses } from '@/app/lib/server/published-courses'
+import { CourseDenseCatalog } from './CourseDenseCatalog'
+import { CycleCard } from './CycleCard'
+import { collectOpenRunsByCycle, relationId, toCycleCardModel, type CycleOpenRun } from './cycle-display'
+import { displayCourseTitle } from './course-title'
+import { campusPublicName, displayCampusName } from '@/app/lib/public-campus-name'
 
 const BRAND_RED = '#f2014b'
 
@@ -61,7 +65,7 @@ function getCourseTypeColor(courseType: string | null | undefined): string {
   const normalized = normalizeStudyType(String(courseType || ''))
   const colors: Record<string, string> = {
     privados: '#f2014b',
-    desempleados: '#2563eb',
+    desempleados: '#1d4ed8',
     ocupados: '#16a34a',
     teleformacion: '#f97316',
   }
@@ -69,7 +73,7 @@ function getCourseTypeColor(courseType: string | null | undefined): string {
 }
 
 function getCourseTitle(course: any): string {
-  return String(course?.title || course?.name || 'Curso CEP')
+  return displayCourseTitle(String(course?.title || course?.name || 'Curso CEP'))
 }
 
 function getCourseDescription(course: any): string {
@@ -111,7 +115,7 @@ function getStaffSpecialtyLabel(staff: any): string {
       .map((value: string) => value.replace(/-/g, ' '))
       .join(' · ')
   }
-  return 'Docente especializado'
+  return ''
 }
 
 function getRunCourseId(run: any): string | null {
@@ -119,12 +123,6 @@ function getRunCourseId(run: any): string | null {
   if (typeof course === 'object' && course?.id) return String(course.id)
   if (course) return String(course)
   return null
-}
-
-function getTeacherHref(member: { name: string; href?: string; id?: string | number }): string {
-  if (member.href) return member.href
-  if (member.id) return `/p/profesores/${member.id}`
-  return `/p/profesores/${slugify(member.name)}`
 }
 
 function getCategoryHref(item: { title: string; href?: string }): string {
@@ -143,58 +141,6 @@ const CATEGORY_IMAGE_OVERRIDES: Record<string, string> = {
 
 function getCategoryImage(item: { title: string; image: string }): string {
   return CATEGORY_IMAGE_OVERRIDES[slugify(item.title)] || item.image
-}
-
-const CYCLE_LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
-  grado_medio: { label: 'GRADO MEDIO', bgColor: '#E3003A', textColor: '#FFFFFF' },
-  grado_superior: { label: 'GRADO SUPERIOR', bgColor: '#E3003A', textColor: '#FFFFFF' },
-}
-
-function getCycleLevelMeta(level: string | undefined) {
-  if (!level) return null
-  return CYCLE_LEVEL_META[level] ?? null
-}
-
-function getConvocationBadge({
-  course,
-  cycle,
-  conv,
-  groupKey,
-  displayName,
-}: {
-  course: any
-  cycle: any
-  conv: any
-  groupKey: string
-  displayName: string
-}): { label: string; bgColor: string; textColor: string } | null {
-  const cycleLevel = getCycleLevelMeta(cycle?.level)
-  if (cycleLevel) return cycleLevel
-
-  const normalizedName = `${displayName} ${cycle?.slug || ''} ${course?.slug || ''}`.toLowerCase()
-  if (normalizedName.includes('farmacia')) return CYCLE_LEVEL_META.grado_medio
-  if (normalizedName.includes('higiene') || normalizedName.includes('bucodental')) return CYCLE_LEVEL_META.grado_superior
-
-  const courseStudyType = normalizeStudyType(String(course?.course_type || course?.modality || conv?.modality || ''))
-  const isOnline =
-    groupKey === 'online' ||
-    courseStudyType === 'teleformacion' ||
-    normalizedName.includes('online') ||
-    normalizedName.includes('tatuaje')
-
-  return isOnline ? { label: 'TELEFORMACIÓN', bgColor: '#f97316', textColor: '#FFFFFF' } : null
-}
-
-function getCycleSubtitle(cycle: any): string | null {
-  const slug = String(cycle?.slug || '')
-  const name = String(cycle?.name || '')
-  if (slug.includes('farmacia') || name.toLowerCase().includes('farmacia')) {
-    return 'Ciclo Formativo de Grado Medio (LOE) · Ref. SANMS · Semipresencial'
-  }
-  if (slug.includes('higiene-bucodental') || name.toLowerCase().includes('higiene')) {
-    return 'Ciclo Formativo de Grado Superior (LOE) · Ref. SANSS · Semipresencial'
-  }
-  return null
 }
 
 const ALUMNI_TESTIMONIALS = [
@@ -246,24 +192,6 @@ const TRUST_BADGES: Array<{ label: string; icon?: typeof Star; logo?: string }> 
   { label: 'ISO 9001 / ISO 14001', icon: ShieldCheck },
 ]
 
-function getCycleChips(cycle: any): string[] {
-  const chips = [
-    'Régimen LOE',
-    'Titulación oficial reconocida por el Ministerio de Educación',
-    'Modalidad semipresencial (1 día/semana presencial)',
-  ]
-  const practiceHours = cycle?.duration?.practiceHours
-  chips.push(practiceHours && Number.isFinite(practiceHours) ? `${practiceHours}h de prácticas en empresa` : '500h de prácticas en empresa')
-  const hasFSE = Array.isArray(cycle?.scholarships)
-    && cycle.scholarships.some((s: any) => {
-      const name = String(s?.name || '').toLowerCase()
-      const description = String(s?.description || '').toLowerCase()
-      return name.includes('fondo social europeo') || description.includes('fondo social europeo')
-    })
-  if (hasFSE) chips.push('Cofinanciado por el Fondo Social Europeo')
-  return chips
-}
-
 async function HeroCarouselSection({
   section,
   brandColor,
@@ -300,17 +228,15 @@ function FeatureStripSection({ section }: { section: Extract<WebsiteSection, { k
     <section className="bg-white" id={title === 'Por qué elegir CEP' ? 'por-que-cep' : undefined}>
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          {title ? <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{title}</h2> : null}
+          {title ? <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{title}</h2> : null}
           {subtitle ? <p className="mt-4 text-lg leading-8 text-slate-600">{subtitle}</p> : null}
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-0 sm:grid-cols-2 sm:gap-x-12">
           {items.map((item, index) => (
-            <article key={item.title} className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-red-100 hover:shadow-xl">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-sm font-black text-[var(--cep-brand)] transition group-hover:bg-[var(--cep-brand)] group-hover:text-white">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <h3 className="mt-6 text-lg font-black leading-snug text-slate-950">{item.title}</h3>
-              <p className="mt-3 text-base leading-7 text-slate-600">{item.description}</p>
+            <article key={item.title} className="border-b border-slate-200 py-6">
+              <p className="text-sm font-semibold text-[var(--cep-brand)]">{String(index + 1).padStart(2, '0')}</p>
+              <h3 className="mt-2 text-lg font-semibold leading-snug text-slate-950">{item.title}</h3>
+              <p className="mt-2 text-base leading-7 text-slate-600">{item.description}</p>
             </article>
           ))}
         </div>
@@ -342,13 +268,9 @@ function CtaBannerSection({
         }}
       />
       <div className="relative mx-auto flex max-w-5xl flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
-        <span
-          className={`mb-5 inline-flex rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] ${
-            isDark ? 'bg-white/10 text-white/80 ring-1 ring-white/15' : 'bg-slate-100 text-slate-600'
-          }`}
-        >
+        <p className={`mb-4 text-sm font-semibold ${isDark ? 'text-white/70' : 'text-slate-500'}`}>
           Convocatorias CEP
-        </span>
+        </p>
         <div>
           <h2 className="mx-auto max-w-4xl text-balance text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
             {section.title}
@@ -360,8 +282,8 @@ function CtaBannerSection({
         {section.cta ? (
           <Link
             href={section.cta.href}
-            className={`mt-8 inline-flex min-h-14 items-center justify-center rounded-full px-9 text-base font-black shadow-xl transition hover:-translate-y-0.5 hover:shadow-2xl ${
-              isDark ? 'bg-white text-slate-950 shadow-black/25' : 'text-white'
+            className={`mt-8 inline-flex min-h-12 items-center justify-center rounded-lg px-8 text-base font-semibold ${
+              isDark ? 'bg-white text-slate-950' : 'text-white'
             }`}
             style={!isDark ? { backgroundColor: brandColor } : undefined}
           >
@@ -408,7 +330,7 @@ function JobPlacementSection({
               <img src={section.image} alt={section.title} loading="lazy" decoding="async" className="h-full min-h-[360px] w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
-                <span className="inline-flex rounded-full bg-white/95 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-slate-950">
+                <span className="inline-flex rounded-full bg-white/95 px-4 py-2 text-xs font-black text-slate-950">
                   Autorización 0500000212
                 </span>
               </div>
@@ -422,7 +344,7 @@ function JobPlacementSection({
                 }}
               />
               <div className="relative">
-                <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white ring-1 ring-white/20" style={{ backgroundColor: brandColor }}>
+                <span className="inline-flex rounded-full px-4 py-2 text-xs font-black text-white ring-1 ring-white/20" style={{ backgroundColor: brandColor }}>
                   Bolsa de empleo
                 </span>
                 <h2 className="mt-6 text-balance text-3xl font-black leading-tight sm:text-4xl">{section.title}</h2>
@@ -473,7 +395,6 @@ async function CourseListSection({
   const normalizedSectionTitle = section.title?.toLowerCase() || ''
   const isFeaturedHomeList = normalizedSectionTitle.includes('cursos destacados') || (section.featuredOnly && !normalizedSectionTitle.includes('nuevas'))
   if (isFeaturedHomeList) {
-    const studyTypeVisualMap = await getStudyTypeVisualMap()
     const courses = await getPublishedCourses({
       tenantId,
       includeInactive: false,
@@ -481,16 +402,24 @@ async function CourseListSection({
       limit: 200,
       sort: 'name',
     })
-    const groups = buildCourseGroups(courses)
     return (
       <section className="bg-[#fff7fa]">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Cursos</h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Cursos</h2>
           <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">
             Consulta de un vistazo todos los cursos que imparte CEP Formación, agrupados por tipo de formación.
           </p>
           <div className="mt-10">
-            <CoursesCatalogView groups={groups} visualMap={studyTypeVisualMap} fallbackColor={brandColor} defaultViewMode="list" hideViewToggle />
+            <CourseDenseCatalog
+              courses={courses.map((course) => ({
+                id: course.id,
+                name: course.nombre,
+                typeLabel: course.studyTypeLabel,
+                href: `/p/cursos/${course.slug}`,
+                enrollmentOpen: course.enrollmentStatus === 'open',
+                enrollmentClosed: course.enrollmentStatus === 'closed',
+              }))}
+            />
           </div>
         </div>
       </section>
@@ -570,30 +499,27 @@ async function CourseListSection({
                     {imageUrl ? <img src={imageUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                     <div className="absolute left-5 top-5 flex flex-wrap gap-2">
-                      <span className="rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white" style={{ backgroundColor: typeColor }}>
+                      <span className="rounded-full px-3 py-1 text-[11px] font-black text-white" style={{ backgroundColor: typeColor }}>
                         {getCourseTypeLabel(course.course_type)}
                       </span>
                     </div>
                     <h3 className="absolute bottom-5 left-5 right-5 text-balance text-2xl font-black leading-tight text-white">{title}</h3>
                   </div>
                   <div className="flex flex-1 flex-col p-6">
-                    <p className="mb-4 text-xs font-black uppercase tracking-[0.16em] text-[var(--cep-brand)]">{getCourseArea(course)}</p>
+                    <p className="mb-4 text-xs font-black text-[var(--cep-brand)]">{getCourseArea(course)}</p>
                     <p className="line-clamp-2 min-h-[3.5rem] text-sm leading-7 text-slate-600">{description}</p>
                     {isSubsidized ? (
-                      <span className="mt-4 inline-flex w-fit rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+                      <span className="mt-4 inline-flex w-fit rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700 ring-1 ring-emerald-200">
                         Formación gratuita subvencionada
                       </span>
                     ) : null}
                     <div className="mt-5 grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
                       <p><span className="font-semibold text-slate-950">Modalidad:</span> {isTeleformacion ? 'Online' : String(course.modality || 'Consultar')}</p>
                       <p><span className="font-semibold text-slate-950">Inicio:</span> {isTeleformacion ? 'Empieza cuando quieras' : formatDate(nextRun?.start_date)}</p>
-                      <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? 'Online' : (campus?.name || 'Por confirmar')}</p>
+                      <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? 'Online' : (campusPublicName(campus) || 'Por confirmar')}</p>
                     </div>
-                  <span className="mt-6 inline-flex w-fit items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-[#d0013f] group-hover:bg-[#d0013f]">
+                  <span className="mt-6 inline-flex w-fit items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d0013f] group-hover:bg-[#d0013f]">
                       Ver curso
-                      <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                      </svg>
                     </span>
                   </div>
                 </Link>
@@ -608,7 +534,6 @@ async function CourseListSection({
 
 async function CycleListSection({
   section,
-  brandColor,
   tenantId,
 }: {
   section: Extract<WebsiteSection, { kind: 'cycleList' }>
@@ -623,6 +548,43 @@ async function CycleListSection({
     limit: section.limit ?? 6,
     sort: 'name',
   })
+  const cycles = result.docs as any[]
+  const cycleIds = cycles.map((cycle) => String(cycle.id))
+  const courseImagesByCycleId = new Map<string, string>()
+  let openRunsByCycleId = new Map<string, CycleOpenRun[]>()
+
+  if (cycleIds.length > 0) {
+    const [coursesResult, runsResult] = await Promise.all([
+      payload.find({
+        collection: 'courses',
+        where: withTenantScope(
+          {
+            active: { equals: true },
+            course_type: { in: ['ciclo_medio', 'ciclo_superior'] },
+          },
+          tenantId,
+        ) as any,
+        limit: 100,
+        depth: 1,
+      }),
+      payload.find({
+        collection: 'course-runs',
+        where: withTenantScope({ status: { equals: 'enrollment_open' } }, tenantId) as any,
+        limit: 80,
+        depth: 1,
+        sort: 'start_date',
+      }),
+    ])
+
+    for (const course of coursesResult.docs as any[]) {
+      const cycleId = relationId(course.cycle)
+      const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
+      if (cycleId && cycleIds.includes(cycleId) && imageUrl && !courseImagesByCycleId.has(cycleId)) {
+        courseImagesByCycleId.set(cycleId, imageUrl)
+      }
+    }
+    openRunsByCycleId = collectOpenRunsByCycle(runsResult.docs, cycleIds)
+  }
 
   return (
     <section className="bg-white">
@@ -630,43 +592,14 @@ async function CycleListSection({
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
         {section.subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{section.subtitle}</p> : null}
         <div className="mt-10 grid gap-8 lg:grid-cols-2">
-          {result.docs.map((cycle: any) => {
-            const imageUrl = resolveImageUrl(cycle.image)
-            const levelMeta = getCycleLevelMeta(cycle.level)
-            const subtitle = getCycleSubtitle(cycle)
-            const chips = getCycleChips(cycle)
+          {cycles.map((cycle: any) => {
+            const id = String(cycle.id)
+            const imageUrl = resolveImageUrl(cycle.image) || courseImagesByCycleId.get(id) || null
             return (
-              <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl">
-                <div className="relative h-72 overflow-hidden">
-                  {imageUrl ? <img src={imageUrl} alt={cycle.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                  <div className="absolute bottom-5 left-5 right-5">
-                    <p
-                      className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em]"
-                      style={levelMeta ? { backgroundColor: levelMeta.bgColor, color: levelMeta.textColor } : undefined}
-                    >
-                      {levelMeta?.label || cycle.level}
-                    </p>
-                    <h3 className="text-3xl font-black leading-tight text-white">{cycle.name}</h3>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col space-y-4 p-6">
-                  {subtitle ? <p className="text-sm leading-6 text-slate-700">{subtitle}</p> : null}
-                  <div className="flex flex-wrap gap-2">
-                    {chips.map((chip) => (
-                      <span key={`${cycle.id}-${chip}`} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-700">
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]">
-                    Ver ciclo
-                    <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                    </svg>
-                  </span>
-                </div>
-              </Link>
+              <CycleCard
+                key={id}
+                cycle={toCycleCardModel(cycle, imageUrl, openRunsByCycleId.get(id) || [], `/ciclos/${cycle.slug}`)}
+              />
             )
           })}
         </div>
@@ -703,7 +636,7 @@ async function ConvocationListSection({
     const key = campus?.id ? String(campus.id) : 'online'
     if (!grouped.has(key)) {
       grouped.set(key, {
-        title: campus?.name || 'Modalidad Online / Sin sede fija',
+        title: campusPublicName(campus) || 'Modalidad Online / Sin sede fija',
         city: campus?.city || undefined,
         docs: [],
       })
@@ -716,7 +649,7 @@ async function ConvocationListSection({
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white/75 ring-1 ring-white/15">
+            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black text-white/75 ring-1 ring-white/15">
               Plazas disponibles
             </span>
             <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">{section.title}</h2>
@@ -740,38 +673,36 @@ async function ConvocationListSection({
                 {group.docs.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
-            const displayName = cycle?.name || course?.name || course?.title || conv.codigo
+            const displayName = displayCourseTitle(String(cycle?.name || course?.name || course?.title || conv.codigo || ''))
             const imageUrl =
               resolveImageUrl(course?.featured_image) || resolveImageUrl(course?.image) || resolveImageUrl(cycle?.image)
-            const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
+            const enrollment = enrollmentFromRun({
+              status: conv.status,
+              enrollment_deadline: conv.enrollment_deadline ?? null,
+            })
+            const isOpen = enrollment === 'open'
+            const isClosed = enrollment === 'closed'
             return (
-              <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl">
+              <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group overflow-hidden rounded-3xl border border-white/10 bg-white text-slate-950 transition hover:-translate-y-1 hover:shadow-2xl">
                 <div className="relative h-52">
                   {imageUrl ? <img src={imageUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  {convocationBadge ? (
-                    <span
-                      className="absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] shadow-lg"
-                      style={{ backgroundColor: convocationBadge.bgColor, color: convocationBadge.textColor }}
-                    >
-                      {convocationBadge.label}
-                    </span>
-                  ) : null}
                   <div className="absolute bottom-5 left-5 right-5">
-                    <span className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase text-white" style={{ backgroundColor: brandColor }}>
-                      Inscripción abierta
+                    <span className={`mb-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold text-white ${isOpen ? 'bg-emerald-600' : 'bg-[#64748b]'}`}>
+                      {isClosed ? 'Matrícula cerrada' : isOpen ? 'Matrícula abierta' : enrollmentLabelFor(enrollment || 'published')}
                     </span>
-                    <h3 className="text-2xl font-black leading-tight">{displayName}</h3>
+                    <h3 className="text-2xl font-semibold leading-tight text-white">{displayName}</h3>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-4 p-5">
-                  <div className="grid gap-1 text-sm text-white/70">
-                    <p><span className="font-semibold text-white">Fecha:</span> {formatDate(conv.start_date)}</p>
-                    <p><span className="font-semibold text-white">Sede:</span> {group.title}</p>
-                    <p><span className="font-semibold text-white">Estado:</span> Plazas disponibles</p>
-                    {typeof conv.price_snapshot === 'number' ? <p><span className="font-semibold text-white">Precio:</span> {conv.price_snapshot.toLocaleString('es-ES')} €</p> : null}
-                  </div>
-                  <span className="shrink-0 rounded-full bg-[var(--cep-brand)] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
+                <div className="flex flex-1 flex-col gap-5 p-5">
+                  <dl className="grid gap-2 text-sm text-slate-700">
+                    <div><dt className="inline font-semibold text-slate-950">Inicio:</dt> <dd className="inline">{formatDate(conv.start_date)}</dd></div>
+                    <div><dt className="inline font-semibold text-slate-950">Sede:</dt> <dd className="inline">{group.title}</dd></div>
+                    {typeof conv.price_snapshot === 'number' ? (
+                      <div><dt className="inline font-semibold text-slate-950">Precio:</dt> <dd className="inline">{conv.price_snapshot.toLocaleString('es-ES')} €</dd></div>
+                    ) : null}
+                  </dl>
+                  <span className="mt-auto inline-flex w-full items-center justify-center whitespace-nowrap rounded-full bg-[#f2014b] px-4 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#d0013f]">
                     Ver convocatoria
                   </span>
                 </div>
@@ -821,22 +752,19 @@ async function CampusListSection({
             return (
               <Link key={campus.id} href={`/sedes/${campus.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-72 overflow-hidden">
-                  {imageUrl ? <img src={imageUrl} alt={campus.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full bg-slate-200" />}
+                  {imageUrl ? <img src={imageUrl} alt={displayCampusName(campus.name)} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full bg-slate-200" />}
                   <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent" />
                 </div>
                 <div className="space-y-4 p-7">
-                  <h3 className="text-2xl font-black text-slate-950">{campus.name}</h3>
+                  <h3 className="text-2xl font-black text-slate-950">{displayCampusName(campus.name)}</h3>
                   <p className="text-base leading-7 text-slate-600">{campus.city || 'Tenerife'}</p>
                   <div className="grid gap-2 border-t border-slate-100 pt-4 text-sm text-slate-700">
                     <p><span className="font-bold text-slate-950">Dirección:</span> {campus.address || 'Consultar dirección'}</p>
                     {campus.phone ? <p><span className="font-bold text-slate-950">Teléfono:</span> {campus.phone}</p> : null}
                     <p><span className="font-bold text-slate-950">Horario:</span> {schedule}</p>
                   </div>
-                  <span className="inline-flex items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
+                  <span className="inline-flex items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
                     Visitar sede
-                    <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                    </svg>
                   </span>
                 </div>
               </Link>
@@ -855,7 +783,7 @@ function AlumniTestimonialsSection() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--cep-brand)] ring-1 ring-red-100">
+            <span className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-black text-[var(--cep-brand)] ring-1 ring-red-100">
               Exalumnos
             </span>
             <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Testimonios de quienes ya se formaron en CEP</h2>
@@ -900,13 +828,10 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
                   <img src={getCategoryImage(item)} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
                 </div>
-                <div className="flex min-h-[9.5rem] flex-col p-6">
-                  <h3 className="line-clamp-2 min-h-[3.5rem] text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
-                  <span className="mt-auto inline-flex min-h-11 w-fit min-w-[11rem] items-center justify-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
+                <div className="flex min-h-0 flex-col p-6">
+                  <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-slate-950">{displayCourseTitle(item.title.replace(/^Área\s+/i, ''))}</h3>
+                  <span className="mt-5 inline-flex h-11 w-fit items-center justify-center whitespace-nowrap rounded-full bg-[#f2014b] px-5 text-sm font-semibold text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
                     Ver formaciones
-                    <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                    </svg>
                   </span>
                 </div>
               </article>
@@ -943,68 +868,44 @@ async function TeamGridSection({
     limit: 60,
     sort: 'full_name',
   })
-  const subtitle = section.subtitle?.includes('Presentación editorial')
-    ? 'Conoce a nuestro equipo docente y su experiencia profesional por áreas.'
+  const subtitle = section.subtitle?.includes('Presentación editorial') || section.subtitle?.includes('experiencia profesional por áreas') || section.subtitle?.includes('combinan experiencia docente')
+    ? ''
     : section.subtitle
   const staffMembers = (staffResult.docs as any[]).map((staff) => {
     const name = getStaffName(staff)
+    const role = getStaffSpecialtyLabel(staff)
     return {
       id: staff.id,
       name,
-      role: getStaffSpecialtyLabel(staff),
+      role: role && !/^(docente|docente especializado)$/i.test(role) ? role : '',
       image: resolveImageUrl(staff.photo),
       href: staff.slug ? `/p/profesores/${staff.slug}` : `/p/profesores/${staff.id}`,
     }
   })
-  const members = staffMembers.length ? staffMembers : section.members
+  const members = (staffMembers.length ? staffMembers : section.members).filter((member) => member.image)
 
   return (
     <>
-    <section className="bg-white">
+    <section className="bg-white" data-cep-teachers="1" aria-label="Equipo docente">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
+        <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
-        <div className="mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]">
-          <div className="flex w-max animate-[cep-teacher-marquee_95s_linear_infinite] gap-4 hover:[animation-play-state:paused]">
-          {[...members, ...members].map((member, index) => (
-            <Link
-              key={`${member.name}-${index}`}
-              href={getTeacherHref(member)}
-              className="group w-[196px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
-            >
-              <div className="flex justify-center bg-slate-50 p-5">
-                {member.image ? (
-                  <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-28 w-28 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
-                ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white text-slate-300 ring-4 ring-white transition duration-500 group-hover:scale-105">
-                    <GraduationCap className="h-12 w-12" aria-hidden="true" strokeWidth={1.6} />
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--cep-brand)]">
-                  Docente
-                </span>
-                <h3 className="mt-4 line-clamp-2 min-h-[2.75rem] text-sm font-black leading-snug text-slate-900">{member.name}</h3>
-                <p className="mt-1 line-clamp-2 text-sm capitalize text-slate-600">{member.role}</p>
-                <span className="mt-5 inline-flex items-center text-sm font-bold text-[var(--cep-brand)]">
-                  Ver ficha
-                  <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                  </svg>
-                </span>
-              </div>
-            </Link>
+        <div className="mt-10 flex gap-5 overflow-x-auto overscroll-x-contain pb-3 [scrollbar-color:#eadadd_transparent]">
+          {members.map((member) => (
+            <article key={member.name} className="w-[156px] shrink-0 text-center">
+              <img
+                src={member.image}
+                alt={member.name}
+                loading="lazy"
+                decoding="async"
+                className="mx-auto h-[8.25rem] w-[8.25rem] rounded-full bg-[#f6eef1] object-cover object-[50%_12%]"
+              />
+              <h3 className="mt-3 text-[0.9rem] font-semibold leading-snug text-[#3E091A]">{member.name}</h3>
+              {member.role ? <p className="mt-1 text-[0.78rem] font-semibold leading-snug text-[#f2014b]">{member.role}</p> : null}
+            </article>
           ))}
-          </div>
         </div>
       </div>
-      <style>{`
-        @keyframes cep-teacher-marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
     <GoogleReviewsSection />
     </>
@@ -1017,7 +918,7 @@ function GoogleReviewsSection() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white/80 ring-1 ring-white/15">
+            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black text-white/80 ring-1 ring-white/15">
               Google Business
             </span>
             <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Qué dicen sobre CEP Formación</h2>
@@ -1056,7 +957,7 @@ function GoogleReviewsSection() {
                   {'★★★★★'}
                 </div>
                 <h3 className="mt-4 text-lg font-black">{review.author}</h3>
-                <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/45">{review.source}</p>
+                <p className="mt-1 text-xs font-bold text-white/45">{review.source}</p>
                 <p className="mt-3 text-base font-semibold leading-7 text-white/86">“{review.quote}”</p>
               </article>
             ))}
@@ -1083,20 +984,20 @@ function LeadFormSection({
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
         <div className="flex flex-col justify-between gap-8">
           <div>
-            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white/80">
+            <p className="text-sm font-semibold text-white/70">
               Atención personalizada
-            </span>
+            </p>
             <h2 className="mt-5 max-w-xl text-balance text-3xl font-black leading-tight sm:text-4xl">{section.title}</h2>
             {subtitle ? <p className="mt-4 max-w-xl text-lg leading-8 text-white/72">{subtitle}</p> : null}
           </div>
 
           <div className="grid gap-3 text-sm text-white/75 sm:grid-cols-2">
             <a href="tel:+34922219257" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]">
-              <span className="block text-xs font-black uppercase tracking-[0.14em] text-white/45">Llámanos</span>
+              <span className="block text-sm font-semibold text-white/55">Llámanos</span>
               <span className="mt-2 block text-lg font-black text-white">922 219 257</span>
             </a>
             <a href="mailto:info@cursostenerife.es" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]">
-              <span className="block text-xs font-black uppercase tracking-[0.14em] text-white/45">Escríbenos</span>
+              <span className="block text-sm font-semibold text-white/55">Escríbenos</span>
               <span className="mt-2 block font-bold text-white">info@cursostenerife.es</span>
             </a>
           </div>
@@ -1111,14 +1012,26 @@ function LeadFormSection({
           </ul>
         </div>
 
-        <form className="grid gap-4 rounded-[2rem] border border-white/15 bg-white/[0.07] p-5 shadow-2xl shadow-black/20 sm:p-7">
+        <form className="grid gap-4 rounded-2xl border border-white/15 bg-white/[0.07] p-5 sm:p-7">
           <div className="grid gap-4 sm:grid-cols-2">
-            <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Nombre" />
-            <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Teléfono" />
+            <label className="grid gap-2 text-sm font-semibold text-white">
+              Nombre
+              <input className="min-h-14 rounded-lg border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" name="name" autoComplete="name" />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-white">
+              Teléfono
+              <input className="min-h-14 rounded-lg border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" name="phone" type="tel" autoComplete="tel" />
+            </label>
           </div>
-          <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Email" />
-          <textarea className="min-h-32 rounded-2xl border border-white/15 bg-white px-4 py-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Cuéntanos qué formación te interesa" />
-          <button type="button" className="min-h-14 rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5" style={{ backgroundColor: brandColor }}>
+          <label className="grid gap-2 text-sm font-semibold text-white">
+            Email
+            <input className="min-h-14 rounded-lg border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" name="email" type="email" autoComplete="email" />
+          </label>
+          <label className="grid gap-2 text-sm font-semibold text-white">
+            Qué formación te interesa
+            <textarea className="min-h-32 rounded-lg border border-white/15 bg-white px-4 py-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" name="message" />
+          </label>
+          <button type="button" className="min-h-14 rounded-lg px-6 text-sm font-semibold text-white" style={{ backgroundColor: brandColor }}>
             Solicitar información
           </button>
           <p className="text-center text-xs leading-5 text-white/45">
@@ -1208,5 +1121,10 @@ export async function WebsiteRenderer({
       </div>
     ))
   )
-  return <>{sections}</>
+  return (
+    <>
+      {sections}
+      {page.pageKind === 'home' ? <PartnerMarquee /> : null}
+    </>
+  )
 }

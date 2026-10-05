@@ -1,0 +1,13 @@
+# Public CEP status page. Traefik -> operations gateway :5000 (Kuma /status/estado only).
+http:
+  routers:
+    cep-estado:
+      rule: Host(`status.cepformacion.akademate.com`) || Host(`cepformacion-estado.akademate.com`)
+      entryPoints: [web]
+      service: cep-estado
+      priority: 30
+  services:
+    cep-estado:
+      loadBalancer:
+        servers:
+          - url: http://46.225.4.189:5000

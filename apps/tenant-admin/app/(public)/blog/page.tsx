@@ -45,7 +45,7 @@ export default async function BlogIndexPage() {
     <div className="bg-white">
       <section className="border-b border-slate-200 bg-slate-950 text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <span className="inline-flex rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
+          <span className="inline-flex rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black">
             Blog CEP
           </span>
           <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-5xl">
@@ -71,7 +71,7 @@ export default async function BlogIndexPage() {
                   <img src={imageUrl} alt={post.title} className="h-56 w-full object-cover transition duration-300 group-hover:scale-105" />
                 ) : null}
                 <div className="p-6">
-                  <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[#f2014b]">
+                  <div className="flex items-center gap-3 text-xs font-black text-[#f2014b]">
                     <span>{post.category ?? 'CEP Formación'}</span>
                     <span className="h-1 w-1 rounded-full bg-slate-300" />
                     <span>{post.readingTime ?? 'Lectura'}</span>

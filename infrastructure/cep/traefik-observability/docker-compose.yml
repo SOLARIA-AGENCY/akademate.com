@@ -1,0 +1,46 @@
+services:
+  traefik:
+    image: traefik:v3.6.4
+    container_name: cep-traefik
+    restart: unless-stopped
+    command:
+      - --providers.file.directory=/etc/traefik/dyn
+      - --providers.file.watch=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=tenant-admin_proxy
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?ACME_EMAIL is required}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --entrypoints.metrics.address=:8082
+      - --api.insecure=true
+      - --log.level=INFO
+      - --accesslog=true
+      - --accesslog.format=json
+      - --accesslog.filepath=/var/log/traefik/access.log
+      - --accesslog.bufferingsize=100
+      - --metrics.prometheus=true
+      - --metrics.prometheus.entrypoint=metrics
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:8080:8080"
+      - "8082:8082"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/cep/tenant-admin/traefik-dyn:/etc/traefik/dyn:ro
+      - /opt/cep/traefik/acme.json:/letsencrypt/acme.json
+      - /var/log/traefik:/var/log/traefik
+    networks:
+      - tenant-admin_proxy
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  tenant-admin_proxy:
+    external: true

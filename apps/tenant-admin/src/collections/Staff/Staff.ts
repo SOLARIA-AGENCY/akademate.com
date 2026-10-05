@@ -1,6 +1,7 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { canEditStaff, canManageStaff } from './access';
 import { trackStaffCreator } from './hooks';
+import { notifyPublicCatalog } from '../_hooks/notifyPublicCatalog';
 
 /**
  * Type definitions for Staff collection
@@ -629,6 +630,7 @@ export const Staff: CollectionConfig = {
     beforeChange: [
       trackStaffCreator, // Auto-populate and protect created_by field
     ],
+    afterChange: [notifyPublicCatalog],
   },
 
   /**

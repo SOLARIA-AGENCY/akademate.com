@@ -60,10 +60,7 @@ export function HeroCarouselClient({
         <div className="max-w-3xl">
           <div key={`hero-copy-${activeIndex}`} className="hero-copy-enter">
             {section.eyebrow ? (
-              <span
-                className="mb-6 inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em]"
-                style={{ backgroundColor: brandColor }}
-              >
+              <span className="mb-6 block text-sm font-semibold" style={{ color: brandColor }}>
                 {section.eyebrow}
               </span>
             ) : null}
@@ -85,7 +82,7 @@ export function HeroCarouselClient({
             {section.secondaryCta ? (
               <Link
                 href={section.secondaryCta.href}
-                className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm"
+                className="px-1 py-3 text-sm font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white"
               >
                 {section.secondaryCta.label}
               </Link>

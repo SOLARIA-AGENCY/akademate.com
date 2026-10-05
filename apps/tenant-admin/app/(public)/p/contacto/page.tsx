@@ -227,9 +227,9 @@ export default function ContactoPage() {
             <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, color: '#111', margin: '0 0 16px', fontWeight: 600 }}>Datos de contacto</h3>
               <div style={{ fontSize: 14, color: '#374151', lineHeight: 2 }}>
-                <p style={{ margin: 0 }}><strong>Sede Santa Cruz</strong></p>
+                <p style={{ margin: 0 }}><strong>CEP Santa Cruz</strong></p>
                 <p style={{ margin: 0, color: '#6b7280' }}>Tel: <a href="tel:+34922219257" style={{ color: '#cc0000', textDecoration: 'none' }}>922 219 257</a></p>
-                <p style={{ margin: '12px 0 0' }}><strong>Sede Norte (La Laguna)</strong></p>
+                <p style={{ margin: '12px 0 0' }}><strong>CEP Norte</strong></p>
                 <p style={{ margin: 0, color: '#6b7280' }}>Tel: <a href="tel:+34922219257" style={{ color: '#cc0000', textDecoration: 'none' }}>922 219 257</a></p>
                 <p style={{ margin: '12px 0 0' }}><strong>Email</strong></p>
                 <p style={{ margin: 0, color: '#6b7280' }}><a href="mailto:info@cursostenerife.es" style={{ color: '#cc0000', textDecoration: 'none' }}>info@cursostenerife.es</a></p>

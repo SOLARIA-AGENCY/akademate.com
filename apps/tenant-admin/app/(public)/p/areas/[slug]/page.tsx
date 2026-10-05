@@ -12,6 +12,9 @@ import {
 } from '@/app/lib/server/published-courses'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getPublicStudyTypeFallbackImage } from '@/app/lib/website/study-types'
+import { CycleCard } from '../../_components/CycleCard'
+import { displayCourseTitle } from '../../_components/course-title'
+import { toCycleCardModel } from '../../_components/cycle-display'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,9 +62,15 @@ type CycleDoc = {
   name?: string | null
   level?: string | null
   family?: string | null
+  description?: string | null
+  officialTitle?: string | null
   image?: { url?: string | null; filename?: string | null } | null
-  total_hours?: number | null
-  modality?: string | null
+  duration?: {
+    totalHours?: number | null
+    practiceHours?: number | null
+    modality?: string | null
+    classFrequency?: string | null
+  } | null
 }
 
 function resolveMediaImageUrl(image: CycleDoc['image']): string | null {
@@ -69,12 +78,6 @@ function resolveMediaImageUrl(image: CycleDoc['image']): string | null {
   if (image.url) return String(image.url).replace(/^\/api\/media\/file\//, '/media/').replace(/^\/media\/file\//, '/media/')
   if (image.filename) return `/media/${image.filename}`
   return null
-}
-
-function formatCycleLevel(level: string | null | undefined): string {
-  if (level === 'grado_medio') return 'GRADO MEDIO'
-  if (level === 'grado_superior') return 'GRADO SUPERIOR'
-  return String(level || 'CICLO FORMATIVO').replace(/_/g, ' ').toUpperCase()
 }
 
 function matchesAreaText(slug: string, value: string): boolean {
@@ -144,7 +147,7 @@ export default async function PublicAreaPage({ params }: Props) {
     <main className="min-h-screen bg-white">
       <section className="bg-slate-950 px-4 py-16 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-black uppercase tracking-[0.28em] text-red-200">Área de formación</p>
+          <p className="text-sm font-black text-red-200">Área de formación</p>
           <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">{title}</h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/75">
             Programas disponibles en esta especialidad, con modalidad, duración y convocatorias actualizadas.
@@ -157,7 +160,7 @@ export default async function PublicAreaPage({ params }: Props) {
           <div key={group.studyType}>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-[var(--cep-brand)]">Cursos</p>
+                <p className="text-sm font-black text-[var(--cep-brand)]">Cursos</p>
                 <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{group.label}</h2>
               </div>
               <span className="text-sm font-semibold text-slate-500">{group.courses.length} formaciones</span>
@@ -166,24 +169,27 @@ export default async function PublicAreaPage({ params }: Props) {
               {group.courses.map((course) => {
                 const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
                 const color = getStudyTypeColor(course.studyType, studyTypeVisualMap) || tenant.primaryColor || '#f2014b'
+                const title = displayCourseTitle(course.nombre) || course.nombre
                 return (
                   <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                     <div className="relative h-56">
-                      <img src={imageUrl} alt={course.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                      <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <span className="absolute left-5 top-5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-white" style={{ backgroundColor: color }}>
+                      <span className="absolute left-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-white" style={{ backgroundColor: color }}>
                         {course.studyTypeLabel}
                       </span>
-                      <h3 className="absolute bottom-5 left-5 right-5 text-xl font-bold text-white">{course.nombre}</h3>
+                      <h3 className="absolute bottom-5 left-5 right-5 text-xl font-bold text-white">{title}</h3>
                     </div>
                     <div className="p-6">
-                      <p className="line-clamp-3 text-sm leading-7 text-slate-600">{course.descripcion}</p>
-                      <div className="mt-5 grid gap-2 text-sm text-slate-700">
-                        <p><span className="font-semibold text-slate-950">Duración:</span> {course.duracionReferencia ? `${course.duracionReferencia} h` : 'Consultar'}</p>
-                        <p><span className="font-semibold text-slate-950">Modalidad:</span> {course.modality || 'Consultar'}</p>
-                        <p><span className="font-semibold text-slate-950">Convocatoria:</span> {course.enrollmentLabel}</p>
-                      </div>
-                      <span className="mt-6 inline-flex rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
+                      {course.descripcion ? (
+                        <p className="line-clamp-3 text-sm leading-7 text-slate-600">{course.descripcion}</p>
+                      ) : null}
+                      <dl className="mt-5 grid gap-2 text-sm text-slate-700">
+                        <div><dt className="inline font-semibold text-slate-950">Duración:</dt> <dd className="inline">{course.duracionReferencia ? `${course.duracionReferencia} h` : 'Consultar'}</dd></div>
+                        <div><dt className="inline font-semibold text-slate-950">Modalidad:</dt> <dd className="inline">{course.modality || 'Consultar'}</dd></div>
+                        <div><dt className="inline font-semibold text-slate-950">Convocatoria:</dt> <dd className="inline">{course.enrollmentLabel}</dd></div>
+                      </dl>
+                      <span className="mt-6 inline-flex rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#d0013f]">
                         Ver curso
                       </span>
                     </div>
@@ -198,7 +204,7 @@ export default async function PublicAreaPage({ params }: Props) {
           <div>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-[var(--cep-brand)]">Ciclos</p>
+                <p className="text-sm font-black text-[var(--cep-brand)]">Ciclos</p>
                 <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Ciclos formativos</h2>
               </div>
               <span className="text-sm font-semibold text-slate-500">{areaCycles.length} ciclos</span>
@@ -207,24 +213,10 @@ export default async function PublicAreaPage({ params }: Props) {
               {areaCycles.map((cycle) => {
                 const imageUrl = resolveMediaImageUrl(cycle.image) || '/website/cep/categories/ciclos-formativos.jpg'
                 return (
-                  <Link key={cycle.id} href={`/p/ciclos/${cycle.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                    <div className="relative h-64">
-                      <img src={imageUrl} alt={cycle.name || 'Ciclo formativo'} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <span className="absolute left-5 top-5 rounded-full bg-[var(--cep-brand)] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white">
-                        {formatCycleLevel(cycle.level)}
-                      </span>
-                      <h3 className="absolute bottom-5 left-5 right-5 text-2xl font-black text-white">{cycle.name}</h3>
-                    </div>
-                    <div className="grid gap-2 p-6 text-sm text-slate-700">
-                      <p><span className="font-semibold text-slate-950">Familia:</span> {cycle.family || 'Consultar'}</p>
-                      <p><span className="font-semibold text-slate-950">Duración:</span> {cycle.total_hours ? `${cycle.total_hours} h` : 'Consultar'}</p>
-                      <p><span className="font-semibold text-slate-950">Modalidad:</span> {cycle.modality || 'Consultar'}</p>
-                      <span className="mt-4 inline-flex w-fit rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
-                        Ver ciclo
-                      </span>
-                    </div>
-                  </Link>
+                  <CycleCard
+                    key={String(cycle.id)}
+                    cycle={toCycleCardModel(cycle, imageUrl, [], `/p/ciclos/${cycle.slug}`)}
+                  />
                 )
               })}
             </div>

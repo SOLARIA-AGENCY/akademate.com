@@ -131,7 +131,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <header className="bg-slate-950 text-white">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">
+          <p className="text-xs font-black text-[#f2014b]">
             {category} · {readingTime ? `${readingTime} · ` : ''}{new Date(date).toLocaleDateString('es-ES')}
           </p>
           <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight sm:text-5xl">{title}</h1>
@@ -142,7 +142,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         <div>
         {imageUrl ? <img src={imageUrl} alt={title} className="h-[28rem] w-full rounded-2xl object-cover shadow-lg" /> : null}
         <div className="mt-8 rounded-2xl border border-red-100 bg-[#fff7fa] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">CEP Formación · www.cursostenerife.es</p>
+          <p className="text-xs font-black text-[#f2014b]">CEP Formación · www.cursostenerife.es</p>
           <p className="mt-3 text-lg font-semibold leading-8 text-slate-800">
             {excerpt} Artículo publicado por CEP Formación para orientar a alumnos y candidatos desde la web oficial de www.cursostenerife.es.
           </p>
@@ -175,7 +175,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         </div>
         <aside className="hidden lg:block">
           <div className="sticky top-28 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Contenido</p>
+            <p className="text-xs font-black text-[#f2014b]">Contenido</p>
             {sections?.length ? (
               <nav className="mt-4 grid gap-3 text-sm font-semibold text-slate-700">
                 {sections.map((section) => (

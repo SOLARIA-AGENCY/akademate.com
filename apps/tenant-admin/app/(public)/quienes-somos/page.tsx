@@ -89,7 +89,7 @@ export default function QuienesSomosPage() {
           </div>
           <div className="rounded-3xl bg-white/95 p-8 shadow-2xl">
             <img src="/logos/cep-formacion-logo.png" alt="CEP Formación" className="mx-auto h-24 w-auto object-contain sm:h-28" />
-            <p className="mt-4 text-center text-sm font-semibold uppercase tracking-[0.2em] text-[#f2014b]">
+            <p className="mt-4 text-center text-sm font-semibold text-[#f2014b]">
               Centro de Enseñanzas Profesionales
             </p>
           </div>

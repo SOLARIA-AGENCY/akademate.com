@@ -73,7 +73,45 @@ describe('Public website routing middleware', () => {
     expect(getHeader(response, 'location')).toBe('https://app.akademate.com/dashboard/cursos')
   })
 
-  it('keeps root as public page without redirecting to login', () => {
+  it('redirects cepformacion-app root to dashboard for browsers', () => {
+    const request = new NextRequest('https://cepformacion-app.akademate.com/')
+    const response = middleware(request)
+
+    expect(response.status).toBe(307)
+    expect(getHeader(response, 'location')).toBe('https://cepformacion-app.akademate.com/dashboard')
+  })
+
+  it('redirects cepformacion-app public pages to dashboard for browsers', () => {
+    const request = new NextRequest('https://cepformacion-app.akademate.com/p/cursos')
+    const response = middleware(request)
+
+    expect(response.status).toBe(307)
+    expect(getHeader(response, 'location')).toBe('https://cepformacion-app.akademate.com/dashboard')
+  })
+
+  it('lets the Cloudflare Worker fetch the public site on cepformacion-app', () => {
+    process.env.CEP_EDGE_FETCH_SECRET = 'edge-test-secret'
+    const request = new NextRequest('https://cepformacion-app.akademate.com/', {
+      headers: { 'x-cep-edge-fetch': 'edge-test-secret' },
+    })
+    const response = middleware(request)
+    delete process.env.CEP_EDGE_FETCH_SECRET
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('treats dashboard.cepformacion.com as the canonical admin host', () => {
+    const home = middleware(new NextRequest('https://dashboard.cepformacion.com/'))
+    expect(home.status).toBe(307)
+    expect(getHeader(home, 'location')).toBe('https://dashboard.cepformacion.com/dashboard')
+
+    const login = middleware(new NextRequest('https://dashboard.cepformacion.com/auth/login'))
+    expect(login.status).toBe(200)
+    expect(getHeader(login, 'location')).toBe('')
+  })
+
+  it('keeps Hetzner CEP root as public page without redirecting to login', () => {
     const request = new NextRequest('https://cepformacion.akademate.com/')
     const response = middleware(request)
 

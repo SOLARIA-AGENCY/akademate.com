@@ -1,0 +1,29 @@
+FROM node:22-alpine
+
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3009
+ENV HOSTNAME=0.0.0.0
+
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
+
+COPY apps/tenant-admin/.next/standalone ./
+COPY apps/tenant-admin/.next/static ./apps/tenant-admin/.next/static
+COPY apps/tenant-admin/public ./apps/tenant-admin/public
+
+# The standalone artifact was built on macOS. Install the native Alpine
+# variant explicitly so Next image optimization works on the amd64 runner.
+RUN npm install --no-save --package-lock=false --omit=dev \
+  --os=linux --libc=musl --cpu=x64 sharp@0.34.5
+
+RUN mkdir -p /app/apps/tenant-admin/public/media /app/apps/uploads \
+  && chown -R nextjs:nodejs /app/apps/tenant-admin/public/media /app/apps/uploads
+
+USER nextjs
+EXPOSE 3009
+
+CMD ["node", "apps/tenant-admin/server.js"]

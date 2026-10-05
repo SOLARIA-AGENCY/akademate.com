@@ -1,6 +1,6 @@
 /**
  * @fileoverview Tests para las constantes y tipos de la pagina de configuracion
- * Valida: ALL_SCOPES (16 entries), ApiKeyItem interface shape
+ * Valida: ALL_SCOPES (17 entries), ApiKeyItem interface shape
  *
  * Nota: Como la pagina de configuracion es un componente 'use client',
  * extraemos y testeamos las constantes declaradas en ella.
@@ -38,6 +38,7 @@ const ALL_SCOPES = [
   { value: 'enrollments:write', label: 'Matriculas (Escritura)' },
   { value: 'analytics:read', label: 'Analiticas (Lectura)' },
   { value: 'keys:manage', label: 'API Keys (Gestion)' },
+  { value: 'catalog:read', label: 'Catalogo publico (Lectura)' },
 ]
 
 /**
@@ -59,7 +60,7 @@ interface ApiKeyItem {
 
 describe('ALL_SCOPES', () => {
   it('tiene exactamente 16 entradas', () => {
-    expect(ALL_SCOPES).toHaveLength(16)
+    expect(ALL_SCOPES).toHaveLength(17)
   })
 
   it('cada scope tiene propiedades "value" y "label"', () => {
@@ -119,6 +120,7 @@ describe('ALL_SCOPES', () => {
 
     expect(values).toContain('analytics:read')
     expect(values).toContain('keys:manage')
+    expect(values).toContain('catalog:read')
   })
 })
 

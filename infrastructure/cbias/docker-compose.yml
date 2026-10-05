@@ -1,0 +1,342 @@
+# C-BIAS monitoring core — Grafana, Prometheus, Loki, exporters, Uptime Kuma
+# Bind panels to Tailscale. Host SSH/firewall stay on the host, not in Docker.
+# Usage: cp .env.example .env && docker compose up -d
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  grafana:
+    image: grafana/grafana-oss:12.4.0
+    container_name: cbias-grafana
+    hostname: cbias-grafana
+    ports:
+      - "${TS_BIND:-100.113.169.104}:3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,yesoreyeram-infinity-datasource,apricote-hcloud-datasource
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=apricote-hcloud-datasource
+      - HETZNER_API_TOKEN=${HETZNER_API_TOKEN}
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+      - GF_ALERTING_EXECUTE_ALERTS=true
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_ALLOW_EMBEDDING=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://${TS_BIND:-100.113.169.104}:3000
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.resend.com:587
+      - GF_SMTP_USER=resend
+      - GF_SMTP_PASSWORD=${RESEND_API_KEY}
+      - GF_SMTP_FROM_ADDRESS=noreply@c-bias.com
+      - GF_SMTP_FROM_NAME=C-BIAS Alerts
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.10.0
+    container_name: cbias-prometheus
+    hostname: cbias-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.retention.size=500MB"
+      - "--web.enable-lifecycle"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./configs/prometheus/rules:/etc/prometheus/rules:ro
+    networks:
+      - cbias_internal
+    ports:
+      - "${TS_BIND:-100.113.169.104}:9090:9090"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    logging: *default-logging
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.6.5
+    container_name: cbias-loki
+    hostname: cbias-loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - loki_data:/loki
+      - ./configs/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    logging: *default-logging
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.6.5
+    container_name: cbias-promtail
+    hostname: cbias-promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./configs/promtail/config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - cbias_internal
+    logging: *default-logging
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  node-exporter:
+    image: prom/node-exporter:v1.10.2
+    container_name: cbias-node-exporter
+    hostname: cbias-exporter
+    volumes:
+      - /:/host:ro,rslave
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/host"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - cbias_internal
+    logging: *default-logging
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
+    container_name: cbias-cadvisor
+    hostname: cbias-cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+    logging: *default-logging
+    restart: unless-stopped
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.27.0
+    container_name: cbias-blackbox
+    hostname: cbias-blackbox
+    command:
+      - "--config.file=/etc/blackbox_exporter/config.yml"
+    volumes:
+      - ./configs/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "/bin/blackbox_exporter", "--config.file=/etc/blackbox_exporter/config.yml", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:2.1.1
+    container_name: cbias-uptime
+    hostname: cbias-uptime
+    ports:
+      - "${TS_BIND:-100.113.169.104}:3001:3001"
+    environment:
+      UPTIME_KUMA_DB_TYPE: sqlite
+    volumes:
+      - uptime_data:/app/data
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+    logging: *default-logging
+    restart: unless-stopped
+
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.7.6
+    container_name: cbias-crowdsec
+    hostname: cbias-crowdsec
+    environment:
+      - COLLECTIONS=crowdsecurity/linux crowdsecurity/sshd crowdsecurity/nginx
+      - CUSTOM_HOSTNAME=cbias-central
+      - GID=0
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./configs/crowdsec/acquis.yaml:/etc/crowdsec/acquis.d/cbias.yaml:ro
+      - crowdsec_data:/etc/crowdsec
+      - crowdsec_db:/var/lib/crowdsec/data
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    logging: *default-logging
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.2.0
+    container_name: cbias-cloudflared
+    hostname: cbias-tunnel
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./configs/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - ./configs/cloudflared/credentials.json:/etc/cloudflared/credentials.json:ro
+    networks:
+      - cbias_internal
+    logging: *default-logging
+    restart: unless-stopped
+
+  serverkit:
+    image: jhd3197/serverkit:1.7.0
+    container_name: cbias-serverkit
+    hostname: cbias-serverkit
+    profiles: ["serverkit"]
+    ports:
+      # The gateway owns 5000; ServerKit stays host-local.
+      - "127.0.0.1:5002:5000"
+    environment:
+      DATABASE_URL: sqlite:////app/instance/serverkit.db
+      FLASK_ENV: production
+      SECRET_KEY: ${SERVERKIT_SECRET_KEY}
+      JWT_SECRET_KEY: ${SERVERKIT_JWT_SECRET}
+      SERVERKIT_ENCRYPTION_KEY: ${SERVERKIT_ENCRYPTION_KEY}
+      SERVERKIT_PUBLIC_URL: http://46.225.4.189:5000
+      CORS_ORIGINS: http://${TS_BIND:-100.113.169.104}:5000,http://46.225.4.189:5000
+    # Image default uses geventwebsocket while Flask-SocketIO is async_mode=threading.
+    command:
+      - sh
+      - -c
+      - exec gunicorn --worker-class gthread --threads 32 --workers 1 --bind 0.0.0.0:5000 --timeout 60 --access-logfile - --error-logfile - run:app
+    user: "999:999"
+    volumes:
+      - serverkit_data:/app/instance
+      - ./patches/agent_gateway.py:/app/backend/app/agent_gateway.py:ro
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 384M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/api/v1/system/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging: *default-logging
+    restart: unless-stopped
+
+  # Host :5000 is UFW-restricted. Allow 172.20.0.0/24 so Kuma on cbias_internal
+  # can hit /healthz (Uptime Kuma times out otherwise). Also allow OVH + Tailscale.
+  operations-gateway:
+    image: nginx:1.27-alpine
+    container_name: cbias-operations-gateway
+    hostname: cbias-operations-gateway
+    network_mode: host
+    depends_on:
+      - loki
+    volumes:
+      - ./configs/gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:5000/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+  cep-operations-portal:
+    image: nginx:1.27-alpine
+    container_name: cbias-cep-portal
+    hostname: cbias-cep-portal
+    ports:
+      - "${TS_BIND:-100.113.169.104}:8088:80"
+    volumes:
+      - ./portal:/usr/share/nginx/html:ro
+    networks:
+      - cbias_internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+volumes:
+  grafana_data:
+  prometheus_data:
+  loki_data:
+  uptime_data:
+  crowdsec_data:
+  crowdsec_db:
+  serverkit_data:
+
+networks:
+  cbias_internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

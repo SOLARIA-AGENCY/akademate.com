@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import Link from 'next/link'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { displayCampusName } from '@/app/lib/public-campus-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -81,13 +82,14 @@ export default async function PublicSedeDetailPage({ params }: { params: Promise
 
   const mapsUrl = typeof campus.maps_url === 'string' ? campus.maps_url : ''
   const canEmbedMap = mapsUrl.includes('google.com/maps/embed')
+  const name = displayCampusName(campus.name)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       {resolveImageUrl(campus.image) ? (
-        <img src={resolveImageUrl(campus.image) ?? ''} alt={campus.name} className="h-[28rem] w-full rounded-3xl object-cover" />
+        <img src={resolveImageUrl(campus.image) ?? ''} alt={name} className="h-[28rem] w-full rounded-3xl object-cover" />
       ) : null}
-      <h1 className="mt-10 text-4xl font-semibold text-slate-950">{campus.name}</h1>
+      <h1 className="mt-10 text-4xl font-semibold text-slate-950">{name}</h1>
       <p className="mt-4 text-lg text-slate-600">{campus.description || defaultDescription}</p>
       <div className="mt-10 grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 md:grid-cols-2">
         <div>
@@ -105,7 +107,7 @@ export default async function PublicSedeDetailPage({ params }: { params: Promise
           {canEmbedMap ? (
             <iframe
               src={mapsUrl}
-              title={`Mapa ${campus.name}`}
+              title={`Mapa ${name}`}
               className="mt-3 h-48 w-full rounded-2xl border border-slate-200"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

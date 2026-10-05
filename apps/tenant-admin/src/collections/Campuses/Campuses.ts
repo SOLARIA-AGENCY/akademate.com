@@ -4,6 +4,7 @@ import { campusSchema, formatValidationErrors } from './Campuses.validation';
 import { tenantField } from '../../access/tenantAccess';
 import { ensurePrimaryInServiceLocations } from '../../domain/campus-operating-model';
 import { ensureDefaultClassroom } from './hooks/ensureDefaultClassroom'
+import { notifyPublicCatalog } from '../_hooks/notifyPublicCatalog'
 
 interface CampusData {
   id?: number;
@@ -398,7 +399,7 @@ export const Campuses: CollectionConfig = {
     tenantField,
   ],
   hooks: {
-    afterChange: [ensureDefaultClassroom],
+    afterChange: [ensureDefaultClassroom, notifyPublicCatalog],
     beforeValidate: [
       ({ data }): CampusData | undefined => {
         const typedData = data as CampusData | undefined;

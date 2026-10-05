@@ -4,7 +4,9 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
-import { CalendarDays, Clock, Euro, MapPin, Users } from 'lucide-react'
+import { displayCourseTitle } from '../_components/course-title'
+import { campusPublicName } from '@/app/lib/public-campus-name'
+import { enrollmentFromRun, enrollmentLabelFor } from '@/app/lib/server/published-courses'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
@@ -34,12 +36,21 @@ function formatPrice(value: unknown): string {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price)
 }
 
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-xs font-semibold text-slate-500">{label}</p>
+      <p className="mt-1 text-[0.95rem] font-semibold leading-snug text-slate-950">{value}</p>
+    </div>
+  )
+}
+
 export default async function ConvocatoriasPage() {
   const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'course-runs',
-    where: withTenantScope({ status: { in: ['enrollment_open', 'published'] } }, tenant.tenantId) as any,
+    where: withTenantScope({ status: { in: ['enrollment_open', 'published', 'enrollment_closed'] } }, tenant.tenantId) as any,
     limit: 50,
     sort: '-start_date',
     depth: 2,
@@ -53,7 +64,7 @@ export default async function ConvocatoriasPage() {
     const key = campus?.id ? String(campus.id) : 'online'
     if (!grouped.has(key)) {
       grouped.set(key, {
-        title: campus?.name || 'Modalidad Online / Sin sede fija',
+        title: campusPublicName(campus) || 'Modalidad Online / Sin sede fija',
         city: campus?.city || undefined,
         docs: [],
       })
@@ -97,7 +108,9 @@ export default async function ConvocatoriasPage() {
               || (cycle ? resolveImageUrl(cycle.image) : null)
               || (course ? resolveImageUrl(course.image) : null)
             const detailHref = `/convocatorias/${conv.codigo || conv.id}`
-            const courseName = course?.title || course?.name || cycle?.title || cycle?.name || conv.codigo
+            const courseName = displayCourseTitle(
+              String(course?.title || course?.name || cycle?.title || cycle?.name || conv.codigo || ''),
+            )
             const startDateText = conv.start_date
               ? new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
               : 'Fecha por confirmar'
@@ -106,65 +119,54 @@ export default async function ConvocatoriasPage() {
               : null
             const maxStudents = Number(conv.max_students ?? 0)
             const currentEnrollments = Number(conv.current_enrollments ?? 0)
-            const isOpen = conv.status === 'enrollment_open'
+            const enrollment = enrollmentFromRun({
+              status: conv.status,
+              enrollment_deadline: conv.enrollment_deadline ?? null,
+            })
+            const isOpen = enrollment === 'open'
+            const isClosed = enrollment === 'closed'
 
             return (
               <article
                 key={conv.id}
-                className="group grid overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-red-300 hover:shadow-lg md:grid-cols-[240px_1fr]"
+                className={`group grid overflow-hidden rounded-2xl border shadow-sm md:grid-cols-[15.5rem_minmax(0,1fr)] ${isOpen ? 'border-emerald-200 bg-[#ecfdf5]' : 'border-gray-200 bg-white'}`}
               >
-                  <div className="relative min-h-[210px] bg-gradient-to-br from-gray-200 to-gray-100">
-                    {imageUrl && <img src={imageUrl} alt={courseName} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
+                  <div className="relative min-h-44 bg-gradient-to-br from-gray-200 to-gray-100 md:min-h-full">
+                    {imageUrl && <img src={imageUrl} alt={courseName} className="h-full w-full object-cover" />}
                   </div>
-                  <div className="min-w-0 p-6">
-                    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-col gap-4 p-5 md:p-6">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h2 className="line-clamp-2 text-xl font-extrabold uppercase leading-tight tracking-wide text-gray-950">
+                        <h2 className="line-clamp-2 text-xl font-semibold leading-tight tracking-tight text-gray-950">
                           {courseName}
                         </h2>
                         <p className="mt-1 font-mono text-sm text-gray-500">{conv.codigo}</p>
                       </div>
-                      <span className={`rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-white ${isOpen ? 'bg-green-600' : 'bg-red-600'}`}>
-                        {isOpen ? 'Inscripción abierta' : 'Próximas fechas'}
+                      <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white ${isOpen ? 'bg-emerald-600' : 'bg-[#64748b]'}`}>
+                        {isClosed ? 'Matrícula cerrada' : isOpen ? 'Matrícula abierta' : enrollmentLabelFor(enrollment || 'published')}
                       </span>
                     </div>
 
-                    <div className="grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
-                      <span className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-red-600" />
-                        {campus?.name || 'Sede por confirmar'}{classroom?.name ? ` · ${classroom.name}` : ''}
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <CalendarDays className="h-4 w-4 text-red-600" />
-                        {startDateText}{endDateText ? ` - ${endDateText}` : ''}
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-red-600" />
-                        {formatRunSchedule(conv)}
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-red-600" />
-                        {currentEnrollments}/{maxStudents || '-'} plazas
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <Euro className="h-4 w-4 text-red-600" />
-                        {formatPrice(conv.price ?? course?.base_price)}
-                      </span>
+                    <div className="grid grid-cols-1 gap-x-5 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+                      <Fact
+                        label="Sede"
+                        value={`${campusPublicName(campus) || 'Sede por confirmar'}${classroom?.name ? ` · ${classroom.name}` : ''}`}
+                      />
+                      <Fact
+                        label="Fechas"
+                        value={`${startDateText}${endDateText ? ` - ${endDateText}` : ''}`}
+                      />
+                      <Fact label="Horario" value={formatRunSchedule(conv)} />
+                      <Fact label="Plazas" value={`${currentEnrollments}/${maxStudents || '-'} plazas`} />
+                      <Fact label="Precio" value={formatPrice(conv.price ?? course?.base_price)} />
                     </div>
-
-                    <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                        <Link
-                          href={detailHref}
-                          className="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-white hover:bg-red-700"
-                        >
-                          VER CONVOCATORIA
-                        </Link>
-                        <Link
-                          href={detailHref}
-                          className="inline-flex w-full items-center justify-center rounded-md border border-red-200 bg-white px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-red-700 hover:bg-red-50"
-                        >
-                          RESERVAR PLAZA
-                        </Link>
+                    <div className="mt-auto flex justify-end pt-1">
+                      <Link
+                        href={detailHref}
+                        className="inline-flex min-h-11 min-w-[10.75rem] items-center justify-center rounded-full bg-[#f2014b] px-5 text-sm font-semibold text-white hover:bg-[#d0013f]"
+                      >
+                        Ver convocatoria
+                      </Link>
                     </div>
                   </div>
                 </article>

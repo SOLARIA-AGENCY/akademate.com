@@ -73,7 +73,7 @@ export function CourseDossierModal({
             hasActiveConvocatorias={false}
             labelClassName="text-gray-800"
             inputClassName="rounded-lg border-gray-300 bg-white focus:border-transparent focus:ring-2 focus:ring-[var(--brand)]"
-            buttonClassName="rounded-lg !bg-[#f2014b] hover:!bg-[#c9003f] !text-white shadow-none uppercase tracking-wide py-4 disabled:opacity-100 disabled:!bg-[#f2014b] disabled:!text-white"
+            buttonClassName="rounded-lg !bg-[#f2014b] hover:!bg-[#c9003f] !text-white shadow-none py-4 disabled:opacity-100 disabled:!bg-[#f2014b] disabled:!text-white"
             linkClassName="brand-text"
             submitLabel={submitLabel}
             submittingLabel="Enviando dossier..."

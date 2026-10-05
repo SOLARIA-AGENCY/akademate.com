@@ -1,0 +1,192 @@
+# =============================================================================
+# C-BIAS ENTERPRISES — Prometheus Alert Rules v1.0
+# Umbrales alineados con SOUL.md (fuente de verdad)
+# Actualizado: 2026-02-27
+# =============================================================================
+groups:
+  - name: infrastructure.disk
+    interval: 1m
+    rules:
+      - alert: DiskSpaceWarning
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 75
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+        annotations:
+          summary: "⚠️ Disco >75% en {{ $labels.instance }}"
+          description: "Uso actual: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: DiskSpaceCritical
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "🔴 CRÍTICO: Disco >90%"
+          description: "Uso actual: {{ $value | printf \"%.1f\" }}%"
+
+  - name: infrastructure.memory
+    interval: 1m
+    rules:
+      - alert: MemoryWarning
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+        annotations:
+          summary: "⚠️ RAM >80%"
+          description: "Uso: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: MemoryCritical
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "🔴 CRÍTICO: RAM >90%"
+          description: "Uso: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: SwapUsageHigh
+        expr: (1 - node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes) * 100 > 50
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+        annotations:
+          summary: "⚠️ Swap >50%"
+          description: "Swap usado: {{ $value | printf \"%.1f\" }}%"
+
+  - name: infrastructure.cpu
+    interval: 1m
+    rules:
+      - alert: CPULoadWarning
+        expr: node_load1 > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+        annotations:
+          summary: "⚠️ CPU Load >2.0"
+          description: "Load 1m: {{ $value | printf \"%.2f\" }}"
+
+      - alert: CPULoadCritical
+        expr: node_load1 > 3.5
+        for: 2m
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "🔴 CPU Load >3.5"
+
+  - name: containers.critical
+    interval: 1m
+    rules:
+      - alert: CriticalContainerDown
+        expr: |
+          absent(container_last_seen{name="cbias-cloudflared"}) or
+          absent(container_last_seen{name="cbias-grafana"}) or
+          absent(container_last_seen{name="cbias-prometheus"})
+        for: 2m
+        labels:
+          severity: critical
+          category: containers
+        annotations:
+          summary: "🔴 Contenedor crítico caído"
+
+      - alert: ShuffleOpenSearchRAMHigh
+        expr: container_memory_usage_bytes{name="shuffle-opensearch"} / 1024 / 1024 > 720
+        for: 5m
+        labels:
+          severity: warning
+          category: containers
+        annotations:
+          summary: "⚠️ shuffle-opensearch >720MB RAM (límite 768MB)"
+          description: "RAM actual: {{ $value | printf \"%.0f\" }}MB"
+
+      - alert: ShuffleOpenSearchRAMCritical
+        expr: container_memory_usage_bytes{name="shuffle-opensearch"} / 1024 / 1024 > 750
+        for: 2m
+        labels:
+          severity: critical
+          category: containers
+        annotations:
+          summary: "🔴 shuffle-opensearch >750MB RAM — riesgo OOMKill"
+
+  - name: security.crowdsec
+    interval: 5m
+    rules:
+      - alert: CrowdSecNewLocalDetection
+        expr: increase(cs_alerts[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "🛡️ CrowdSec: Nueva detección local"
+          description: "Razón: {{ $labels.reason }}"
+
+      - alert: CrowdSecAttackSpike
+        expr: increase(sum(cs_active_decisions)[15m:]) > 100
+        for: 0m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "🚨 CrowdSec: +100 bans en 15min — ataque coordinado"
+
+      - alert: CrowdSecDown
+        expr: absent(cs_active_decisions)
+        for: 5m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: "🔴 CrowdSec IPS NO RESPONDE — sin protección"
+
+  - name: monitoring.targets
+    interval: 1m
+    rules:
+      - alert: MonitoringTargetDown
+        expr: up{job=~"ovh-node-exporter|ovh-cadvisor|ovh-blackbox-http"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: monitoring
+        annotations:
+          summary: "🔴 Target de monitorización OVH no responde"
+          description: "Target: {{ $labels.instance }} (job: {{ $labels.job }})"
+
+      - alert: OVHContainerRestarting
+        expr: changes(container_start_time_seconds{name=~"cep-.*"}[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          category: containers
+        annotations:
+          summary: "Reinicio de contenedor en OVH"
+          description: "{{ $labels.name }} se ha reiniciado en los últimos 15 minutos"
+
+      - alert: OVHEndpointErrorRate
+        expr: probe_success{job="ovh-blackbox-http"} == 0
+        for: 3m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Endpoint público OVH no disponible"
+          description: "{{ $labels.instance }} no supera el check HTTP"
+
+      - alert: CloudflareEndpointErrorRate
+        expr: probe_success{job="cf-blackbox-http"} == 0
+        for: 3m
+        labels:
+          severity: critical
+          category: availability
+          site: cloudflare
+        annotations:
+          summary: "Endpoint público Cloudflare CEP no disponible"
+          description: "{{ $labels.instance }} no supera el check HTTP"

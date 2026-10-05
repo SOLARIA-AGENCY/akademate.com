@@ -18,7 +18,7 @@ const OPENAPI_SPEC = {
       'REST API para gestión de centros de formación con Akademate. Permite listar y crear cursos, gestionar alumnos, matrículas y obtener analíticas del dashboard.',
     contact: {
       name: 'Akademate Support',
-      email: 'hola@akademate.com',
+      email: 'hello@akademate.com',
       url: 'https://akademate.com',
     },
     license: {

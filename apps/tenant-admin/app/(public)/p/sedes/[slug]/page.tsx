@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { displayCampusName } from '@/app/lib/public-campus-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,9 +42,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const campus = await getCampus(slug)
   if (!campus) return { title: 'Sede no encontrada' }
+  const name = displayCampusName(campus.name)
   return {
-    title: `${campus.name} | CEP Formacion`,
-    description: campus.description || `Sede CEP Formacion en ${campus.city || 'Canarias'}.`,
+    title: `${name} | CEP Formacion`,
+    description: campus.description || `${name} en ${campus.city || 'Canarias'}.`,
   }
 }
 
@@ -52,6 +54,7 @@ export default async function SedePublicPage({ params }: Props) {
   const campus = await getCampus(slug)
   if (!campus || campus.active === false) notFound()
 
+  const name = displayCampusName(campus.name)
   const imageUrl = resolveImageUrl(campus.image)
   const photos = Array.isArray(campus.photos) ? campus.photos : []
   const staff = Array.isArray(campus.staff_members)
@@ -63,12 +66,12 @@ export default async function SedePublicPage({ params }: Props) {
     <main className="min-h-screen bg-white">
       <section className="relative overflow-hidden bg-slate-950 px-4 py-24 text-white sm:px-6 lg:px-8">
         {imageUrl ? (
-          <img src={imageUrl} alt={campus.name} className="absolute inset-0 h-full w-full object-cover opacity-45" />
+          <img src={imageUrl} alt={name} className="absolute inset-0 h-full w-full object-cover opacity-45" />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/20" />
         <div className="relative mx-auto max-w-6xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-200">Sede CEP Formacion</p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">{campus.name}</h1>
+          <p className="text-sm font-semibold text-red-200">CEP Formación</p>
+          <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">{name}</h1>
           {campus.description ? (
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">{campus.description}</p>
           ) : null}
@@ -122,7 +125,7 @@ export default async function SedePublicPage({ params }: Props) {
                 href={campus.maps_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 inline-flex rounded-full bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700"
+                className="mt-6 inline-flex rounded-full bg-[#f2014b] px-5 py-3 text-sm font-bold text-white hover:bg-[#d0013f]"
               >
                 Ver ubicacion
               </a>
@@ -138,7 +141,7 @@ export default async function SedePublicPage({ params }: Props) {
                   <img
                     key={item.id || index}
                     src={photoUrl}
-                    alt={item.caption || campus.name}
+                    alt={item.caption || name}
                     className="h-56 w-full rounded-2xl object-cover"
                   />
                 )
@@ -159,7 +162,7 @@ export default async function SedePublicPage({ params }: Props) {
                     href={`/p/profesores/${member.id}`}
                     className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-red-200 hover:shadow-sm"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-sm font-bold text-red-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff7fa] text-sm font-bold text-[#f2014b]">
                       {name?.[0] || 'P'}
                     </div>
                     <div>

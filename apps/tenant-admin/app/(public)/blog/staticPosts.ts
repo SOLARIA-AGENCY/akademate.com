@@ -157,7 +157,7 @@ export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
     author: 'Equipo de empleo CEP Formación',
     readingTime: '6 min',
     keywords: ['agencia de colocación Tenerife', 'bolsa de empleo', 'empleo Tenerife', 'orientación laboral', 'CEP Formación empleo'],
-    image: '/media/admin-1.jpg',
+    image: '/website/cep/empleo/bolsa-empleo-oficina.jpg',
     sections: [
       {
         heading: 'Qué es una agencia de colocación',

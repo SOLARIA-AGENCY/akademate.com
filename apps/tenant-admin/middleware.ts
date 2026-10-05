@@ -73,11 +73,15 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3002',
   'http://localhost:3003',
   'http://46.62.222.138',
+  'https://cepformacion.com',
+  'https://www.cepformacion.com',
 ]
 
 // Routes that don't require authentication
 const publicRoutes = [
   '/api/health',
+  '/api/public/v1/health',
+  '/api/public/v1/content-version',
   '/api/auth/dev-login',
   '/auth/login',
   '/auth/forgot-password',
@@ -98,6 +102,9 @@ const publicRoutes = [
   '/api/leads', // Lead capture from public landing pages
   '/api/track', // Public tracking endpoint for page views/forms
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)
+  '/sitemap.xml',
+  '/robots.txt',
+  '/llms.txt',
   // Public web pages (landing pages, catalogs) — no auth required
   '/p/',  // All public web pages under /p/ are accessible without auth
   '/blog',
@@ -139,9 +146,48 @@ const payloadAdminPaths = [
   '/admin',  // Native Payload CMS admin panel
 ]
 
+function normalizeHost(hostname: string): string {
+  return hostname.toLowerCase().replace(/:\d+$/, '').split(',')[0]?.trim() || ''
+}
+
 function isCepHost(hostname: string): boolean {
-  const normalizedHost = hostname.toLowerCase().replace(/:\d+$/, '')
+  const normalizedHost = normalizeHost(hostname)
   return /(^|\.)cepformacion(\.|$)/i.test(normalizedHost) || normalizedHost.includes('cep-formacion')
+}
+
+export function isCepDashboardHost(hostname: string): boolean {
+  const normalizedHost = normalizeHost(hostname)
+  return (
+    normalizedHost === 'dashboard.cepformacion.com' ||
+    normalizedHost === 'cepformacion-app.akademate.com' ||
+    normalizedHost.startsWith('cepformacion-app.')
+  )
+}
+
+export function isCepPublicHost(hostname: string): boolean {
+  return isCepHost(hostname) && !isCepDashboardHost(hostname)
+}
+
+export const CEP_EDGE_FETCH_HEADER = 'x-cep-edge-fetch'
+
+function secretsEqual(left: string, right: string): boolean {
+  if (!left || left.length !== right.length) return false
+  let mismatch = 0
+  for (let i = 0; i < left.length; i += 1) mismatch |= left.charCodeAt(i) ^ right.charCodeAt(i)
+  return mismatch === 0
+}
+
+export function hasCepEdgePublicFetch(request: NextRequest): boolean {
+  const secret = process.env.CEP_EDGE_FETCH_SECRET || process.env.ORIGIN_SERVICE_TOKEN || ''
+  if (!secret) return false
+  return secretsEqual(request.headers.get(CEP_EDGE_FETCH_HEADER) || '', secret)
+}
+
+function isVisitorWebsitePath(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true
+  if (pathname.startsWith('/p/')) return true
+  const roots = ['/blog', '/empleo', '/agencia-colocacion', '/faq', '/legal', '/contacto', '/quienes-somos']
+  return roots.some((root) => pathname === root || pathname.startsWith(`${root}/`))
 }
 
 const CEP_PUBLIC_REWRITES: Record<string, string> = {
@@ -296,8 +342,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(httpsUrl, 301)
   }
 
-  // Canonical public routes for CEP host
-  if (!pathname.startsWith('/api/') && ['GET', 'HEAD'].includes(request.method) && isCepHost(host)) {
+  // Dashboard host: browsers see Payload/admin only.
+  // Canonical public URL is dashboard.cepformacion.com; cepformacion-app remains the OVH origin alias.
+  // Cloudflare Worker fetches the public site with x-cep-edge-fetch.
+  if (isCepDashboardHost(host) && !hasCepEdgePublicFetch(request) && isVisitorWebsitePath(pathname)) {
+    const dashboardUrl = request.nextUrl.clone()
+    dashboardUrl.pathname = '/dashboard'
+    dashboardUrl.search = ''
+    return NextResponse.redirect(dashboardUrl)
+  }
+
+  const serveCepPublicSite = isCepPublicHost(host) || (isCepDashboardHost(host) && hasCepEdgePublicFetch(request))
+
+  // Canonical public routes for CEP public host (or Worker fetch on the app host)
+  if (!pathname.startsWith('/api/') && ['GET', 'HEAD'].includes(request.method) && serveCepPublicSite) {
     if (pathname === '/' || pathname === '/convocatorias') {
       return NextResponse.next()
     }
@@ -425,11 +483,10 @@ export function middleware(request: NextRequest) {
     const bearerToken = authorizationHeader.slice(7).trim()
     if (bearerToken) {
       // Pass-through: let the route handler do the actual DB validation.
-      // We propagate the raw token via a header so downstream handlers
-      // can pick it up without re-parsing the Authorization header.
-      const response = NextResponse.next()
-      response.headers.set('x-api-bearer-token', bearerToken)
-      // Add CORS and security headers so Bearer-authenticated API calls work correctly
+      // Forward the token on the REQUEST only. Never echo it on the response.
+      const requestHeaders = new Headers(request.headers)
+      requestHeaders.set('x-api-bearer-token', bearerToken)
+      const response = NextResponse.next({ request: { headers: requestHeaders } })
       if (pathname.startsWith('/api/')) {
         const corsHeaders = getCorsHeaders(origin)
         Object.entries(corsHeaders).forEach(([k, v]) => response.headers.set(k, v))
@@ -447,7 +504,7 @@ export function middleware(request: NextRequest) {
   if (
     !pathname.startsWith('/api/') &&
     request.method === 'GET' &&
-    !isCepHost(host) &&
+    !isCepPublicHost(host) &&
     isAuthenticatedByCookie &&
     INTERNAL_CATALOG_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   ) {

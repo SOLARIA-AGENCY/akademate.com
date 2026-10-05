@@ -3,110 +3,248 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Quiénes somos | CEP Formación',
   description:
-    'Conoce CEP Formación: más de 25 años de experiencia en Tenerife, formación orientada a la empleabilidad y compromiso con la calidad.',
+    'CEP Formación es una empresa familiar en Tenerife, séptima generación dedicada a la docencia. Tres campus, ciclos oficiales, cursos y prácticas en empresa.',
 }
 
 export const dynamic = 'force-dynamic'
 
-const certifications = [
-  'Centro de formación profesional con más de 25 años de trayectoria en Tenerife.',
-  'Sistema de gestión certificado por LRQA en ISO 9001 e ISO 14001.',
-  'Programas cofinanciados por Fondo Social Europeo y Servicio Canario de Empleo.',
+const history = [
+  'El abuelo materno, maestro de escuela nacional, participó en las Misiones Pedagógicas. La abuela materna recorría caminos en bicicleta para enseñar corte y confección. En 1981, su madre abrió el primer CEP, Centro de Enseñanzas Profesionales, en una localidad de la península.',
+  'En 1998 abrieron CEP Norte en La Orotava, con diez alumnos. El objetivo era colaborar en el desarrollo personal y profesional de quien eligiera el centro: en muchos casos, mujeres que habían quedado fuera del sistema educativo o habían dejado la vida profesional por la familiar.',
+  'Ver cómo cambiaban aquellas vidas impulsó la apertura de CEP Santa Cruz en 2010, primero en un local pequeño. En 2017 se mudaron a las instalaciones actuales y el Ministerio de Educación reconoció al centro para impartir el ciclo superior de Higiene Bucodental.',
+  'Hoy mantenemos ciclos formativos oficiales, cursos privados, formación para ocupados y desempleados, formación bonificada para empresas (FUNDAE) y talleres de inserción laboral. Seguimos siendo los mismos: sin perder de vista quiénes somos, por qué y para quién estamos.',
+]
+
+const milestones = [
+  { year: '1981', text: 'Primer CEP en la península' },
+  { year: '1998', text: 'CEP Norte abre en La Orotava, con diez alumnos' },
+  { year: '2010', text: 'Abre CEP Santa Cruz' },
+  { year: '2017', text: 'Sede actual y ciclo superior de Higiene Bucodental' },
+  { year: 'Hoy', text: 'Tres campus en Tenerife, ciclos, cursos y agencia de colocación' },
+]
+
+const vision = [
+  'Contribuir a las capacidades y competencias de cada alumno para afrontar el trabajo y la vida con una formación íntegra.',
+  'Promover la igualdad de género en Tenerife.',
+  'Colaborar en la educación de la responsabilidad social y medioambiental en la isla.',
+  'Dar visibilidad a la realidad animal y ambiental de Tenerife.',
 ]
 
 const values = [
   {
-    title: 'Empleabilidad real',
-    text: 'Diseñamos itinerarios formativos orientados a incorporarte al mercado laboral con competencias prácticas.',
+    title: 'Personas, respeto e inclusión',
+    text: 'El alumnado y el equipo están en el centro. Atendemos necesidades educativas específicas y no admitimos discriminación.',
   },
   {
-    title: 'Docencia cercana',
-    text: 'Acompañamiento continuo, tutorías y seguimiento personalizado para que avances con seguridad.',
+    title: 'Formación con valor social',
+    text: 'Entendemos la enseñanza como una herramienta de transformación, con ética, empatía y responsabilidad.',
   },
   {
-    title: 'Conexión local',
-    text: 'Presencia en Tenerife con dos sedes activas y relación directa con el tejido empresarial de Canarias.',
+    title: 'Honestidad y transparencia',
+    text: 'Coherencia entre lo que prometemos y lo que hacemos, también en la información y las condiciones de cada curso.',
+  },
+  {
+    title: 'Mejora continua',
+    text: 'El equipo se actualiza y el centro corrige a partir de la experiencia, el entorno laboral y la demanda social.',
+  },
+  {
+    title: 'Innovación en el aula',
+    text: 'Metodologías activas, tecnologías y creatividad al servicio del aprendizaje, no como decorado.',
+  },
+  {
+    title: 'Responsabilidad social',
+    text: 'Sostenibilidad, inclusión, conciliación y respeto al entorno forman parte del proyecto, no de un anexo.',
+  },
+]
+
+const method = [
+  'El docente observa al grupo, ajusta el ritmo al cronograma y no aplica el mismo molde a todas las aulas.',
+  'Hay actividades de educación emocional y comunicación: exposiciones, debates, trabajo en equipo y resolución de conflictos.',
+  'Las nuevas tecnologías entran en clase cuando aportan: ordenador, gamificación o realidad virtual para aprender de forma más clara.',
+  'Durante el curso intervienen ONG o alumnado de otras formaciones sobre igualdad, pobreza, abandono animal o medioambiente en Canarias.',
+  'Las jornadas de puertas abiertas relacionan distintas formaciones, visibilizan entidades sociales y ofrecen talleres y charlas abiertas.',
+  'La práctica es pieza central: material en el aula y prácticas en empresa, también en la modalidad online.',
+  'En ciclos y certificados de profesionalidad la evaluación sigue las pautas de la Consejería de Educación y del Servicio Canario de Empleo. En la formación no reglada la evaluación es continua, con más peso de la práctica, la actitud y la evolución en empresa.',
+]
+
+const quotes = [
+  {
+    text: 'Gracias a CEP he conseguido una estabilidad laboral y una profesión que me gusta, y con la que llego a casa feliz.',
+    name: 'Pilar',
+    course: 'Higiene bucodental',
+  },
+  {
+    text: 'Las prácticas fueron beneficiosas para mi aprendizaje. Conocí gente fantástica y salí con una carta de recomendación.',
+    name: 'Sonia',
+    course: 'Técnico en odontología',
+  },
+  {
+    text: 'Conseguí trabajo en la farmacia donde hice las prácticas profesionales.',
+    name: 'Priscila',
+    course: 'Auxiliar de farmacia',
+  },
+  {
+    text: 'Agradecida a la docente que me tocó. No pude tener un mejor ejemplo.',
+    name: 'Jennifer',
+    course: 'Auxiliar de odontología',
   },
 ]
 
 const campuses = [
   {
-    name: 'Sede Santa Cruz',
+    name: 'CEP Santa Cruz',
+    href: '/p/sedes/sede-santa-cruz',
     image: '/images/sedes/sede-cep-santa-cruz.png',
-    href: '/site/sedes/sede-santa-cruz',
-    description:
-      'Nuestra sede de Santa Cruz está situada en el Bajo Estadio Heliodoro Rodríguez López, en el corazón de la capital. Instalaciones modernas con aulas equipadas para la formación sanitaria práctica.',
+    text: 'Plaza José Antonio Barrios Olivero, Bajo Estadio Heliodoro, 38005 Santa Cruz de Tenerife.',
   },
   {
-    name: 'Sede Norte – La Orotava',
+    name: 'CEP Norte',
+    href: '/p/sedes/sede-norte',
     image: '/images/sedes/sede-cep-norte.png',
-    href: '/site/sedes/sede-norte',
-    description:
-      'La sede Norte se encuentra en el Centro Comercial El Trompo, en La Orotava, en la última planta. Una ubicación estratégica para estudiantes del norte de Tenerife, con parking y acceso cómodo.',
+    text: 'Molinos de Gofio 2, C.C. El Trompo, última planta, 38312 La Orotava.',
+  },
+  {
+    name: 'CEP Sur',
+    href: '/p/sedes/cep-sur',
+    image: '/images/sedes/sede-cep-sur.png',
+    text: 'Calle Arguayoda 3, 38611 San Isidro, Tenerife.',
   },
 ]
 
 export default function QuienesSomosPage() {
   return (
-    <div className="bg-white text-gray-900">
-      <section className="relative overflow-hidden bg-slate-950 py-16 sm:py-20">
+    <div data-cep-about="1" className="bg-white text-slate-950">
+      <section className="relative overflow-hidden bg-[#3E091A] py-16 sm:py-20">
         <img
           src="/media/cep-formacion-tenerife-hero.webp"
-          alt="Alumnos de CEP Formación con Tenerife al fondo"
+          alt="Alumnado de CEP Formación en Tenerife"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/68 to-slate-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#3E091A]/92 via-[#3E091A]/55 to-[#3E091A]/20" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <p className="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white">
-              CEP Formación
-            </p>
-            <h1 className="mt-4 text-3xl font-bold text-white sm:text-5xl">
-              Formación profesional con propósito y trayectoria en Tenerife
-            </h1>
-            <p className="mt-5 text-base leading-relaxed text-white/85 sm:text-lg">
-              En CEP Formación llevamos más de dos décadas formando profesionales para sectores con alta demanda.
-              Combinamos metodología práctica, equipo docente especializado y conexión directa con la realidad laboral de Canarias.
+          <p className="text-sm font-semibold text-white">Empresa familiar en Tenerife</p>
+          <h1 className="mt-3 max-w-[18ch] text-3xl font-semibold text-white sm:text-5xl">Quiénes somos</h1>
+          <p className="mt-5 max-w-2xl text-base leading-7 text-white sm:text-lg">
+            CEP Formación es una empresa familiar de Fran y Carol de Amo Olivier, con un equipo docente a su alrededor.
+            Llevamos la enseñanza en el ADN: somos la séptima generación dedicada a la docencia.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.25fr_.8fr] lg:px-8">
+          <article>
+            <h2 className="text-2xl font-semibold sm:text-3xl">Nuestra historia</h2>
+            {history.map((paragraph) => (
+              <p key={paragraph.slice(0, 24)} className="mt-4 text-base leading-7 text-slate-600">
+                {paragraph}
+              </p>
+            ))}
+          </article>
+          <ol className="border border-slate-200 bg-white px-5 py-5">
+            {milestones.map((item) => (
+              <li key={item.year} className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-3 border-b border-slate-100 py-3 text-sm leading-6 text-slate-700 last:border-b-0 last:pb-0">
+                <strong className="font-semibold text-[#f2014b]">{item.year}</strong>
+                <span>{item.text}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section id="reconocimiento" className="border-y border-orange-100 bg-orange-50/70 py-14 sm:py-16">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-[12rem_minmax(0,1fr)] lg:px-8">
+          <img
+            src="/website/cep/recognition/mencion-honorifica-premios-nacionales-educacion-2026.png"
+            alt="Mención Honorífica en los I Premios Nacionales de Educación 2026"
+            className="mx-auto h-auto w-44 rounded-full bg-white p-3"
+            loading="lazy"
+          />
+          <div>
+            <p className="text-sm font-semibold text-[#f2014b]">Reconocimiento nacional</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+              Mención Honorífica en los I Premios Nacionales de Educación 2026
+            </h2>
+            <p className="mt-4 text-base leading-7 text-slate-600">
+              La distinción corresponde a la categoría indicada en el emblema oficial: Promoción del aprendizaje esencial.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="py-14 sm:py-16">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:px-8">
-          <article>
-            <h2 className="text-2xl font-bold sm:text-3xl">Nuestra historia</h2>
-            <p className="mt-4 text-sm leading-7 text-gray-600 sm:text-base">
-              CEP Formación nace con una visión clara: ofrecer formación útil, actualizada y orientada a resultados profesionales.
-              Desde entonces, hemos acompañado a miles de alumnos en su proceso de capacitación y mejora laboral, manteniendo una relación cercana con empresas e instituciones del entorno.
-            </p>
-            <p className="mt-4 text-sm leading-7 text-gray-600 sm:text-base">
-              Nuestro modelo combina ciclos formativos oficiales, cursos de especialización y programas subvencionados.
-              La prioridad es siempre la misma: que cada alumno salga preparado para trabajar.
-            </p>
-          </article>
-          <article className="rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6">
-            <h3 className="text-lg font-semibold">Compromisos CEP</h3>
-            <ul className="mt-4 space-y-3 text-sm text-gray-700">
-              {certifications.map((item) => (
-                <li key={item} className="flex gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-[#e3003a]" />
-                  <span>{item}</span>
+      <section className="bg-slate-50 py-14 sm:py-16">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <div>
+            <h2 className="text-2xl font-semibold sm:text-3xl">Visión</h2>
+            <ul className="mt-4 space-y-3 text-base leading-7 text-slate-600">
+              {vision.map((item) => (
+                <li key={item} className="pl-4 relative before:absolute before:left-0 before:top-[0.7em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#f2014b]">
+                  {item}
                 </li>
               ))}
             </ul>
-          </article>
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold sm:text-3xl">Misión</h2>
+            <p className="mt-4 text-base leading-7 text-slate-600">
+              Consolidarnos como un centro de referencia impulsando proyectos educativos alineados con las empresas, el entorno social y el medioambiente, y potenciando valores y capacidades que sumen al crecimiento personal, profesional y a la sostenibilidad de nuestro entorno.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="bg-gray-50 py-14 sm:py-16">
+      <section className="py-14 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">Cómo trabajamos</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <h2 className="text-2xl font-semibold sm:text-3xl">Valores</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {values.map((value) => (
-              <article key={value.title} className="rounded-xl border bg-white p-5">
+              <article key={value.title} className="border border-slate-200 bg-white p-5">
                 <h3 className="text-base font-semibold">{value.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">{value.text}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{value.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-slate-50 py-14 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold sm:text-3xl">Metodología</h2>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+            Partimos de la persona como un ser completo, con inteligencias múltiples. En el aula se acompaña para que cada alumno desarrolle sus potencialidades, con valores transversales: respeto, igualdad, solidaridad humana y animal, y cuidado del medioambiente.
+          </p>
+          <ul className="mt-5 max-w-3xl space-y-3 text-base leading-7 text-slate-600">
+            {method.map((item) => (
+              <li key={item} className="relative pl-4 before:absolute before:left-0 before:top-[0.7em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#f2014b]">
+                {item}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 text-lg font-semibold leading-7 text-[#3E091A]">
+            Educar la mente sin educar el corazón no es educar en absoluto.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold sm:text-3xl">Compromiso con el entorno</h2>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+            Durante el año colaboramos con entidades canarias. Entre ellas: ADEPAC, ADDANCA, SOS felina, Valle Colino, Sonrisas Canarias y Caretta Caretta.
+          </p>
+        </div>
+      </section>
+
+      <section className="bg-slate-50 py-14 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold sm:text-3xl">La opinión del alumnado</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {quotes.map((quote) => (
+              <article key={quote.name} className="border border-[#eadadd] bg-white p-5">
+                <p className="text-base leading-7 text-slate-700">«{quote.text}»</p>
+                <p className="mt-4 text-sm font-semibold text-[#3E091A]">
+                  {quote.name} · {quote.course}
+                </p>
               </article>
             ))}
           </div>
@@ -115,46 +253,34 @@ export default function QuienesSomosPage() {
 
       <section className="py-14 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">Nuestras sedes</h2>
-          <p className="mx-auto mt-2 max-w-3xl text-center text-sm text-gray-600 sm:text-base">
-            Dos centros en Tenerife con atención académica personalizada, instalaciones propias y equipo docente especializado.
-          </p>
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <h2 className="text-2xl font-semibold sm:text-3xl">Campus en Tenerife</h2>
+          <p className="mt-3 text-base leading-7 text-slate-600">Tres centros propios, con el mismo proyecto y atención cercana.</p>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
             {campuses.map((campus) => (
-              <article key={campus.name} className="overflow-hidden rounded-2xl border bg-white">
-                <img
-                  src={campus.image}
-                  alt={campus.name}
-                  className="h-56 w-full object-cover"
-                  loading="lazy"
-                />
-                <div className="p-5">
+              <a key={campus.name} href={campus.href} className="flex h-full flex-col overflow-hidden border border-slate-200 bg-white text-inherit no-underline">
+                <img src={campus.image} alt={campus.name} className="h-44 w-full object-cover" loading="lazy" />
+                <div className="flex flex-1 flex-col p-5">
                   <h3 className="text-lg font-semibold">{campus.name}</h3>
-                  <p className="mt-2 text-sm leading-6 text-gray-600">{campus.description}</p>
-                  <a
-                    href={campus.href}
-                    className="mt-5 inline-flex rounded-full bg-[#e3003a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#c70034]"
-                  >
-                    Visitar sede
-                  </a>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{campus.text}</p>
+                  <span className="mt-auto pt-4 text-sm font-semibold text-[#f2014b]">Ver sede</span>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-[linear-gradient(135deg,#111827_0%,#1f2937_55%,#374151_100%)] py-14 text-white sm:py-16">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold sm:text-3xl">¿Quieres estudiar con CEP Formación?</h2>
-          <p className="mt-3 text-sm text-white/85 sm:text-base">
-            Te ayudamos a elegir el itinerario adecuado según tu perfil y tus objetivos profesionales.
+      <section className="bg-[#3E091A] py-14 text-white sm:py-16">
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold sm:text-3xl">¿Quieres estudiar con CEP Formación?</h2>
+          <p className="mt-4 text-base leading-7 text-white/90">
+            Te orientamos sobre el itinerario que encaja con tu perfil y con las fechas abiertas.
           </p>
           <a
-            href="/contacto"
-            className="mt-6 inline-flex rounded-lg bg-[#e3003a] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#c70034]"
+            href="/p/contacto"
+            className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-[#f2014b] px-5 text-sm font-semibold text-white"
           >
-            Contactar con admisiones
+            Pedir información
           </a>
         </div>
       </section>

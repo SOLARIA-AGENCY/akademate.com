@@ -27,7 +27,7 @@ const AI_PLUGIN_MANIFEST = {
     url: 'https://app.akademate.com/api/v1/openapi.json',
   },
   logo_url: 'https://akademate.com/logos/akademate-logo-official.png',
-  contact_email: 'hola@akademate.com',
+  contact_email: 'hello@akademate.com',
   legal_info_url: 'https://akademate.com/legal/terminos',
 }
 

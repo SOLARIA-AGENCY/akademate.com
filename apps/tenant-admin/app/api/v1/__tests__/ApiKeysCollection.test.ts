@@ -48,13 +48,13 @@ describe('ApiKeys Collection', () => {
   })
 
   // --------------------------------------------------------------------------
-  // Scopes - 16 opciones
+  // Scopes - 17 opciones
   // --------------------------------------------------------------------------
 
-  it('tiene las 16 opciones de scope definidas', () => {
+  it('tiene las 17 opciones de scope definidas', () => {
     const scopeOptions = getFieldOptions('scopes')
 
-    expect(scopeOptions).toHaveLength(16)
+    expect(scopeOptions).toHaveLength(17)
 
     const expectedScopes = [
       'courses:read',
@@ -73,6 +73,7 @@ describe('ApiKeys Collection', () => {
       'staff:write',
       'convocatorias:read',
       'convocatorias:write',
+      'catalog:read',
     ]
 
     for (const scope of expectedScopes) {

@@ -1,0 +1,124 @@
+# Prometheus — C-BIAS core scrape config
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: cbias-central
+    environment: production
+    datacenter: hetzner-nbg1
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  - job_name: node-exporter
+    static_configs:
+      - targets: ["cbias-exporter:9100"]
+        labels:
+          instance: cbias-central
+          server: hetzner-cax11
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cbias-cadvisor:8080"]
+        labels:
+          instance: cbias-central
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: grafana
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["cbias-grafana:3000"]
+
+  - job_name: loki
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["cbias-loki:3100"]
+
+  - job_name: crowdsec
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["cbias-crowdsec:6060"]
+        labels:
+          instance: cbias-central
+
+  - job_name: ovh-node-exporter
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["37.59.119.219:9100"]
+        labels:
+          instance: cep-ovh
+          site: cep-ovh
+          datacenter: ovh
+
+  - job_name: ovh-cadvisor
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["37.59.119.219:8081"]
+        labels:
+          instance: cep-ovh
+          site: cep-ovh
+          datacenter: ovh
+
+  - job_name: ovh-traefik
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["37.59.119.219:8082"]
+        labels:
+          instance: cep-ovh
+          site: cep-ovh
+          datacenter: ovh
+
+  - job_name: ovh-crowdsec
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["37.59.119.219:6061"]
+        labels:
+          instance: cep-ovh
+          site: cep-ovh
+          datacenter: ovh
+
+  - job_name: ovh-blackbox-http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://cepformacion-app.akademate.com
+          - https://cepformacion-staging.akademate.com
+          - https://cepformacion-sentry.akademate.com
+          - https://cepformacion-glitchtip.akademate.com
+        labels:
+          site: cep-ovh
+          datacenter: ovh
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: cbias-blackbox:9115
+
+  - job_name: cf-blackbox-http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://cepformacion.com
+          - https://cepformacion.com/health
+          - https://www.cepformacion.com
+        labels:
+          site: cloudflare
+          datacenter: cloudflare
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: cbias-blackbox:9115

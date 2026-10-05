@@ -268,6 +268,8 @@ describe('ConfiguracionUnifiedPage', () => {
         'GDPR',
         'Feature Flags',
         'Dominios',
+        'Conectores',
+        'SEO y agentes',
       ]
 
       for (const tabLabel of expectedTabs) {

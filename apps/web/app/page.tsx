@@ -257,7 +257,7 @@ export default function ComingSoonPage() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <span>© {new Date().getFullYear()} Akademate. Todos los derechos reservados.</span>
           <span className="hidden sm:inline">·</span>
-          <span>hola@akademate.com</span>
+          <span>hello@akademate.com</span>
         </div>
       </footer>
     </div>

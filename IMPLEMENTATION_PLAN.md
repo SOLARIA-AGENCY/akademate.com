@@ -4,6 +4,99 @@
 **Objetivo:** Completar producto end-to-end (técnico + funcional) hasta 100% entregable.
 **Alcance:** Multitenancy core, API, auth, billing, ops/dashboard, tenant admin, campus, front pública, storage/media, feature flags, CI/CD, GDPR, E2E, docs.
 
+## Decisión oficial de arquitectura — 2026-09-02
+
+Akademate SaaS debe evolucionar a una plataforma completamente serverless y
+Cloudflare-native. Esta decisión incorpora como fuente normativa el paquete
+`AKA-ARCH-SAAS-001` Rev E, cuya referencia canónica está en
+`docs/architecture/official/`.
+
+### Runtime objetivo de Akademate
+
+- Cloudflare Workers como runtime de las siete unidades:
+  `akademate-app`, `akademate-control`, `akademate-integrations`,
+  `akademate-media`, `akademate-events`, `akademate-automation` y
+  `akademate-agents`.
+- D1 Control más shards D1 de tenants mediante `TenantDataContext`.
+- R2 con prefijos `tenants/{tenantId}/`.
+- Durable Objects para coordinación, idempotencia, rate limiting, presencia y
+  sesiones de agentes.
+- Queues con DLQ y Workflows para procesos asíncronos.
+- Cloudflare Stream para vídeo.
+- Cloudflare Access para Platform Ops y Akademate Identity para usuarios de
+  academias.
+
+### Restricciones no negociables
+
+- El core de Akademate no incorpora PostgreSQL, Redis, BullMQ, Docker ni un VPS
+  como dependencias del runtime final.
+- `akademate.com` y `www.akademate.com` permanecen en el Worker de marketing
+  OpenNext.
+- Las superficies SaaS, campus, API y operaciones deben migrarse al runtime
+  Cloudflare definido en Rev E.
+- El aislamiento de tenants debe pasar siempre por `TenantDataContext` y
+  `tenantId`. No se permiten consultas directas sin contexto de tenant.
+- Los agentes solo pueden modificar datos a través del Control API y de las
+  políticas R0-R4.
+
+### Analítica y optimización de leads
+
+La analítica oficial de Akademate será Cloudflare Analytics Engine, con los
+datasets definidos por la arquitectura:
+
+- `platform_usage`
+- `tenant_usage`
+- `platform_health`
+- `business_events`
+- `ai_usage`
+- `media_usage`
+
+La captura de leads debe emitir eventos sin PII, incluyendo como mínimo:
+`landing_view`, `cta_click`, `lead_form_view`, `lead_form_start`,
+`lead_submit` y `lead_created`. El backend sigue siendo la fuente de verdad
+para confirmar `lead_created` después de persistir el lead correctamente.
+
+Los eventos deben conservar contexto útil para optimización, como campaña,
+source, medium, página, formulario, placement y tenant. Nunca deben incluir
+nombre, email, teléfono ni payload de formulario.
+
+La disponibilidad se comprobará con Workers Logs, Traces y Metrics, además de
+un monitor sintético externo que verifique las rutas públicas, autenticación y
+una transacción crítica.
+
+### Umami queda limitado a CEP OVH
+
+Umami no forma parte del runtime ni de la analítica oficial de Akademate.
+Queda reservado para `cepformacion.akademate.com`, cuya infraestructura sigue
+siendo un despliegue clásico de servidor en OVH.
+
+Para CEP OVH:
+
+- Umami se instalará como proyecto Docker independiente.
+- Tendrá PostgreSQL de analítica separado de la base de datos académica.
+- Se publicará en `https://cepformacion-umami.akademate.com` mediante el
+  Traefik de CEP y DNS de Cloudflare.
+- El script de seguimiento se cargará únicamente en las páginas públicas de
+  `cepformacion.akademate.com`, condicionado por
+  `CEP_UMAMI_WEBSITE_ID`.
+- El dashboard de control CEP mostrará un enlace externo a Umami dentro de
+  `Web > Analíticas`. No se usará un iframe ni se compartirán sesiones entre
+  orígenes.
+- Su instancia, datos, backups y eventos permanecerán aislados de Akademate
+  SaaS.
+
+### Secuencia de migración
+
+1. Mapear `UNIT-*`, rutas Wrangler y bindings del runtime oficial.
+2. Crear D1 Control, shards iniciales y `TenantDataContext`.
+3. Migrar almacenamiento a R2 y procesos asíncronos a Queues/Workflows.
+4. Implementar los siete Workers y los cinco Durable Objects.
+5. Migrar identidad, Access, Stream, Policy Engine y AI Gateway.
+6. Instrumentar Analytics Engine y los eventos de lead.
+7. Validar aislamiento, salud, transacciones sintéticas y observabilidad.
+8. Retirar progresivamente PostgreSQL, Redis y los contenedores del runtime
+   SaaS cuando cada unidad tenga paridad funcional y un rollback validado.
+
 ---
 
 ## Fase 0 — Preparación y control

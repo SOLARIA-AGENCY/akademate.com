@@ -39,7 +39,7 @@ export default function AgenciaColocacionPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_12%,rgba(242,1,75,0.24),transparent_34%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
           <div className="flex flex-col justify-center">
-            <span className="inline-flex w-fit rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white">
+            <span className="inline-flex w-fit rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black text-white">
               Empleo CEP Formación
             </span>
             <h1 className="mt-6 text-balance text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
@@ -49,7 +49,7 @@ export default function AgenciaColocacionPage() {
               CEP Formación conecta orientación laboral, formación y oportunidades profesionales a través de su agencia de colocación autorizada.
             </p>
             <div className="mt-7 rounded-2xl border border-white/15 bg-white/[0.08] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Próximamente</p>
+              <p className="text-xs font-black text-[#f2014b]">Próximamente</p>
               <p className="mt-2 text-sm leading-7 text-white/78">
                 Estamos preparando la activación pública del portal de empleo. Hasta entonces, el equipo de CEP Formación atiende las consultas de orientación laboral de forma directa.
               </p>
@@ -64,10 +64,10 @@ export default function AgenciaColocacionPage() {
             </div>
           </div>
           <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl">
-            <img src="/media/admin-1.jpg" alt="Orientación laboral y empleabilidad en CEP Formación" className="h-full min-h-[420px] w-full object-cover" />
+            <img src="/website/cep/empleo/bolsa-empleo-oficina.jpg" alt="Oficina de la bolsa de empleo de CEP Formación" className="h-full min-h-[420px] w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-white/95 p-5 text-slate-950 shadow-xl">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#f2014b]">Agencia autorizada</p>
+              <p className="text-xs font-black text-[#f2014b]">Agencia autorizada</p>
               <p className="mt-1 text-2xl font-black">0500000212</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">ACATEN 2020 S.L · Plaza José Antonio Barrios Olivero s/n, Santa Cruz de Tenerife.</p>
             </div>
@@ -152,18 +152,20 @@ export default function AgenciaColocacionPage() {
               Para gestiones de la agencia de colocación, usa el portal oficial o contacta con el equipo responsable.
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="grid min-w-0 gap-4 md:grid-cols-3">
+            <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5">
               <MapPin className="h-6 w-6 text-[#f2014b]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-bold">Plaza José Antonio Barrios Olivero s/n, 38005 Santa Cruz de Tenerife</p>
+              <p className="mt-3 break-words text-sm font-semibold leading-6 [overflow-wrap:anywhere]">Plaza José Antonio Barrios Olivero s/n, 38005 Santa Cruz de Tenerife</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5">
               <Phone className="h-6 w-6 text-[#f2014b]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-bold">922 219 257</p>
+              <p className="mt-3 text-sm font-semibold">922 219 257</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5">
               <ShieldCheck className="h-6 w-6 text-[#f2014b]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-bold">carmen.diaz@cursostenerife.es</p>
+              <a href="mailto:carmen.diaz@cursostenerife.es" className="mt-3 block break-all text-sm font-semibold leading-6 text-white [overflow-wrap:anywhere]">
+                carmen.diaz@cursostenerife.es
+              </a>
             </div>
           </div>
         </div>

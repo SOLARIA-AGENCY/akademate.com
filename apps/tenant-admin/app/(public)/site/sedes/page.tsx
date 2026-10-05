@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { displayCampusName } from '@/app/lib/public-campus-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,10 +57,10 @@ export default async function PublicSedesPage() {
         {campusResult.docs.map((campus: any) => (
           <article key={campus.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
             {resolveImageUrl(campus.image) ? (
-              <img src={resolveImageUrl(campus.image) ?? ''} alt={campus.name} className="h-56 w-full object-cover" />
+              <img src={resolveImageUrl(campus.image) ?? ''} alt={displayCampusName(campus.name)} className="h-56 w-full object-cover" />
             ) : null}
             <div className="space-y-3 p-6">
-              <h2 className="text-xl font-semibold text-slate-950">{campus.name}</h2>
+              <h2 className="text-xl font-semibold text-slate-950">{displayCampusName(campus.name)}</h2>
               <p className="text-sm text-slate-600">{campus.city}{campus.address ? ` · ${campus.address}` : ''}</p>
               {campus.phone ? <p className="text-sm text-slate-700"><span className="font-semibold">Teléfono:</span> {campus.phone}</p> : null}
               <p className="text-sm text-slate-700"><span className="font-semibold">Horario:</span> {campus?.schedule?.weekdays || 'Horario por confirmar'}</p>

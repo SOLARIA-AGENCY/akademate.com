@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cepformacion-com-preview",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-02",
+  "account_id": "522997f4f57193b06db3286d8d6f2778",
+  "workers_dev": true,
+  "routes": [],
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "run_worker_first": true
+  },
+  "vars": {
+    "MODE": "origin-html",
+    "ORIGIN_API_URL": "https://origin.cepformacion.com",
+    "DASHBOARD_ORIGIN_URL": "https://origin.cepformacion.com",
+    "CAMPUS_ORIGIN_URL": "https://cepformacion-campus.akademate.com"
+  }
+}

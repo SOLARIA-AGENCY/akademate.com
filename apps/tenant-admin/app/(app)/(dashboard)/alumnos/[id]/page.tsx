@@ -7,7 +7,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
-import { EntityThumb } from '@payload-config/components/ui/entity-thumb'
 import {
   ArrowLeft,
   Edit,

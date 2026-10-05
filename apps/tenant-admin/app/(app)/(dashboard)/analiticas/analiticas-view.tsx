@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   AlertCircle,
+  ExternalLink,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -740,6 +741,7 @@ export function AnaliticasView({ surface }: { surface: AnalyticsSurface }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<AnalyticsPayload | null>(null)
+  const [isCepTenant, setIsCepTenant] = useState(false)
 
   const labels = useMemo(() => {
     if (!data) return null
@@ -749,6 +751,10 @@ export function AnaliticasView({ surface }: { surface: AnalyticsSurface }) {
   useEffect(() => {
     setActiveTab(TABS_BY_SURFACE[surface][0])
   }, [surface])
+
+  useEffect(() => {
+    setIsCepTenant(window.location.hostname === 'cepformacion.akademate.com')
+  }, [])
 
   const loadData = async () => {
     try {
@@ -918,6 +924,17 @@ export function AnaliticasView({ surface }: { surface: AnalyticsSurface }) {
                   Facebook: {labels.facebook}
                 </Badge>
               </>
+            )}
+            {surface === 'web' && isCepTenant && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.open('https://cepformacion-umami.akademate.com', '_blank', 'noopener,noreferrer')}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Abrir Umami
+              </Button>
             )}
             <SegmentedToggle
               ariaLabel="Rango de fechas"

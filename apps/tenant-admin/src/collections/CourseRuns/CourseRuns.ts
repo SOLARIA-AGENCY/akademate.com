@@ -17,6 +17,7 @@ import {
 } from './hooks';
 import { VALID_WEEKDAYS, VALID_STATUSES } from './CourseRuns.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { notifyPublicCatalog } from '../_hooks/notifyPublicCatalog';
 
 /**
  * CourseRuns Collection - Course Instance Management
@@ -721,8 +722,7 @@ export const CourseRuns: CollectionConfig = {
      */
     afterChange: [
       captureCompletionSnapshot, // Capture final metrics when status changes to "completed"
-      // Future: triggerCourseRunNotifications
-      // Future: updateSearchIndex
+      notifyPublicCatalog,
     ],
   },
 
