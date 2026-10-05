@@ -102,9 +102,8 @@ async function iniciarImpersonacion(userId: string, motivo: string): Promise<voi
     const err = await res.json().catch(() => ({}))
     throw new Error((err as { error?: string }).error ?? 'Error al impersonar')
   }
-  const { token } = await res.json() as { token: string }
-  // Redirect through server route that sets httpOnly cookie
-  window.location.href = `/api/auth/impersonate-redirect?token=${encodeURIComponent(token)}`
+  const result = await res.json() as { redirect?: string }
+  window.location.href = result.redirect?.startsWith('/') ? result.redirect : '/dashboard'
 }
 
 export default function ImpersonarPage() {

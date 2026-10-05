@@ -5,6 +5,7 @@ import configPromise from '@payload-config'
 import crypto from 'crypto'
 import { sendMail } from '../../../../src/lib/email/transporter'
 import { queryFirst } from '@/@payload-config/lib/db'
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 /**
  * POST /api/internal/invitations — Create invitation + send email
@@ -83,6 +84,8 @@ function toAbsoluteUrl(url: string, baseUrl: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'invitation' })
+  if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit)
   try {
     const body = await request.json()
     const { name, email, role } = body
@@ -192,7 +195,7 @@ export async function POST(request: NextRequest) {
       success: true,
       emailSent: emailResult.success,
       messageId: emailResult.messageId,
-    })
+    }, { headers: rateLimit.headers })
   } catch (error: any) {
     console.error('[invitations] POST error:', error)
     return NextResponse.json({ error: error?.message || 'Error al crear invitacion' }, { status: 500 })
@@ -200,6 +203,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'invitation' })
+  if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit)
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

@@ -5,7 +5,11 @@
 # Deploy:
 #   cd /opt/akademate/tenant-admin
 #   cp .env.example .env  # completar POSTGRES_PASSWORD, PAYLOAD_SECRET, BETTER_AUTH_SECRET
-#   docker compose up -d --build
+#   RELEASE_SHA=<git-sha> docker compose up -d --no-build
+#
+# Production releases must use an image that was built and tagged before this
+# Compose invocation. `infrastructure/scripts/release-deploy.sh` runs the
+# candidate, migration, manifest, smoke, and rollback sequence.
 # =============================================================================
 
 services:
@@ -33,10 +37,7 @@ services:
         max-file: "3"
 
   tenant-admin:
-    build:
-      context: /opt/akademate/repo
-      dockerfile: infrastructure/docker/Dockerfile.tenant-admin
-    image: akademate-tenant:latest
+    image: ${TENANT_ADMIN_IMAGE_REFERENCE:?Set TENANT_ADMIN_IMAGE_REFERENCE to an immutable repo@sha256 reference}
     container_name: akademate-tenant
     restart: unless-stopped
     depends_on:
@@ -51,6 +52,11 @@ services:
       DATABASE_USER: ${POSTGRES_USER:-akademate}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?Set PAYLOAD_SECRET in .env}
+      SESSION_SIGNING_SECRET_CURRENT: ${SESSION_SIGNING_SECRET_CURRENT:?Set SESSION_SIGNING_SECRET_CURRENT in .env}
+      SESSION_SIGNING_SECRET_PREVIOUS: ${SESSION_SIGNING_SECRET_PREVIOUS:-}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+      IMPERSONATION_ENABLED: ${IMPERSONATION_ENABLED:-false}
+      ALLOW_DEV_AUTO_LOGIN: ${ALLOW_DEV_AUTO_LOGIN:-false}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
       BETTER_AUTH_URL: https://app.akademate.com
       PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-https://cepcomunicacion.akademate.com}
@@ -66,16 +72,86 @@ services:
       DKIM_DOMAIN: ${DKIM_DOMAIN}
       DKIM_SELECTOR: ${DKIM_SELECTOR}
       DKIM_PRIVATE_KEY_PATH: ${DKIM_PRIVATE_KEY_PATH}
+      HEALTH_TECHNICAL_SMOKE_TOKEN_FILE: /run/secrets/health_technical_smoke_token
+      HEALTH_TECHNICAL_SMOKE_PRINCIPAL: ${HEALTH_TECHNICAL_SMOKE_PRINCIPAL:?Set HEALTH_TECHNICAL_SMOKE_PRINCIPAL}
     volumes:
       - media_data:/app/apps/tenant-admin/public/media
       - /opt/akademate/mail/dkim:/app/dkim:ro
     networks:
       - internal
       - proxy
+    labels:
+      com.akademate.release-sha: ${RELEASE_SHA:?Set RELEASE_SHA to the release commit SHA}
+      com.akademate.image-digest: ${IMAGE_DIGEST:?Set IMAGE_DIGEST to the immutable image digest}
+    secrets:
+      - health_technical_smoke_token
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3009/auth/login"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3009/api/health/ready"]
       interval: 30s
       timeout: 10s
+      retries: 3
+      start_period: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # This candidate is deliberately not attached to the proxy network. It uses
+  # the same database network and a read-only media mount to validate a
+  # prebuilt release before the traffic-serving container is recreated.
+  tenant-admin-candidate:
+    image: ${TENANT_ADMIN_IMAGE_REFERENCE:?Set TENANT_ADMIN_IMAGE_REFERENCE to an immutable repo@sha256 reference}
+    restart: "no"
+    profiles: ["candidate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: ${POSTGRES_DB:-akademate}
+      DATABASE_USER: ${POSTGRES_USER:-akademate}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?Set PAYLOAD_SECRET in .env}
+      SESSION_SIGNING_SECRET_CURRENT: ${SESSION_SIGNING_SECRET_CURRENT:?Set SESSION_SIGNING_SECRET_CURRENT in .env}
+      SESSION_SIGNING_SECRET_PREVIOUS: ${SESSION_SIGNING_SECRET_PREVIOUS:-}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+      IMPERSONATION_ENABLED: ${IMPERSONATION_ENABLED:-false}
+      ALLOW_DEV_AUTO_LOGIN: ${ALLOW_DEV_AUTO_LOGIN:-false}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: https://app.akademate.com
+      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-https://cepcomunicacion.akademate.com}
+      NEXT_PUBLIC_WEB_URL: https://akademate.com
+      NEXT_PUBLIC_TENANT_URL: https://app.akademate.com
+      NEXT_TELEMETRY_DISABLED: "1"
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_FROM: ${SMTP_FROM}
+      DKIM_DOMAIN: ${DKIM_DOMAIN}
+      DKIM_SELECTOR: ${DKIM_SELECTOR}
+      DKIM_PRIVATE_KEY_PATH: ${DKIM_PRIVATE_KEY_PATH}
+      HEALTH_TECHNICAL_SMOKE_TOKEN_FILE: /run/secrets/health_technical_smoke_token
+      HEALTH_TECHNICAL_SMOKE_PRINCIPAL: ${HEALTH_TECHNICAL_SMOKE_PRINCIPAL:?Set HEALTH_TECHNICAL_SMOKE_PRINCIPAL}
+    volumes:
+      - media_data:/app/apps/tenant-admin/public/media:ro
+      - /opt/akademate/mail/dkim:/app/dkim:ro
+    networks:
+      - internal
+    labels:
+      com.akademate.release-sha: ${RELEASE_SHA:?Set RELEASE_SHA to the release commit SHA}
+      com.akademate.image-digest: ${IMAGE_DIGEST:?Set IMAGE_DIGEST to the immutable image digest}
+    secrets:
+      - health_technical_smoke_token
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3009/api/health/ready"]
+      interval: 15s
+      timeout: 5s
       retries: 3
       start_period: 120s
     logging:
@@ -95,3 +171,7 @@ volumes:
     driver: local
   media_data:
     driver: local
+
+secrets:
+  health_technical_smoke_token:
+    file: ${HEALTH_TECHNICAL_SMOKE_TOKEN_FILE:?Set HEALTH_TECHNICAL_SMOKE_TOKEN_FILE to a protected token file}

@@ -30,6 +30,7 @@ describe('CEP_DEFAULT_WEBSITE', () => {
     expect(navHrefs).toContain('/ciclos')
     expect(navHrefs).toContain('/convocatorias')
     expect(navHrefs).toContain('/aproem')
+    expect(navHrefs).toContain('/colabora')
   })
 
   it('keeps the CEP public menu in the requested editorial order', () => {
@@ -44,7 +45,7 @@ describe('CEP_DEFAULT_WEBSITE', () => {
       'Nuevas formaciones',
       'Quiénes Somos',
       'APROEM',
-      'Empleo',
+      'Colabora',
       'Blog',
     ])
   })

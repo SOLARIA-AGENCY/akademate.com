@@ -1,48 +1,43 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+import testInventory from '../../scripts/test-file-allowlist.json'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const quarantinedUnitTests = testInventory.entries
+  .filter(
+    (entry) =>
+      entry.workspace === '@akademate/tenant-admin' &&
+      entry.classification === 'quarantined-legacy-unit'
+  )
+  .map((entry) => entry.path)
 
 export default defineConfig({
+  root: __dirname,
   plugins: [react()],
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
     include: [
-      '**/__tests__/**/*.test.{ts,tsx}',
-      '**/tests/**/*.test.{ts,tsx}',
-      '**/*.test.{ts,tsx}',
+      '__tests__/**/*.test.{ts,tsx}',
+      'tests/**/*.test.{ts,tsx}',
+      'app/**/*.test.{ts,tsx}',
+      'components/**/*.test.{ts,tsx}',
+      'lib/**/*.test.{ts,tsx}',
+      'src/**/*.test.{ts,tsx}',
+      'scripts/**/*.test.{ts,tsx}',
+      '@payload-config/**/*.test.{ts,tsx}',
     ],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      '**/e2e/**',
-      '**/*.spec.ts',
-      '**/*.spec.js',
       '**/.next/**',
-      // Integration tests requiring database/payload
-      '**/src/collections/**/*.test.ts',
-      '**/src/__tests__/collections/**/*.test.ts',
-      '**/tests/integration/**',
-      '**/tests/deployment.test.ts',
-      // Tests that import from @payload-config (should be tested in source location)
-      '**/tests/components/footer.test.tsx',
-      '**/tests/components/DashboardFooter.test.tsx',
-      '**/tests/components/StaffCard.test.tsx',
-      '**/tests/unit/ciclos.test.tsx',
-      '**/__tests__/components/ChatbotWidget.test.tsx',
-      '**/__tests__/components/LogoutButton.test.tsx',
-      '**/__tests__/administracion/**',
-      '**/__tests__/facturacion/useBillingData.test.ts',
-      // Tests requiring complex component mocks
-      '**/tests/unit/alumnos.test.tsx',
-      '**/__tests__/facturacion/PlanCard.test.tsx',
-      '**/__tests__/facturacion/SubscriptionCard.test.tsx',
-      '**/__tests__/matriculas/BulkEnrollmentDialog.test.tsx',
-      // API route tests requiring request handlers
-      '**/app/api/cursos/__tests__/**',
-      '**/app/api/lms/__tests__/**',
-      '**/app/api/billing/**/__tests__/**',
+      'tests/e2e/courses-catalog.test.ts',
+      'tests/integration/staff-module.test.ts',
+      'tests/deployment.test.ts',
+      ...quarantinedUnitTests,
     ],
     coverage: {
       provider: 'v8',
@@ -66,6 +61,10 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        find: 'server-only',
+        replacement: path.resolve(__dirname, './tests/__mocks__/server-only.ts'),
+      },
+      {
         find: /^@\/app\/\(dashboard\)\//,
         replacement: `${path.resolve(__dirname, './app/(app)/(dashboard)')}/`,
       },
@@ -88,6 +87,13 @@ export default defineConfig({
       {
         find: '@payload-config/components/layout',
         replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components/layout'),
+      },
+      {
+        find: '@payload-config/components/ui/QualifiedAreasMultiSelect',
+        replacement: path.resolve(
+          __dirname,
+          './@payload-config/components/ui/QualifiedAreasMultiSelect'
+        ),
       },
       {
         find: '@payload-config/components/ui',

@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { mockPayload, mockGetPayloadHMR, mockAuth, mockFindByID, mockCreate, mockUpdate, mockExecute } = vi.hoisted(() => {
+const { mockPayload, mockGetPayloadHMR, mockAuth, mockFindByID, mockCreate, mockUpdate, mockExecute, mockGetAuthenticatedUserContext } = vi.hoisted(() => {
   const mockExecute = vi.fn()
   const mockAuth = vi.fn()
   const mockFindByID = vi.fn()
   const mockCreate = vi.fn()
   const mockUpdate = vi.fn()
   const mockGetPayloadHMR = vi.fn()
+  const mockGetAuthenticatedUserContext = vi.fn()
 
   const mockPayload = {
     auth: mockAuth,
@@ -29,6 +30,7 @@ const { mockPayload, mockGetPayloadHMR, mockAuth, mockFindByID, mockCreate, mock
     mockCreate,
     mockUpdate,
     mockExecute,
+    mockGetAuthenticatedUserContext,
   }
 })
 
@@ -40,6 +42,10 @@ vi.mock('@payload-config', () => ({
   default: {},
 }))
 
+vi.mock('@/app/api/leads/_lib/auth', () => ({
+  getAuthenticatedUserContext: mockGetAuthenticatedUserContext,
+}))
+
 import { POST } from '@/app/api/enrollments/direct/route'
 
 describe('Direct enrollment route', () => {
@@ -47,6 +53,11 @@ describe('Direct enrollment route', () => {
     vi.clearAllMocks()
     mockGetPayloadHMR.mockResolvedValue(mockPayload)
     mockAuth.mockResolvedValue({ user: { id: 4, tenantId: 2 } })
+    mockGetAuthenticatedUserContext.mockImplementation((request: NextRequest) =>
+      request.cookies.get('payload-token')
+        ? Promise.resolve({ userId: 4, tenantId: 2, roles: ['admin'] })
+        : Promise.resolve(null),
+    )
   })
 
   it('returns 401 when request is unauthenticated', async () => {

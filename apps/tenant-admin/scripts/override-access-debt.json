@@ -1,0 +1,44 @@
+{
+  "runtimePrimitives": {
+    "apps/tenant-admin/lib/server/payload-principal.ts": 1,
+    "apps/tenant-admin/lib/server/tenant-repository.ts": 5
+  },
+  "offlineAllowlist": {
+    "apps/tenant-admin/scripts/audit-private-convocations-2026.ts": { "count": 2, "owner": "data-ops", "reason": "offline bounded audit", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/create-superadmin.ts": { "count": 2, "owner": "platform-ops", "reason": "offline bootstrap operation", "issue": "REM-030" },
+    "apps/tenant-admin/scripts/import-cep-convocatorias-xlsx.ts": { "count": 5, "owner": "data-ops", "reason": "offline tenant import", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/import-cep-course-programs.ts": { "count": 12, "owner": "data-ops", "reason": "offline tenant import", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/import-cep-courses-2026.ts": { "count": 6, "owner": "data-ops", "reason": "offline tenant import", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/import-cep-planning-v1.ts": { "count": 7, "owner": "data-ops", "reason": "offline tenant import", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/import-cursostenerife-catalog.ts": { "count": 9, "owner": "data-ops", "reason": "offline tenant import", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/seed-cep-editorial-content.ts": { "count": 2, "owner": "data-ops", "reason": "offline tenant seed", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/seed-cep-planning-v1.ts": { "count": 10, "owner": "data-ops", "reason": "offline tenant seed", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/sync-abraham-portocarrero.ts": { "count": 8, "owner": "data-ops", "reason": "offline tenant sync", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/sync-acaten-professor-photos.ts": { "count": 6, "owner": "data-ops", "reason": "offline tenant sync", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/sync-lucia-corominas.ts": { "count": 8, "owner": "data-ops", "reason": "offline tenant sync", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/sync-nerea-illescas.ts": { "count": 9, "owner": "data-ops", "reason": "offline tenant sync", "issue": "REM-031" },
+    "apps/tenant-admin/scripts/sync-tatuaje-profesional-online.ts": { "count": 12, "owner": "data-ops", "reason": "offline tenant sync", "issue": "REM-031" }
+  },
+  "debt": {
+    "apps/tenant-admin/app/(app)/(dashboard)/personal/[id]/page.tsx": { "count": 1, "owner": "staff-remediation", "reason": "server component bypass requires route-backed repository migration", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/auth/impersonate/route.ts": { "count": 2, "owner": "rate-auth-worker", "reason": "active worker conflict", "issue": "REM-030" },
+    "apps/tenant-admin/app/api/auth/register/route.ts": { "count": 2, "owner": "auth-remediation", "reason": "public registration flow requires separate contract", "issue": "REM-030" },
+    "apps/tenant-admin/app/api/auth/session/route.ts": { "count": 1, "owner": "auth-remediation", "reason": "principal bootstrap dependency", "issue": "REM-030" },
+    "apps/tenant-admin/app/api/convocatorias/route.ts": { "count": 1, "owner": "tenant-remediation", "reason": "deferred after critical config family", "issue": "REM-032" },
+    "apps/tenant-admin/app/api/course-runs/[id]/availability/route.ts": { "count": 1, "owner": "tenant-remediation", "reason": "deferred course-runs family", "issue": "REM-032" },
+    "apps/tenant-admin/app/api/course-runs/[id]/generate-sessions/route.ts": { "count": 3, "owner": "tenant-remediation", "reason": "deferred course-runs family", "issue": "REM-032" },
+    "apps/tenant-admin/app/api/course-runs/[id]/route.ts": { "count": 3, "owner": "tenant-remediation", "reason": "deferred course-runs family", "issue": "REM-032" },
+    "apps/tenant-admin/app/api/enrollments/direct/route.ts": { "count": 7, "owner": "enrollment-remediation", "reason": "transactional workflow requires dedicated migration", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/internal/invitations/accept/route.ts": { "count": 2, "owner": "rate-auth-worker", "reason": "active worker conflict", "issue": "REM-030" },
+    "apps/tenant-admin/app/api/internal/invitations/route.ts": { "count": 1, "owner": "rate-auth-worker", "reason": "active worker conflict", "issue": "REM-030" },
+    "apps/tenant-admin/app/api/leads/[id]/enroll/route.ts": { "count": 4, "owner": "leads-remediation", "reason": "transactional workflow requires dedicated migration", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/leads/[id]/route.ts": { "count": 3, "owner": "leads-remediation", "reason": "existing route debt", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/staff-photo/route.ts": { "count": 1, "owner": "rate-auth-worker", "reason": "upload family active worker conflict", "issue": "REM-030" },
+    "apps/tenant-admin/app/api/staff/import/route.ts": { "count": 6, "owner": "staff-remediation", "reason": "bulk import requires dedicated tenant transaction contract", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/staff/route.ts": { "count": 7, "owner": "staff-remediation", "reason": "large existing route debt", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/students/route.ts": { "count": 2, "owner": "student-remediation", "reason": "existing route debt", "issue": "REM-031" },
+    "apps/tenant-admin/app/api/track/route.ts": { "count": 4, "owner": "tracking-remediation", "reason": "mixed public ingestion and internal workflow", "issue": "REM-031" },
+    "apps/tenant-admin/app/lib/server/course-run-planning.ts": { "count": 3, "owner": "tenant-remediation", "reason": "deferred course-runs family", "issue": "REM-032" },
+    "apps/tenant-admin/src/collections/CourseRuns/hooks/detectPlanningConflicts.ts": { "count": 3, "owner": "course-runs-remediation", "reason": "collection hook requires req-scoped repository contract", "issue": "REM-032" }
+  }
+}

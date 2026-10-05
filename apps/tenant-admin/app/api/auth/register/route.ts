@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { checkRateLimit, getClientIP, createRateLimitHeaders } from '../../../../lib/rateLimit'
+import { enforceSensitiveRateLimit, rateLimitPrincipalFromJson, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 /**
@@ -11,16 +11,12 @@ import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
  * Tras crear, hace auto-login y devuelve user + token.
  */
 export async function POST(request: Request) {
-  const clientIP = getClientIP(request)
-  const rateLimitResult = checkRateLimit(clientIP)
-  const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
-
-  if (rateLimitResult.isLimited) {
-    return NextResponse.json(
-      { error: 'Demasiados intentos. Por favor espera unos minutos.' },
-      { status: 429, headers: rateLimitHeaders }
-    )
+  const principalId = await rateLimitPrincipalFromJson(request)
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'login', principalId })
+  if (!rateLimit.allowed) {
+    return sensitiveRateLimitResponse(rateLimit, 'Demasiados intentos. Por favor espera unos minutos.')
   }
+  const rateLimitHeaders = rateLimit.headers
 
   try {
     const text = await request.text()
@@ -79,7 +75,7 @@ export async function POST(request: Request) {
         role: user.role ?? 'lectura',
       },
       token: loginResult.token,
-    })
+    }, { headers: rateLimitHeaders })
 
     const isSecure = process.env.ENFORCE_HTTPS === 'true'
     const cookieDomain = resolveSharedCookieDomain(

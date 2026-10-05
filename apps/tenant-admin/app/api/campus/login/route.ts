@@ -10,12 +10,7 @@ import { SignJWT } from 'jose'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import bcrypt from 'bcryptjs'
-import {
-  checkRateLimit,
-  resetRateLimit,
-  getClientIP,
-  createRateLimitHeaders,
-} from '../../../../lib/rateLimit'
+import { enforceSensitiveRateLimit, rateLimitPrincipalFromJson, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 /** Avatar media object */
 interface AvatarMedia {
@@ -77,23 +72,12 @@ const JWT_SECRET = new TextEncoder().encode(
 )
 
 export async function POST(request: NextRequest) {
-  const clientIP = getClientIP(request)
-  const rateLimitResult = checkRateLimit(clientIP)
-  const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
-
-  if (rateLimitResult.isLimited) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Too many login attempts. Please try again later.',
-        retryAfter: rateLimitResult.retryAfterSeconds,
-      },
-      {
-        status: 429,
-        headers: rateLimitHeaders,
-      }
-    )
+  const principalId = await rateLimitPrincipalFromJson(request)
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'login', principalId })
+  if (!rateLimit.allowed) {
+    return sensitiveRateLimitResponse(rateLimit, 'Too many login attempts. Please try again later.')
   }
+  const rateLimitHeaders = rateLimit.headers
 
   try {
     const body = (await request.json()) as LoginRequestBody
@@ -182,9 +166,6 @@ export async function POST(request: NextRequest) {
       .setExpirationTime('7d')
       .sign(JWT_SECRET)
 
-    // Reset rate limit on successful login
-    resetRateLimit(clientIP)
-
     // Update last login
     const updateData: StudentUpdateData = {
       lastLoginAt: new Date().toISOString(),
@@ -212,7 +193,7 @@ export async function POST(request: NextRequest) {
         tenantId: student.tenant,
       },
       enrollments,
-    })
+    }, { headers: rateLimitHeaders })
   } catch (error: unknown) {
     console.error('[Campus Login] Error:', error)
     return NextResponse.json(

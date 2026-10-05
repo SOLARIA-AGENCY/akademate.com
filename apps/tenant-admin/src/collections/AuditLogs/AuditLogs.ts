@@ -353,7 +353,7 @@ export const AuditLogs: CollectionConfig = {
     {
       name: 'ip_address',
       type: 'text',
-      required: true,
+      required: false,
       index: true, // For security investigations
       maxLength: 45, // IPv6 max length
       admin: {

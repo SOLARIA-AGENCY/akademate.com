@@ -28,6 +28,15 @@ vi.mock('@payload-config', () => ({
   default: {},
 }))
 
+vi.mock('@/lib/server/session', () => ({
+  SESSION_V2_COOKIE: 'akademate_session_v2',
+  verifyAvailableSession: vi.fn(async ({ payloadToken, sessionV2 }) =>
+    payloadToken || sessionV2
+      ? { principal: { userId: '7', tenantId: '2', roles: ['admin'], sessionVersion: 1 } }
+      : null,
+  ),
+}))
+
 import { GET } from '@/app/api/leads/route'
 
 describe('Leads list route auth', () => {
@@ -52,7 +61,7 @@ describe('Leads list route auth', () => {
     expect(payload.error).toBe('No autenticado')
   })
 
-  it('authenticates using token stored in akademate_session cookie', async () => {
+  it('rejects token stored only in akademate_session outside the exchange endpoint', async () => {
     const session = encodeURIComponent(JSON.stringify({ token: 'session-token' }))
     const request = new NextRequest('http://localhost/api/leads?limit=20', {
       headers: { cookie: `akademate_session=${session}` },
@@ -61,21 +70,12 @@ describe('Leads list route auth', () => {
     const response = await GET(request)
     const payload = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(Array.isArray(payload.docs)).toBe(true)
-    expect(mockAuth).toHaveBeenCalledWith(
-      expect.objectContaining({
-        collection: 'users',
-        headers: expect.any(Headers),
-      }),
-    )
-
-    const authCall = mockAuth.mock.calls[0]?.[0]
-    const cookieHeader = authCall?.headers?.get('cookie')
-    expect(cookieHeader).toContain('payload-token=session-token')
+    expect(response.status).toBe(401)
+    expect(payload.error).toBe('No autenticado')
+    expect(mockAuth).not.toHaveBeenCalled()
   })
 
-  it('accepts socketToken in akademate_session cookie payload', async () => {
+  it('rejects socketToken stored only in akademate_session', async () => {
     const session = encodeURIComponent(JSON.stringify({ socketToken: 'socket-session-token' }))
     const request = new NextRequest('http://localhost/api/leads?limit=20', {
       headers: { cookie: `akademate_session=${session}` },
@@ -84,12 +84,9 @@ describe('Leads list route auth', () => {
     const response = await GET(request)
     const payload = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(Array.isArray(payload.docs)).toBe(true)
-
-    const authCall = mockAuth.mock.calls[0]?.[0]
-    const cookieHeader = authCall?.headers?.get('cookie')
-    expect(cookieHeader).toContain('payload-token=socket-session-token')
+    expect(response.status).toBe(401)
+    expect(payload.error).toBe('No autenticado')
+    expect(mockAuth).not.toHaveBeenCalled()
   })
 
   it('resolves tenant from DB when payload auth returns user without tenant fields', async () => {

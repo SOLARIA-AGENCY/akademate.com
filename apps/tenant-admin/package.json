@@ -10,6 +10,10 @@
     "build": "next build",
     "start": "cross-env NODE_ENV=production next start --port 3000",
     "test": "vitest run",
+    "gate:override-access": "node scripts/verify-override-access.mjs",
+    "test:quarantine:audit": "vitest run --config vitest.quarantine.config.ts",
+    "test:integration:live": "vitest run --config vitest.integration.config.ts",
+    "test:deployment:live": "vitest run --config vitest.deployment.config.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
@@ -46,6 +50,8 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@akademate/api": "workspace:*",
+    "@upstash/redis": "^1.37.0",
     "@akademate/realtime": "workspace:*",
     "@payloadcms/db-postgres": "3.81.0",
     "@payloadcms/drizzle": "3.81.0",

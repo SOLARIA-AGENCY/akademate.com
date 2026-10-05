@@ -15,6 +15,7 @@ import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -96,6 +97,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ) {
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'gdpr', principalId: params.userId });
+  if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit);
   try {
     const { userId } = params;
     const url = new URL(request.url);

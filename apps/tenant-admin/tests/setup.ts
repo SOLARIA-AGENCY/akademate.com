@@ -30,8 +30,10 @@ const localStorageMock = (() => {
   }
 })()
 
-Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-Object.defineProperty(window, 'sessionStorage', { value: localStorageMock })
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+  Object.defineProperty(window, 'sessionStorage', { value: localStorageMock })
+}
 
 // Clear localStorage before each test
 beforeEach(() => {

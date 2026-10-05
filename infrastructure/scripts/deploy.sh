@@ -3,7 +3,7 @@
 # Usage: ./deploy.sh [environment] [service]
 # Example: ./deploy.sh production all
 
-set -e
+set -euo pipefail
 
 # =============================================================================
 # Configuration
@@ -112,24 +112,6 @@ refresh_proxy() {
     fi
 }
 
-run_migrations() {
-    log_info "Running database migrations..."
-    # Primary path: root script if available inside container context
-    if docker compose exec -T payload sh -lc "pnpm db:migrate" > /dev/null 2>&1; then
-        log_success "Migrations completed (pnpm db:migrate)"
-        return 0
-    fi
-
-    # Fallback path: run drizzle-kit directly when script is not exposed
-    if docker compose exec -T payload sh -lc "pnpm exec drizzle-kit migrate --config /app/packages/db/drizzle.config.ts"; then
-        log_success "Migrations completed (drizzle-kit)"
-        return 0
-    fi
-
-    log_warning "Skipping migrations: no runnable migration command found in payload runtime image"
-    return 0
-}
-
 http_check() {
     local url="$1"
     if command -v curl &> /dev/null; then
@@ -198,7 +180,7 @@ health_check() {
     # Check Tenant App
     retry_count=0
     while [ $retry_count -lt $max_retries ]; do
-        if http_check "http://localhost:${TENANT_PORT:-3009}"; then
+        if http_check "http://localhost:${TENANT_PORT:-3009}/api/health/ready"; then
             log_success "Tenant App is healthy"
             break
         fi
@@ -231,19 +213,13 @@ health_check() {
 }
 
 warmup_endpoints() {
-    log_info "Warming critical endpoints..."
+    log_info "Running liveness/readiness smoke checks..."
 
-    # Warm login routes so first real user request does not pay cold-compile penalty.
-    http_check "http://localhost:${ADMIN_PORT:-3004}/login" || true
-    http_check "http://localhost:${TENANT_PORT:-3009}/auth/login" || true
-    http_check "http://localhost:${PORTAL_PORT:-3008}" || true
+    local tenant_base="http://localhost:${TENANT_PORT:-3009}"
+    http_check "${tenant_base}/api/health/live"
+    http_check "${tenant_base}/api/health/ready"
 
-    if command -v curl &> /dev/null; then
-        curl -s -o /dev/null -X POST "http://localhost:${ADMIN_PORT:-3004}/api/auth/dev-login" || true
-        curl -s -o /dev/null -X POST "http://localhost:${TENANT_PORT:-3009}/api/auth/dev-login" || true
-    fi
-
-    log_success "Warmup completed"
+    log_success "Smoke checks completed"
 }
 
 show_status() {
@@ -292,8 +268,7 @@ main() {
     refresh_proxy "$service"
 
     if [ "$service" == "all" ] || [ "$service" == "payload" ]; then
-        sleep 10  # Wait for services to start
-        run_migrations
+        log_warning "Migrations are not run by deploy.sh. Use release-preflight-migration.sh with an explicit expand/contract declaration before switching a release."
     fi
 
     health_check

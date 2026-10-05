@@ -257,6 +257,7 @@ export const Users: CollectionConfig = {
     {
       name: 'role',
       type: 'select',
+      saveToJWT: true,
       required: false,
       defaultValue: 'lectura',
       options: [
@@ -308,6 +309,7 @@ export const Users: CollectionConfig = {
       name: 'tenant',
       type: 'relationship',
       relationTo: 'tenants',
+      saveToJWT: true,
       required: false, // SuperAdmin doesn't have tenant
       index: true,
       admin: {
@@ -334,6 +336,23 @@ export const Users: CollectionConfig = {
             return value as string | number | null | undefined;
           },
         ],
+      },
+    },
+
+    /** Increment to revoke every existing Payload/v2 session for this user. */
+    {
+      name: 'session_version',
+      type: 'number',
+      required: false,
+      defaultValue: 1,
+      min: 1,
+      saveToJWT: true,
+      admin: {
+        hidden: true,
+      },
+      access: {
+        read: () => false,
+        update: () => false,
       },
     },
 

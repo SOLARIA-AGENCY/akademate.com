@@ -13,11 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { queryFirst, withTransaction } from '@/@payload-config/lib/db'
-import {
-  checkRateLimit,
-  getClientIP,
-  createRateLimitHeaders,
-} from '../../../../lib/rateLimit'
+import { enforceSensitiveRateLimit, rateLimitPrincipalFromJson, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 // ============================================================================
 // Constants
@@ -71,23 +67,12 @@ const RegisterTenantSchema = z.object({
 // ============================================================================
 
 export async function POST(request: NextRequest) {
-  // Rate limiting
-  const clientIP = getClientIP(request)
-  const rateLimitResult = checkRateLimit(clientIP)
-  const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
-
-  if (rateLimitResult.isLimited) {
-    return NextResponse.json(
-      {
-        error: 'Too many registration attempts. Please try again later.',
-        retryAfter: rateLimitResult.retryAfterSeconds,
-      },
-      {
-        status: 429,
-        headers: rateLimitHeaders,
-      }
-    )
+  const principalId = await rateLimitPrincipalFromJson(request, ['adminEmail'])
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'login', principalId })
+  if (!rateLimit.allowed) {
+    return sensitiveRateLimitResponse(rateLimit, 'Too many registration attempts. Please try again later.')
   }
+  const rateLimitHeaders = rateLimit.headers
 
   try {
     const body = await request.json()

@@ -1,6 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
+vi.mock('@/lib/server/session', () => ({
+  SESSION_V2_COOKIE: 'akademate_session_v2',
+  verifyAvailableSession: vi.fn(async ({ payloadToken, sessionV2 }) =>
+    payloadToken || sessionV2
+      ? { principal: { userId: '7', tenantId: '2', roles: ['admin'], sessionVersion: 1 } }
+      : null,
+  ),
+}))
+
 const {
   mockPayload,
   mockGetPayloadHMR,

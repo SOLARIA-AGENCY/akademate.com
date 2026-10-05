@@ -48,25 +48,20 @@ describe('MediaGallery', () => {
     expect(skeletons.length).toBeGreaterThan(0)
   })
 
-  it('renders items in grid view by default', () => {
+  it('renders items in list view by default', () => {
     render(<MediaGallery items={mockItems} data-oid="h4-khho" />)
     expect(screen.getByText('test-image.jpg')).toBeInTheDocument()
     expect(screen.getByText('test-image-2.png')).toBeInTheDocument()
+    expect(screen.getByText('1920×1080px')).toBeInTheDocument()
   })
 
   it('toggles between grid and list view', () => {
-    const { container } = render(<MediaGallery items={mockItems} data-oid="1_w05a0" />)
+    render(<MediaGallery items={mockItems} data-oid="1_w05a0" />)
 
-    // Find list view button
-    const buttons = container.querySelectorAll('button')
-    const listButton = Array.from(buttons).find((btn) =>
-      btn.querySelector('svg')?.classList.contains('lucide-list')
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Vista en cuadrícula' }))
+    expect(screen.getByText('1920×1080')).toBeInTheDocument()
 
-    expect(listButton).toBeTruthy()
-    fireEvent.click(listButton!)
-
-    // In list view, alt text should be visible
+    fireEvent.click(screen.getByRole('button', { name: 'Vista de lista' }))
     expect(screen.getByText('Test image')).toBeInTheDocument()
   })
 
@@ -74,7 +69,7 @@ describe('MediaGallery', () => {
     render(<MediaGallery items={mockItems} data-oid="cz8i-1w" />)
     expect(screen.getByText('test-image.jpg')).toBeInTheDocument()
     expect(screen.getByText('1.0 MB')).toBeInTheDocument()
-    expect(screen.getByText('1920×1080')).toBeInTheDocument()
+    expect(screen.getByText('1920×1080px')).toBeInTheDocument()
   })
 
   it('displays file type badge', () => {
@@ -87,7 +82,9 @@ describe('MediaGallery', () => {
     const handleClick = vi.fn()
     render(<MediaGallery items={mockItems} onItemClick={handleClick} data-oid="h-o-9ms" />)
 
-    const firstItem = screen.getByText('test-image.jpg').closest('div')?.parentElement
+    const firstItem = screen
+      .getByRole('img', { name: 'Test image' })
+      .closest('div[class*="cursor-pointer"]')
     expect(firstItem).toBeTruthy()
     fireEvent.click(firstItem!)
 

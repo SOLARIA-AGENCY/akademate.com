@@ -16,6 +16,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 import type { Payload } from 'payload';
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit';
 
 /**
  * Request body for GDPR erasure endpoint
@@ -98,6 +99,8 @@ function getErrorMessage(error: unknown): string {
  * Requires explicit confirmation
  */
 export async function POST(request: NextRequest) {
+    const rateLimit = await enforceSensitiveRateLimit(request, { action: 'gdpr' });
+    if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit);
     try {
         const body = await request.json() as ErasureRequestBody;
         const { userId, confirmDeletion, reason } = body;

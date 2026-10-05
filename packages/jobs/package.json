@@ -19,6 +19,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "tsx src/start.ts"
+    "start": "tsx src/start.ts",
+    "test": "vitest run"
   }
 }

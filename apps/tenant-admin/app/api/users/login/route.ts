@@ -2,12 +2,7 @@ import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server'
 import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
-import {
-  checkRateLimit,
-  resetRateLimit,
-  getClientIP,
-  createRateLimitHeaders,
-} from '../../../../lib/rateLimit'
+import { enforceSensitiveRateLimit, rateLimitPrincipalFromJson, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 import { queryRows } from '@/@payload-config/lib/db'
 import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
@@ -22,25 +17,12 @@ import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
  * Rate limiting: 5 attempts per 15 minutes per IP
  */
 export async function POST(request: Request) {
-  // Get client IP for rate limiting
-  const clientIP = getClientIP(request)
-
-  // Check rate limit
-  const rateLimitResult = checkRateLimit(clientIP)
-  const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
-
-  if (rateLimitResult.isLimited) {
-    return NextResponse.json(
-      {
-        error: 'Too many login attempts. Please try again later.',
-        retryAfter: rateLimitResult.retryAfterSeconds,
-      },
-      {
-        status: 429,
-        headers: rateLimitHeaders,
-      }
-    )
+  const principalId = await rateLimitPrincipalFromJson(request)
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'login', principalId })
+  if (!rateLimit.allowed) {
+    return sensitiveRateLimitResponse(rateLimit, 'Too many login attempts. Please try again later.')
   }
+  const rateLimitHeaders = rateLimit.headers
 
   try {
     // Use text() then JSON.parse to avoid Next.js 16 body parsing issues with special chars
@@ -75,9 +57,6 @@ export async function POST(request: Request) {
         { status: 401, headers: rateLimitHeaders }
       )
     }
-
-    // Reset rate limit on successful login
-    resetRateLimit(clientIP)
 
     // Create response with user data
     const user = result.user as { id: string | number; email: string; name?: string; role?: string }
@@ -122,7 +101,7 @@ export async function POST(request: Request) {
         role: user.role,
       },
       exp: result.exp,
-    })
+    }, { headers: rateLimitHeaders })
 
     // Set auth cookie — only Secure when HTTPS is explicitly enforced
     const isSecure = process.env.ENFORCE_HTTPS === 'true'

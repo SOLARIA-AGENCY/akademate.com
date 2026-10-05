@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { queryFirst } from '@/@payload-config/lib/db'
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 /**
  * POST /api/internal/invitations/accept
@@ -10,6 +11,8 @@ import { queryFirst } from '@/@payload-config/lib/db'
  * Creates user account and marks invitation as accepted
  */
 export async function POST(request: NextRequest) {
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'invitation' })
+  if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit)
   try {
     const body = await request.json()
     const { token, password } = body

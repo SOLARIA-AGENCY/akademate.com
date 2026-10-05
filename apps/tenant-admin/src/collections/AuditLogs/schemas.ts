@@ -205,7 +205,14 @@ export const actionSchema = z.enum(VALID_ACTIONS, {
  * Valid user roles in the system
  * Must match Users collection role enum
  */
-export const VALID_USER_ROLES = ['admin', 'gestor', 'marketing', 'asesor', 'lectura'] as const;
+export const VALID_USER_ROLES = [
+  'superadmin',
+  'admin',
+  'gestor',
+  'marketing',
+  'asesor',
+  'lectura',
+] as const;
 
 export const userRoleSchema = z.enum(VALID_USER_ROLES, {
   error: 'Invalid user role',

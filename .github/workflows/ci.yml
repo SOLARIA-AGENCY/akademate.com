@@ -11,7 +11,7 @@ env:
   NODE_OPTIONS: '--max-old-space-size=8192'
 
 jobs:
-  lint-typecheck-test:
+  lint-typecheck:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,20 +52,69 @@ jobs:
       - name: Typecheck
         run: pnpm -r exec tsc --noEmit
 
-      - name: Unit tests with coverage
-        run: pnpm exec vitest run --coverage
+  test-inventory:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.inventory.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: always()
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 14
+          node-version: '22'
+
+      - name: Validate test workspace inventory
+        id: inventory
+        run: node scripts/verify-test-workspace-inventory.mjs --github-output "$GITHUB_OUTPUT"
+
+      - name: Test inventory validator
+        run: node --test scripts/__tests__/test-workspace-inventory.test.mjs
+
+  test:
+    needs: [test-inventory]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: ${{ fromJSON(needs.test-inventory.outputs.matrix).workspace }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests
+        run: pnpm --filter '${{ matrix.workspace }}' test
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint-typecheck-test]
+    needs: [lint-typecheck, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -111,7 +160,7 @@ jobs:
   e2e:
     if: ${{ vars.RUN_E2E == 'true' }}
     runs-on: ubuntu-latest
-    needs: [lint-typecheck-test]
+    needs: [lint-typecheck, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -194,6 +243,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Validate Docker Compose (dev)
         run: docker compose -f infrastructure/docker/docker-compose.dev.yml config --quiet
 
@@ -206,3 +265,6 @@ jobs:
         run: |
           docker compose -f infrastructure/docker/docker-compose.yml \
                          -f infrastructure/docker/docker-compose.prod.yml config --quiet
+
+      - name: Validate remediation release scripts
+        run: pnpm test:remediation-release-a

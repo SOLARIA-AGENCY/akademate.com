@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { sendMail } from '../../../../src/lib/email'
+import { SESSION_V2_COOKIE, verifyAvailableSession } from '@/lib/server/session'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { createPayloadIdentityResolver, type PrincipalUser } from '@/lib/server/payload-principal'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +21,6 @@ const FEEDBACK_INBOX = [
 ]
   .filter((value, index, self) => self.indexOf(value) === index)
   .join(', ')
-const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
 
 const FeedbackPayloadSchema = z.object({
   prompt: z.string().trim().min(8).max(4000),
@@ -56,55 +59,24 @@ function escapeHtml(value: unknown): string {
     .replaceAll("'", '&#39;')
 }
 
-function parseSessionUser(request: NextRequest): SessionUser | null {
-  for (const cookieName of SESSION_COOKIE_NAMES) {
-    const raw = request.cookies.get(cookieName)?.value
-    if (!raw) continue
-
-    const candidates: string[] = [raw]
-    try {
-      const decoded = decodeURIComponent(raw)
-      if (decoded !== raw) candidates.push(decoded)
-    } catch {
-      // Ignore decoding errors and keep trying raw value.
-    }
-
-    for (const candidate of candidates) {
-      try {
-        const parsed = JSON.parse(candidate) as { user?: SessionUser }
-        if (parsed?.user && typeof parsed.user === 'object') {
-          return parsed.user
-        }
-      } catch {
-        // Ignore parse errors and continue.
-      }
-    }
-  }
-  return null
-}
-
-function parsePayloadTokenUser(request: NextRequest): SessionUser | null {
-  const token = request.cookies.get('payload-token')?.value
-  if (!token) return null
-  const payloadSegment = token.split('.')[1]
-  if (!payloadSegment) return null
-
-  try {
-    const normalized = payloadSegment.replace(/-/g, '+').replace(/_/g, '/')
-    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')
-    const decoded = Buffer.from(padded, 'base64').toString('utf8')
-    const payload = JSON.parse(decoded) as Record<string, unknown>
-
-    return {
-      id: (payload.id as string | number | undefined) ?? (payload.sub as string | number | undefined),
-      name: payload.name as string | undefined,
-      email: payload.email as string | undefined,
-      role: payload.role as string | undefined,
-      tenantId: payload.tenantId as string | number | undefined,
-      tenant: payload.tenant as string | number | { id?: string | number } | undefined,
-    }
-  } catch {
-    return null
+async function getVerifiedSessionUser(request: NextRequest): Promise<SessionUser | null> {
+  const payload = await getPayload({ config })
+  const users = new Map<string, PrincipalUser>()
+  const verified = await verifyAvailableSession({
+    payloadToken: request.cookies.get('payload-token')?.value,
+    sessionV2: request.cookies.get(SESSION_V2_COOKIE)?.value,
+  }, {
+    resolveIdentity: createPayloadIdentityResolver(payload, users),
+    requireResolvedIdentity: true,
+  })
+  if (!verified) return null
+  const user = users.get(verified.principal.userId)
+  return {
+    id: verified.principal.userId,
+    name: user?.name ?? undefined,
+    email: user?.email ?? undefined,
+    role: verified.principal.roles[0],
+    tenantId: verified.principal.tenantId,
   }
 }
 
@@ -135,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = parsed.data
-    const sessionUser = parseSessionUser(request) ?? parsePayloadTokenUser(request)
+    const sessionUser = await getVerifiedSessionUser(request)
     const userAgent = request.headers.get('user-agent') || 'desconocido'
     const referer = request.headers.get('referer') || 'desconocido'
     const host = request.headers.get('host') || request.nextUrl.host || 'desconocido'

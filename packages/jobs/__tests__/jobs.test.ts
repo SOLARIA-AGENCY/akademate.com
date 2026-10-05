@@ -26,10 +26,9 @@ describe('@akademate/jobs', () => {
 
     it('creates webhook job with complex payload', () => {
       const webhookPayload = {
-        url: 'https://api.example.com/webhook',
+        destinationId: 'destination-1',
         method: 'POST',
-        body: { event: 'enrollment.created', data: { studentId: '123' } },
-        headers: { 'X-Webhook-Secret': 'secret123' },
+        payload: { event: 'enrollment.created', data: { studentId: '123' } },
       }
 
       const job = buildTenantJob('tenant-2', 'webhook', webhookPayload)

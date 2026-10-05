@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
-import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
+import {
+  SESSION_V2_COOKIE,
+  SESSION_V2_MAX_AGE_SECONDS,
+  signSessionV2,
+  verifyPayloadToken,
+  type VerifiedPrincipal,
+} from '@/lib/server/session'
+import { identityFromPayloadUser, type PrincipalUser } from '@/lib/server/payload-principal'
+import {
+  AUTH_COOKIE_NAMES,
+  clearCookieVariants,
+  resolveAuthCookieOptions,
+} from '@/lib/server/auth-cookies'
 
 export const dynamic = 'force-dynamic'
 
-const isDevLoginEnabled =
-  process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true'
-
-const DEV_CREDENTIAL_CANDIDATES = [
-  {
-    email: process.env.PAYLOAD_SUPERADMIN_EMAIL ?? 'superadmin@akademate.com',
-    password: process.env.PAYLOAD_SUPERADMIN_PASSWORD ?? 'Dev12345!',
-  },
-  {
-    email: 'admin@cep.es',
-    password: 'Admin1234!',
-  },
-]
-
 function getSafePath(redirectPath: string): string {
-  return redirectPath.startsWith('/') ? redirectPath : '/dashboard'
+  return redirectPath.startsWith('/') && !redirectPath.startsWith('//')
+    ? redirectPath
+    : '/dashboard'
 }
 
 async function resolveRedirectPath(request: NextRequest): Promise<string> {
@@ -47,38 +47,31 @@ async function resolveRedirectPath(request: NextRequest): Promise<string> {
 }
 
 async function handleDevLogin(request: NextRequest) {
-  if (!isDevLoginEnabled) {
-    return NextResponse.json({ error: 'Dev auth bypass disabled' }, { status: 403 })
+  if (
+    process.env.NODE_ENV !== 'development' ||
+    process.env.ALLOW_DEV_AUTO_LOGIN !== 'true'
+  ) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   const redirectPath = await resolveRedirectPath(request)
-  const payload: Payload = await getPayload({ config })
-
-  let loginResult:
-    | {
-        user: Record<string, unknown>
-        token: string
-      }
-    | undefined
-
-  for (const candidate of DEV_CREDENTIAL_CANDIDATES) {
-    try {
-      const result = await payload.login({
-        collection: 'users',
-        data: {
-          email: candidate.email,
-          password: candidate.password,
-        },
-      })
-
-      if (result.user && result.token) {
-        loginResult = { user: result.user as unknown as Record<string, unknown>, token: result.token }
-        break
-      }
-    } catch {
-      // Try next candidate
-    }
+  const email = process.env.PAYLOAD_SUPERADMIN_EMAIL?.trim()
+  const password = process.env.PAYLOAD_SUPERADMIN_PASSWORD
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: 'Development credentials are not configured' },
+      { status: 500 },
+    )
   }
+  const payload: Payload = await getPayload({ config })
+  const result = await payload.login({
+    collection: 'users',
+    data: { email, password },
+  })
+  const loginResult =
+    result.user && result.token
+      ? { user: result.user as unknown as Record<string, unknown>, token: result.token }
+      : undefined
 
   if (!loginResult) {
     return NextResponse.json(
@@ -96,61 +89,26 @@ async function handleDevLogin(request: NextRequest) {
       location: getSafePath(redirectPath),
     },
   })
-  const cookieDomain = resolveSharedCookieDomain(
-    request.headers.get('x-forwarded-host') || request.headers.get('host')
-  )
-  response.cookies.set('payload-token', loginResult.token, {
-    httpOnly: true,
-    secure: false,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 12,
-    ...(cookieDomain ? { domain: cookieDomain } : {}),
+  const identity = identityFromPayloadUser(loginResult.user as PrincipalUser)
+  const sourcePrincipal = await verifyPayloadToken(loginResult.token, {
+    resolveIdentity: async () => identity,
+    requireResolvedIdentity: true,
+    allowMissingIdentityClaims: true,
   })
-
-  response.cookies.set(
-    'akademate_session',
-    JSON.stringify({
-      user: {
-        id: String(loginResult.user.id ?? ''),
-        email: String(loginResult.user.email ?? ''),
-        name: String(loginResult.user.name ?? ''),
-        role: String(loginResult.user.role ?? ''),
-        tenantId: String(loginResult.user.tenant_id ?? loginResult.user.tenantId ?? '1'),
-      },
-      token: loginResult.token,
-    }),
-    {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 12,
-      ...(cookieDomain ? { domain: cookieDomain } : {}),
-    },
-  )
-
-  response.cookies.set(
-    'cep_session',
-    JSON.stringify({
-      user: {
-        id: String(loginResult.user.id ?? ''),
-        email: String(loginResult.user.email ?? ''),
-        name: String(loginResult.user.name ?? ''),
-        role: String(loginResult.user.role ?? ''),
-        tenantId: String(loginResult.user.tenant_id ?? loginResult.user.tenantId ?? '1'),
-      },
-      token: loginResult.token,
-    }),
-    {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 12,
-      ...(cookieDomain ? { domain: cookieDomain } : {}),
-    },
-  )
+  const now = Math.floor(Date.now() / 1000)
+  const principal: VerifiedPrincipal = {
+    userId: sourcePrincipal.userId,
+    tenantId: sourcePrincipal.tenantId,
+    roles: sourcePrincipal.roles,
+    sessionVersion: sourcePrincipal.sessionVersion,
+    sessionId: crypto.randomUUID(),
+    issuedAt: now,
+    expiresAt: now + SESSION_V2_MAX_AGE_SECONDS,
+  }
+  const options = resolveAuthCookieOptions(request, SESSION_V2_MAX_AGE_SECONDS)
+  clearCookieVariants(response.cookies, AUTH_COOKIE_NAMES, request)
+  response.cookies.set('payload-token', loginResult.token, options)
+  response.cookies.set(SESSION_V2_COOKIE, await signSessionV2(principal, { now }), options)
 
   return response
 }

@@ -1,4 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
+
+vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({})) }))
+vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('@/lib/server/tenant-access', () => ({
+  requirePrincipal: vi.fn(async () => ({ tenantId: '2', roles: ['admin'] })),
+  requireTenantScope: (principal: { tenantId: string }) => principal.tenantId,
+  requireAnyRole: vi.fn(),
+  TenantAccessError: class TenantAccessError extends Error {},
+}))
+
 import { GET } from '../../app/api/config/route'
 import { NextRequest } from 'next/server'
 

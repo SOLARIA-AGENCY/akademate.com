@@ -51,16 +51,14 @@ export const autoPopulateAuditMetadata: CollectionBeforeValidateHook = ({ data, 
     }
 
     // Auto-populate ip_address from request headers
-    if (!data?.ip_address && req) {
+    if (
+      data?.ip_address === undefined &&
+      req &&
+      process.env.TRUST_PROXY_HEADERS === 'true'
+    ) {
       const ipAddress = extractIPAddress(req);
       if (ipAddress) {
         data.ip_address = ipAddress;
-      } else {
-        // Fallback to localhost for development (should never happen in production)
-        data.ip_address = '127.0.0.1';
-        if (payload?.logger) {
-          payload.logger.warn('[AuditLog] Could not extract IP address, using localhost fallback');
-        }
       }
     }
 

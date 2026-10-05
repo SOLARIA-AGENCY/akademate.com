@@ -23,6 +23,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "tenant:audit": "node scripts/tenant-defense-audit.mjs",
+    "tenant:audit:markdown": "node scripts/tenant-defense-audit.mjs --format markdown"
   }
 }

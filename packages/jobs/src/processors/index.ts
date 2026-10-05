@@ -1,5 +1,13 @@
 export { processEmail, type EmailPayload } from './email'
-export { processWebhook, type WebhookPayload, type WebhookMethod } from './webhook'
+export {
+  createWebhookProcessor,
+  type WebhookAuditEvent,
+  type WebhookDestination,
+  type WebhookDestinationResolver,
+  type WebhookPayload,
+  type WebhookMethod,
+  type WebhookProcessorDependencies,
+} from './webhook'
 export { processSearchSync, type SearchSyncPayload, type SearchSyncAction } from './searchSync'
 export {
   processMetaAnalyticsSync,

@@ -10,8 +10,19 @@ function mockAllFetches({
   campuses = [],
 }: {
   cycles?: Array<{ id: string; name: string }>
-  courses?: Array<{ id: string; title: string; area_formativa?: number | { id: number; nombre?: string } }>
-  staff?: Array<{ id: string; first_name?: string; last_name?: string; firstName?: string; lastName?: string; fullName?: string }>
+  courses?: Array<{
+    id: string
+    title: string
+    area_formativa?: number | { id: number; nombre?: string }
+  }>
+  staff?: Array<{
+    id: string
+    first_name?: string
+    last_name?: string
+    firstName?: string
+    lastName?: string
+    fullName?: string
+  }>
   campuses?: Array<{ id: string; name: string }>
 }) {
   const fetchMock = global.fetch as ReturnType<typeof vi.fn>
@@ -20,18 +31,21 @@ function mockAllFetches({
     const url = String(input)
     if (url.includes('/api/staff') && init?.method === 'POST') {
       return Promise.resolve(
-        new Response(JSON.stringify({
-          success: true,
-          data: {
-            id: '99',
-            firstName: 'Nueva',
-            lastName: 'Docente',
-            qualifiedAreas: [{ id: 7, nombre: 'Sanitaria y Clínica' }],
-          },
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }),
+        new Response(
+          JSON.stringify({
+            success: true,
+            data: {
+              id: '99',
+              firstName: 'Nueva',
+              lastName: 'Docente',
+              qualifiedAreas: [{ id: 7, nombre: 'Sanitaria y Clínica' }],
+            },
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
       )
     }
     if (url.includes('/api/cycles')) {
@@ -39,7 +53,7 @@ function mockAllFetches({
         new Response(JSON.stringify({ docs: cycles }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        }),
+        })
       )
     }
     if (url.includes('/api/courses')) {
@@ -47,7 +61,7 @@ function mockAllFetches({
         new Response(JSON.stringify({ docs: courses }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        }),
+        })
       )
     }
     if (url.includes('/api/staff')) {
@@ -55,7 +69,7 @@ function mockAllFetches({
         new Response(JSON.stringify({ docs: staff }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        }),
+        })
       )
     }
     if (url.includes('/api/campuses')) {
@@ -63,7 +77,7 @@ function mockAllFetches({
         new Response(JSON.stringify({ docs: campuses }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        }),
+        })
       )
     }
     // Fallback for any other fetch (e.g., config)
@@ -71,7 +85,7 @@ function mockAllFetches({
       new Response(JSON.stringify({}), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-      }),
+      })
     )
   })
 }
@@ -79,7 +93,19 @@ function mockAllFetches({
 const sampleCampuses = [{ id: '1', name: 'Sede Central' }]
 const sampleStaff = [{ id: '1', first_name: 'Juan', last_name: 'Garcia' }]
 const sampleCycles = [{ id: '1', name: 'Desarrollo Web' }]
-const sampleCourses = [{ id: '1', title: 'Marketing Digital', area_formativa: { id: 7, nombre: 'Sanitaria y Clínica' } }]
+const sampleCourses = [
+  { id: '1', title: 'Marketing Digital', area_formativa: { id: 7, nombre: 'Sanitaria y Clínica' } },
+]
+
+async function selectPrivateCourse() {
+  await waitFor(() => {
+    expect(screen.getByLabelText('Tipo de formación *')).toBeInTheDocument()
+  })
+
+  fireEvent.change(screen.getByLabelText('Tipo de formación *'), { target: { value: 'privados' } })
+  fireEvent.change(screen.getByLabelText('Área'), { target: { value: '7' } })
+  fireEvent.change(screen.getByLabelText('Curso / ciclo *'), { target: { value: 'course:1' } })
+}
 
 describe('NuevaConvocatoriaPage', () => {
   beforeEach(() => {
@@ -88,9 +114,7 @@ describe('NuevaConvocatoriaPage', () => {
 
   it('shows loading state initially', () => {
     // Make fetch hang to keep loading state
-    ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(
-      () => new Promise(() => {}),
-    )
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(() => new Promise(() => {}))
     render(<NuevaConvocatoriaPage />)
 
     expect(screen.getByText(/Cargando datos/)).toBeInTheDocument()
@@ -120,7 +144,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
     expect(screen.getByTitle('Crear nuevo profesor')).toBeInTheDocument()
   })
@@ -135,7 +159,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
     expect(screen.getByText('Sede *')).toBeInTheDocument()
     expect(screen.getByText('Profesor')).toBeInTheDocument()
@@ -150,14 +174,11 @@ describe('NuevaConvocatoriaPage', () => {
     })
     render(<NuevaConvocatoriaPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Seleccionar ciclo o curso')).toBeInTheDocument()
-    })
-    // The select content shows cycles and courses sections
-    expect(screen.getByText('Ciclos')).toBeInTheDocument()
-    expect(screen.getByText('Cursos')).toBeInTheDocument()
-    expect(screen.getByText('Desarrollo Web')).toBeInTheDocument()
-    expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
+    await selectPrivateCourse()
+
+    expect(screen.getByLabelText('Curso / ciclo *')).not.toBeDisabled()
+    expect(screen.getAllByText('Marketing Digital').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Desarrollo Web')).not.toBeInTheDocument()
   })
 
   it('renders sede and profesor selectors', async () => {
@@ -188,7 +209,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
 
     const submitButton = screen.getByRole('button', { name: /Crear Convocatoria/ })
@@ -233,17 +254,12 @@ describe('NuevaConvocatoriaPage', () => {
     })
     render(<NuevaConvocatoriaPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
-    })
-
-    const selects = screen.getAllByTestId('select')
-    fireEvent.change(selects[0], { target: { value: 'course:1' } })
+    await selectPrivateCourse()
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/staff?type=profesor&status=active&limit=100&qualifiedArea=7'),
-        expect.objectContaining({ cache: 'no-store' }),
+        expect.objectContaining({ cache: 'no-store' })
       )
     })
   })
@@ -257,11 +273,7 @@ describe('NuevaConvocatoriaPage', () => {
     })
     render(<NuevaConvocatoriaPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
-    })
-
-    fireEvent.change(screen.getAllByTestId('select')[0], { target: { value: 'course:1' } })
+    await selectPrivateCourse()
     fireEvent.click(screen.getByTitle('Crear nuevo profesor'))
 
     await waitFor(() => {
@@ -279,20 +291,22 @@ describe('NuevaConvocatoriaPage', () => {
         expect.objectContaining({
           method: 'POST',
           body: expect.stringContaining('"qualifiedAreas":["7"]'),
-        }),
+        })
       )
     })
 
     const staffCreateCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.find(
-      ([url, init]) => String(url) === '/api/staff' && init?.method === 'POST',
+      ([url, init]) => String(url) === '/api/staff' && init?.method === 'POST'
     )
     expect(staffCreateCall).toBeTruthy()
-    expect(JSON.parse(String(staffCreateCall?.[1]?.body))).toEqual(expect.objectContaining({
-      staffType: 'profesor',
-      firstName: 'Nueva',
-      lastName: 'Docente',
-      email: 'nueva@example.com',
-      qualifiedAreas: ['7'],
-    }))
+    expect(JSON.parse(String(staffCreateCall?.[1]?.body))).toEqual(
+      expect.objectContaining({
+        staffType: 'profesor',
+        firstName: 'Nueva',
+        lastName: 'Docente',
+        email: 'nueva@example.com',
+        qualifiedAreas: ['7'],
+      })
+    )
   })
 })

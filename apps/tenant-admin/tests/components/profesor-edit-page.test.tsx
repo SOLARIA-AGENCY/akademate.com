@@ -69,24 +69,34 @@ describe('EditProfesorPage', () => {
               Promise.resolve({
                 success: true,
                 data: [
-                  { id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud', active: true },
-                  { id: 8, nombre: 'Área Veterinaria y Bienestar Animal', codigo: 'veterinaria', active: true },
+                  {
+                    id: 7,
+                    nombre: 'Área Salud, Bienestar y Deporte',
+                    codigo: 'salud',
+                    active: true,
+                  },
+                  {
+                    id: 8,
+                    nombre: 'Área Veterinaria y Bienestar Animal',
+                    codigo: 'veterinaria',
+                    active: true,
+                  },
                 ],
               }),
           })
         }
 
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
-      }) as unknown as typeof fetch,
+      }) as unknown as typeof fetch
     )
 
     render(<EditProfesorPage />)
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Sede base asignada')).toBeInTheDocument()
+      expect(screen.getByLabelText('Sede base')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Sede Norte - La Orotava')).toBeInTheDocument()
+    expect(screen.getAllByText('Sede Norte - La Orotava').length).toBeGreaterThan(0)
     expect(screen.getByText('Autónomo')).toBeInTheDocument()
     expect(screen.getByText('Área Salud, Bienestar y Deporte')).toBeInTheDocument()
   })
@@ -119,7 +129,8 @@ describe('EditProfesorPage', () => {
         if (url.startsWith('/api/campuses')) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({ docs: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }] }),
+            json: () =>
+              Promise.resolve({ docs: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }] }),
           })
         }
 
@@ -129,13 +140,20 @@ describe('EditProfesorPage', () => {
             json: () =>
               Promise.resolve({
                 success: true,
-                data: [{ id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud', active: true }],
+                data: [
+                  {
+                    id: 7,
+                    nombre: 'Área Salud, Bienestar y Deporte',
+                    codigo: 'salud',
+                    active: true,
+                  },
+                ],
               }),
           })
         }
 
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
-      }) as unknown as typeof fetch,
+      }) as unknown as typeof fetch
     )
 
     render(<EditProfesorPage />)
@@ -175,7 +193,8 @@ describe('EditProfesorPage', () => {
         if (url.startsWith('/api/campuses')) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({ docs: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }] }),
+            json: () =>
+              Promise.resolve({ docs: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }] }),
           })
         }
 
@@ -185,13 +204,20 @@ describe('EditProfesorPage', () => {
             json: () =>
               Promise.resolve({
                 success: true,
-                data: [{ id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud', active: true }],
+                data: [
+                  {
+                    id: 7,
+                    nombre: 'Área Salud, Bienestar y Deporte',
+                    codigo: 'salud',
+                    active: true,
+                  },
+                ],
               }),
           })
         }
 
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
-      }) as unknown as typeof fetch,
+      }) as unknown as typeof fetch
     )
 
     render(<EditProfesorPage />)

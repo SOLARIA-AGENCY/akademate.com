@@ -1,0 +1,332 @@
+{
+  "entries": [
+    {
+      "workspace": "@akademate/web",
+      "path": "e2e/home-page.spec.ts",
+      "classification": "e2e",
+      "reason": "Playwright browser flow; executed by the repository E2E command, not Vitest.",
+      "issue": "REM-012",
+      "owner": "web"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/e2e/campus.spec.ts",
+      "classification": "e2e",
+      "reason": "Playwright authenticated campus flow requiring a running application.",
+      "issue": "REM-012",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/e2e/courses-catalog.test.ts",
+      "classification": "e2e",
+      "reason": "Playwright catalog flow requiring a running application and browser.",
+      "issue": "REM-012",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/integration/staff-module.test.ts",
+      "classification": "quarantined-live-integration",
+      "reason": "Calls a live staff API and asserts seeded database records.",
+      "issue": "REM-012-LIVE-STAFF",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/deployment.test.ts",
+      "classification": "quarantined-live-deployment",
+      "reason": "Requires running Next.js, Nginx, Payload and database services.",
+      "issue": "REM-012-LIVE-DEPLOYMENT",
+      "owner": "platform"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/administracion/actividad.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy UI harness has stale navigation and asynchronous rendering expectations.",
+      "issue": "REM-012-LEGACY-ADMIN-UI",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/administracion/roles.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy UI harness has stale navigation and asynchronous rendering expectations.",
+      "issue": "REM-012-LEGACY-ADMIN-UI",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/administracion/usuarios.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy UI harness has stale navigation and asynchronous rendering expectations.",
+      "issue": "REM-012-LEGACY-ADMIN-UI",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/components/ChatbotWidget.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy component assertions no longer match the current widget contract.",
+      "issue": "REM-012-LEGACY-COMPONENTS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/components/LogoutButton.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Imports a removed Payload UI component path.",
+      "issue": "REM-012-LEGACY-COMPONENTS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/facturacion/PlanCard.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Imports the obsolete pre-app-router billing component path.",
+      "issue": "REM-012-LEGACY-BILLING-UI",
+      "owner": "billing"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/facturacion/SubscriptionCard.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Imports the obsolete pre-app-router billing component path.",
+      "issue": "REM-012-LEGACY-BILLING-UI",
+      "owner": "billing"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/facturacion/useBillingData.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy hook expectations do not match the current billing data contract.",
+      "issue": "REM-012-LEGACY-BILLING-UI",
+      "owner": "billing"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "__tests__/matriculas/BulkEnrollmentDialog.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy dialog harness is incompatible with the current enrollment component contract.",
+      "issue": "REM-012-LEGACY-ENROLLMENT-UI",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/integration/performance.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Static performance assertions target obsolete source and deployment configuration.",
+      "issue": "REM-012-LEGACY-PERFORMANCE",
+      "owner": "platform"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/components/DashboardFooter.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy footer expectations do not match the current shared footer contract.",
+      "issue": "REM-012-LEGACY-COMPONENTS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/components/StaffCard.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Imports a removed Payload UI StaffCard path; current staff fallback tests cover the live component.",
+      "issue": "REM-012-LEGACY-COMPONENTS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/components/footer.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy footer expectations do not match the current shared footer contract.",
+      "issue": "REM-012-LEGACY-COMPONENTS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/unit/alumnos.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Imports the obsolete pre-app-router alumnos page path.",
+      "issue": "REM-012-LEGACY-DASHBOARD-UI",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "tests/unit/ciclos.test.tsx",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Imports obsolete pre-app-router ciclos page paths.",
+      "issue": "REM-012-LEGACY-DASHBOARD-UI",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/__tests__/collections/Courses.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Payload mock omits the current buildConfig contract.",
+      "issue": "REM-012-LEGACY-PAYLOAD-HARNESS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/__tests__/collections/Leads.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Payload mock omits the current buildConfig contract.",
+      "issue": "REM-012-LEGACY-PAYLOAD-HARNESS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/AdsTemplates/AdsTemplates.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/BlogPosts/BlogPosts.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Campaigns/Campaigns.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Campuses/Campuses.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/CourseRuns/CourseRuns.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Courses/Courses.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Cycles/Cycles.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Enrollments/Enrollments.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/FAQs/FAQs.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Leads/Leads.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Media/Media.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Students/Students.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current authorization and audit behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "src/collections/Users/Users.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy in-memory Payload harness diverges from current collection behavior.",
+      "issue": "REM-012-LEGACY-COLLECTIONS",
+      "owner": "payload"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "app/api/cursos/__tests__/route.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Legacy route harness does not provide the current Payload configuration contract.",
+      "issue": "REM-012-LEGACY-API-HARNESS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "app/api/lms/__tests__/lms.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Payload mock omits the current default configuration export.",
+      "issue": "REM-012-LEGACY-API-HARNESS",
+      "owner": "tenant-admin"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "app/api/billing/subscriptions/__tests__/route.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Database mock omits the current queryRows contract.",
+      "issue": "REM-012-LEGACY-BILLING-API",
+      "owner": "billing"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "app/api/billing/transactions/__tests__/route.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Database mock omits the current queryRows contract.",
+      "issue": "REM-012-LEGACY-BILLING-API",
+      "owner": "billing"
+    },
+    {
+      "workspace": "@akademate/tenant-admin",
+      "path": "app/api/billing/usage/__tests__/route.test.ts",
+      "classification": "quarantined-legacy-unit",
+      "reason": "Database mock omits the current queryRows contract.",
+      "issue": "REM-012-LEGACY-BILLING-API",
+      "owner": "billing"
+    },
+    {
+      "workspace": "solaria-digital-field-operations",
+      "path": "tests/ui-smoke.spec.ts",
+      "classification": "e2e",
+      "reason": "Playwright UI smoke owned by the dedicated DFO command.",
+      "issue": "REM-012-DFO",
+      "owner": "dfo"
+    }
+  ]
+}

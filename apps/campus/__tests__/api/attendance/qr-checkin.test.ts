@@ -14,10 +14,15 @@
  * - ✅ Inactive enrollment
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { POST, GET, generateQRSignature } from '../../../app/api/attendance/qr-checkin/route'
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import crypto from 'crypto'
+
+type QRRoute = typeof import('../../../app/api/attendance/qr-checkin/route')
+
+let POST: QRRoute['POST']
+let GET: QRRoute['GET']
+let generateQRSignature: QRRoute['generateQRSignature']
 
 // ============================================================================
 // Test Helpers
@@ -70,6 +75,15 @@ const mockInactiveEnrollment = {
 // Setup & Teardown
 // ============================================================================
 
+beforeAll(async () => {
+  process.env.QR_SIGNATURE_SECRET = QR_SECRET
+  process.env.PAYLOAD_API_URL = 'http://localhost:3000/api'
+  vi.resetModules()
+  ;({ POST, GET, generateQRSignature } = await import(
+    '../../../app/api/attendance/qr-checkin/route'
+  ))
+})
+
 beforeEach(() => {
   // Set environment variables
   process.env.QR_SIGNATURE_SECRET = QR_SECRET
@@ -90,7 +104,8 @@ afterEach(() => {
 
 describe('POST /api/attendance/qr-checkin', () => {
   it('should successfully check-in on time', async () => {
-    const timestamp = new Date().toISOString()
+    // The route models the session start as one hour before the QR timestamp.
+    const timestamp = new Date(Date.now() + 60 * 60 * 1000).toISOString()
     const signature = createQRSignature(VALID_SESSION_ID, VALID_COURSE_RUN_ID, timestamp)
 
     // Mock enrollment fetch
@@ -242,7 +257,7 @@ describe('POST /api/attendance/qr-checkin', () => {
 
   it('should reject check-in outside time window (too early)', async () => {
     // Create timestamp for a session that hasn't started yet (more than 30 min in future)
-    const futureTimestamp = new Date(Date.now() + 60 * 60 * 1000).toISOString() // 1 hour in future
+    const futureTimestamp = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2 hours in future
     const signature = createQRSignature(VALID_SESSION_ID, VALID_COURSE_RUN_ID, futureTimestamp)
 
     vi.mocked(global.fetch).mockResolvedValueOnce(
@@ -268,7 +283,7 @@ describe('POST /api/attendance/qr-checkin', () => {
 
   it('should reject check-in outside time window (too late)', async () => {
     // Create timestamp for a session that ended more than 60 min ago
-    const pastTimestamp = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() // 3 hours ago
+    const pastTimestamp = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() // 4 hours ago
     const signature = createQRSignature(VALID_SESSION_ID, VALID_COURSE_RUN_ID, pastTimestamp)
 
     vi.mocked(global.fetch).mockResolvedValueOnce(

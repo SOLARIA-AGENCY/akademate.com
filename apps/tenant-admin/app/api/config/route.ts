@@ -1,7 +1,15 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
 import { queryFirst } from '@/@payload-config/lib/db'
+import {
+  requireAnyRole,
+  requirePrincipal,
+  requireTenantScope,
+  TenantAccessError,
+} from '@/lib/server/tenant-access'
 import {
   EMPTY_INTEGRATIONS,
   getTenantIntegrations,
@@ -70,7 +78,6 @@ interface TenantBranding {
 interface ConfigPutBody {
   section: string
   data: unknown
-  tenantId?: string
 }
 
 // Database query result types
@@ -430,9 +437,12 @@ async function updateTenantDomains(tenantId: string, domains: string[]): Promise
 
 export async function GET(request: NextRequest) {
   try {
+    const payload = await getPayload({ config: configPromise })
+    const principal = await requirePrincipal(request, payload)
+    const tenantId = requireTenantScope(principal, principal.tenantId)
     const { searchParams } = new URL(request.url)
     const section = searchParams.get('section')
-    const tenantId = await resolveTenantId(request, searchParams.get('tenantId'))
+    if (section === 'integrations') requireAnyRole(principal, ['admin', 'gestor'])
     const requestHost = request.headers.get('x-forwarded-host') || request.headers.get('host')
     const cepHost = hostLooksLikeCep(requestHost)
     const hostDefaultLogos = cepHost
@@ -512,7 +522,6 @@ export async function GET(request: NextRequest) {
     }
 
     if (section === 'personalizacion') {
-      const tenantId = await resolveTenantId(request, searchParams.get('tenantId'))
       if (!tenantId) {
         return NextResponse.json({
           success: true,
@@ -587,14 +596,6 @@ export async function GET(request: NextRequest) {
     }
 
     if (section === 'domains') {
-      const tenantId = searchParams.get('tenantId')
-      if (!tenantId) {
-        return NextResponse.json(
-          { success: false, error: 'tenantId parameter is required' },
-          { status: 400 }
-        )
-      }
-
       const tenant = await getTenantDomains(tenantId)
 
       if (!tenant) {
@@ -639,6 +640,9 @@ export async function GET(request: NextRequest) {
       { status: 404 }
     )
   } catch (error) {
+    if (error instanceof TenantAccessError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.status })
+    }
     console.error('Error fetching config:', error)
     return NextResponse.json(
       { success: false, error: 'Error al obtener configuración' },
@@ -649,9 +653,12 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const payload = await getPayload({ config: configPromise })
+    const principal = await requirePrincipal(request, payload)
+    requireAnyRole(principal, ['admin', 'gestor'])
+    const tenantId = requireTenantScope(principal, principal.tenantId)
     const body = (await request.json()) as ConfigPutBody
     const { section, data } = body
-    const tenantId = await resolveTenantId(request, body.tenantId)
 
     if (section === 'personalizacion') {
       if (!tenantId) {
@@ -833,6 +840,9 @@ export async function PUT(request: NextRequest) {
       data,
     })
   } catch (error) {
+    if (error instanceof TenantAccessError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: error.status })
+    }
     console.error('Error updating config:', error)
     return NextResponse.json(
       { success: false, error: 'Error al actualizar configuración' },

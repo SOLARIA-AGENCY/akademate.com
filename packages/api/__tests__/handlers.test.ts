@@ -180,10 +180,13 @@ describe('createHandlerFactory', () => {
 
   it('should apply rate limiting', async () => {
     const createHandler = createHandlerFactory(config)
+    let count = 0
+    const redis = { eval: vi.fn(async () => [++count, 60000]) }
 
     const handler = createHandler(
       {
         rateLimit: {
+          redis,
           windowMs: 60000,
           maxRequests: 2,
           keyGenerator: () => 'rate-limit-test-key',
@@ -202,16 +205,20 @@ describe('createHandlerFactory', () => {
     const result = await handler(request)
 
     expect(result.status).toBe(429)
-    // Rate limit headers are present when rate limiting is configured
+    expect(result.headers['X-RateLimit-Limit']).toBe('2')
+    expect(result.headers['X-RateLimit-Remaining']).toBe('0')
+    expect(result.headers['Retry-After']).toBe('60')
     expect('error' in result).toBe(true)
   })
 
   it('should include rate limit headers', async () => {
     const createHandler = createHandlerFactory(config)
+    const redis = { eval: vi.fn(async () => [1, 60000]) }
 
     const handler = createHandler(
       {
         rateLimit: {
+          redis,
           windowMs: 60000,
           maxRequests: 100,
           keyGenerator: () => 'header-test-key',
@@ -226,6 +233,27 @@ describe('createHandlerFactory', () => {
     expect(result.headers['X-RateLimit-Limit']).toBeDefined()
     expect(result.headers['X-RateLimit-Remaining']).toBeDefined()
     expect(result.headers['X-RateLimit-Reset']).toBeDefined()
+  })
+
+  it('should return 503 with observable headers when Redis is unavailable', async () => {
+    const createHandler = createHandlerFactory(config)
+    const handler = createHandler(
+      {
+        rateLimit: {
+          redis: { eval: vi.fn(async () => { throw new Error('redis unavailable') }) },
+          action: 'login',
+          windowMs: 60000,
+          maxRequests: 5,
+        },
+      },
+      async () => ({ ok: true })
+    )
+
+    const result = await handler(createMockRequest())
+    expect(result.status).toBe(503)
+    expect(result.headers['X-RateLimit-Backend']).toBe('unavailable')
+    expect(result.headers['Retry-After']).toBe('1')
+    expect('error' in result && result.error.code).toBe('SERVICE_UNAVAILABLE')
   })
 
   it('should handle handler errors gracefully', async () => {

@@ -16,6 +16,7 @@ import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHash } from 'crypto';
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit';
 
 /** Request body for GDPR erasure endpoint */
 interface GdprDeleteRequestBody {
@@ -131,6 +132,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ) {
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'gdpr', principalId: params.userId });
+  if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit);
   try {
     const { userId } = params;
     const body = (await request.json()) as GdprDeleteRequestBody;

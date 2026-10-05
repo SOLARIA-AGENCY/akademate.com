@@ -26,6 +26,15 @@ vi.mock('../../../../../src/lib/email/transporter', () => ({
   sendMail: sendMailMock,
 }))
 
+vi.mock('@/lib/server/rate-limit', () => ({
+  enforceSensitiveRateLimit: vi.fn(async () => ({
+    allowed: true,
+    headers: { 'X-RateLimit-Remaining': '4' },
+    result: {},
+  })),
+  sensitiveRateLimitResponse: vi.fn(),
+}))
+
 async function loadInvitationsRoute() {
   vi.resetModules()
   return import('../route')

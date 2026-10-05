@@ -148,9 +148,9 @@ export class ApiError extends Error {
     }
   }
 
-  static fromZodError(error: { issues: { path: (string | number)[]; message: string }[] }): ApiError {
+  static fromZodError(error: { issues: { path: PropertyKey[]; message: string }[] }): ApiError {
     const details: ApiErrorDetails[] = error.issues.map((issue) => ({
-      field: issue.path.join('.'),
+      field: issue.path.map(String).join('.'),
       constraint: issue.message,
     }))
 
@@ -191,6 +191,10 @@ export class ApiError extends Error {
       retryAfter ? [{ retryAfter }] : undefined
     )
     return error
+  }
+
+  static serviceUnavailable(message = 'Service temporarily unavailable', cause?: Error): ApiError {
+    return new ApiError(ErrorCode.SERVICE_UNAVAILABLE, message, undefined, cause)
   }
 }
 

@@ -13,6 +13,7 @@ import * as migration_20260602_staff_qualified_areas from './20260602_staff_qual
 import * as migration_20260626_staff_general_regime_contract from './20260626_staff_general_regime_contract'
 import * as migration_20260629_course_run_practice_certification from './20260629_course_run_practice_certification'
 import * as migration_20260630_staff_profile_campuses from './20260630_staff_profile_campuses'
+import * as migration_20260710_users_session_version_expand from './20260710_users_session_version_expand'
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20260630_staff_profile_campuses.up,
     down: migration_20260630_staff_profile_campuses.down,
     name: '20260630_staff_profile_campuses',
+  },
+  {
+    up: migration_20260710_users_session_version_expand.up,
+    down: migration_20260710_users_session_version_expand.down,
+    name: '20260710_users_session_version_expand',
   },
 ]

@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
-const root = process.cwd()
+const appRoot = resolve(import.meta.dirname, '../../../..')
 
 function read(relativePath: string): string {
-  return readFileSync(join(root, relativePath), 'utf8')
+  return readFileSync(join(appRoot, relativePath), 'utf8')
 }
 
 describe('Dashboard fichas internas', () => {
   it('defines complete internal ficha routes for courses, cycles and convocatorias', () => {
-    expect(existsSync(join(root, 'app/(app)/(dashboard)/cursos/[id]/ficha/page.tsx'))).toBe(true)
-    expect(existsSync(join(root, 'app/(app)/(dashboard)/ciclos/[id]/ficha/page.tsx'))).toBe(true)
-    expect(existsSync(join(root, 'app/(app)/(dashboard)/programacion/[id]/ficha/page.tsx'))).toBe(true)
+    expect(existsSync(join(appRoot, 'app/(app)/(dashboard)/cursos/[id]/ficha/page.tsx'))).toBe(true)
+    expect(existsSync(join(appRoot, 'app/(app)/(dashboard)/ciclos/[id]/ficha/page.tsx'))).toBe(true)
+    expect(existsSync(join(appRoot, 'app/(app)/(dashboard)/programacion/[id]/ficha/page.tsx'))).toBe(true)
   })
 
   it('course detail navigates to the complete course ficha instead of opening a modal', () => {

@@ -24,6 +24,15 @@ vi.mock('@payloadcms/next/utilities', () => ({
 
 vi.mock('@payload-config', () => ({ default: {} }));
 
+vi.mock('@/lib/server/rate-limit', () => ({
+    enforceSensitiveRateLimit: vi.fn(async () => ({
+        allowed: true,
+        headers: { 'X-RateLimit-Remaining': '2' },
+        result: {},
+    })),
+    sensitiveRateLimitResponse: vi.fn(),
+}));
+
 // Import after mocking
 import { POST as exportHandler } from '../export/route';
 import { GET as exportByIdHandler } from '../[userId]/export/route';

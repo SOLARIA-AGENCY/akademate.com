@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { queryFirst } from '@/@payload-config/lib/db'
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 /**
  * GET /api/internal/invitations/verify?token=xxx
  * Verifies invitation token and returns invitation details
  */
 export async function GET(request: NextRequest) {
+  const token = request.nextUrl.searchParams.get('token')
+  const rateLimit = await enforceSensitiveRateLimit(request, { action: 'invitation', principalId: token ?? undefined })
+  if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit)
   try {
     const { searchParams } = new URL(request.url)
     const token = searchParams.get('token')

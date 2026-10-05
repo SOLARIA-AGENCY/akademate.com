@@ -6,7 +6,12 @@
 import { ApiError, type ApiSuccessResponse, type ApiErrorResponse } from './errors'
 import type { ApiContext, AuthenticatedApiContext } from './context'
 import { extractContext, requireAuthentication, type AuthMiddlewareConfig } from './middleware/auth'
-import { createRateLimiter, getRateLimitHeaders, type RateLimitConfig } from './middleware/rateLimit'
+import {
+  createRateLimiter,
+  getRateLimitHeaders,
+  type RateLimitApiError,
+  type RateLimitConfig,
+} from './middleware/rateLimit'
 
 // ============================================================================
 // Handler Types
@@ -84,7 +89,7 @@ export function createHandlerFactory(jwtConfig: AuthMiddlewareConfig) {
         // 2. Rate limiting (if configured)
         if (config.rateLimit) {
           const rateLimiter = createRateLimiter(config.rateLimit)
-          const rateLimitResult = rateLimiter(context)
+          const rateLimitResult = await rateLimiter(context)
           Object.assign(responseHeaders, getRateLimitHeaders(rateLimitResult))
         }
 
@@ -116,6 +121,8 @@ export function createHandlerFactory(jwtConfig: AuthMiddlewareConfig) {
         }
       } catch (error) {
         if (error instanceof ApiError) {
+          const rateLimitResult = (error as Partial<RateLimitApiError>).rateLimitResult
+          if (rateLimitResult) Object.assign(responseHeaders, getRateLimitHeaders(rateLimitResult))
           return {
             error: error.toJSON().error,
             status: error.status,

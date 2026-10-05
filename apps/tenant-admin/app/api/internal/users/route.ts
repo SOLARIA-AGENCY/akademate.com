@@ -3,6 +3,12 @@ import type { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { queryRows } from '@/@payload-config/lib/db'
+import { createTenantRepository } from '@/lib/server/tenant-repository'
+import {
+  requireAnyRole,
+  requirePrincipal,
+  TenantAccessError,
+} from '@/lib/server/tenant-access'
 
 /**
  * GET /api/internal/users — List users for the admin panel
@@ -11,16 +17,17 @@ import { queryRows } from '@/@payload-config/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const payload = await getPayload({ config: configPromise })
+    const principal = await requirePrincipal(request, payload)
+    requireAnyRole(principal, ['admin', 'gestor'])
+    const usersRepository = createTenantRepository(payload, principal, { collection: 'users' })
 
-    const users = await payload.find({
-      collection: 'users',
+    const users = await usersRepository.find({
       limit: 100,
       sort: '-createdAt',
       depth: 0,
-      overrideAccess: true,
     })
 
     // Also fetch pending invitations
@@ -29,8 +36,9 @@ export async function GET() {
       invitations = await queryRows(
         `SELECT id, email, name, role, status, created_at, expires_at
          FROM user_invitations
-         WHERE status = 'pending' AND expires_at > NOW()
+         WHERE tenant_id = $1 AND status = 'pending' AND expires_at > NOW()
          ORDER BY created_at DESC`,
+        [principal.tenantId],
       )
     } catch { /* table may not exist yet */ }
 
@@ -63,8 +71,11 @@ export async function GET() {
       })),
     })
   } catch (error) {
+    if (error instanceof TenantAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
     console.error('[internal/users] GET error:', error)
-    return NextResponse.json({ users: [], invitations: [] })
+    return NextResponse.json({ error: 'Error al listar usuarios' }, { status: 500 })
   }
 }
 
@@ -78,23 +89,24 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await getPayload({ config: configPromise })
+    const principal = await requirePrincipal(request, payload)
+    requireAnyRole(principal, ['admin'])
+    const usersRepository = createTenantRepository(payload, principal, { collection: 'users' })
 
-    const user = await (payload as any).create({
-      collection: 'users',
-      data: {
+    const user = await usersRepository.create({
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
         role: role || 'lectura',
         phone: phone || undefined,
         is_active: true,
-        tenant: 1,
-      },
-      overrideAccess: true,
-    })
+    }) as { id: string | number; email?: string }
 
     return NextResponse.json({ success: true, id: user.id, email: user.email })
   } catch (error: any) {
+    if (error instanceof TenantAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
     console.error('[internal/users] POST error:', error)
     return NextResponse.json(
       { error: error?.message || 'Error al crear usuario' },

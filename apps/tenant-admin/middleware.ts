@@ -1,67 +1,16 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import {
+  LEGACY_SESSION_COOKIES,
+  SESSION_V2_COOKIE,
+  verifyAvailableSession,
+} from '@/lib/server/session'
 
-// ============================================================================
-// Rate Limiting Configuration (Edge-compatible)
-// ============================================================================
-
-// Rate limit presets (requests per minute)
-const RATE_LIMITS = {
-  auth: { windowMs: 60_000, maxRequests: 10 },      // Login, password reset
-  standard: { windowMs: 60_000, maxRequests: 100 }, // Normal API
-  bulk: { windowMs: 60_000, maxRequests: 10 },      // Import/export
-} as const
-
-// Auth endpoints that need stricter rate limiting
-const authEndpoints = [
-  '/api/users/login',
-  '/api/users/forgot-password',
-  '/api/users/reset-password',
-  '/api/auth/',
-]
-
-// Bulk operation endpoints
-const bulkEndpoints = [
-  '/api/import/',
-  '/api/export/',
-  '/api/bulk/',
-]
-
-const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
-
-function getClientIP(request: NextRequest): string {
-  const xForwardedFor = request.headers.get('x-forwarded-for')
-  if (xForwardedFor) return xForwardedFor.split(',')[0].trim()
-  
-  const xRealIP = request.headers.get('x-real-ip')
-  if (xRealIP) return xRealIP
-
-  return '127.0.0.1'
-}
-
-function checkRateLimit(
-  key: string,
-  windowMs: number,
-  maxRequests: number
-): { allowed: boolean; remaining: number; resetTime: number; retryAfter?: number } {
-  // In-memory rate limiting is disabled for Edge compatibility
-  return { allowed: true, remaining: maxRequests, resetTime: Date.now() + windowMs }
-}
-
-function getRateLimitHeaders(
-  remaining: number,
-  resetTime: number,
-  limit: number,
-  retryAfter?: number
-): Record<string, string> {
-  const headers: Record<string, string> = {
-    'X-RateLimit-Limit': String(limit),
-    'X-RateLimit-Remaining': String(remaining),
-    'X-RateLimit-Reset': String(Math.ceil(resetTime / 1000)),
-  }
-  if (retryAfter) headers['Retry-After'] = String(retryAfter)
-  return headers
-}
+const DEV_AUTH_ROUTES = [
+  '/api/auth/dev-login',
+  '/api/dev/auto-login',
+  '/dev/auto-login',
+] as const
 
 // ============================================================================
 // CORS Configuration
@@ -78,13 +27,12 @@ const ALLOWED_ORIGINS = [
 // Routes that don't require authentication
 const publicRoutes = [
   '/api/health',
-  '/api/auth/dev-login',
   '/auth/login',
+  '/auth/session-exchange',
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/signup',
   '/auth/accept-invite',
-  '/dev/auto-login',
   '/api/users/login',
   '/api/users/forgot-password',
   '/api/users/reset-password',
@@ -237,43 +185,18 @@ function getCorsHeaders(origin: string | null) {
   return headers
 }
 
-function hasSessionCookie(request: NextRequest): boolean {
-  if (request.cookies.get('payload-token')?.value) return true
-
-  for (const cookieName of SESSION_COOKIE_NAMES) {
-    const rawSession = request.cookies.get(cookieName)?.value
-    if (!rawSession) continue
-
-    const candidates: string[] = [rawSession]
-    try {
-      const decoded = decodeURIComponent(rawSession)
-      if (decoded !== rawSession) candidates.push(decoded)
-    } catch {
-      // Ignore malformed encoding.
-    }
-
-    for (const candidate of candidates) {
-      try {
-        const parsed = JSON.parse(candidate) as { token?: unknown }
-        if (typeof parsed.token === 'string' && parsed.token.trim().length > 0) {
-          return true
-        }
-      } catch {
-        // Keep trying candidates/cookies.
-      }
-    }
-  }
-
-  return false
-}
-
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
   const host = request.headers.get('host') ?? request.nextUrl.host
 
-  // Always allow tenant dev-login endpoint in development/staging workflows.
-  if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
+  const normalizedPathname = pathname.endsWith('/') && pathname !== '/'
+    ? pathname.slice(0, -1)
+    : pathname
+  if (DEV_AUTH_ROUTES.some((route) => normalizedPathname === route)) {
+    if (process.env.NODE_ENV === 'production' || process.env.ALLOW_DEV_AUTO_LOGIN !== 'true') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
     return NextResponse.next()
   }
 
@@ -312,48 +235,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // =========================================================================
-  // Rate Limiting (always active, even in dev)
-  // =========================================================================
-  let rateLimitHeaders: Record<string, string> = {}
-
-  if (pathname.startsWith('/api/')) {
-    const clientIP = getClientIP(request)
-
-    // Determine rate limit tier
-    let rateLimit: { windowMs: number; maxRequests: number } = RATE_LIMITS.standard
-    if (authEndpoints.some(ep => pathname.startsWith(ep))) {
-      rateLimit = RATE_LIMITS.auth
-    } else if (bulkEndpoints.some(ep => pathname.startsWith(ep))) {
-      rateLimit = RATE_LIMITS.bulk
-    }
-
-    const key = `${clientIP}:${pathname.split('/').slice(0, 4).join('/')}`
-    const result = checkRateLimit(key, rateLimit.windowMs, rateLimit.maxRequests)
-    rateLimitHeaders = getRateLimitHeaders(
-      result.remaining,
-      result.resetTime,
-      rateLimit.maxRequests,
-      result.retryAfter
-    )
-
-    // Block if rate limit exceeded
-    if (!result.allowed) {
-      const corsHeaders = getCorsHeaders(origin)
-      return NextResponse.json(
-        {
-          error: 'Too many requests',
-          code: 'RATE_LIMIT_EXCEEDED',
-          retryAfter: result.retryAfter
-        },
-        {
-          status: 429,
-          headers: { ...corsHeaders, ...rateLimitHeaders }
-        }
-      )
-    }
-  }
-
   // Handle CORS preflight requests for API routes
   if (request.method === 'OPTIONS' && pathname.startsWith('/api/')) {
     const corsHeaders = getCorsHeaders(origin)
@@ -382,8 +263,6 @@ export function middleware(request: NextRequest) {
       Object.entries(corsHeaders).forEach(([key, value]) => {
         response.headers.set(key, value)
       })
-      // Add rate limit headers
-      Object.entries(rateLimitHeaders).forEach(([k, v]) => response.headers.set(k, v))
       return response
     }
   }
@@ -402,7 +281,11 @@ export function middleware(request: NextRequest) {
   // We forward the presence of a Bearer token via custom headers so
   // route handlers know to attempt API key auth instead of cookie auth.
   const authorizationHeader = request.headers.get('authorization')
-  if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
+  if (
+    pathname.startsWith('/api/v1/') &&
+    authorizationHeader &&
+    authorizationHeader.startsWith('Bearer ')
+  ) {
     const bearerToken = authorizationHeader.slice(7).trim()
     if (bearerToken) {
       // Pass-through: let the route handler do the actual DB validation.
@@ -414,7 +297,6 @@ export function middleware(request: NextRequest) {
       if (pathname.startsWith('/api/')) {
         const corsHeaders = getCorsHeaders(origin)
         Object.entries(corsHeaders).forEach(([k, v]) => response.headers.set(k, v))
-        Object.entries(rateLimitHeaders).forEach(([k, v]) => response.headers.set(k, v))
       }
       const securityHeaders = getSecurityHeaders()
       Object.entries(securityHeaders).forEach(([k, v]) => response.headers.set(k, v))
@@ -422,8 +304,25 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Accept both Payload token cookie and session cookies that wrap the token.
-  const isAuthenticatedByCookie = hasSessionCookie(request)
+  const verifiedSession = await verifyAvailableSession({
+    payloadToken: request.cookies.get('payload-token')?.value,
+    sessionV2: request.cookies.get(SESSION_V2_COOKIE)?.value,
+  })
+  const isAuthenticatedByCookie = Boolean(verifiedSession)
+  const hasLegacyCookie = LEGACY_SESSION_COOKIES.some(
+    (cookieName) => Boolean(request.cookies.get(cookieName)?.value),
+  )
+
+  if (
+    !isAuthenticatedByCookie &&
+    hasLegacyCookie &&
+    !pathname.startsWith('/api/') &&
+    request.method === 'GET'
+  ) {
+    const exchangeUrl = new URL('/auth/session-exchange', request.url)
+    exchangeUrl.searchParams.set('redirect', `${pathname}${request.nextUrl.search}`)
+    return NextResponse.redirect(exchangeUrl)
+  }
 
   if (
     !pathname.startsWith('/api/') &&
@@ -446,7 +345,7 @@ export function middleware(request: NextRequest) {
         { error: 'Authentication required', code: 'AUTH_REQUIRED' },
         {
           status: 401,
-          headers: { ...corsHeaders, ...rateLimitHeaders },
+          headers: corsHeaders,
         }
       )
     }
@@ -469,7 +368,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // For all other requests, add CORS, security, and rate limit headers
+  // For all other requests, add CORS and security headers.
+  // Shared rate limiting is enforced in Node route handlers, not Edge middleware.
   const response = NextResponse.next()
 
   // Always add security headers
@@ -483,8 +383,6 @@ export function middleware(request: NextRequest) {
     Object.entries(corsHeaders).forEach(([key, value]) => {
       response.headers.set(key, value)
     })
-    // Add rate limit headers
-    Object.entries(rateLimitHeaders).forEach(([k, v]) => response.headers.set(k, v))
   }
   return response
 }

@@ -26,6 +26,15 @@ vi.mock('@payload-config', () => ({
   default: {},
 }))
 
+vi.mock('@/lib/server/session', () => ({
+  SESSION_V2_COOKIE: 'akademate_session_v2',
+  verifyAvailableSession: vi.fn(async ({ payloadToken, sessionV2 }) =>
+    payloadToken || sessionV2
+      ? { principal: { userId: '7', tenantId: '2', roles: ['admin'], sessionVersion: 1 } }
+      : null,
+  ),
+}))
+
 import { GET } from '@/app/api/leads/dashboard/route'
 
 describe('Leads dashboard route auth', () => {
@@ -56,7 +65,7 @@ describe('Leads dashboard route auth', () => {
     expect(payload.error).toBe('No autenticado')
   })
 
-  it('authenticates using token stored in cep_session cookie', async () => {
+  it('rejects token stored only in cep_session outside the exchange endpoint', async () => {
     const session = encodeURIComponent(JSON.stringify({ token: 'legacy-session-token' }))
     const request = new NextRequest('http://localhost/api/leads/dashboard', {
       headers: { cookie: `cep_session=${session}` },
@@ -65,26 +74,9 @@ describe('Leads dashboard route auth', () => {
     const response = await GET(request)
     const payload = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(payload).toEqual(
-      expect.objectContaining({
-        totalLeads: expect.any(Number),
-        unattended: expect.any(Number),
-        conversionRate: expect.any(Number),
-        avgResponseHours: expect.any(Number),
-      }),
-    )
-
-    expect(mockAuth).toHaveBeenCalledWith(
-      expect.objectContaining({
-        collection: 'users',
-        headers: expect.any(Headers),
-      }),
-    )
-
-    const authCall = mockAuth.mock.calls[0]?.[0]
-    const cookieHeader = authCall?.headers?.get('cookie')
-    expect(cookieHeader).toContain('payload-token=legacy-session-token')
+    expect(response.status).toBe(401)
+    expect(payload.error).toBe('No autenticado')
+    expect(mockAuth).not.toHaveBeenCalled()
   })
 
   it('excludes test leads by default when is_test column exists', async () => {

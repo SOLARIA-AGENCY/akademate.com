@@ -1,36 +1,28 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  root: __dirname,
   plugins: [react()],
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
     include: [
-      '**/__tests__/**/*.test.{ts,tsx}',
-      '**/tests/**/*.test.{ts,tsx}',
-      '**/*.test.{ts,tsx}',
+      '__tests__/**/*.test.{ts,tsx}',
+      'tests/**/*.test.{ts,tsx}',
+      'components/**/*.test.{ts,tsx}',
     ],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.next/**',
-      '**/e2e/**',
-    ],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: [
-        'components/**/*.{ts,tsx}',
-        'hooks/**/*.{ts,tsx}',
-        'app/api/**/*.ts',
-      ],
-      exclude: [
-        '**/*.d.ts',
-        '**/node_modules/**',
-      ],
+      include: ['components/**/*.{ts,tsx}', 'hooks/**/*.{ts,tsx}', 'app/api/**/*.ts'],
+      exclude: ['**/*.d.ts', '**/node_modules/**'],
       thresholds: {
         lines: 80,
         functions: 80,

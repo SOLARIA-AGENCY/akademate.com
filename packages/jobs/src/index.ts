@@ -39,9 +39,13 @@ export {
 export {
   processEmail,
   type EmailPayload,
-  processWebhook,
+  createWebhookProcessor,
   type WebhookPayload,
   type WebhookMethod,
+  type WebhookAuditEvent,
+  type WebhookDestination,
+  type WebhookDestinationResolver,
+  type WebhookProcessorDependencies,
   processSearchSync,
   type SearchSyncPayload,
   type SearchSyncAction,
@@ -49,3 +53,23 @@ export {
   type MetaAnalyticsSyncPayload,
   type MetaAnalyticsRange,
 } from './processors/index'
+
+export {
+  createSafeHttpClient,
+  safeHttpClient,
+  SafeHttpError,
+  type SafeHttpAddress,
+  type SafeHttpClient,
+  type SafeHttpErrorCode,
+  type SafeHttpFetch,
+  type SafeHttpLookup,
+  type SafeHttpNetworkContext,
+  type SafeHttpRequestOptions,
+} from './http/safeHttp'
+
+export {
+  createPostgresWebhookDestinationRegistry,
+  type WebhookDestinationRegistry,
+  type WebhookRegistrySql,
+  type WebhookRegistryTransaction,
+} from './webhooks/destinationRegistry'

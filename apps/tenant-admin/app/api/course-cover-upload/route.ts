@@ -3,12 +3,13 @@ import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import sharp from 'sharp'
+import { SESSION_V2_COOKIE, verifyAvailableSession } from '@/lib/server/session'
+import { createPayloadIdentityResolver, type PrincipalUser } from '@/lib/server/payload-principal'
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const SESSION_COOKIE = 'akademate_session'
-const LEGACY_SESSION_COOKIE = 'cep_session'
 const MAX_IMAGE_SIZE = 12 * 1024 * 1024
 const MAX_WIDTH = 1600
 const MAX_HEIGHT = 900
@@ -80,42 +81,37 @@ async function optimizeCourseCover(file: File): Promise<OptimizedImage> {
   }
 }
 
-async function getSessionUser(): Promise<SessionUser | null> {
+async function getSessionUser(payload: Awaited<ReturnType<typeof getPayload>>): Promise<SessionUser | null> {
   const cookieStore = await cookies()
-  const serializedSession =
-    cookieStore.get(SESSION_COOKIE)?.value || cookieStore.get(LEGACY_SESSION_COOKIE)?.value
-
-  if (!serializedSession) return null
-
-  const candidates = [serializedSession]
-  try {
-    const decoded = decodeURIComponent(serializedSession)
-    if (decoded !== serializedSession) candidates.push(decoded)
-  } catch {
-    // keep raw value
+  const users = new Map<string, PrincipalUser>()
+  const verified = await verifyAvailableSession({
+    payloadToken: cookieStore.get('payload-token')?.value,
+    sessionV2: cookieStore.get(SESSION_V2_COOKIE)?.value,
+  }, {
+    resolveIdentity: createPayloadIdentityResolver(payload, users),
+    requireResolvedIdentity: true,
+  })
+  if (!verified) return null
+  const user = users.get(verified.principal.userId)
+  return {
+    id: verified.principal.userId,
+    email: user?.email ?? undefined,
+    role: verified.principal.roles[0],
   }
-
-  for (const candidate of candidates) {
-    try {
-      const session = JSON.parse(candidate) as { user?: SessionUser }
-      if (session.user) return session.user
-    } catch {
-      // try next representation
-    }
-  }
-
-  return null
 }
 
 export async function POST(request: Request) {
   try {
-    const user = await getSessionUser()
+    const payload = await getPayload({ config: configPromise })
+    const user = await getSessionUser(payload)
     if (!user?.id || !user.role || !ALLOWED_ROLES.has(user.role)) {
       return NextResponse.json(
         { success: false, error: 'No autorizado para subir portadas de curso' },
         { status: 401 },
       )
     }
+    const rateLimit = await enforceSensitiveRateLimit(request, { action: 'upload', principalId: user.id })
+    if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit)
 
     const contentType = request.headers.get('content-type') ?? ''
     if (!contentType.includes('multipart/form-data')) {
@@ -158,7 +154,6 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = await getPayload({ config: configPromise })
     const optimizedImage = await optimizeCourseCover(file)
     const mediaData = {
       alt: `Portada del curso ${courseName}`,
@@ -206,7 +201,7 @@ export async function POST(request: Request) {
           optimizedSize: optimizedImage.optimizedSize,
         },
       },
-    })
+    }, { headers: rateLimit.headers })
   } catch (error) {
     console.error('[course-cover-upload] upload error:', error)
     const message = error instanceof Error ? error.message : 'No se pudo subir la portada del curso'

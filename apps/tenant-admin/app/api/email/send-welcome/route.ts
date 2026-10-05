@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { sendMail, welcomeUserEmail } from '../../../../src/lib/email'
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit'
 
 /**
  * POST /api/email/send-welcome
@@ -11,6 +12,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { name, email, password, role } = body
+    const rateLimit = await enforceSensitiveRateLimit(request, { action: 'email', principalId: email })
+    if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit)
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'name, email, password required' }, { status: 400 })
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
     const result = await sendMail({ to: email, subject, html })
 
     if (result.success) {
-      return NextResponse.json({ success: true, messageId: result.messageId })
+      return NextResponse.json({ success: true, messageId: result.messageId }, { headers: rateLimit.headers })
     }
 
     return NextResponse.json({ success: false, error: result.error }, { status: 502 })

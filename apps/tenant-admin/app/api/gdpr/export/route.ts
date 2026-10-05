@@ -14,6 +14,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { enforceSensitiveRateLimit, sensitiveRateLimitResponse } from '@/lib/server/rate-limit';
 
 // ============================================================================
 // GDPR Export Types
@@ -201,6 +202,8 @@ function getErrorMessage(error: unknown): string {
  * User can only export their own data, admins can export any user's data
  */
 export async function POST(request: NextRequest) {
+    const rateLimit = await enforceSensitiveRateLimit(request, { action: 'gdpr' });
+    if (!rateLimit.allowed) return sensitiveRateLimitResponse(rateLimit);
     try {
         const body = await request.json() as GdprExportRequest;
         const userId = body.userId;

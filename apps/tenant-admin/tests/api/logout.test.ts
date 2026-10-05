@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { POST } from '@/app/api/auth/logout/route'
 import { NextResponse } from 'next/server'
+import { SESSION_V2_COOKIE } from '@/lib/server/session'
 
 // Mock next/headers
 vi.mock('next/headers', () => ({
@@ -42,10 +43,20 @@ describe('Logout API', () => {
     }
     vi.mocked(cookies).mockResolvedValue(mockCookieStore as any)
 
-    await POST()
+    await POST(new Request('https://tenant.akademate.com/api/auth/logout', {
+      headers: { host: 'tenant.akademate.com' },
+    }))
 
     expect(mockCookieStore.delete).toHaveBeenCalledWith('payload-token')
+    expect(mockCookieStore.delete).toHaveBeenCalledWith(SESSION_V2_COOKIE)
     expect(mockCookieStore.delete).toHaveBeenCalledWith('akademate_session')
     expect(mockCookieStore.delete).toHaveBeenCalledWith('cep_session')
+    for (const name of ['payload-token', SESSION_V2_COOKIE, 'akademate_session', 'cep_session']) {
+      expect(mockCookieStore.delete).toHaveBeenCalledWith({
+        name,
+        path: '/',
+        domain: '.akademate.com',
+      })
+    }
   })
 })

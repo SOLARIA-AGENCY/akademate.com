@@ -297,6 +297,58 @@ function relationName(value: unknown): string {
   return ''
 }
 
+type TeacherRelation = {
+  id: string
+  name: string
+}
+
+function textValue(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function normalizeTeacherRelation(value: unknown): TeacherRelation[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(normalizeTeacherRelation)
+  }
+
+  if (typeof value === 'string') {
+    const name = value.trim()
+    return name ? [{ id: '', name }] : []
+  }
+
+  if (!value || typeof value !== 'object') {
+    return []
+  }
+
+  const record = value as Record<string, unknown>
+  const id = relationId(record) ?? ''
+  const name =
+    textValue(record.full_name) ||
+    textValue(record.fullName) ||
+    textValue(record.nombre) ||
+    textValue(record.name) ||
+    textValue(record.displayName) ||
+    [
+      textValue(record.first_name) || textValue(record.firstName),
+      textValue(record.last_name) || textValue(record.lastName),
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+  return name ? [{ id, name }] : []
+}
+
+function normalizeTeacherRelations(...values: unknown[]): TeacherRelation[] {
+  const seen = new Set<string>()
+
+  return values.flatMap(normalizeTeacherRelation).filter((teacher) => {
+    const key = teacher.id || teacher.name.toLocaleLowerCase('es-ES')
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 function formatEnrollmentFee(value?: number | null): string {
   return typeof value === 'number' && Number.isFinite(value) && value > 0
     ? `${value.toLocaleString('es-ES')} €`
@@ -880,48 +932,46 @@ export default function ProgramacionPage() {
         const convsData = await convsRes.json()
         const items = Array.isArray(convsData.data) ? convsData.data : []
         setConvocatorias(
-          items.map((c: Record<string, unknown>) => ({
-            id: String(c.id),
-            codigo: (c.codigo as string) || '',
-            curso: (c.cursoNombre as string) || 'Curso',
-            cursoId: String(c.cursoId || ''),
-            tipo: (c.cursoTipo as string) || '',
-            sede: (c.campusNombre as string) || 'Sin sede',
-            sedeId: String(c.campusId || ''),
-            aula: (c.aulaNombre as string) || 'Sin aula',
-            aulaId: String(c.aulaId || ''),
-            fechaInicio: (c.fechaInicio as string) || '',
-            fechaFin: (c.fechaFin as string) || '',
-            horaInicio: (
-              (c.horaInicio as string) ||
-              ((c.horario as string) || '').split(' ').pop()?.split('-')[0] ||
-              '09:00'
-            ).slice(0, 5),
-            horaFin: (
-              (c.horaFin as string) ||
-              ((c.horario as string) || '').split(' ').pop()?.split('-')[1] ||
-              '14:00'
-            ).slice(0, 5),
-            dias: Array.isArray(c.dias) ? (c.dias as string[]) : [],
-            plazas: (c.plazasTotales as number) || 0,
-            inscritos: (c.plazasOcupadas as number) || 0,
-            precio: (c.precio as number) || 0,
-            matricula: c.matricula as number | undefined,
-            horasPracticas: (c.horasPracticas as string | null) || null,
-            certificacion: (c.certificacion as string | null) || null,
-            profesor: (c.profesor as string) || 'Sin docente',
-            profesores: Array.isArray(c.profesores)
-              ? (c.profesores as string[]).filter(Boolean)
-              : [],
-            profesorRefs: Array.isArray(c.profesorRefs)
-              ? (c.profesorRefs as Array<{ id?: string | number; name?: string }>)
-                  .map((person) => ({ id: String(person.id || ''), name: String(person.name || '') }))
-                  .filter((person) => person.id && person.name)
-              : [],
-            estado: (c.estado as string) || 'draft',
-            planningStatus: (c.planningStatus as string) || '',
-            color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
-          }))
+          items.map((c: Record<string, unknown>) => {
+            const teachers = normalizeTeacherRelations(c.profesorRefs, c.profesores, c.profesor)
+
+            return {
+              id: String(c.id),
+              codigo: (c.codigo as string) || '',
+              curso: (c.cursoNombre as string) || 'Curso',
+              cursoId: String(c.cursoId || ''),
+              tipo: (c.cursoTipo as string) || '',
+              sede: (c.campusNombre as string) || 'Sin sede',
+              sedeId: String(c.campusId || ''),
+              aula: (c.aulaNombre as string) || 'Sin aula',
+              aulaId: String(c.aulaId || ''),
+              fechaInicio: (c.fechaInicio as string) || '',
+              fechaFin: (c.fechaFin as string) || '',
+              horaInicio: (
+                (c.horaInicio as string) ||
+                ((c.horario as string) || '').split(' ').pop()?.split('-')[0] ||
+                '09:00'
+              ).slice(0, 5),
+              horaFin: (
+                (c.horaFin as string) ||
+                ((c.horario as string) || '').split(' ').pop()?.split('-')[1] ||
+                '14:00'
+              ).slice(0, 5),
+              dias: Array.isArray(c.dias) ? (c.dias as string[]) : [],
+              plazas: (c.plazasTotales as number) || 0,
+              inscritos: (c.plazasOcupadas as number) || 0,
+              precio: (c.precio as number) || 0,
+              matricula: c.matricula as number | undefined,
+              horasPracticas: (c.horasPracticas as string | null) || null,
+              certificacion: (c.certificacion as string | null) || null,
+              profesor: teachers[0]?.name || 'Sin docente',
+              profesores: teachers.map((teacher) => teacher.name),
+              profesorRefs: teachers.filter((teacher) => teacher.id),
+              estado: (c.estado as string) || 'draft',
+              planningStatus: (c.planningStatus as string) || '',
+              color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
+            }
+          })
         )
       }
 
@@ -2069,17 +2119,32 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="min-w-0 p-2">
                             <div className="space-y-1">
-                              {conv.profesorRefs.length > 0 ? (
-                                conv.profesorRefs.map((person) => (
-                                  <button
-                                    key={person.id}
-                                    type="button"
-                                    onClick={() => router.push(`/dashboard/profesores/${person.id}`)}
-                                    className="block text-left font-semibold leading-tight text-foreground underline-offset-2 hover:text-primary hover:underline"
-                                  >
-                                    {person.name}
-                                  </button>
-                                ))
+                              {conv.profesores.length > 0 ? (
+                                conv.profesores.map((name) => {
+                                  const reference = conv.profesorRefs.find(
+                                    (person) => person.name === name
+                                  )
+
+                                  return reference ? (
+                                    <button
+                                      key={reference.id}
+                                      type="button"
+                                      onClick={() =>
+                                        router.push(`/dashboard/profesores/${reference.id}`)
+                                      }
+                                      className="block text-left font-semibold leading-tight text-foreground underline-offset-2 hover:text-primary hover:underline"
+                                    >
+                                      {name}
+                                    </button>
+                                  ) : (
+                                    <span
+                                      key={name}
+                                      className="block font-semibold leading-tight text-foreground"
+                                    >
+                                      {name}
+                                    </span>
+                                  )
+                                })
                               ) : (
                                 <span className="font-semibold text-foreground">
                                   {formatTeacherNames(conv)}

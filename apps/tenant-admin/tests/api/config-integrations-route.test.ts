@@ -1,9 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { mockGetTenantIntegrations, mockUpdateTenantIntegrations } = vi.hoisted(() => ({
+const { mockGetTenantIntegrations, mockUpdateTenantIntegrations, mockRequirePrincipal } = vi.hoisted(() => ({
   mockGetTenantIntegrations: vi.fn(),
   mockUpdateTenantIntegrations: vi.fn(),
+  mockRequirePrincipal: vi.fn(),
+}))
+
+vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({ findByID: vi.fn() })) }))
+vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('@/lib/server/tenant-access', () => ({
+  requirePrincipal: mockRequirePrincipal,
+  requireTenantScope: (principal: { tenantId: string }) => principal.tenantId,
+  requireAnyRole: vi.fn(),
+  TenantAccessError: class TenantAccessError extends Error {},
 }))
 
 vi.mock('@/app/api/meta/_lib/integrations', () => ({
@@ -27,6 +37,7 @@ import { GET, PUT } from '@/app/api/config/route'
 describe('config integrations section', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockRequirePrincipal.mockResolvedValue({ tenantId: '2', roles: ['admin'] })
   })
 
   it('GET section=integrations devuelve datos desde columnas reales del tenant', async () => {
@@ -43,7 +54,7 @@ describe('config integrations section', () => {
     })
 
     const request = new NextRequest(
-      'http://localhost:3000/api/config?section=integrations&tenantId=2'
+      'http://localhost:3000/api/config?section=integrations&tenantId=999'
     )
     const response = await GET(request)
     const payload = await response.json()
@@ -72,7 +83,7 @@ describe('config integrations section', () => {
       method: 'PUT',
       body: JSON.stringify({
         section: 'integrations',
-        tenantId: '2',
+        tenantId: '999',
         data: {
           ga4MeasurementId: '',
           gtmContainerId: '',
@@ -100,5 +111,18 @@ describe('config integrations section', () => {
         metaMarketingApiToken: 'token-updated',
       }),
     )
+  })
+
+  it('ignora x-tenant-id y usa exclusivamente el tenant del principal', async () => {
+    mockGetTenantIntegrations.mockResolvedValueOnce({})
+    const request = new NextRequest(
+      'http://localhost:3000/api/config?section=integrations&tenantId=999',
+      { headers: { 'x-tenant-id': '999' } },
+    )
+
+    await GET(request)
+
+    expect(mockGetTenantIntegrations).toHaveBeenCalledWith('2')
+    expect(mockGetTenantIntegrations).not.toHaveBeenCalledWith('999')
   })
 })
